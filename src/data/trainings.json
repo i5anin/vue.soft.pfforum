@@ -1,0 +1,170 @@
+{
+  "19": {
+    "startTime": "2022-08-03T20:40:00",
+    "endTime": "2022-08-03T22:05:00",
+    "type": "Плечи и пресс",
+    "exercises": [
+      {
+        "name": "Жим в смите перед собой",
+        "sets": [
+          { "weight": 10, "reps": 20 },
+          { "weight": 20, "reps": 15, "note": "тяжело" },
+          { "weight": 25, "reps": 12 },
+          { "weight": 25, "reps": 12 }
+        ]
+      },
+      {
+        "name": "Подъем каната в кроссовере перед собой",
+        "sets": [
+          { "weight": 4.5, "reps": 20 },
+          { "weight": 4.5, "reps": 20 },
+          { "weight": 4.5, "reps": 20 }
+        ]
+      },
+      {
+        "name": "Отведение гантелей в стороны",
+        "sets": [
+          { "weight": 15, "reps": 15 },
+          { "weight": 20, "reps": 15 },
+          { "weight": 23, "reps": 15 },
+          { "weight": 25, "reps": 15 }
+        ]
+      },
+      {
+        "name": "Отведение гантелей сидя",
+        "description": "в наклоне на скамье в стороны",
+        "sets": [
+          { "weight": 2, "reps": 20 },
+          { "weight": 2, "reps": 20 },
+          { "weight": 3, "reps": 20 },
+          { "weight": 3, "reps": 20 }
+        ]
+      },
+      {
+        "name": "Подъем прямых ног в тренажере Профлайн",
+        "description": "Локти ближе к себе",
+        "sets": [
+          { "weight": 0, "reps": 15 },
+          { "weight": 0, "reps": 15 },
+          { "weight": 0, "reps": 15 },
+          { "weight": 0, "reps": 15 },
+          { "weight": 0, "reps": 15 }
+        ]
+      },
+      {
+        "name": "Скручивание на полу",
+        "description": "Пресс",
+        "sets": [
+          { "weight": 0, "reps": 30 },
+          { "weight": 0, "reps": 30 },
+          { "weight": 0, "reps": 30 },
+          { "weight": 0, "reps": 30 },
+          { "weight": 0, "reps": 30 }
+        ]
+      }
+    ]
+  },
+  "01": {
+    "startTime": "2023-07-25T18:30:00",
+    "endTime": "2023-07-25T19:34:00",
+    "type": "Спина и руки(бицепс)",
+    "exercises": [
+      {
+        "name": "Подтягивания",
+        "description": "хват руки под углом к груди",
+        "sets": [
+          { "weight": 0, "reps": 6 },
+          { "weight": 0, "reps": 6 },
+          { "weight": 0, "reps": 6 },
+          { "weight": 0, "reps": 6 }
+        ]
+      },
+      {
+        "name": "Тяга с упором в 30°",
+        "description": "вперед за плечи, назад руки 130° ближе к телу",
+        "sets": [
+          { "weight": 5, "reps": 15 },
+          { "weight": 7, "reps": 15 },
+          { "weight": 9, "reps": 15 },
+          { "weight": 10, "reps": 15 }
+        ]
+      },
+      {
+        "name": "Горизонтальная тяга треугольная рукоять",
+        "description": "в тренажере профаил",
+        "sets": [
+          { "weight": 15, "reps": 15 },
+          { "weight": 20, "reps": 15 },
+          { "weight": 23, "reps": 15 },
+          { "weight": 25, "reps": 15 }
+        ]
+      },
+      {
+        "name": "Рычажная тяга",
+        "description": "вперед за плечи назад руки 130° ближе к телу",
+        "sets": [
+          { "weight": 7.5, "reps": 15, "note": "на 1 сторону" },
+          { "weight": 7.5, "reps": 10, "note": "на 1 сторону" },
+          { "weight": 8.5, "reps": 10, "note": "на 1 сторону" }
+        ]
+      },
+      {
+        "name": "Подъём рукояти",
+        "description": "вперед за плечи назад руки 130° ближе к телу",
+        "sets": [
+          { "weight": 15, "reps": 15 },
+          { "weight": 20, "reps": 15 },
+          { "weight": 23, "reps": 15 },
+          { "weight": 25, "reps": 15 }
+        ]
+      },
+      {
+        "name": "Подъём гантелей поочередный поочередный 80°",
+        "description": "вперед за плечи назад руки 130° ближе к телу",
+        "sets": [
+          { "weight": 15, "reps": 15 },
+          { "weight": 20, "reps": 15 },
+          { "weight": 23, "reps": 15 },
+          { "weight": 25, "reps": 15, "note": "тяжело" }
+        ]
+      }
+    ]
+  },
+  "02": {
+    "startTime": "2023-07-25T18:30:00",
+    "endTime": "2023-07-25T19:34:01",
+    "type": "Грудь и руки(трицепс)",
+    "exercises": [
+      {
+        "name": "Подтягивания",
+        "description": "хват руки под углом к груди",
+        "sets": [
+          { "weight": 0, "reps": 6 },
+          { "weight": 0, "reps": 6 },
+          { "weight": 0, "reps": 6 },
+          { "weight": 0, "reps": 6 }
+        ]
+      },
+      {
+        "name": "Тяга с упором в 30°",
+        "description": "вперед за плечи назад руки 130° ближе к телу",
+        "sets": [
+          { "weight": 5, "reps": 15 },
+          { "weight": 7, "reps": 15 },
+          { "weight": 9, "reps": 15 },
+          { "weight": 10, "reps": 15 }
+        ]
+      },
+      {
+        "name": "Горизонтальная тяга треугольная рукоять",
+        "description": "вперед за плечи назад руки 130° ближе к телу",
+        "sets": [
+          { "weight": 15, "reps": 15 },
+          { "weight": 20, "reps": 15 },
+          { "weight": 23, "reps": 15 },
+          { "weight": 25, "reps": 15 }
+        ]
+      }
+    ]
+  }
+}
