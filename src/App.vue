@@ -1,3 +1,4 @@
+<!-- App.vue -->
 <template>
   <v-app>
     <v-navigation-drawer v-model="drawer" app>
@@ -25,16 +26,15 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import MainTable from '@/components/MainTable.vue';
-import '@fontsource/nunito';
+import { ref } from 'vue'
+import MainTable from '@/components/MainTable.vue'
+import '@fontsource/nunito'
 
-// Состояние для управления отображением и скрытием выезжающего меню
-const drawer = ref(false);
+const drawer = ref(false)
 </script>
 
 <style>
 body {
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Nunito', sans-serif
 }
 </style>

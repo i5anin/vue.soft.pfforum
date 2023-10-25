@@ -1,7 +1,6 @@
+// plugins/vuetify.js
 import '@mdi/font/css/materialdesignicons.css'
 import 'vuetify/styles'
-
-// Composables
 import { createVuetify } from 'vuetify'
 
 const savedTheme = localStorage.getItem('theme')
