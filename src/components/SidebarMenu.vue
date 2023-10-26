@@ -42,31 +42,32 @@ const originalMenuItems = [
       { title: 'Загрузка станков', icon: 'mdi-upload' },
     ],
   },
-  { title: 'План', icon: 'mdi-settings' },
+  { title: 'План', icon: 'mdiFormatListCheckbox' },
   { title: 'Статистика', icon: 'mdi-stat' },
   // ==Участки== items: []
   {
     title: 'Отдел ТО и ПП', icon: 'mdi-report', items: [
-      { title: 'Ремонт оборудования', icon: 'mdi-quality-high' },
-      { title: 'Закупка инструмента', icon: 'mdi-file-outline' },
+      { title: 'Ремонт оборудования' },
+      { title: 'Закупка инструмента' },
+      { title: 'Инструмент' },
     ],
   },
   { title: 'Участок заготовки', icon: 'mdi-report' },
   { title: 'Отдел продаж', icon: 'mdi-report' },
   {
     title: 'Слесарный участок', icon: 'mdi-report', items: [
-      { title: 'План участка', icon: 'mdi-quality-high' },
-      { title: 'Комментарии', icon: 'mdi-file-outline' },
+      { title: 'План участка' },
+      { title: 'Комментарии' },
     ],
   },
   {
     title: 'Участок ОТК', icon: 'mdi-report', items: [
-      { title: 'Выходной контроль', icon: 'mdi-quality-high' },
-      { title: 'Операционный контроль', icon: 'mdi-file-outline' },
-      { title: 'Принятие брака', icon: 'mdi-file-outline' },
-      { title: 'Статистика брака', icon: 'mdi-file-outline' },
-      { title: 'Отработка', icon: 'mdi-file-outline' },
-      { title: 'Совет по качеству', icon: 'mdi-file-outline' },
+      { title: 'Выходной контроль' },
+      { title: 'Операционный контроль' },
+      { title: 'Принятие брака' },
+      { title: 'Статистика брака' },
+      { title: 'Отработка' },
+      { title: 'Совет по качеству' },
     ],
   },
   { title: 'Участок упаковки', icon: 'mdi-report' },
@@ -75,10 +76,10 @@ const originalMenuItems = [
   { title: 'Экраны', icon: 'mdi-monitor-dashboard' },
   {
     title: 'Слесарный участок', icon: 'mdi-report', items: [
-      { title: 'Участок ОТК', icon: 'mdi-quality-high' },
-      { title: 'Участок упаковки', icon: 'mdi-file-outline' },
-      { title: 'Станки', icon: 'mdi-update' },
-      { title: 'Токарный участок', icon: 'mdi-circle-outline' },
+      { title: 'Участок ОТК' },
+      { title: 'Участок упаковки' },
+      { title: 'Станки' },
+      { title: 'Токарный участок' },
       { title: 'Фрезерный участок' },
     ],
   },
