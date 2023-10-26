@@ -1,146 +1,83 @@
 <template>
-  <v-container>
-    <template v-slot:activator="{ props }">
-      <v-btn color="primary" v-bind="props"> Open Dialog </v-btn>
-    </template>
-    <div v-for="(item, key) in trainings" :key="key">
-      <div class="flex">
-        <img :src="getImageForType(item.type)" alt="img" />
-        <h2>{{ item.type }}</h2>
-      </div>
-      <v-table>
-        <thead>
-          <tr>
-            <th class="text-left">Номер</th>
-            <th class="text-left">Дата</th>
-            <th class="text-left">День недели</th>
-            <th class="text-left">Начало</th>
-            <th class="text-left">Окончание</th>
-            <th class="text-left">Всего</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{{ key }}</td>
-            <td>{{ formatDate(item.startTime) }}</td>
-            <td>{{ formatDayOfWeek(item.startTime) }}</td>
-            <td>{{ formatTime(item.startTime) }}</td>
-            <td>{{ formatTime(item.endTime) }}</td>
-            <td>{{ calculateTotalTime(item.startTime, item.endTime) }}</td>
-          </tr>
-        </tbody>
-      </v-table>
-      <br />
-      <v-table>
-        <thead>
-          <tr>
-            <th class="text-left">Упражнения</th>
-            <th class="text-left">Подход&nbsp;1</th>
-            <th class="text-left">Подход&nbsp;2</th>
-            <th class="text-left">Подход&nbsp;3</th>
-            <th class="text-left">Подход&nbsp;4</th>
-            <th class="text-left">Подход&nbsp;5</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(exercise, index) in item.exercises" :key="exercise.name">
-            <td>
-              <p>{{ index + 1 }}. {{ exercise.name }}</p>
-              <p class="gray">{{ exercise.description }}</p>
-            </td>
-            <td v-for="i in 5" :key="i">
-              <template v-if="exercise.sets[i - 1]">
-                {{ exercise.sets[i - 1].weight }}&nbsp;x&nbsp;{{
-                  exercise.sets[i - 1].reps
-                }}
-                <div class="gray">{{ exercise.sets[i - 1].note }}</div>
-              </template>
-            </td>
-          </tr>
-        </tbody>
-      </v-table>
-      <br />
-      <br />
-    </div>
-  </v-container>
+  <div>
+    <table>
+      <thead>
+      <tr>
+        <th>Tool ID</th>
+        <th>Group Name</th>
+        <th>Type Name</th>
+        <th>Material Name</th>
+        <th>Radius</th>
+        <th>Name</th>
+        <th>Quantity in Stock</th>
+        <th>Standard</th>
+        <th>Order</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr v-for="tool in tools" :key="tool.tool_id">
+        <td>{{ tool.tool_id }}</td>
+        <td>{{ tool.group_name }}</td>
+        <td>{{ tool.type_name }}</td>
+        <td>{{ tool.mat_name }}</td>
+        <td>{{ tool.rad }}</td>
+        <td>{{ tool.name }}</td>
+        <td>{{ tool.kolvo_sklad }}</td>
+        <td>{{ tool.norma }}</td>
+        <td>{{ tool.zakaz }}</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
 </template>
 
 <script>
-import trainings from '@/data/trainings.json'
-// Image
-import shouldersImg from '@/assets/shouldersImg.jpg'
-import chestImg from '@/assets/chestImg.jpg'
-import backImg from '@/assets/backImg.jpg'
-// Modal
-import Modal from '@/components/Modal.vue'
-// moment
-import moment from 'moment'
-import 'moment/locale/ru'
-moment.locale('ru')
+import pgPromise from 'pg-promise';
 
 export default {
   data() {
     return {
-      trainings,
-      reps: null,
-      note: null,
-      exercises: null,
+      tools: [],
+    };
+  },
+  async created() {
+    const pgp = pgPromise();
+    const db = pgp({
+      host: 'your-host',
+      port: 5432,
+      database: 'your-database',
+      user: 'your-username',
+      password: 'your-password',
+    });
+
+    try {
+      const tools = await db.any(`
+        SELECT DISTINCT
+          tool_num.id as tool_id,
+          tool_num.name,
+          tool_num.kolvo_sklad,
+          tool_num.norma,
+          tool_num.zakaz,
+          tool_num.rad,
+          tool_group_id.name as group_name,
+          tool_mat_id.name as mat_name,
+          tool_type_id.name as type_name
+        FROM
+          dbo.tool_num
+        INNER JOIN
+          dbo.tool_group_id ON dbo.tool_num.group_id = dbo.tool_group_id.id
+        INNER JOIN
+          dbo.tool_mat_id ON dbo.tool_num.mat_id = dbo.tool_mat_id.id
+        INNER JOIN
+          dbo.tool_type_id ON dbo.tool_num.type_id = dbo.tool_type_id.id
+        LIMIT 20
+      `);
+      this.tools = tools;
+    } catch (error) {
+      console.error('Error loading tools:', error);
+    } finally {
+      pgp.end();  // Ensure to release the connection after use
     }
   },
-  components: {
-    Modal,
-  },
-  methods: {
-    formatDate(date) {
-      return moment(date).format('DD.MM.YYYY')
-    },
-    formatDayOfWeek(date) {
-      return moment(date).format('dddd')
-    },
-    formatTime(date) {
-      return moment(date).format('HH:mm')
-    },
-    calculateTotalTime(startTime, endTime) {
-      const startMoment = moment(startTime)
-      const endMoment = moment(endTime)
-      const duration = moment.duration(endMoment.diff(startMoment))
-      return (
-        `${Math.floor(duration.asHours())} ч` +
-        ` ${Math.floor(duration.asMinutes() % 60)} мин`
-      )
-    },
-
-    getImageForType(type) {
-      const imageMap = {
-        shoulders: shouldersImg,
-        chest: chestImg,
-        back: backImg,
-      }
-
-      return this.hasType(type, 'плечи')
-        ? imageMap.shoulders
-        : this.hasType(type, 'грудь')
-        ? imageMap.chest
-        : this.hasType(type, 'спина')
-        ? imageMap.back
-        : ''
-    },
-    hasType(itemType, type) {
-      return itemType && itemType.toLowerCase().includes(type)
-    },
-  },
-}
+};
 </script>
-
-<style scoped>
-.gray {
-  color: gray;
-  font-size: 14px;
-}
-.flex {
-  display: flex;
-}
-img {
-  height: 100px;
-}
-</style>
