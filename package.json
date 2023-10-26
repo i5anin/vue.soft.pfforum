@@ -10,6 +10,8 @@
     "@fontsource/nunito": "^5.0.15",
     "@mdi/font": "^7.0.96",
     "moment": "^2.29.4",
+    "pg": "^8.11.3",
+    "pg-promise": "^11.5.4",
     "roboto-fontface": "*",
     "vue": "^3.2.0",
     "vuetify": "^3.3.23",
