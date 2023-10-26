@@ -1,10 +1,4 @@
-/**
- * plugins/index.js
- *
- * Automatically included in `./src/main.js`
- */
-
-// Plugins
+// plugins/index.js
 import { loadFonts } from './webfontloader'
 import vuetify from './vuetify'
 

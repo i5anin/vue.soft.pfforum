@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <template slot="activator" slot-scope="{ props }">
+    <template v-slot:activator="{ props }">
       <v-btn color="primary" v-bind="props"> Open Dialog </v-btn>
     </template>
     <div v-for="(item, key) in trainings" :key="key">
