@@ -1,43 +1,29 @@
-<!-- SidebarMenu.vue -->
 <template>
   <v-navigation-drawer v-model="drawer" app>
-    <v-list-item-group>
-      <v-list-item>
-        <v-list-item-icon>
-          <v-icon>mdi-home</v-icon>
-        </v-list-item-icon>
+    <v-list>
+      <v-list-item v-for="(item, index) in items" :key="index">
+        <v-avatar>
+          <v-icon>{{ item.icon }}</v-icon>
+        </v-avatar>
         <v-list-item-content>
-          <v-list-item-title>Home</v-list-item-title>
+          <v-list-item-title>{{ item.title }}</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
-      <v-list-item>
-        <v-list-item-icon>
-          <v-icon>mdi-account</v-icon>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title>Profile</v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
-      <v-list-item>
-        <v-list-item-icon>
-          <v-icon>mdi-settings</v-icon>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title>Settings</v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
-    </v-list-item-group>
+    </v-list>
   </v-navigation-drawer>
 </template>
 
 <script setup>
-import { ref, defineExpose } from 'vue';
+import { ref } from 'vue';
 
 const drawer = ref(false);
+const items = [
+  { icon: 'mdi-home', title: 'Home' },
+  { icon: 'mdi-account', title: 'Profile' },
+  { icon: 'mdi-settings', title: 'Settings' }
+];
 
 const toggleDrawer = () => {
   drawer.value = !drawer.value;
 };
-
-defineExpose({ toggleDrawer });
 </script>
