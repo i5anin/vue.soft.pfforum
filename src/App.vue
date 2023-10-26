@@ -1,36 +1,9 @@
+<!-- App.vue -->
 <template>
   <v-app>
-    <v-navigation-drawer v-model="drawer" app>
-      <!-- Содержимое вашего меню -->
-      <v-list-item-group>
-        <v-list-item>
-          <v-list-item-icon>
-            <v-icon>mdi-home</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title>Home</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item>
-          <v-list-item-icon>
-            <v-icon>mdi-account</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title>Profile</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item>
-          <v-list-item-icon>
-            <v-icon>mdi-settings</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title>Settings</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list-item-group>
-    </v-navigation-drawer>
+    <SidebarMenu />
     <v-app-bar app>
-      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon @click="toggleDrawer"></v-app-bar-nav-icon>
       <v-toolbar-title>My App</v-toolbar-title>
     </v-app-bar>
     <v-main>
@@ -40,11 +13,13 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import MainTable from '@/components/MainTable.vue'
-import '@fontsource/nunito'
+import SidebarMenu from '@/components/SidebarMenu.vue';
+import MainTable from '@/components/MainTable.vue';
+import '@fontsource/nunito';
 
-const drawer = ref(false)
+const toggleDrawer = () => {
+  SidebarMenu.drawer.value = !SidebarMenu.drawer.value;
+};
 </script>
 
 <style>
