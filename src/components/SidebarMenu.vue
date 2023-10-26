@@ -1,5 +1,13 @@
 <template>
-  <v-navigation-drawer :modelValue='drawer' @update:modelValue='updateDrawer' permanent app width='350'>
+  <v-navigation-drawer
+    :mini-variant="mini"
+    @mouseenter="mini = false"
+    @mouseleave="mini = true"
+    :modelValue='drawer'
+    @update:modelValue='updateDrawer'
+
+    app
+    width='350'>
     <v-list>
       <template v-for='(item, index) in menuItems' :key='index'>
         <v-list-item
@@ -16,8 +24,12 @@
               :title='item.title'>
             </v-list-item>
           </template>
-          <sidebar-menu-item v-for='(subItem, subIndex) in item.items' :key='subIndex'
-                             :item='subItem' @click='handleClick(subItem.title)'></sidebar-menu-item>
+          <sidebar-menu-item v-for='(subItem, subIndex) in item.items'
+                             :key='subIndex'
+                             :item='subItem'
+                             @click='handleClick(subItem.title)'>
+
+          </sidebar-menu-item>
         </v-list-group>
       </template>
     </v-list>
@@ -27,63 +39,13 @@
 <script setup>
 import { ref, computed } from 'vue'
 import SidebarMenuItem from '@/components/SidebarMenuItem.vue'
+import { originalMenuItems } from '@/data/menuItems' // Путь к файлу menuItems.js
 
 const { drawer } = defineProps(['drawer'])
 const emits = defineEmits(['updateDrawer'])
 const getIcon = (icon) => icon || 'mdi-circle-outline'
 
-const originalMenuItems = [
-  {
-    title: 'Главная', icon: 'mdi-home',
-  },
-  {
-    title: 'Станки', icon: 'mdi-account', items: [
-      { title: 'Мониторинг', icon: 'mdi-monitor' },
-      { title: 'Загрузка станков', icon: 'mdi-upload' },
-    ],
-  },
-  { title: 'План', icon: 'mdiFormatListCheckbox' },
-  { title: 'Статистика', icon: 'mdi-stat' },
-  // ==Участки== items: []
-  {
-    title: 'Отдел ТО и ПП', icon: 'mdi-report', items: [
-      { title: 'Ремонт оборудования' },
-      { title: 'Закупка инструмента' },
-      { title: 'Инструмент' },
-    ],
-  },
-  { title: 'Участок заготовки', icon: 'mdi-report' },
-  { title: 'Отдел продаж', icon: 'mdi-report' },
-  {
-    title: 'Слесарный участок', icon: 'mdi-report', items: [
-      { title: 'План участка' },
-      { title: 'Комментарии' },
-    ],
-  },
-  {
-    title: 'Участок ОТК', icon: 'mdi-report', items: [
-      { title: 'Выходной контроль' },
-      { title: 'Операционный контроль' },
-      { title: 'Принятие брака' },
-      { title: 'Статистика брака' },
-      { title: 'Отработка' },
-      { title: 'Совет по качеству' },
-    ],
-  },
-  { title: 'Участок упаковки', icon: 'mdi-report' },
-  { title: 'Склад', icon: 'mdi-report' },
-  { title: 'Участок упаковки', icon: 'mdi-report' },
-  { title: 'Экраны', icon: 'mdi-monitor-dashboard' },
-  {
-    title: 'Слесарный участок', icon: 'mdi-report', items: [
-      { title: 'Участок ОТК' },
-      { title: 'Участок упаковки' },
-      { title: 'Станки' },
-      { title: 'Токарный участок' },
-      { title: 'Фрезерный участок' },
-    ],
-  },
-]
+const mini = ref(false)
 const menuItems = computed(() => {
   return originalMenuItems.map(item => {
     if (!item.icon) {
