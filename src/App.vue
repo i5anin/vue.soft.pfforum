@@ -1,8 +1,8 @@
 <template>
   <v-app>
-    <SidebarMenu :drawer="drawer" @update:drawer="toggleDrawer" />
+    <SidebarMenu v-model:drawer="drawer" />
     <v-app-bar app>
-      <v-app-bar-nav-icon @click="toggleDrawer"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title>My App</v-toolbar-title>
     </v-app-bar>
     <v-main>
@@ -18,10 +18,6 @@ import MainTable from '@/components/MainTable.vue';
 import '@fontsource/nunito';
 
 const drawer = ref(false);
-
-const toggleDrawer = (value) => {
-  drawer.value = typeof value === 'boolean' ? value : !drawer.value;
-};
 </script>
 
 <style>
