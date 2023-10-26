@@ -1,4 +1,4 @@
-<!-- Sidebar.vue -->
+<!-- SidebarMenu.vue -->
 <template>
   <v-navigation-drawer v-model="drawer" app>
     <v-list-item-group>
@@ -31,7 +31,13 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, defineExpose } from 'vue';
 
 const drawer = ref(false);
+
+const toggleDrawer = () => {
+  drawer.value = !drawer.value;
+};
+
+defineExpose({ toggleDrawer });
 </script>
