@@ -1,6 +1,6 @@
 <template>
-  <v-navigation-drawer :modelValue='drawer' @update:modelValue='toggleDrawer' app>
-    <v-list>
+  <v-navigation-drawer :modelValue='drawer' @update:modelValue='toggleDrawer' permanent app>
+  <v-list>
       <template v-for='(item, index) in menuItems' :key='index'>
         <v-list-item v-if='!item.items' :prepend-icon='item.icon' :title='item.title' @click="handleClick(item.title)">
         </v-list-item>
