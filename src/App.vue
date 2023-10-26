@@ -1,14 +1,30 @@
 <template>
-  <v-app>
-    <SidebarMenu :drawer='drawer' @updateDrawer='toggleDrawer' />
-    <v-app-bar app>
-      <v-app-bar-nav-icon @click='toggleDrawer'></v-app-bar-nav-icon>
-      <v-toolbar-title>СОФТ 2.0</v-toolbar-title>
-    </v-app-bar>
-    <v-main>
-      <MainTable />
-    </v-main>
-  </v-app>
+  <v-card>
+    <v-layout>
+      <v-navigation-drawer
+        expand-on-hover
+        rail
+      >
+        <v-list>
+          <v-list-item
+            prepend-avatar="https://randomuser.me/api/portraits/men/18.jpg"
+            title="Исанин Сергей"
+            subtitle="Администратор"
+          ></v-list-item>
+        </v-list>
+
+        <v-divider></v-divider>
+
+        <v-list density="compact" nav>
+          <v-list-item prepend-icon="mdi-folder" title="My Files" value="myfiles"></v-list-item>
+          <v-list-item prepend-icon="mdi-account-multiple" title="Shared with me" value="shared"></v-list-item>
+          <v-list-item prepend-icon="mdi-star" title="Starred" value="starred"></v-list-item>
+        </v-list>
+      </v-navigation-drawer>
+
+<!--      <v-main style="height: 350px"></v-main>-->
+    </v-layout>
+  </v-card>
 </template>
 
 <script setup>
