@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <SidebarMenu v-model:drawer="drawer" />
+    <SidebarMenu :drawer="drawer" @updateDrawer="toggleDrawer" />
     <v-app-bar app>
       <v-app-bar-nav-icon @click="toggleDrawer"></v-app-bar-nav-icon>
       <v-toolbar-title>СОФТ 2.0</v-toolbar-title>
@@ -21,7 +21,7 @@ const drawer = ref(false);
 
 const toggleDrawer = () => {
   drawer.value = !drawer.value;
-}
+};
 </script>
 
 <style>

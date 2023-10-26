@@ -1,16 +1,16 @@
 <template>
-  <v-navigation-drawer :modelValue='drawer' @update:modelValue='toggleDrawer' permanent app>
-  <v-list>
-      <template v-for='(item, index) in menuItems' :key='index'>
-        <v-list-item v-if='!item.items' :prepend-icon='item.icon' :title='item.title' @click="handleClick(item.title)">
+  <v-navigation-drawer :modelValue="drawer" @update:modelValue="updateDrawer" permanent app>
+    <v-list>
+      <template v-for="(item, index) in menuItems" :key="index">
+        <v-list-item v-if="!item.items" :prepend-icon="item.icon" :title="item.title" @click="handleClick(item.title)">
         </v-list-item>
-        <v-list-group v-else :value='item.title'>
-          <template v-slot:activator='{ props }'>
-            <v-list-item v-bind='props' :prepend-icon='item.icon' :title='item.title'>
+        <v-list-group v-else :value="item.title">
+          <template v-slot:activator="{ props }">
+            <v-list-item v-bind="props" :prepend-icon="item.icon" :title="item.title">
             </v-list-item>
           </template>
-          <sidebar-menu-item v-for='(subItem, subIndex) in item.items' :key='subIndex'
-                             :item='subItem' @click="handleClick(subItem.title)"></sidebar-menu-item>
+          <sidebar-menu-item v-for="(subItem, subIndex) in item.items" :key="subIndex"
+                             :item="subItem" @click="handleClick(subItem.title)"></sidebar-menu-item>
         </v-list-group>
       </template>
     </v-list>
@@ -18,10 +18,11 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
-import SidebarMenuItem from '@/components/SidebarMenuItem.vue'
+import { defineProps, defineEmits } from 'vue';
+import SidebarMenuItem from '@/components/SidebarMenuItem.vue';
 
-const drawer = ref(false)
+const { drawer } = defineProps(['drawer']);
+const emits = defineEmits(['updateDrawer']);
 
 const menuItems = [
   { icon: 'mdi-home', title: 'Home' },
@@ -50,17 +51,13 @@ const menuItems = [
     ],
   },
 ]
-
-const toggleDrawer = (value) => {
-  drawer.value = value
-  console.log('Drawer toggled:', drawer.value)
-}
-
-watch(drawer, (newValue) => {
-  console.log('Drawer value changed:', newValue)
-})
+const updateDrawer = (value) => {
+  emits('updateDrawer', value);
+  console.log('Drawer toggled:', value);
+};
 
 const handleClick = (title) => {
-  console.log('Clicked on:', title)
-}
+  console.log('Clicked on:', title);
+};
+
 </script>
