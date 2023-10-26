@@ -1,8 +1,8 @@
 <template>
-  <v-navigation-drawer v-model='drawer' app @click='toggleDrawer'>
-    <v-list v-model:opened='open'>
+  <v-navigation-drawer :modelValue='drawer' @update:modelValue='toggleDrawer' app>
+    <v-list>
       <template v-for='(item, index) in menuItems' :key='index'>
-        <v-list-item v-if='!item.items' :prepend-icon='item.icon' :title='item.title'>
+        <v-list-item v-if='!item.items' :prepend-icon='item.icon' :title='item.title' @click="handleClick(item.title)">
         </v-list-item>
         <v-list-group v-else :value='item.title'>
           <template v-slot:activator='{ props }'>
@@ -10,7 +10,7 @@
             </v-list-item>
           </template>
           <sidebar-menu-item v-for='(subItem, subIndex) in item.items' :key='subIndex'
-                             :item='subItem'></sidebar-menu-item>
+                             :item='subItem' @click="handleClick(subItem.title)"></sidebar-menu-item>
         </v-list-group>
       </template>
     </v-list>
@@ -20,10 +20,6 @@
 <script setup>
 import { ref, watch } from 'vue'
 import SidebarMenuItem from '@/components/SidebarMenuItem.vue'
-
-const props = defineProps(['drawer'])
-
-const open = ref([])
 
 const drawer = ref(false)
 
@@ -55,12 +51,16 @@ const menuItems = [
   },
 ]
 
-const toggleDrawer = () => {
-  drawer.value = !drawer.value
-  console.log('Drawer toggled:', drawer.value)  // Эта строка будет выводить состояние drawer в консоль
+const toggleDrawer = (value) => {
+  drawer.value = value
+  console.log('Drawer toggled:', drawer.value)
 }
 
 watch(drawer, (newValue) => {
   console.log('Drawer value changed:', newValue)
 })
+
+const handleClick = (title) => {
+  console.log('Clicked on:', title)
+}
 </script>
