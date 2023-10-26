@@ -1,8 +1,8 @@
 <template>
   <v-app>
-    <SidebarMenu :drawer="drawer" @updateDrawer="toggleDrawer" />
+    <SidebarMenu :drawer='drawer' @updateDrawer='toggleDrawer' />
     <v-app-bar app>
-      <v-app-bar-nav-icon @click="toggleDrawer"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon @click='toggleDrawer'></v-app-bar-nav-icon>
       <v-toolbar-title>СОФТ 2.0</v-toolbar-title>
     </v-app-bar>
     <v-main>
@@ -12,16 +12,16 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import SidebarMenu from '@/components/SidebarMenu.vue';
-import MainTable from '@/components/MainTable.vue';
-import '@fontsource/nunito';
+import { ref } from 'vue'
+import SidebarMenu from '@/components/SidebarMenu.vue'
+import MainTable from '@/components/MainTable.vue'
+import '@fontsource/nunito'
 
-const drawer = ref(false);
+const drawer = ref(false)
 
 const toggleDrawer = () => {
-  drawer.value = !drawer.value;
-};
+  drawer.value = !drawer.value
+}
 </script>
 
 <style>
