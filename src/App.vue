@@ -2,17 +2,10 @@
   <v-app>
     <v-container fluid>
       <v-row no-gutters>
-        <v-col v-if="drawer" cols="2">
+        <v-col :cols="drawer ? 2 : 1">
           <SidebarMenu :drawer="drawer" @toggle-drawer="toggleDrawer" />
         </v-col>
-        <v-col v-else cols="1">
-          <SidebarMenu :drawer="drawer" @toggle-drawer="toggleDrawer" />
-        </v-col>
-        <v-col v-if="drawer" cols="10">
-          <TopMenuBar @toggle-drawer="toggleDrawer" />
-          <router-view />
-        </v-col>
-        <v-col v-else cols="11">
+        <v-col :cols="drawer ? 10 : 11">
           <TopMenuBar @toggle-drawer="toggleDrawer" />
           <router-view />
         </v-col>
@@ -25,6 +18,7 @@
 import { ref } from 'vue';
 import SidebarMenu from '@/components/SidebarMenu.vue';
 import TopMenuBar from '@/components/TopMenuBar.vue';
+import '@fontsource/nunito';
 
 const drawer = ref(false);
 

@@ -11,27 +11,28 @@ export const originalMenuItems = [
   },
   { title: 'План', icon: 'mdi-chart-box-plus-outline' },
   { title: 'Статистика', icon: 'mdi-playlist-star' },
+  { title: 'Отчёты', icon: 'mdi-page-next-outline' },
   // ==Участки== items: []
+]
+
+export const plotsMenuItems = [
   {
-    title: 'Отдел ТО и ПП', icon: 'mdi-report', items: [
+    title: 'Отдел ТО и ПП', icon: 'mdi-tools', items: [
       { title: 'Ремонт оборудования' },
       { title: 'Закупка инструмента' },
       { title: 'Инструмент' },
     ],
   },
-  { title: 'Участок заготовки', icon: 'mdi-report' },
+  { title: 'Участок заготовки', icon: 'mdi-cog' },
   { title: 'Отдел продаж', icon: 'mdi-chart-line' },
   {
-    title: 'Слесарный участок', icon: 'mdi-report', items: [
+    title: 'Слесарный участок', icon: 'mdi-hammer', items: [
       { title: 'План участка' },
       { title: 'Комментарии' },
     ],
-  }]
-
-export const plotsMenuItems = [
-
+  },
   {
-    title: 'Участок ОТК', icon: 'mdi-account-box', items: [
+    title: 'Участок ОТК', icon: 'mdi-android-studio', items: [
       { title: 'Выходной контроль' },
       { title: 'Операционный контроль' },
       { title: 'Принятие брака' },
@@ -40,19 +41,9 @@ export const plotsMenuItems = [
       { title: 'Совет по качеству' },
     ],
   },
-  { title: 'Участок упаковки', icon: 'mdi-report' },
-  { title: 'Склад', icon: 'mdi-report' },
-  { title: 'Участок упаковки', icon: 'mdi-report' },
+  { title: 'Участок упаковки', icon: 'mdi-package-variant' },
+  { title: 'Склад', icon: 'mdi-garage' },
   { title: 'Экраны', icon: 'mdi-monitor' },
-  {
-    title: 'Слесарный участок', icon: 'mdi-report', items: [
-      { title: 'Участок ОТК' },
-      { title: 'Участок упаковки' },
-      { title: 'Станки' },
-      { title: 'Токарный участок' },
-      { title: 'Фрезерный участок' },
-    ],
-  },
 ];
 
 
