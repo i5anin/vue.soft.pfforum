@@ -61,8 +61,39 @@ export const plotsMenuItems = [
     ],
   },
   { title: 'Участок упаковки', icon: 'mdi-package-variant' },
-  { title: 'Склад', icon: 'mdi-garage' },
-  { title: 'Экраны', icon: 'mdi-monitor' },
+  {
+    title: 'Склад', icon: 'mdi-garage', items: [
+      { title: 'План' },
+      { title: 'Приход с упаковки' },
+      { title: 'Приход от аутсорса' },
+      { title: 'Корректировка остатков' },
+    ],
+  },
+  {
+    title: 'Экраны', icon: 'mdi-monitor', items: [
+      { title: 'Слесарный участок' },
+      { title: 'Участок ОТК' },
+      { title: 'Участок упаковки' },
+      { title: 'Станки' },
+      { title: 'Токарный участок' },
+      { title: 'Фрезерный участок' },
+    ],
+  },
 ]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
