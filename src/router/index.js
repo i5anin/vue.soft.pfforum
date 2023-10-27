@@ -1,7 +1,7 @@
 // src/index.js
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '@/views/Home.vue'
-import Home2 from '@/views/Home2.vue'
+import Tool from '@/views/Tool.vue'
 
 const routes = [
   {
@@ -11,9 +11,9 @@ const routes = [
   },
 
   {
-    path: '/Home2',
-    name: 'Home2',
-    component: Home2,
+    path: '/Tool',
+    name: 'Tool',
+    component: Tool,
   },
 ]
 

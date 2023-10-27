@@ -16,7 +16,21 @@ export const originalMenuItems = [
       { title: 'Отклонение Т шт', icon: 'mdi-chart-timeline' },
     ],
   },
-  { title: 'Отчёты', icon: 'mdi-file-document-outline' },
+  {
+    title: 'Отчёты', icon: 'mdi-file-document-outline', items: [
+      { title: 'Заготовка (за неделю)' },
+      { title: 'Слесарка (за неделю)' },
+      { title: 'Слесарка (план)' },
+      { title: 'ОТК' },
+      { title: 'ОТК Выработка' },
+      { title: 'Упаковка' },
+      { title: 'Приход на склад' },
+      { title: 'Отгрузка за неделю' },
+      { title: 'Склад готовой продукции' },
+      { title: 'Склад остатков' },
+      { title: 'Участки' },
+    ],
+  },
   // ==Участки== items: []
 ]
 

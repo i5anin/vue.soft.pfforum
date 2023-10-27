@@ -1,12 +1,12 @@
-<!-- src/views/Home.vue -->
+<!-- src/views/Tool.vue -->
 <template>
   <div>
-    <h1>Home Page2</h1>
+    <h1>Tool</h1>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'Home2',
+  name: 'Tool',
 };
 </script>
