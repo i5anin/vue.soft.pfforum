@@ -1,7 +1,7 @@
 <template>
   <v-app-bar app color="primary" dark>
     <!-- Левая кнопка -->
-    <v-btn icon>
+    <v-btn icon @click="toggleDrawer">
       <v-icon>mdi-menu</v-icon>
     </v-btn>
     <!-- Название -->
@@ -17,15 +17,21 @@
       <v-icon>mdi-fullscreen</v-icon>
     </v-btn>
     <v-btn icon>
+      <v-icon>mdi-theme-light-dark</v-icon>
+    </v-btn>
+    <v-btn icon>
       <v-icon>mdi-exit-to-app</v-icon>
     </v-btn>
   </v-app-bar>
 </template>
+<script setup>
+import { ref } from 'vue';
 
-<script>
-export default {
-  // ...
-}
+const drawer = ref(false);
+
+const toggleDrawer = () => {
+  drawer.value = !drawer.value;
+};
 </script>
 
 <style scoped>

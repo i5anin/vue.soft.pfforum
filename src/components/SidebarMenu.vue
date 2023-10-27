@@ -1,10 +1,12 @@
 <template>
   <v-navigation-drawer
+    :value="drawer"
     expand-on-hover
     rail
     width='330'
     @mouseenter='isHovered = true'
     @mouseleave='handleMouseLeave'
+    @input="$emit('update:drawer', $event)"
   >
     <v-list>
       <v-list-item
@@ -35,12 +37,21 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, defineProps, defineEmits } from 'vue'
 import MenuList from '@/components/MenuList.vue'
 import { originalMenuItems, plotsMenuItems } from '@/data/menuItems'
 
 const isHovered = ref(false)
 const groupStates = ref({})
+
+// Получение props и emits
+const { drawer } = defineProps(['drawer']);
+const emit = defineEmits(['update:drawer']);
+
+// Функция для переключения состояния drawer
+const toggleDrawer = () => {
+  emit('update:drawer', !drawer);
+};
 
 const handleMouseLeave = () => {
   isHovered.value = false
