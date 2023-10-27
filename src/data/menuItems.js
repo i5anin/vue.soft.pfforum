@@ -1,7 +1,7 @@
 // menuItems.js
 export const originalMenuItems = [
   {
-    title: 'Главная', icon: 'mdi-home',
+    title: 'Главная', icon: 'mdi-home', path: '/',
   },
   {
     title: 'Станки', icon: 'mdi-expansion-card-variant', items: [
@@ -39,7 +39,7 @@ export const plotsMenuItems = [
     title: 'Отдел ТО и ПП', icon: 'mdi-tools', items: [
       { title: 'Ремонт оборудования' },
       { title: 'Закупка инструмента' },
-      { title: 'Инструмент' },
+      { title: 'Инструмент', path: '/Tool' },
     ],
   },
   { title: 'Участок заготовки', icon: 'mdi-cog' },

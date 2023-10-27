@@ -37,6 +37,7 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router';
 import { ref, computed, defineProps, defineEmits } from 'vue'
 import MenuList from '@/components/MenuList.vue'
 import { originalMenuItems, plotsMenuItems } from '@/data/menuItems'
@@ -78,7 +79,11 @@ const processMenuItems = (items) => {
 const originalMenuItemsComputed = computed(() => processMenuItems(originalMenuItems))
 const plotsMenuItemsComputed = computed(() => processMenuItems(plotsMenuItems))
 
-const handleClick = (title) => {
-  console.log('Clicked on:', title)
+const router = useRouter();
+const handleClick = (item) => {
+  console.log('Clicked on:', item.title);
+  if (item.path) {
+    router.push(item.path);
+  }
 }
 </script>
