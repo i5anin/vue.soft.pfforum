@@ -26,7 +26,10 @@ export const originalMenuItems = [
       { title: 'План участка' },
       { title: 'Комментарии' },
     ],
-  },
+  }]
+
+export const plotsMenuItems = [
+
   {
     title: 'Участок ОТК', icon: 'mdi-report', items: [
       { title: 'Выходной контроль' },
@@ -42,7 +45,7 @@ export const originalMenuItems = [
   { title: 'Участок упаковки', icon: 'mdi-report' },
   { title: 'Экраны', icon: 'mdi-monitor' },
   {
-    title: 'Слесарный участок1', icon: 'mdi-report', items: [
+    title: 'Слесарный участок', icon: 'mdi-report', items: [
       { title: 'Участок ОТК' },
       { title: 'Участок упаковки' },
       { title: 'Станки' },
