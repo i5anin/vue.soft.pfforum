@@ -21,10 +21,11 @@
           >
           </v-list-item>
         </template>
-        <sidebar-menu-item v-for='(subItem, subIndex) in item.items'
-                           :key='subIndex'
-                           :item='subItem'
-                           @click='$emit("click", subItem.title)'
+        <sidebar-menu-item
+          v-for='(subItem, subIndex) in item.items'
+          :key='subIndex'
+          :item='subItem'
+          @click='$emit("click", subItem.title)'
         >
         </sidebar-menu-item>
       </v-list-group>
@@ -33,10 +34,10 @@
 </template>
 
 <script setup>
-import { defineProps } from 'vue';
-import SidebarMenuItem from '@/components/SidebarMenuItem.vue';
+import { defineProps } from 'vue'
+import SidebarMenuItem from '@/components/SidebarMenuItem.vue'
 
-const { menuItems, groupStates } = defineProps(['menuItems', 'groupStates']);
+const { menuItems, groupStates } = defineProps(['menuItems', 'groupStates'])
 
-const getIcon = (icon) => icon || 'mdi-circle-outline';
+const getIcon = (icon) => icon || 'mdi-circle-outline'
 </script>

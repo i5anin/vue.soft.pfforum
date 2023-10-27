@@ -11,6 +11,11 @@
                    subtitle='Администратор'></v-list-item>
     </v-list>
     <v-divider></v-divider>
+    <v-list>
+      <v-list-item prepend-avatar='@/assets/avatar5.png' title='Исанин Сергей'
+                   subtitle='Администратор'></v-list-item>
+    </v-list>
+    <v-divider></v-divider>
     <menu-list :menu-items='originalMenuItemsComputed' @click='handleClick' v-bind:group-states='groupStates'></menu-list>
     <v-divider></v-divider>
     <v-list-item v-if='isHovered'>
