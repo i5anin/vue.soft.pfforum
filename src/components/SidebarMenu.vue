@@ -2,7 +2,7 @@
   <v-navigation-drawer
     expand-on-hover
     rail
-    width='350'
+    width='330'
     @mouseenter='isHovered = true'
     @mouseleave='handleMouseLeave'
   >

@@ -10,8 +10,13 @@ export const originalMenuItems = [
     ],
   },
   { title: 'План', icon: 'mdi-chart-box-plus-outline' },
-  { title: 'Статистика', icon: 'mdi-playlist-star' },
-  { title: 'Отчёты', icon: 'mdi-page-next-outline' },
+  {
+    title: 'Статистика', icon: 'mdi-playlist-star', items: [
+      { title: 'Статистика пр-ва', icon: 'mdi-chart-pie' },
+      { title: 'Отклонение Т шт', icon: 'mdi-chart-timeline' },
+    ],
+  },
+  { title: 'Отчёты', icon: 'mdi-file-document-outline' },
   // ==Участки== items: []
 ]
 
@@ -44,6 +49,6 @@ export const plotsMenuItems = [
   { title: 'Участок упаковки', icon: 'mdi-package-variant' },
   { title: 'Склад', icon: 'mdi-garage' },
   { title: 'Экраны', icon: 'mdi-monitor' },
-];
+]
 
 
