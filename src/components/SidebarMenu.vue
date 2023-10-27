@@ -7,8 +7,8 @@
     @mouseleave='handleMouseLeave'
   >
     <v-list>
-      <v-list-item prepend-avatar='@/assets/avatar5.png' title='Исанин Сергей'
-                   subtitle='Администратор'></v-list-item>
+      <v-list-item prepend-avatar='@/assets/Frame 1.svg' title='СОФТ 2'
+                  ></v-list-item>
     </v-list>
     <v-divider></v-divider>
     <v-list>
