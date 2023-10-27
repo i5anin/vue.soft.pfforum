@@ -1,8 +1,7 @@
 <template>
   <v-navigation-drawer
-    :value="drawer"
-    expand-on-hover
-    rail
+    :value='drawer'
+    expand-on-hover rail
     width='330'
     @mouseenter='isHovered = true'
     @mouseleave='handleMouseLeave'
@@ -37,7 +36,7 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router';
+import { useRouter } from 'vue-router'
 import { ref, computed, defineProps, defineEmits } from 'vue'
 import MenuList from '@/components/MenuList.vue'
 import { originalMenuItems, plotsMenuItems } from '@/data/menuItems'
@@ -46,13 +45,13 @@ const isHovered = ref(false)
 const groupStates = ref({})
 
 // Получение props и emits
-const { drawer } = defineProps(['drawer']);
-const emit = defineEmits(['update:drawer']);
+const { drawer } = defineProps(['drawer'])
+const emit = defineEmits(['update:drawer'])
 
 // Функция для переключения состояния drawer
 const toggleDrawer = () => {
-  emit('update:drawer', !drawer);
-};
+  emit('update:drawer', !drawer)
+}
 
 const handleMouseLeave = () => {
   isHovered.value = false
@@ -79,11 +78,15 @@ const processMenuItems = (items) => {
 const originalMenuItemsComputed = computed(() => processMenuItems(originalMenuItems))
 const plotsMenuItemsComputed = computed(() => processMenuItems(plotsMenuItems))
 
-const router = useRouter();
+const router = useRouter()
 const handleClick = (item) => {
-  console.log('Clicked on:', item.title);
+  console.log('Clicked on:', item.title)
   if (item.path) {
-    router.push(item.path);
+    if (item.path.startsWith('http')) {
+      window.location.href = item.path
+    } else {
+      router.push({ path: item.path })
+    }
   }
 }
 </script>

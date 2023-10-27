@@ -5,7 +5,7 @@
         v-if='!item.items'
         :prepend-icon='getIcon(item.icon)'
         :title='item.title'
-        @click='$emit("click", item.title)'
+        @click='$emit("click", item)'
       >
       </v-list-item>
       <v-list-group
@@ -25,7 +25,7 @@
           v-for='(subItem, subIndex) in item.items'
           :key='subIndex'
           :item='subItem'
-          @click='$emit("click", subItem.title)'
+          @click='$emit("click", subItem)'
         >
         </sidebar-menu-item>
       </v-list-group>

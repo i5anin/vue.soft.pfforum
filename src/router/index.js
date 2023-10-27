@@ -9,7 +9,6 @@ const routes = [
     name: 'Home',
     component: Home,
   },
-
   {
     path: '/Tool',
     name: 'Tool',

@@ -20,7 +20,7 @@
       v-for="(subItem, subIndex) in item.items"
       :key="subIndex"
       :item="subItem"
-    ></sidebar-menu-item>
+    />
   </v-list-group>
 </template>
 

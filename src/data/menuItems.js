@@ -5,8 +5,8 @@ export const originalMenuItems = [
   },
   {
     title: 'Станки', icon: 'mdi-expansion-card-variant', items: [
-      { title: 'Мониторинг', icon: 'mdi-monitor-dashboard' },
-      { title: 'Загрузка станков', icon: 'mdi-clock-time-eight-outline' },
+      { title: 'Мониторинг', icon: 'mdi-monitor-dashboard', path: 'http://soft.pfforum/?cnc_stat' },
+      { title: 'Загрузка станков', icon: 'mdi-clock-time-eight-outline', path: 'http://soft.pfforum/?cnc_load'  },
     ],
   },
   { title: 'План', icon: 'mdi-format-list-checks' },
