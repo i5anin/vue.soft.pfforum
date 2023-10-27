@@ -1,46 +1,39 @@
 <template>
-  <v-card>
-    <v-layout>
-      <v-navigation-drawer
-        :mini-variant="mini"
-        @mouseenter="mini = false"
-        @mouseleave="mini = true"
-        :modelValue='drawer'
-        @update:modelValue='updateDrawer'
-        expand-on-hover
-        rail
-        app
-        width='350'>
-        <v-list>
-          <template v-for='(item, index) in menuItems' :key='index'>
+  <v-navigation-drawer
+    :mini-variant="mini"
+    @mouseenter="mini = false"
+    @mouseleave="mini = true"
+    :modelValue='drawer'
+    @update:modelValue='updateDrawer'
+
+    app
+    width='350'>
+    <v-list>
+      <template v-for='(item, index) in menuItems' :key='index'>
+        <v-list-item
+          v-if='!item.items'
+          :prepend-icon='getIcon(item.icon)'
+          :title='item.title'
+          @click='handleClick(item.title)'>
+        </v-list-item>
+        <v-list-group v-else :value='item.title'>
+          <template v-slot:activator='{ props }'>
             <v-list-item
-              v-if='!item.items'
+              v-bind='props'
               :prepend-icon='getIcon(item.icon)'
-              :title='item.title'
-              @click='handleClick(item.title)'>
+              :title='item.title'>
             </v-list-item>
-            <v-list-group v-else :value='item.title'>
-              <template v-slot:activator='{ props }'>
-                <v-list-item
-                  v-bind='props'
-                  :prepend-icon='getIcon(item.icon)'
-                  :title='item.title'>
-                </v-list-item>
-              </template>
-              <sidebar-menu-item v-for='(subItem, subIndex) in item.items'
-                                 :key='subIndex'
-                                 :item='subItem'
-                                 @click='handleClick(subItem.title)'>
-
-              </sidebar-menu-item>
-            </v-list-group>
           </template>
-        </v-list>
-      </v-navigation-drawer>
+          <sidebar-menu-item v-for='(subItem, subIndex) in item.items'
+                             :key='subIndex'
+                             :item='subItem'
+                             @click='handleClick(subItem.title)'>
 
-      <v-main style="height: 250px"></v-main>
-    </v-layout>
-  </v-card>
+          </sidebar-menu-item>
+        </v-list-group>
+      </template>
+    </v-list>
+  </v-navigation-drawer>
 </template>
 
 <script setup>
