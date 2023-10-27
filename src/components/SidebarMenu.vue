@@ -1,5 +1,5 @@
 <template>
-  <v-navigation-drawer expand-on-hover rail width='350'>
+  <v-navigation-drawer expand-on-hover rail width='350' @mouseenter='isHovered = true' @mouseleave='isHovered = false'>
     <v-list>
       <v-list-item prepend-avatar='@/assets/avatar5.png' title='Исанин Сергей'
                    subtitle='Администратор'></v-list-item>
@@ -8,7 +8,7 @@
     <!-- originalMenuItems-->
     <menu-list :menu-items='originalMenuItemsComputed' @click='handleClick'></menu-list>
     <v-divider></v-divider>
-    <v-list-item v-if="isHovered">
+    <v-list-item v-if='isHovered'>
       <v-list-item-title>Участки</v-list-item-title>
     </v-list-item>
     <!-- plotsMenuItems -->
@@ -26,7 +26,7 @@ const getIcon = (icon) => icon || 'mdi-circle-outline'
 
 const hovered = ref(false)
 
-const isHovered = ref(false);  // Используйте ref для отслеживания состояния развернутости
+const isHovered = ref(false)  // Используйте ref для отслеживания состояния развернутости
 
 const processMenuItems = (items) => {
   return items.map(item => {
