@@ -4,13 +4,13 @@ export const originalMenuItems = [
     title: 'Главная', icon: 'mdi-home',
   },
   {
-    title: 'Станки', icon: 'mdi-account', items: [
+    title: 'Станки', icon: 'mdi-expansion-card-variant', items: [
       { title: 'Мониторинг', icon: 'mdi-monitor-dashboard' },
-      { title: 'Загрузка станков', icon: 'mdi-upload' },
+      { title: 'Загрузка станков', icon: 'mdi-clock-time-eight-outline' },
     ],
   },
-  { title: 'План', icon: 'mdiFormatListCheckbox' },
-  { title: 'Статистика', icon: 'mdi-stat' },
+  { title: 'План', icon: 'mdi-chart-box-plus-outline' },
+  { title: 'Статистика', icon: 'mdi-playlist-star' },
   // ==Участки== items: []
   {
     title: 'Отдел ТО и ПП', icon: 'mdi-report', items: [
@@ -20,7 +20,7 @@ export const originalMenuItems = [
     ],
   },
   { title: 'Участок заготовки', icon: 'mdi-report' },
-  { title: 'Отдел продаж', icon: 'mdi-report' },
+  { title: 'Отдел продаж', icon: 'mdi-chart-line' },
   {
     title: 'Слесарный участок', icon: 'mdi-report', items: [
       { title: 'План участка' },
@@ -31,7 +31,7 @@ export const originalMenuItems = [
 export const plotsMenuItems = [
 
   {
-    title: 'Участок ОТК', icon: 'mdi-report', items: [
+    title: 'Участок ОТК', icon: 'mdi-account-box', items: [
       { title: 'Выходной контроль' },
       { title: 'Операционный контроль' },
       { title: 'Принятие брака' },

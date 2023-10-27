@@ -8,7 +8,11 @@
         @click='$emit("click", item.title)'
       >
       </v-list-item>
-      <v-list-group v-else :value='item.title'>
+      <v-list-group
+        v-else
+        :value='groupStates[item.title]'
+        @input='val => { groupStates[item.title] = val; }'
+      >
         <template v-slot:activator='{ props }'>
           <v-list-item
             v-bind='props'
@@ -29,11 +33,10 @@
 </template>
 
 <script setup>
-import { defineProps } from 'vue'
-import SidebarMenuItem from '@/components/SidebarMenuItem.vue'
+import { defineProps } from 'vue';
+import SidebarMenuItem from '@/components/SidebarMenuItem.vue';
 
-const { menuItems } = defineProps(['menuItems'])
+const { menuItems, groupStates } = defineProps(['menuItems', 'groupStates']);
 
-const getIcon = (icon) => icon || 'mdi-circle-outline'
-
+const getIcon = (icon) => icon || 'mdi-circle-outline';
 </script>
