@@ -9,9 +9,9 @@ export const originalMenuItems = [
       { title: 'Загрузка станков', icon: 'mdi-clock-time-eight-outline' },
     ],
   },
-  { title: 'План', icon: 'mdi-chart-box-plus-outline' },
+  { title: 'План', icon: 'mdi-format-list-checks' },
   {
-    title: 'Статистика', icon: 'mdi-playlist-star', items: [
+    title: 'Статистика', icon: 'mdi-chart-bar', items: [
       { title: 'Статистика пр-ва', icon: 'mdi-chart-pie' },
       { title: 'Отклонение Т шт', icon: 'mdi-chart-timeline' },
     ],
