@@ -1,12 +1,6 @@
 <template>
-  <v-navigation-drawer
-    :value='drawer'
-    expand-on-hover rail
-    width='330'
-    @mouseenter='isHovered = true'
-    @mouseleave='handleMouseLeave'
-    @input="$emit('update:drawer', $event)"
-  >
+  <v-navigation-drawer :value='drawer' expand-on-hover rail width='330' @mouseenter='isHovered = true'
+                       @mouseleave='handleMouseLeave' @input="$emit('update:drawer', $event)">
     <v-list>
       <v-list-item
         prepend-avatar='@/assets/logoWhite.svg'
@@ -19,7 +13,8 @@
         title='Исанин Сергей'
         subtitle='Администратор' />
     </v-list>
-    <v-divider></v-divider>
+    <v-divider />
+    <!--  -->
     <menu-list
       :menu-items='originalMenuItemsComputed'
       @click='handleClick'
@@ -28,6 +23,7 @@
     <v-list-item v-if='isHovered'>
       <v-list-item-title>Участки</v-list-item-title>
     </v-list-item>
+    <!-- Участки -->
     <menu-list
       :menu-items='plotsMenuItemsComputed'
       @click='handleClick'
@@ -48,19 +44,12 @@ const groupStates = ref({})
 const { drawer } = defineProps(['drawer'])
 const emit = defineEmits(['update:drawer'])
 
-// Функция для переключения состояния drawer
-const toggleDrawer = () => {
-  emit('update:drawer', !drawer)
-}
-
 const handleMouseLeave = () => {
   isHovered.value = false
   Object.keys(groupStates.value).forEach(key => {
     groupStates.value[key] = false
   })
 }
-
-const getIcon = (icon) => icon || 'mdi-circle-outline'
 
 const processMenuItems = (items) => {
   return items.map(item => {
@@ -75,8 +64,10 @@ const processMenuItems = (items) => {
   })
 }
 
-const originalMenuItemsComputed = computed(() => processMenuItems(originalMenuItems))
-const plotsMenuItemsComputed = computed(() => processMenuItems(plotsMenuItems))
+const originalMenuItemsComputed =
+  computed(() => processMenuItems(originalMenuItems))
+const plotsMenuItemsComputed =
+  computed(() => processMenuItems(plotsMenuItems))
 
 const router = useRouter()
 const handleClick = (item) => {
