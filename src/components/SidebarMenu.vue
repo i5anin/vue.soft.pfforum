@@ -34,7 +34,7 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { ref, computed, defineProps, defineEmits } from 'vue'
-import MenuList from '@/components/MenuList.vue'
+import MenuList from '@/components/SidebarMenuList.vue'
 import { originalMenuItems, plotsMenuItems } from '@/data/menuItems'
 
 const isHovered = ref(false)

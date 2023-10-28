@@ -1,4 +1,4 @@
-// main.js
+// server.js
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'  // убедитесь, что ваш файл маршрутизации правильно экспортируется

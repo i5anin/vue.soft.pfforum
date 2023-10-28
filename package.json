@@ -1,6 +1,6 @@
 {
-  "name": "gym",
-  "version": "0.0.0",
+  "name": "pfforum",
+  "version": "2.0.0",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -9,6 +9,7 @@
   "dependencies": {
     "@fontsource/nunito": "^5.0.15",
     "@mdi/font": "^7.0.96",
+    "joi": "^17.11.0",
     "moment": "^2.29.4",
     "pg": "^8.11.3",
     "pg-promise": "^11.5.4",
