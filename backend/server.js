@@ -14,6 +14,16 @@ const client = new Client({
 
 client.connect();
 
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*'); // разрешить запросы с любого источника
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept'
+  );
+  next();
+});
+
+
 app.get('/tools', async (req, res) => {
   const text = 'SELECT * FROM dbo.tool_num';
 
@@ -48,3 +58,4 @@ app.post('/add-tool', express.json(), async (req, res) => {
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
+
