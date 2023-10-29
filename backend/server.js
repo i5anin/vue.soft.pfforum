@@ -1,7 +1,7 @@
-const express = require('express');
+const restify = require('restify');
 const { Client } = require('pg');
 
-const app = express();
+const server = restify.createServer();
 const port = 4000;
 
 const client = new Client({
@@ -14,48 +14,35 @@ const client = new Client({
 
 client.connect();
 
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*'); // разрешить запросы с любого источника
-  res.header(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept'
-  );
-  next();
-});
-
-
-app.get('/tools', async (req, res) => {
-  const text = 'SELECT * FROM dbo.tool_num';
-
+server.use(restify.plugins.bodyParser());
+server.get('/tools', async (req, res) => {
   try {
-    const result = await client.query(text);
-    res.json(result.rows);
+    const result = await client.query('SELECT * FROM dbo.tool_num');
+    return res.send(result.rows);
   } catch (err) {
     console.error(err);
-    res.sendStatus(500);
+    return res.send(500, err.message);
   }
 });
 
-
-app.post('/add-tool', express.json(), async (req, res) => {
+server.post('/add-tool', async (req, res) => {
   const { name } = req.body;
   if (!name) {
-    return res.status(400).send('Bad Request: Missing required fields');
+    return res.send(400, 'Bad Request: Missing required fields');
   }
-
-  const text = 'INSERT INTO dbo.tool_num (name) VALUES ($1) RETURNING *';
-  const values = [name];
 
   try {
-    const result = await client.query(text, values);
-    res.json(result.rows[0]);
+    const result = await client.query(
+      'INSERT INTO dbo.tool_num (name) VALUES ($1) RETURNING *',
+      [name]
+    );
+    return res.send(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.sendStatus(500);
+    return res.send(500, err.message);
   }
 });
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
-
