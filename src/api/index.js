@@ -1,7 +1,9 @@
 // @/api/index.js
+
+const BASE_URL = 'http://localhost:4000';
 export async function fetchTools() {
   try {
-    const response = await fetch('http://localhost:4000/tools');
+    const response = await fetch(`${BASE_URL}/tools`);
     if (!response.ok) {
       throw new Error('Network response was not ok ' + response.statusText);
     }
@@ -14,7 +16,7 @@ export async function fetchTools() {
 
 export async function addTool(toolName) {
   try {
-    const response = await fetch('http://localhost:4000/add-tool', {
+    const response = await fetch(`${BASE_URL}/add-tool`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -2,6 +2,7 @@
   "name": "pfforum",
   "version": "2.0.0",
   "scripts": {
+    "server": "node backend/server.js",
     "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview"
@@ -9,6 +10,7 @@
   "dependencies": {
     "@fontsource/nunito": "^5.0.15",
     "@mdi/font": "^7.0.96",
+    "cors": "^2.8.5",
     "joi": "^17.11.0",
     "moment": "^2.29.4",
     "pg": "^8.11.3",

@@ -1,21 +1,18 @@
 <template>
-  <div>
-    <v-text-field v-model="toolName" label="Tool name"></v-text-field>
-    <v-btn @click="addTool">Add Tool</v-btn>
-    <v-table v-if="tools.length > 0">
-      <thead>
-      <tr>
-        <th class='text-left'> Name</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr v-for='tool in tools' :key='tool.id'>
-        <td>{{ tool.name }}</td>
-      </tr>
-      </tbody>
-    </v-table>
-    <div v-else>No tools available</div>
-  </div>
+  <v-table>
+    <thead>
+    <tr>
+      <th class='text-left'> Name</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr v-for='tool in tools' :key='tool.id'>
+      <td>{{ tool.name }}</td>
+    </tr>
+    </tbody>
+  </v-table>
+  <input v-model="newToolName" placeholder="Enter tool name" />
+  <button @click="addTool">Add Tool</button>
 </template>
 
 <script>
@@ -25,7 +22,7 @@ export default {
   data() {
     return {
       tools: [],
-      toolName: '',
+      newToolName: '',
     }
   },
   async created() {
@@ -33,16 +30,12 @@ export default {
   },
   methods: {
     async addTool() {
-      if (this.toolName) {
-        const newTool = await apiAddTool(this.toolName);
-        if (newTool) {
-          this.tools.push(newTool);
-          this.toolName = '';
-        } else {
-          console.error('Failed to add tool');
-        }
+      if (this.newToolName) {
+        const addedTool = await apiAddTool(this.newToolName);
+        this.tools.push(addedTool);
+        this.newToolName = '';
       }
-    }
+    },
   },
 }
 </script>

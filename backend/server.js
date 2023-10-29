@@ -1,10 +1,12 @@
 const express = require('express');
-const { Client } = require('pg');
+const bodyParser = require('body-parser');
+const pgp = require('pg-promise')();
+const cors = require('cors');
 
 const app = express();
 const port = 4000;
 
-const client = new Client({
+const db = pgp({
   user: 'postgres',
   host: 'localhost',
   database: 'postgres',
@@ -12,50 +14,37 @@ const client = new Client({
   port: 5432,
 });
 
-client.connect();
-
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*'); // разрешить запросы с любого источника
-  res.header(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept'
-  );
-  next();
-});
-
+app.use(bodyParser.json());
+app.use(cors());
 
 app.get('/tools', async (req, res) => {
-  const text = 'SELECT * FROM dbo.tool_num';
-
   try {
-    const result = await client.query(text);
-    res.json(result.rows);
+    const result = await db.any('SELECT * FROM dbo.tool_num');
+    res.json(result);
   } catch (err) {
     console.error(err);
-    res.sendStatus(500);
+    res.status(500).send(err.message);
   }
 });
 
-
-app.post('/add-tool', express.json(), async (req, res) => {
+app.post('/add-tool', async (req, res) => {
   const { name } = req.body;
   if (!name) {
     return res.status(400).send('Bad Request: Missing required fields');
   }
 
-  const text = 'INSERT INTO dbo.tool_num (name) VALUES ($1) RETURNING *';
-  const values = [name];
-
   try {
-    const result = await client.query(text, values);
-    res.json(result.rows[0]);
+    const result = await db.one(
+      'INSERT INTO dbo.tool_num (name) VALUES ($1) RETURNING *',
+      [name]
+    );
+    res.json(result);
   } catch (err) {
     console.error(err);
-    res.sendStatus(500);
+    res.status(500).send(err.message);
   }
 });
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
-
