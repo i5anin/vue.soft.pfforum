@@ -40,7 +40,8 @@ app.post('/add-tool', async (req, res) => {
     );
     res.json(result);
   } catch (err) {
-    console.error(err);
+    console.error('Error:', err.message);  // добавлено логирование
+    console.error('Stack:', err.stack);    // добавлено логирование
     res.status(500).send(err.message);
   }
 });

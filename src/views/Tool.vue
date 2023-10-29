@@ -11,8 +11,8 @@
     </tr>
     </tbody>
   </v-table>
-  <input v-model="newToolName" placeholder="Enter tool name" />
-  <button @click="addTool">Add Tool</button>
+  <input v-model='newToolName' placeholder='Enter tool name' />
+  <button @click='addTool'>Add Tool</button>
 </template>
 
 <script>
@@ -31,9 +31,11 @@ export default {
   methods: {
     async addTool() {
       if (this.newToolName) {
-        const addedTool = await apiAddTool(this.newToolName);
-        this.tools.push(addedTool);
-        this.newToolName = '';
+        const addedTool = await apiAddTool(this.newToolName)
+        if (addedTool) {
+          this.tools.push(addedTool)
+          this.newToolName = ''
+        }
       }
     },
   },
