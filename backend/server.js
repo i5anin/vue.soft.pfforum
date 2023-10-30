@@ -21,6 +21,7 @@ app.get('/tools', async (req, res) => {
   try {
     const query = `
      SELECT
+      nom.id,
         nom.name,
         nom.group_id,
         group_id.name AS group_name,
