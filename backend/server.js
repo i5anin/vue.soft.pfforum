@@ -23,11 +23,11 @@ app.get('/tools', async (req, res) => {
      SELECT
         nom.name,
         nom.group_id,
-        group_id.name AS group_name,  -- Добавьте эту строку
+        group_id.name AS group_name,
         nom.mat_id,
-        mat_id.name AS mat_name,  -- Если требуется, добавьте эту строку
+        mat_id.name AS mat_name,
         nom.type_id,
-        type_id.name AS type_name,  -- Если требуется, добавьте эту строку
+        type_id.name AS type_name,
         nom.rad,
         nom.kolvo_sklad,
         nom.norma,
