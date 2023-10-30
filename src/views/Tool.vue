@@ -1,7 +1,9 @@
 <template>
+  <v-btn @click="openDialog = true">Добавить</v-btn>
   <v-table>
     <thead>
     <tr>
+      <th class='text-left'>id</th>
       <th class='text-left'>Группа</th>
       <th class='text-left'>Применяемость материала</th>
       <th class='text-left'>Радиус</th>
@@ -14,6 +16,7 @@
     </thead>
     <tbody>
     <tr v-for='tool in tools' :key='tool.id'>
+      <td>{{ tool.id }}</td> <!-- id -->
       <td>{{ tool.group_name }}</td> <!-- Группа -->
       <td>{{ tool.mat_name }}</td> <!-- Применяемость материала -->
       <td>{{ tool.rad }}</td> <!-- Радиус -->
@@ -25,8 +28,6 @@
     </tr>
     </tbody>
   </v-table>
-  <input v-model='newToolName' placeholder='Enter tool name' />
-  <button @click='addTool'>Add Tool</button>
 </template>
 
 <script>
