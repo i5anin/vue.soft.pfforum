@@ -16,7 +16,7 @@
     <v-btn icon>
       <v-icon>mdi-fullscreen</v-icon>
     </v-btn>
-    <v-btn icon @click="toggleTheme">
+    <v-btn icon>
       <v-icon>mdi-moon-last-quarter</v-icon>
     </v-btn>
     <v-btn icon>
@@ -24,24 +24,16 @@
     </v-btn>
   </v-app-bar>
 </template>
-
 <script setup>
-import { ref, onMounted, watch } from 'vue'
-import vuetify from '@/plugins/vuetify'  // Убедитесь, что путь верный
+import { ref } from 'vue'
 
-const currentTheme = ref(localStorage.getItem('theme') || 'light')
+const drawer = ref(false)
 
-const toggleTheme = () => {
-  currentTheme.value = currentTheme.value === 'dark' ? 'light' : 'dark'
+const toggleDrawer = () => {
+  drawer.value = !drawer.value
 }
-
-watch(currentTheme, (newTheme) => {
-  vuetify.theme.currentTheme.value = newTheme
-  localStorage.setItem('theme', newTheme)
-})
-
-onMounted(() => {
-  vuetify.theme.currentTheme.value = currentTheme.value
-})
 </script>
 
+<style scoped>
+/* Дополнительные стили, если они необходимы */
+</style>
