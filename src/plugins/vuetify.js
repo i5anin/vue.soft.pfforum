@@ -1,4 +1,5 @@
 // plugins/vuetify.js
+
 import '@mdi/font/css/materialdesignicons.css'
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
@@ -8,9 +9,9 @@ const isDark =
   savedTheme === 'dark' ||
   (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)
 
-export default createVuetify({
+const vuetify = createVuetify({
   theme: {
-    defaultTheme: isDark ? 'dark' : 'light',
+    defaultTheme: savedTheme || (isDark ? 'dark' : 'light'),
     themes: {
       light: {
         colors: {
@@ -29,3 +30,5 @@ export default createVuetify({
     },
   },
 })
+
+export default vuetify;
