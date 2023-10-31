@@ -1,6 +1,6 @@
 <template>
-  <v-btn @click='openDialog = true'>Добавить</v-btn>
-  <Modal v-model='openDialog' @save='addTool' @update:openDialog='openDialog = $event' />
+  <v-btn @click='toggleDialog'>Добавить</v-btn>
+  <Modal v-model='openDialog' @save='addTool' />
   <v-table>
     <thead>
     <tr>
@@ -34,9 +34,17 @@
 <script>
 import Modal from '@/components/Modal.vue'
 import { fetchTools, addTool } from '@/api/api'
+import { mapState, mapActions } from 'vuex'
 
 export default {
   components: { Modal },
+  computed: {
+    ...mapState(['openDialog', 'tools']),
+  },
+  async created() {
+    // this.tools = await fetchTools()
+    await this.fetchTools();
+  },
   watch: {
     openDialog(newVal) {
       console.log('openDialog value changed:', newVal)
@@ -49,19 +57,10 @@ export default {
       newToolName: '',
     }
   },
-  async created() {
-    this.tools = await fetchTools()
-  },
   methods: {
-    async addTool() {
-      console.log('addTool method called in parent component')
-      if (this.newToolName) {
-        const addedTool = await addTool(this.newToolName)
-        if (addedTool) {
-          this.tools.push(addedTool)
-          this.newToolName = ''
-        }
-      }
+    ...mapActions(['fetchTools', 'addTool']),
+    toggleDialog() {
+      this.$store.commit('toggleDialog')
     },
   },
 }
