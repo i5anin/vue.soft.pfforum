@@ -8,7 +8,7 @@
         <v-container>
           <v-row>
             <v-col sm='6' md='4'>
-              <v-text-field label='Название (Тип)' v-model='typeName' required></v-text-field>
+              <v-text-field label='Название (Тип)' v-model='typeName' required/>
               <v-text-field label='Группа' v-model='groupName' required></v-text-field>
               <v-text-field label='Применяемость материала' v-model='materialUsage' required></v-text-field>
               <v-text-field label='Маркировка' v-model='marking' required></v-text-field>
@@ -28,11 +28,17 @@
         </v-container>
       </v-card-text>
       <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color='blue-darken-1' text @click="closeDialog">
+        <v-spacer/>
+        <v-btn color='blue-darken-1' text @click='closeDialog'>
           Закрыть
         </v-btn>
-        <v-btn prepend-icon="mdi-check-circle" color='elevated' text @click='save'>
+        <v-btn prepend-icon="mdi-check-circle"
+               text
+               @click='save'
+               class="text-none text-subtitle-1"
+               color="#5865f2"
+               size="small"
+               variant="flat">
           Сохранить
         </v-btn>
       </v-card-actions>
@@ -63,10 +69,10 @@ export default {
   },
   methods: {
     closeDialog() {
-      this.$emit('input', false);
+      this.$emit('update:openDialog', false);
     },
     save() {
-      console.log('save method called in Modal component')
+      console.log('save method called in Modal component');
       this.$emit('save', {
         typeName: this.typeName,
         groupName: this.groupName,
