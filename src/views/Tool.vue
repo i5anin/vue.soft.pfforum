@@ -33,7 +33,7 @@
 
 <script>
 import Modal from '@/components/Modal.vue'
-import { fetchTools, addTool } from '@/api'
+import { fetchTools, addTool } from '@/api/api'
 
 export default {
   components: { Modal },

@@ -1,4 +1,4 @@
-// src/index.js
+// src/api.js
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '@/views/Home.vue'
 import Tool from '@/views/Tool.vue'
