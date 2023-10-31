@@ -29,7 +29,11 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn color='red darken-1' variant='text' @click='toggleDialog'>
+        <v-btn
+          color='red darken-1'
+          variant='text'
+          @click='closeDialog'
+          class='text-none text-subtitle-1 ml-3'>
           Закрыть
         </v-btn>
         <v-btn
