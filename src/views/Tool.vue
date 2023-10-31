@@ -1,6 +1,6 @@
 <template>
   <v-btn @click='openDialog = true'>Добавить</v-btn>
-  <Modal v-model='openDialog' @save='addTool' />
+  <Modal v-model='openDialog' @save='addTool' @update:openDialog='openDialog = $event' />
   <v-table>
     <thead>
     <tr>
