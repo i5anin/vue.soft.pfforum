@@ -1,8 +1,8 @@
 <template>
-  <v-dialog :value="value" @input="$emit('input', $event)" persistent width="1024">
+  <v-dialog :value="value" @input="$emit('input', $event)" width="1024">
     <v-card>
       <v-card-title>
-        <span class="text-h5">Добавить инструмент</span>
+        Simple Dialog
       </v-card-title>
     </v-card>
   </v-dialog>
