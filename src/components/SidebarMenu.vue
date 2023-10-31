@@ -1,6 +1,38 @@
 <template>
-  <v-navigation-drawer :value='drawer' expand-on-hover rail width='330' @mouseenter='isHovered = true'
-                       @mouseleave='handleMouseLeave' @input="$emit('update:drawer', $event)">
+  <v-app-bar color='primary' sticky prominent dark>
+    <!-- Левая кнопка -->
+    <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+
+    <!-- Название -->
+    <v-toolbar-title>
+      PF-FORUM APP
+    </v-toolbar-title>
+    <v-spacer />
+    <!-- Три кнопки справа -->
+    <v-btn icon>
+      <v-icon>mdi-magnify</v-icon>
+    </v-btn>
+    <v-btn icon>
+      <v-icon>mdi-fullscreen</v-icon>
+    </v-btn>
+    <v-btn icon>
+      <v-icon>mdi-moon-last-quarter</v-icon>
+    </v-btn>
+    <v-btn icon>
+      <v-icon>mdi-exit-to-app</v-icon>
+    </v-btn>
+  </v-app-bar>
+
+
+  <v-navigation-drawer
+    :value='true'
+    location='left'
+    width='330'
+    expand-on-hover
+    permanent
+    :rail='drawer'
+    @mouseenter='isHovered = true'
+    @mouseleave='handleMouseLeave' @input="$emit('update:drawer', $event)">
     <v-list>
       <v-list-item
         prepend-avatar='@/assets/logoWhite.svg'
@@ -33,15 +65,16 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
-import { ref, computed, defineProps, defineEmits } from 'vue'
+import { ref, computed, defineProps, defineEmits,onMounted, onBeforeUnmount  } from 'vue'
 import MenuList from '@/components/SidebarMenuList.vue'
 import { originalMenuItems, plotsMenuItems } from '@/data/menuItems'
 
 const isHovered = ref(false)
+const drawer = ref(false)
+const isDisabledResizeWatcher = ref(false)
 const groupStates = ref({})
 
 // Получение props и emits
-const { drawer } = defineProps(['drawer'])
 const emit = defineEmits(['update:drawer'])
 
 const handleMouseLeave = () => {
@@ -68,6 +101,24 @@ const originalMenuItemsComputed =
   computed(() => processMenuItems(originalMenuItems))
 const plotsMenuItemsComputed =
   computed(() => processMenuItems(plotsMenuItems))
+
+const onResize = (event) => {
+  if (event == null) {
+    isDisabledResizeWatcher.value = window.innerWidth > 600
+    return
+  }
+  isDisabledResizeWatcher.value = event.target.innerWidth > 600
+}
+
+onMounted(()=> {
+  window.addEventListener("resize", onResize);
+  onResize()
+})
+
+onBeforeUnmount(()=> {
+  window.removeEventListener("resize", onResize);
+
+})
 
 const router = useRouter()
 const handleClick = (item) => {

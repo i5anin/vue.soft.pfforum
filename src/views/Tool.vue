@@ -1,6 +1,6 @@
 <template>
   <v-btn @click='openDialog = true'>Добавить</v-btn>
-  <Modal v-model='openDialog' @save='addTool' @update:openDialog='openDialog = $event' />
+  <Modal v-model='openDialog' :tool='editingTool' @save='addTool' @update:openDialog='openDialog = $event' />
   <v-table>
     <thead>
     <tr>
@@ -16,7 +16,7 @@
     </tr>
     </thead>
     <tbody>
-    <tr v-for='tool in tools' :key='tool.id'>
+    <tr v-for='tool in tools' :key='tool.id' @click='onEditRow(tool)'>
       <td>{{ tool.id }}</td> <!-- id -->
       <td>{{ tool.type_name }}</td> <!-- Название(Тип) -->
       <td>{{ tool.group_name }}</td> <!-- Группа -->
@@ -47,6 +47,7 @@ export default {
       openDialog: false,
       tools: [],
       newToolName: '',
+      editingTool: null,
     }
   },
   async created() {
@@ -62,6 +63,10 @@ export default {
           this.newToolName = ''
         }
       }
+    },
+    onEditRow(tool) {
+      this.editingTool = tool
+      this.openDialog = true
     },
   },
 }

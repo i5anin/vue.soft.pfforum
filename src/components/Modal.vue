@@ -10,10 +10,12 @@
             <v-col>
               <v-text-field label='Название (Тип)' v-model='typeName' required />
               <v-text-field label='Группа' v-model='groupName' required></v-text-field>
-              <v-text-field label='Применяемость материала' v-model='materialUsage' required></v-text-field>
+              <v-text-field label='Применяемость материала' v-model='materialUsage'
+                            required></v-text-field>
               <v-text-field label='Маркировка' v-model='marking' required></v-text-field>
               <v-text-field label='Количесво на складе' v-model='stockQuantity' required></v-text-field>
-              <v-text-field label='Нормальный запас на неделю' v-model='weeklySupply' required></v-text-field>
+              <v-text-field label='Нормальный запас на неделю' v-model='weeklySupply'
+                            required></v-text-field>
               <v-text-field label='Заказ' v-model='order' required></v-text-field>
               <v-select
                 :items='radiusOptions'
@@ -53,6 +55,14 @@
 <script>
 export default {
   props: {
+    tool: {
+      type: Object,
+      default: () => ({}),
+    },
+    groupOptions: {
+      type: Array,
+      default: () => ([]), // [{id, name}]
+    },
     value: {
       type: Boolean,
       default: false,
@@ -70,6 +80,21 @@ export default {
       radiusOptions: [0.2, 0.4, 0.6, 0.8, 1.0, 1.2],
       radius: 0.2,  // значение по умолчанию
     }
+  },
+  watch: {
+    tool: {
+      handler() {
+        const { group_name, type_name, mat_name, name, kolvo_sklad, norma, zakaz, rad } = this.tool
+        this.typeName = type_name
+        this.groupName = group_name
+        this.materialUsage = mat_name
+        this.marking = name
+        this.stockQuantity = kolvo_sklad
+        this.weeklySupply = norma
+        this.order = zakaz
+        this.radius = rad
+      },
+    },
   },
   methods: {
     closeDialog() {

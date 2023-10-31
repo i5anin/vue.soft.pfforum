@@ -1,7 +1,7 @@
 <template>
   <v-app-bar app color='primary' dark>
     <!-- Левая кнопка -->
-    <v-btn icon @click='toggleDrawer'>
+    <v-btn icon @click="$emit('toggle-drawer', $event)">
       <v-icon>mdi-menu</v-icon>
     </v-btn>
     <!-- Название -->
@@ -25,13 +25,10 @@
   </v-app-bar>
 </template>
 <script setup>
-import { ref } from 'vue'
+import { ref, defineEmits } from 'vue'
 
 const drawer = ref(false)
-
-const toggleDrawer = () => {
-  drawer.value = !drawer.value
-}
+const emit = defineEmits(['update:drawer'])
 </script>
 
 <style scoped>
