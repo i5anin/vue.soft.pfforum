@@ -95,7 +95,7 @@ export default {
     },
     save() {
       console.log('save method called in Modal component')
-      const updatedTool = {
+      this.$emit('save', {
         typeName: this.typeName,
         groupName: this.groupName,
         materialUsage: this.materialUsage,
@@ -104,12 +104,11 @@ export default {
         weeklySupply: this.weeklySupply,
         order: this.order,
         radius: this.radius,
-      }
-      const action = this.tool.id ? 'update' : 'create'
-      this.$emit('save', { action, tool: updatedTool })
-    }
+      })
+    },
   },
 }
 </script>
 
+<style scoped></style>
 
