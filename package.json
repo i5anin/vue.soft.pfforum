@@ -13,13 +13,14 @@
     "cors": "^2.8.5",
     "joi": "^17.11.0",
     "moment": "^2.29.4",
-    "vuex": "^4.1.0",
     "pg": "^8.11.3",
     "pg-promise": "^11.5.4",
+    "prettier": "^3.0.3",
     "roboto-fontface": "*",
     "vue": "^3.2.0",
     "vue-router": "^4.2.5",
     "vuetify": "^3.3.23",
+    "vuex": "^4.1.0",
     "webfontloader": "^1.0.0"
   },
   "devDependencies": {

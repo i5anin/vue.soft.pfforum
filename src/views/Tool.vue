@@ -1,42 +1,61 @@
 <template>
-  <v-btn @click='openDialog = true'>Добавить</v-btn>
-  <Modal v-model='openDialog' :tool='editingTool' @save='addTool' @update:openDialog='openDialog = $event' />
-  <v-table>
-    <thead>
-    <tr>
-      <th class='text-left'>id</th>
-      <th class='text-left'>Название(Тип)</th>
-      <th class='text-left'>Группа</th>
-      <th class='text-left'>Применяемость материала</th>
-      <th class='text-left'>Радиус</th>
-      <th class='text-left'>Маркировка</th>
-      <th class='text-left'>Количесво на складе</th>
-      <th class='text-left'>Нормальный запас на неделю</th>
-      <th class='text-left'>Заказ</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr v-for='tool in tools' :key='tool.id' @click='onEditRow(tool)'>
-      <td>{{ tool.id }}</td> <!-- id -->
-      <td>{{ tool.type_name }}</td> <!-- Название(Тип) -->
-      <td>{{ tool.group_name }}</td> <!-- Группа -->
-      <td>{{ tool.mat_name }}</td> <!-- Применяемость материала -->
-      <td>{{ tool.rad }}</td> <!-- Радиус -->
-      <td>{{ tool.name }}</td> <!-- Маркировка -->
-      <td>{{ tool.kolvo_sklad }}</td> <!-- Количесво на складе -->
-      <td>{{ tool.norma }}</td> <!-- Нормальный запас на неделю -->
-      <td>{{ tool.zakaz }}</td> <!-- Заказ -->
-    </tr>
-    </tbody>
-  </v-table>
+  <v-container>
+    <v-btn @click="onAddTool">Добавить</v-btn>
+
+    <edit-tool-modal
+      v-if="openDialog"
+      v-bind="{ tool: editingTool, persistent: true }"
+      @canceled="onClosePopup"
+      @changes-saved="onSaveChanges"
+    />
+
+    <!--  вынести в компонент??  -->
+    <v-table>
+      <thead>
+        <tr>
+          <th class="text-left">id</th>
+          <th class="text-left">Название(Тип)</th>
+          <th class="text-left">Группа</th>
+          <th class="text-left">Применяемость материала</th>
+          <th class="text-left">Радиус</th>
+          <th class="text-left">Маркировка</th>
+          <th class="text-left">Количесво на складе</th>
+          <th class="text-left">Нормальный запас на неделю</th>
+          <th class="text-left">Заказ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="tool in tools" :key="tool.id" @click="onEditRow(tool)">
+          <td>{{ tool.id }}</td>
+          <!-- id -->
+          <td>{{ tool.type_name }}</td>
+          <!-- Название(Тип) -->
+          <td>{{ tool.group_name }}</td>
+          <!-- Группа -->
+          <td>{{ tool.mat_name }}</td>
+          <!-- Применяемость материала -->
+          <td>{{ tool.rad }}</td>
+          <!-- Радиус -->
+          <td>{{ tool.name }}</td>
+          <!-- Маркировка -->
+          <td>{{ tool.kolvo_sklad }}</td>
+          <!-- Количесво на складе -->
+          <td>{{ tool.norma }}</td>
+          <!-- Нормальный запас на неделю -->
+          <td>{{ tool.zakaz }}</td>
+          <!-- Заказ -->
+        </tr>
+      </tbody>
+    </v-table>
+  </v-container>
 </template>
 
 <script>
-import Modal from '@/components/Modal.vue'
+import EditToolModal from '../modules/tool/components/EditToolModal.vue'
 import { fetchTools, addTool } from '@/api/api'
 
 export default {
-  components: { Modal },
+  components: { EditToolModal },
   watch: {
     openDialog(newVal) {
       console.log('openDialog value changed:', newVal)
@@ -54,6 +73,26 @@ export default {
     this.tools = await fetchTools()
   },
   methods: {
+    onClosePopup() {
+      this.openDialog = false
+    },
+    onSaveChanges(editedTool) {
+      this.openDialog = false
+    },
+    onAddTool() {
+      this.editingTool = {
+        id: null,
+        group_name: '',
+        type_name: '',
+        mat_name: '',
+        name: '',
+        kolvo_sklad: 0,
+        norma: 0,
+        zakaz: 0,
+        rad: 0,
+      }
+      this.openDialog = true
+    },
     async addTool() {
       console.log('addTool method called in parent component')
       if (this.newToolName) {

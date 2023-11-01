@@ -1,12 +1,13 @@
-<!-- src/views/Home.vue -->
 <template>
   <v-container>
-    <h1>Home Page</h1>
+    <router-view />
   </v-container>
 </template>
 
 <script>
 export default {
-  name: 'Home',
+  name: 'Footer',
 }
 </script>
+
+<style scoped></style>

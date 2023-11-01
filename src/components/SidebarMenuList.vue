@@ -1,31 +1,34 @@
 <template>
-  <v-list density='compact' nav>
-    <template v-for='(item, index) in menuItems' :key='index'>
+  <v-list density="compact" nav>
+    <template v-for="(item, index) in menuItems" :key="index">
       <v-list-item
-        v-if='!item.items'
-        :prepend-icon='getIcon(item.icon)'
-        :title='item.title'
-        @click='$emit("click", item)'
+        v-if="!item.items"
+        :prepend-icon="getIcon(item.icon)"
+        :title="item.title"
+        @click="onNavigate(item.path)"
       >
       </v-list-item>
       <v-list-group
         v-else
-        :value='groupStates[item.title]'
-        @input='val => { groupStates[item.title] = val; }'
+        :value="groupStates[item.title]"
+        @input="
+          (val) => {
+            groupStates[item.title] = val
+          }
+        "
       >
-        <template v-slot:activator='{ props }'>
+        <template v-slot:activator="{ props }">
           <v-list-item
-            v-bind='props'
-            :prepend-icon='getIcon(item.icon)'
-            :title='item.title'
+            v-bind="props"
+            :prepend-icon="getIcon(item.icon)"
+            :title="item.title"
           >
           </v-list-item>
         </template>
         <sidebar-menu-item
-          v-for='(subItem, subIndex) in item.items'
-          :key='subIndex'
-          :item='subItem'
-          @click='$emit("click", subItem)'
+          v-for="(subItem, subIndex) in item.items"
+          :key="subIndex"
+          :item="subItem"
         >
         </sidebar-menu-item>
       </v-list-group>
@@ -33,11 +36,28 @@
   </v-list>
 </template>
 
-<script setup>
-import { defineProps } from 'vue'
+<script>
 import SidebarMenuItem from '@/components/SidebarMenuItem.vue'
 
-const { menuItems, groupStates } = defineProps(['menuItems', 'groupStates'])
-
-const getIcon = (icon) => icon || 'mdi-circle-outline'
+export default {
+  props: {
+    menuItems: {
+      type: Array,
+      default: () => [],
+    },
+    groupStates: {
+      type: Array,
+      default: () => [],
+    },
+  },
+  components: { SidebarMenuItem },
+  methods: {
+    onNavigate(path) {
+      this.$router.push(path)
+    },
+    getIcon(icon) {
+      return icon || 'mdi-circle-outline'
+    },
+  },
+}
 </script>

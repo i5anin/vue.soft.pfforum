@@ -9,7 +9,7 @@ const port = 4000
 const db = pgp({
   user: 'postgres',
   host: 'localhost',
-  database: 'postgres', //postgres //db
+  database: 'db', //postgres //db
   password: '123qwe!',
   port: 5432,
 })

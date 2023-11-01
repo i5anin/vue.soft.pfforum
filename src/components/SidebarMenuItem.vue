@@ -25,24 +25,18 @@
 </template>
 
 <script>
-import { useRouter } from 'vue-router';
-
 export default {
   props: {
     item: Object,
   },
-  setup(props) {
-    const router = useRouter();
-
-    const navigate = () => {
-      if (props.item.path) {
-        router.push(props.item.path);
+  methods: {
+    navigate() {
+      const { path } = this.item
+      if (path == null) {
+        return
       }
-    };
-
-    return {
-      navigate,
-    };
+      this.$router.push({ path })
+    },
   },
-};
+}
 </script>
