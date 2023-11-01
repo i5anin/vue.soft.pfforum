@@ -23,9 +23,7 @@
                 v-model='radius'
                 required
               ></v-select>
-              <!-- Остальные поля -->
             </v-col>
-            <!-- Добавьте дополнительные поля по аналогии -->
           </v-row>
         </v-container>
       </v-card-text>
@@ -67,6 +65,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    radiusOptions: { // добавьте это
+      type: Array,
+      default: () => [0.2, 0.4, 0.6, 0.8, 1.0, 1.2],
+    },
   },
   data() {
     return {
@@ -77,7 +79,6 @@ export default {
       stockQuantity: '',
       weeklySupply: '',
       order: '',
-      radiusOptions: [0.2, 0.4, 0.6, 0.8, 1.0, 1.2],
       radius: 0.2,  // значение по умолчанию
     }
   },
@@ -116,3 +117,6 @@ export default {
   },
 }
 </script>
+
+<style scoped></style>
+
