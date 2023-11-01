@@ -9,20 +9,13 @@
           <v-row>
             <v-col>
               <v-text-field label='Название (Тип)' v-model='typeName' required />
-              <v-text-field label='Группа' v-model='groupName' required></v-text-field>
-              <v-text-field label='Применяемость материала' v-model='materialUsage'
-                            required></v-text-field>
-              <v-text-field label='Маркировка' v-model='marking' required></v-text-field>
-              <v-text-field label='Количесво на складе' v-model='stockQuantity' required></v-text-field>
-              <v-text-field label='Нормальный запас на неделю' v-model='weeklySupply'
-                            required></v-text-field>
-              <v-text-field label='Заказ' v-model='order' required></v-text-field>
-              <v-select
-                :items='radiusOptions'
-                label='Радиус'
-                v-model='radius'
-                required
-              ></v-select>
+              <v-text-field label='Группа' v-model='groupName' required />
+              <v-text-field label='Применяемость материала' v-model='materialUsage' required />
+              <v-text-field label='Маркировка' v-model='marking' required />
+              <v-text-field label='Количесво на складе' v-model='stockQuantity' required />
+              <v-text-field label='Нормальный запас на неделю' v-model='weeklySupply' required />
+              <v-text-field label='Заказ' v-model='order' required />
+              <v-select :items='radiusOptions' label='Радиус' v-model='radius' required />
             </v-col>
           </v-row>
         </v-container>
@@ -99,7 +92,7 @@ export default {
   },
   methods: {
     closeDialog() {
-      this.$emit('update:openDialog', false)
+      this.$emit('update:value', false)
     },
     save() {
       console.log('save method called in Modal component')
