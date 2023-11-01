@@ -92,6 +92,9 @@ export default {
         rad: 0,
       }),
     },
+    radiusOptions: {  // добавьте это
+      type: Array,
+    },
   },
   components: {
     Modal,

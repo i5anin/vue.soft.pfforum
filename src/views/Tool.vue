@@ -4,7 +4,7 @@
 
     <edit-tool-modal
       v-if="openDialog"
-      v-bind="{ tool: editingTool, persistent: true }"
+      v-bind="{ tool: editingTool, persistent: true, radiusOptions: radiusOptions }"
       @canceled="onClosePopup"
       @changes-saved="onSaveChanges"
     />
@@ -67,6 +67,7 @@ export default {
       tools: [],
       newToolName: '',
       editingTool: null,
+      radiusOptions: [0.2, 0.4, 0.6, 0.8, 1.0, 1.2],  // добавьте это
     }
   },
   async created() {

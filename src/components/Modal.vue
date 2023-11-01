@@ -60,7 +60,6 @@ export default {
     },
     radiusOptions: { // добавьте это
       type: Array,
-      default: () => [0.2, 0.4, 0.6, 0.8, 1.0, 1.2],
     },
   },
   data() {
