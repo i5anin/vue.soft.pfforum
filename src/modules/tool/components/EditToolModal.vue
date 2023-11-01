@@ -4,45 +4,20 @@
       <v-container>
         <v-row>
           <v-col>
-            <v-text-field
-              label='Название (Тип)'
-              v-model='toolModel.type_name'
-              required
-            />
-            <v-text-field
-              label='Группа'
-              v-model='toolModel.group_name'
-              required
-            ></v-text-field>
-            <v-text-field
-              label='Применяемость материала'
-              v-model='toolModel.mat_name'
-              required
-            ></v-text-field>
-            <v-text-field
-              label='Маркировка'
-              v-model='toolModel.name'
-              required
-            ></v-text-field>
-            <v-text-field
-              label='Количесво на складе'
-              v-model='toolModel.kolvo_sklad'
-              required
-            ></v-text-field>
+            <v-text-field label='Название (Тип)' v-model='toolModel.type_name' required />
+            <v-text-field label='Группа' v-model='toolModel.group_name' required />
+            <v-text-field label='Применяемость материала' v-model='toolModel.mat_name' required />
+            <v-text-field label='Маркировка' v-model='toolModel.name' required />
+            <v-text-field label='Количесво на складе' v-model='toolModel.kolvo_sklad' required />
             <v-text-field label='Нормальный запас на неделю' v-model='toolModel.norma' required />
             <v-text-field label='Заказ' v-model='toolModel.zakaz' required />
-            <v-select :items='radiusOptions' label='Радиус' v-model='toolModel.rad' required />
+            <v-select label='Радиус' v-model='toolModel.rad' :items='radiusOptions' required />
           </v-col>
         </v-row>
       </v-container>
     </template>
     <template #action>
-      <v-btn
-        color='red darken-1'
-        variant='text'
-        @click='onCancel'
-        class='text-none text-subtitle-1 ml-3'
-      >
+      <v-btn color='red darken-1' variant='text' @click='onCancel' class='text-none text-subtitle-1 ml-3'>
         Закрыть
       </v-btn>
       <v-btn

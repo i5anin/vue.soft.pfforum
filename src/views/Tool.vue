@@ -1,7 +1,8 @@
 <template>
   <v-container>
-    <v-btn @click='onAddTool'>Добавить новый инструмент</v-btn>
-
+    <v-col class='pa-3 text-right'>
+      <v-btn color='blue' @click='onAddTool'>Новый инструмент</v-btn>
+    </v-col>
     <edit-tool-modal
       v-if='openDialog'
       v-bind='{ tool: editingTool, persistent: true, radiusOptions: radiusOptions }'
@@ -10,10 +11,10 @@
     />
 
     <!--  вынести в компонент??  -->
-    <v-table>
+    <v-table hover>
       <thead>
       <tr>
-        <!--          <th class="text-left">id</th>-->
+        <!-- <th class="text-left">id</th>-->
         <th class='text-left'>Название(Тип)</th>
         <th class='text-left'>Группа</th>
         <th class='text-left'>Применяемость материала</th>
@@ -42,16 +43,16 @@
 </template>
 
 <script>
-import EditToolModal from '../modules/tool/components/EditToolModal.vue'
+import EditToolModal from '@/modules/tool/components/EditToolModal.vue'
 import { fetchTools, addTool } from '@/api/api'
 
 export default {
   components: { EditToolModal },
-  watch: {
-    openDialog(newVal) {
-      console.log('openDialog value changed:', newVal)
-    },
-  },
+  // watch: {
+  //   openDialog(newVal) {
+  //     console.log('openDialog value changed:', newVal)
+  //   },
+  // },
   data() {
     return {
       openDialog: false,
