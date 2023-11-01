@@ -1,50 +1,41 @@
 <template>
   <v-container>
-    <v-btn @click="onAddTool">Добавить новый инструмент</v-btn>
+    <v-btn @click='onAddTool'>Добавить новый инструмент</v-btn>
 
     <edit-tool-modal
-      v-if="openDialog"
-      v-bind="{ tool: editingTool, persistent: true, radiusOptions: radiusOptions }"
-      @canceled="onClosePopup"
-      @changes-saved="onSaveChanges"
+      v-if='openDialog'
+      v-bind='{ tool: editingTool, persistent: true, radiusOptions: radiusOptions }'
+      @canceled='onClosePopup'
+      @changes-saved='onSaveChanges'
     />
 
     <!--  вынести в компонент??  -->
     <v-table>
       <thead>
-        <tr>
-          <th class="text-left">id</th>
-          <th class="text-left">Название(Тип)</th>
-          <th class="text-left">Группа</th>
-          <th class="text-left">Применяемость материала</th>
-          <th class="text-left">Радиус</th>
-          <th class="text-left">Маркировка</th>
-          <th class="text-left">Количесво на складе</th>
-          <th class="text-left">Нормальный запас на неделю</th>
-          <th class="text-left">Заказ</th>
-        </tr>
+      <tr>
+        <!--          <th class="text-left">id</th>-->
+        <th class='text-left'>Название(Тип)</th>
+        <th class='text-left'>Группа</th>
+        <th class='text-left'>Применяемость материала</th>
+        <th class='text-left'>Радиус</th>
+        <th class='text-left'>Маркировка</th>
+        <th class='text-left'>Количесво на складе</th>
+        <th class='text-left'>Нормальный запас на неделю</th>
+        <th class='text-left'>Заказ</th>
+      </tr>
       </thead>
       <tbody>
-        <tr v-for="tool in tools" :key="tool.id" @click="onEditRow(tool)">
-          <td>{{ tool.id }}</td>
-          <!-- id -->
-          <td>{{ tool.type_name }}</td>
-          <!-- Название(Тип) -->
-          <td>{{ tool.group_name }}</td>
-          <!-- Группа -->
-          <td>{{ tool.mat_name }}</td>
-          <!-- Применяемость материала -->
-          <td>{{ tool.rad }}</td>
-          <!-- Радиус -->
-          <td>{{ tool.name }}</td>
-          <!-- Маркировка -->
-          <td>{{ tool.kolvo_sklad }}</td>
-          <!-- Количесво на складе -->
-          <td>{{ tool.norma }}</td>
-          <!-- Нормальный запас на неделю -->
-          <td>{{ tool.zakaz }}</td>
-          <!-- Заказ -->
-        </tr>
+      <tr v-for='tool in tools' :key='tool.id' @click='onEditRow(tool)'>
+        <!-- td :style="{ color: 'grey' }">{{ tool.id }}</td>-->
+        <td>{{ tool.type_name }}</td>  <!-- Название(Тип) -->
+        <td>{{ tool.group_name }}</td> <!-- Группа -->
+        <td>{{ tool.mat_name }}</td>   <!-- Применяемость материала -->
+        <td>{{ tool.rad }}</td>        <!-- Радиус -->
+        <td>{{ tool.name }}</td>       <!-- Маркировка -->
+        <td>{{ tool.kolvo_sklad }}</td><!-- Количесво на складе -->
+        <td>{{ tool.norma }}</td>      <!-- Нормальный запас на неделю -->
+        <td>{{ tool.zakaz }}</td>      <!-- Заказ -->
+      </tr>
       </tbody>
     </v-table>
   </v-container>
@@ -67,7 +58,7 @@ export default {
       tools: [],
       newToolName: '',
       editingTool: null,
-      radiusOptions: [0.2, 0.4, 0.6, 0.8, 1.0, 1.2],  // добавьте это
+      radiusOptions: [0.2, 0.4, 0.6, 0.8, 1.0, 1.2],
     }
   },
   async created() {
