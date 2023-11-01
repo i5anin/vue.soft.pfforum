@@ -9,5 +9,5 @@ import '@fontsource/nunito'  // импорт шрифта Nunito
 const app = createApp(App)
 registerPlugins(app)
 app.use(router)
-app.use(store)  
+app.use(store)
 app.mount('#app')

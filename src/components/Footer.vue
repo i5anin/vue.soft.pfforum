@@ -1,5 +1,5 @@
 <template>
-  <v-footer class='container'>PF-FORUM Все права защищены 2023</v-footer>
+  <v-footer class='container'>Все права защищены 2023</v-footer>
 </template>
 
 <script>

@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-btn @click="onAddTool">Добавить</v-btn>
+    <v-btn @click="onAddTool">Добавить новый инструмент</v-btn>
 
     <edit-tool-modal
       v-if="openDialog"
