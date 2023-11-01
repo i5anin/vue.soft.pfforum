@@ -74,3 +74,24 @@ app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`)
 })
 
+
+app.put('/edit-tool/:id', async (req, res) => {
+  const { id } = req.params;
+  const { name, group_id, mat_id, type_id } = req.body;
+  if (!name || !group_id || !mat_id || !type_id) {
+    return res.status(400).send('Bad Request: Missing required fields');
+  }
+
+  try {
+    const result = await db.one(
+      'UPDATE dbo.tool_num SET name=$1, group_id=$2, mat_id=$3, type_id=$4 WHERE id=$5 RETURNING *',
+      [name, group_id, mat_id, type_id, id],
+    );
+    res.json(result);
+  } catch (err) {
+    console.error('Error:', err.message);
+    console.error('Stack:', err.stack);
+    res.status(500).send(err.message);
+  }
+});
+

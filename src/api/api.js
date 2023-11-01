@@ -34,3 +34,24 @@ export async function addTool(toolName) {
   }
 }
 
+export async function updateTool(id, toolData) {
+  try {
+    const response = await fetch(`${BASE_URL}/edit-tool/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(toolData),
+    });
+    if (!response.ok) {
+      throw new Error('Network response was not ok ' + response.statusText);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('There has been a problem with your fetch operation:', error);
+    return null;
+  }
+}
+
+

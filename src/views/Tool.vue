@@ -9,7 +9,6 @@
       @canceled='onClosePopup'
       @changes-saved='onSaveChanges'
     />
-
     <!--  вынести в компонент??  -->
     <v-table hover>
       <thead>
@@ -48,11 +47,6 @@ import { fetchTools, addTool } from '@/api/api'
 
 export default {
   components: { EditToolModal },
-  // watch: {
-  //   openDialog(newVal) {
-  //     console.log('openDialog value changed:', newVal)
-  //   },
-  // },
   data() {
     return {
       openDialog: false,
