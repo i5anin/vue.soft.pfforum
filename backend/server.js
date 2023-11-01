@@ -1,7 +1,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const pgp = require('pg-promise')()
-const cors = require('cors')
+// const cors = require('cors')
 
 const app = express()
 const port = 4000
@@ -15,7 +15,7 @@ const db = pgp({
 })
 
 app.use(bodyParser.json())
-app.use(cors())
+// app.use(cors())
 
 app.get('/tools', async (req, res) => {
   try {
