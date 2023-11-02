@@ -68,6 +68,8 @@ export default {
     typeOptions: [],  // Опции для выбора типа
     groupOptions: [],  // Опции для выбора группы
     materialOptions: [],  // Опции для выбора материала
+    snackbar: false,
+    snackbarMessage: '',  // Сообщение для отображения в Snackbar
   }),
   watch: {  // Слежка за изменением свойств и данных
     tool: {
@@ -128,16 +130,19 @@ export default {
           zakaz: Number(this.toolModel.zakaz),
           rad: Number(this.toolModel.rad)
         };
+
         console.log(toolData)
+
         try {
-          // Отправка данных инструмента на сервер
-          const newTool = await addToolApi(toolData)  // Используем переименованную функцию
+          const newTool = await addToolApi(toolData);
           if (newTool) {
-            // Генерация пользовательского события с новым инструментом
-            this.$emit('tool-added', newTool)
+            this.$emit('tool-added', newTool);
+            this.snackbarMessage = `Инструмент успешно добавлен: ${newTool.name}`;  // Установите сообщение
+            this.snackbar = true;  // Откройте Snackbar
+            setTimeout(() => { this.snackbar = false; }, 1000);  // Закройте Snackbar через секунду
           }
         } catch (error) {
-          console.error('Ошибка при добавлении инструмента:', error)
+          console.error('Ошибка при добавлении инструмента:', error);
         }
       }
     },
