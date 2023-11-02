@@ -35,11 +35,10 @@
   </Modal>
 </template>
 
-
 <script>
 // Импорт других компонентов и функций
 import Modal from '@/components/shared/Modal.vue'
-import { fetchTools } from '@/api/api'
+import { fetchTools, addTool as addToolApi } from '@/api/api'  // Изменили имя импортированной функции
 
 // Экспорт компонента
 export default {
@@ -80,11 +79,12 @@ export default {
   },
   async created() {  // Хук жизненного цикла, вызывается при создании компонента
     const rawData = await fetchTools()  // Получение данных с сервера
-    console.log(rawData)
+    // console.log(rawData)
     // Обновление опций для выбора на основе полученных данных
     this.typeOptions = rawData.types.map(type => type.type_name)
     this.groupOptions = rawData.groups.map(group => group.group_name)
     this.materialOptions = rawData.materials.map(material => material.mat_name)
+    // console.log(this.typeOptions, this.groupOptions, this.materialOptions)  // Выведите обработанные данные
   },
   computed: {  // Вычисляемые свойства
     popupTitle() {  // Заголовок модального окна
@@ -99,7 +99,47 @@ export default {
       this.$emit('canceled')  // Генерация пользовательского события "canceled"
     },
     onSave() {  // Обработчик клика по кнопке "Сохранить"
-      this.$emit('changes-saved', this.toolModel)  // Генерация пользовательского события "changes-saved" с передачей данных инструмента
+      this.handleAddTool()  // Переименовали вызов метода
+    },
+    async handleAddTool() {  // Переименовали метод
+      // Проверка, что инструмент новый (у нового инструмента нет id)
+      if (this.toolModel.id == null) {
+        // Находим индекс для group, type и mat
+        const groupIndex = this.groupOptions.indexOf(this.toolModel.group_name)
+        const typeIndex = this.typeOptions.indexOf(this.toolModel.type_name)
+        const matIndex = this.materialOptions.indexOf(this.toolModel.mat_name)
+
+        console.log(typeIndex)
+        console.log(groupIndex)
+        console.log(matIndex)
+
+        if (groupIndex === -1 || typeIndex === -1 || matIndex === -1) {
+          console.error('Не удалось найти индекс для group, type или mat')
+          return
+        }
+
+        const toolData = {
+          name: this.toolModel.name,
+          group_id: groupIndex,
+          mat_id: matIndex,
+          type_id: typeIndex,
+          kolvo_sklad: Number(this.toolModel.kolvo_sklad),
+          norma: Number(this.toolModel.norma),
+          zakaz: Number(this.toolModel.zakaz),
+          rad: Number(this.toolModel.rad)
+        };
+        console.log(toolData)
+        try {
+          // Отправка данных инструмента на сервер
+          const newTool = await addToolApi(toolData)  // Используем переименованную функцию
+          if (newTool) {
+            // Генерация пользовательского события с новым инструментом
+            this.$emit('tool-added', newTool)
+          }
+        } catch (error) {
+          console.error('Ошибка при добавлении инструмента:', error)
+        }
+      }
     },
   },
 }
