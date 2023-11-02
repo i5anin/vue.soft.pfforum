@@ -1,6 +1,6 @@
-// @/api/api.js
-
 const BASE_URL = 'http://localhost:4000';
+
+// Получить все инструменты и связанные данные
 export async function fetchTools() {
   try {
     const response = await fetch(`${BASE_URL}/tools`);
@@ -14,14 +14,15 @@ export async function fetchTools() {
   }
 }
 
-export async function addTool(toolName) {
+// Добавить новый инструмент
+export async function addTool(toolData) {
   try {
     const response = await fetch(`${BASE_URL}/add-tool`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ name: toolName }),
+      body: JSON.stringify(toolData),
     });
     if (!response.ok) {
       throw new Error('Network response was not ok ' + response.statusText);
@@ -34,6 +35,7 @@ export async function addTool(toolName) {
   }
 }
 
+// Обновить существующий инструмент
 export async function updateTool(id, toolData) {
   try {
     const response = await fetch(`${BASE_URL}/edit-tool/${id}`, {
@@ -41,16 +43,7 @@ export async function updateTool(id, toolData) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        name: toolData.name,
-        group_id: toolData.group_name,  // Предполагается, что group_name является числовым ID
-        mat_id: toolData.mat_name,  // Предполагается, что mat_name является числовым ID
-        type_id: toolData.type_name,  // Предполагается, что type_name является числовым ID
-        kolvo_sklad: toolData.kolvo_sklad,
-        norma: toolData.norma,
-        zakaz: toolData.zakaz,
-        rad: toolData.rad
-      }),
+      body: JSON.stringify(toolData),
     });
     if (!response.ok) {
       throw new Error('Network response was not ok ' + response.statusText);
@@ -63,4 +56,65 @@ export async function updateTool(id, toolData) {
   }
 }
 
+// Добавить новый материал
+export async function addMaterial(name) {
+  try {
+    const response = await fetch(`${BASE_URL}/add-material`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name }),
+    });
+    if (!response.ok) {
+      throw new Error('Network response was not ok ' + response.statusText);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('There has been a problem with your fetch operation:', error);
+    return null;
+  }
+}
 
+// Добавить новый тип
+export async function addType(name) {
+  try {
+    const response = await fetch(`${BASE_URL}/add-type`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name }),
+    });
+    if (!response.ok) {
+      throw new Error('Network response was not ok ' + response.statusText);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('There has been a problem with your fetch operation:', error);
+    return null;
+  }
+}
+
+// Добавить новую группу
+export async function addGroup(name) {
+  try {
+    const response = await fetch(`${BASE_URL}/add-group`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name }),
+    });
+    if (!response.ok) {
+      throw new Error('Network response was not ok ' + response.statusText);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('There has been a problem with your fetch operation:', error);
+    return null;
+  }
+}
