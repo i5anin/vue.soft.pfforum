@@ -33,7 +33,6 @@
     </template>
   </Modal>
 </template>
-
 <script>
 import Modal from '@/components/shared/Modal.vue'
 
@@ -54,7 +53,7 @@ export default {
         rad: 0,
       }),
     },
-    radiusOptions: {  // добавьте это
+    radiusOptions: {
       type: Array,
     },
   },
@@ -89,4 +88,3 @@ export default {
   },
 }
 </script>
-

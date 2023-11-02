@@ -19,31 +19,55 @@ app.use(cors())
 
 app.get('/tools', async (req, res) => {
   try {
-    const query = `
+    const toolQuery = `
      SELECT
-      nom.id,
+        nom.id,
         nom.name,
         nom.group_id,
-        group_id.name AS group_name,
         nom.mat_id,
-        mat_id.name AS mat_name,
         nom.type_id,
-        type_id.name AS type_name,
         nom.rad,
         nom.kolvo_sklad,
         nom.norma,
         nom.zakaz
       FROM
         dbo.nom
-      INNER JOIN
-        dbo.group_id ON nom.group_id = group_id.id
-      INNER JOIN
-        dbo.mat_id ON nom.mat_id = mat_id.id
-      INNER JOIN
-        dbo.type_id ON nom.type_id = type_id.id;
     `;
-    const result = await db.any(query);
-    res.json(result);
+    const groupQuery = `
+      SELECT
+        id,
+        name AS group_name
+      FROM
+        dbo.group_id
+    `;
+    const matQuery = `
+      SELECT
+        id,
+        name AS mat_name
+      FROM
+        dbo.mat_id
+    `;
+    const typeQuery = `
+      SELECT
+        id,
+        name AS type_name
+      FROM
+        dbo.type_id
+    `;
+
+    const [tools, groups, materials, types] = await Promise.all([
+      db.any(toolQuery),
+      db.any(groupQuery),
+      db.any(matQuery),
+      db.any(typeQuery),
+    ]);
+
+    res.json({
+      tools,
+      groups,
+      materials,
+      types,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).send(err.message);
@@ -59,7 +83,7 @@ app.post('/add-tool', async (req, res) => {
 
   try {
     const result = await db.one(
-      'INSERT INTO dbo.tool_num (name, group_id, mat_id, type_id,red,kolvo_sklad,norma,zakaz,group_id) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      'INSERT INTO dbo.nom (name, group_id, mat_id, type_id,red,kolvo_sklad,norma,zakaz,group_id) VALUES ($1, $2, $3, $4, $5) RETURNING *',
       [name, group_id, mat_id, type_id],
     )
     res.json(result)
@@ -77,15 +101,15 @@ app.listen(port, () => {
 
 app.put('/edit-tool/:id', async (req, res) => {
   const { id } = req.params;
-  const { name, group_id, mat_id, type_id } = req.body;
+  const { name, group_id, mat_id, type_id, kolvo_sklad, norma, zakaz, rad } = req.body;
   if (!name || !group_id || !mat_id || !type_id) {
     return res.status(400).send('Bad Request: Missing required fields');
   }
 
   try {
     const result = await db.one(
-      'UPDATE dbo.tool_num SET name=$1, group_id=$2, mat_id=$3, type_id=$4 WHERE id=$5 RETURNING *',
-      [name, group_id, mat_id, type_id, id],
+      'UPDATE dbo.nom SET name=$1, group_id=$2, mat_id=$3, type_id=$4, kolvo_sklad=$5, norma=$6, zakaz=$7, rad=$8 WHERE id=$9 RETURNING *',
+      [name, group_id, mat_id, type_id, kolvo_sklad, norma, zakaz, rad, id],
     );
     res.json(result);
   } catch (err) {

@@ -41,7 +41,16 @@ export async function updateTool(id, toolData) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(toolData),
+      body: JSON.stringify({
+        name: toolData.name,
+        group_id: toolData.group_name,  // Предполагается, что group_name является числовым ID
+        mat_id: toolData.mat_name,  // Предполагается, что mat_name является числовым ID
+        type_id: toolData.type_name,  // Предполагается, что type_name является числовым ID
+        kolvo_sklad: toolData.kolvo_sklad,
+        norma: toolData.norma,
+        zakaz: toolData.zakaz,
+        rad: toolData.rad
+      }),
     });
     if (!response.ok) {
       throw new Error('Network response was not ok ' + response.statusText);

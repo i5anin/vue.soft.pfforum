@@ -43,7 +43,7 @@
 
 <script>
 import EditToolModal from '@/modules/tool/components/EditToolModal.vue'
-import { fetchTools, addTool } from '@/api/api'
+import { fetchTools, updateTool } from '@/api/api'
 
 export default {
   components: { EditToolModal },
@@ -51,49 +51,61 @@ export default {
     return {
       openDialog: false,
       tools: [],
-      newToolName: '',
       editingTool: null,
       radiusOptions: [0.2, 0.4, 0.6, 0.8, 1.0, 1.2],
     }
   },
   async created() {
-    this.tools = await fetchTools()
+    const rawData = await fetchTools()
+    this.tools = this.processToolsData(rawData)
   },
   methods: {
-    onClosePopup() {
-      this.openDialog = false
-    },
-    onSaveChanges(editedTool) {
-      this.openDialog = false
-    },
-    onAddTool() {
-      this.editingTool = {
-        id: null,
-        group_name: '',
-        type_name: '',
-        mat_name: '',
-        name: '',
-        kolvo_sklad: 0,
-        norma: 0,
-        zakaz: 0,
-        rad: 0,
-      }
-      this.openDialog = true
-    },
-    async addTool() {
-      console.log('addTool method called in parent component')
-      if (this.newToolName) {
-        const addedTool = await addTool(this.newToolName)
-        if (addedTool) {
-          this.tools.push(addedTool)
-          this.newToolName = ''
+    processToolsData(rawData) {
+      return rawData.tools.map(tool => {
+        const group = rawData.groups.find(group => group.id === tool.group_id)
+        const material = rawData.materials.find(material => material.id === tool.mat_id)
+        const type = rawData.types.find(type => type.id === tool.type_id)
+        return {
+          ...tool,
+          group_name: group ? group.group_name : '',
+          mat_name: material ? material.mat_name : '',
+          type_name: type ? type.type_name : '',
         }
-      }
-    },
-    onEditRow(tool) {
-      this.editingTool = tool
-      this.openDialog = true
+      })
     },
   },
+  onClosePopup() {
+    this.openDialog = false
+  },
+  async onSaveChanges(editedTool) {
+    this.openDialog = false
+    const updatedTool = await updateTool(editedTool.id, editedTool)
+    if (updatedTool) {
+      const index = this.tools.findIndex(tool => tool.id === updatedTool.id)
+      if (index !== -1) {
+        this.$set(this.tools, index, updatedTool)
+      }
+    }
+  },
+  onAddTool() {
+    this.editingTool = {
+      id: null,
+      group_name: '',
+      type_name: '',
+      mat_name: '',
+      name: '',
+      kolvo_sklad: 0,
+      norma: 0,
+      zakaz: 0,
+      rad: 0,
+    }
+    this.openDialog = true
+  },
+  onEditRow(tool) {
+    this.editingTool = tool
+    this.openDialog = true
+  },
+}
+,
 }
 </script>
