@@ -55,66 +55,35 @@ export async function updateTool(id, toolData) {
     return null;
   }
 }
-
-// Добавить новый материал
 export async function addMaterial(name) {
-  try {
-    const response = await fetch(`${BASE_URL}/add-material`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ name }),
-    });
-    if (!response.ok) {
-      throw new Error('Network response was not ok ' + response.statusText);
-    }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('There has been a problem with your fetch operation:', error);
-    return null;
-  }
+  const response = await fetch('/add-material', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ name }),
+  });
+  return response.json();
 }
 
-// Добавить новый тип
 export async function addType(name) {
-  try {
-    const response = await fetch(`${BASE_URL}/add-type`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ name }),
-    });
-    if (!response.ok) {
-      throw new Error('Network response was not ok ' + response.statusText);
-    }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('There has been a problem with your fetch operation:', error);
-    return null;
-  }
+  const response = await fetch('/add-type', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ name }),
+  });
+  return response.json();
 }
 
-// Добавить новую группу
 export async function addGroup(name) {
-  try {
-    const response = await fetch(`${BASE_URL}/add-group`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ name }),
-    });
-    if (!response.ok) {
-      throw new Error('Network response was not ok ' + response.statusText);
-    }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('There has been a problem with your fetch operation:', error);
-    return null;
-  }
+  const response = await fetch('/add-group', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ name }),
+  });
+  return response.json();
 }
