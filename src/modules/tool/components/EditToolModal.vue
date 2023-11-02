@@ -4,9 +4,9 @@
       <v-container>
         <v-row>
           <v-col>
-            <v-select label='Название (Тип)' v-model='toolModel.type_name' :items='typeOptions' required />
-            <v-select label='Группа' v-model='toolModel.group_name' :items='groupOptions' required />
-            <v-select label='Применяемость материала' v-model='toolModel.mat_name' :items='materialOptions' required />
+            <v-combobox label='Название (Тип)' v-model='toolModel.type_name' :items='typeOptions' required></v-combobox>
+            <v-combobox label='Группа' v-model='toolModel.group_name' :items='groupOptions' required></v-combobox>
+            <v-combobox label='Применяемость материала' v-model='toolModel.mat_name' :items='materialOptions' required></v-combobox>
 
             <v-text-field label='Маркировка' v-model='toolModel.name' required />
             <v-text-field label='Количесво на складе' v-model='toolModel.kolvo_sklad' required />
