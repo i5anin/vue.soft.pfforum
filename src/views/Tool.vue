@@ -40,7 +40,6 @@
     </v-table>
   </v-container>
 </template>
-
 <script>
 import EditToolModal from '@/modules/tool/components/EditToolModal.vue'
 import { fetchTools, updateTool } from '@/api/api'
@@ -73,39 +72,37 @@ export default {
         }
       })
     },
-  },
-  onClosePopup() {
-    this.openDialog = false
-  },
-  async onSaveChanges(editedTool) {
-    this.openDialog = false
-    const updatedTool = await updateTool(editedTool.id, editedTool)
-    if (updatedTool) {
-      const index = this.tools.findIndex(tool => tool.id === updatedTool.id)
-      if (index !== -1) {
-        this.$set(this.tools, index, updatedTool)
+    onClosePopup() {
+      this.openDialog = false
+    },
+    async onSaveChanges(editedTool) {
+      this.openDialog = false
+      const updatedTool = await updateTool(editedTool.id, editedTool)
+      if (updatedTool) {
+        const index = this.tools.findIndex(tool => tool.id === updatedTool.id)
+        if (index !== -1) {
+          this.$set(this.tools, index, updatedTool)
+        }
       }
-    }
+    },
+    onAddTool() {
+      this.editingTool = {
+        id: null,
+        group_name: '',
+        type_name: '',
+        mat_name: '',
+        name: '',
+        kolvo_sklad: 0,
+        norma: 0,
+        zakaz: 0,
+        rad: 0,
+      }
+      this.openDialog = true
+    },
+    onEditRow(tool) {
+      this.editingTool = tool
+      this.openDialog = true
+    },
   },
-  onAddTool() {
-    this.editingTool = {
-      id: null,
-      group_name: '',
-      type_name: '',
-      mat_name: '',
-      name: '',
-      kolvo_sklad: 0,
-      norma: 0,
-      zakaz: 0,
-      rad: 0,
-    }
-    this.openDialog = true
-  },
-  onEditRow(tool) {
-    this.editingTool = tool
-    this.openDialog = true
-  },
-}
-,
 }
 </script>

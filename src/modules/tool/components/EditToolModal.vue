@@ -4,13 +4,15 @@
       <v-container>
         <v-row>
           <v-col>
-            <v-text-field label='Название (Тип)' v-model='toolModel.type_name' required />
-            <v-text-field label='Группа' v-model='toolModel.group_name' required />
-            <v-text-field label='Применяемость материала' v-model='toolModel.mat_name' required />
+            <v-select label='Название (Тип)' v-model='toolModel.type_name' :items='typeOptions' required />
+            <v-select label='Группа' v-model='toolModel.group_name' :items='groupOptions' required />
+            <v-select label='Применяемость материала' v-model='toolModel.mat_name' :items='materialOptions' required />
+
             <v-text-field label='Маркировка' v-model='toolModel.name' required />
             <v-text-field label='Количесво на складе' v-model='toolModel.kolvo_sklad' required />
             <v-text-field label='Нормальный запас на неделю' v-model='toolModel.norma' required />
             <v-text-field label='Заказ' v-model='toolModel.zakaz' required />
+
             <v-select label='Радиус' v-model='toolModel.rad' :items='radiusOptions' required />
           </v-col>
         </v-row>
@@ -33,8 +35,11 @@
     </template>
   </Modal>
 </template>
+
+
 <script>
 import Modal from '@/components/shared/Modal.vue'
+import { fetchTools } from '@/api/api'  // Убедитесь, что импортировали функцию fetchTools
 
 export default {
   name: 'EditToolModal',
@@ -62,6 +67,9 @@ export default {
   },
   data: () => ({
     toolModel: null,
+    typeOptions: [],
+    groupOptions: [],
+    materialOptions: [],
   }),
   watch: {
     tool: {
@@ -70,6 +78,13 @@ export default {
         this.toolModel = JSON.parse(JSON.stringify(tool))
       },
     },
+  },
+  async created() {
+    const rawData = await fetchTools();
+
+    this.typeOptions = rawData.types.map(type => type.type_name);
+    this.groupOptions = rawData.groups.map(group => group.group_name);
+    this.materialOptions = rawData.materials.map(material => material.mat_name);
   },
   computed: {
     popupTitle() {
@@ -88,3 +103,4 @@ export default {
   },
 }
 </script>
+
