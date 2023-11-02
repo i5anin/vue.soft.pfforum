@@ -69,17 +69,17 @@ app.get('/tools', async (req, res) => {
 // Обрабатываем POST запросы на URL /add-tool
 app.post('/add-tool', async (req, res) => {
   // Извлекаем данные из тела запроса
-  const { name, group_id, mat_id, type_id } = req.body
+  const { name, group_id, mat_id, type_id, kolvo_sklad, norma, zakaz, rad } = req.body
   // Проверяем, что все необходимые данные были отправлены
-  if (!name || !group_id || !mat_id || !type_id) {
+  if (!name || !group_id || !mat_id || !type_id || !kolvo_sklad || !norma || !zakaz || !rad) {
     return res.status(400).send('Bad Request: Missing required fields')
   }
 
   try {
     // SQL запрос для добавления нового инструмента в базу данных
     const result = await db.one(
-      'INSERT INTO dbo.nom (name, group_id, mat_id, type_id,red,kolvo_sklad,norma,zakaz,group_id) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [name, group_id, mat_id, type_id],
+      'INSERT INTO dbo.nom (name, group_id, mat_id, type_id, rad, kolvo_sklad, norma, zakaz ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
+      [name, group_id, mat_id, type_id, rad, kolvo_sklad, norma, zakaz],
     )
     res.json(result)
   } catch (err) {
@@ -93,7 +93,7 @@ app.post('/add-tool', async (req, res) => {
 
 app.put('/edit-tool/:id', async (req, res) => {
   // Извлекаем id инструмента из параметров URL
-  const { id } = req.params;
+  const { id } = req.params
   // Извлекаем данные из тела запроса
   const { name, group_id, mat_id, type_id, kolvo_sklad, norma, zakaz, rad } = req.body
 
