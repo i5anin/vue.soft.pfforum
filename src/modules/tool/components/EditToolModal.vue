@@ -24,6 +24,10 @@
     </template>
     <template #action>  <!-- Слот для действий модального окна -->
       <!-- Кнопки для закрытия модального окна и сохранения данных -->
+      <v-btn color='red darken-1' variant='text' @click='onDelete' class='text-none text-subtitle-1 ml-3'>
+        Удалить
+      </v-btn>
+      <v-spacer />
       <v-btn color='red darken-1' variant='text' @click='onCancel' class='text-none text-subtitle-1 ml-3'>
         Закрыть
       </v-btn>
@@ -38,7 +42,7 @@
 <script>
 // Импорт других компонентов и функций
 import Modal from '@/components/shared/Modal.vue'
-import { fetchTools, addTool as addToolApi } from '@/api/api'  // Изменили имя импортированной функции
+import { fetchTools, addTool as addToolApi, deleteTool } from '@/api/api'  // Изменили имя импортированной функции
 
 // Экспорт компонента
 export default {
@@ -95,6 +99,18 @@ export default {
     },
   },
   methods: {  // Методы компонента
+    async onDelete() {
+      if (this.toolModel.id != null) {
+        try {
+          const result = await deleteTool(this.toolModel.id)
+          if (result && result.deleted > 0) {
+            this.$emit('tool-deleted', this.toolModel.id)
+          }
+        } catch (error) {
+          console.error('Ошибка при удалении инструмента:', error)
+        }
+      }
+    },
     onCancel() {  // Обработчик клика по кнопке "Закрыть"
       this.$emit('canceled')  // Генерация пользовательского события "canceled"
     },
@@ -126,8 +142,8 @@ export default {
           kolvo_sklad: Number(this.toolModel.kolvo_sklad),
           norma: Number(this.toolModel.norma),
           zakaz: Number(this.toolModel.zakaz),
-          rad: Number(this.toolModel.rad)
-        };
+          rad: Number(this.toolModel.rad),
+        }
         console.log(toolData)
         try {
           // Отправка данных инструмента на сервер

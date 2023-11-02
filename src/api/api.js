@@ -36,6 +36,21 @@ export async function addTool(toolData) {
   }
 }
 
+// Удалить инструмент по ID
+export async function deleteTool(id) {
+  try {
+    const response = await fetch(`${BASE_URL}/delete-tool/${id}`, {
+      method: 'DELETE',
+    })
+    if (!response.ok) {
+      throw new Error('Network response was not ok ' + response.statusText)
+    }
+    return await response.json()
+  } catch (error) {
+    console.error('There has been a problem with your fetch operation:', error)
+    return null
+  }
+}
 
 // Обновить существующий инструмент
 export async function updateTool(id, toolData) {

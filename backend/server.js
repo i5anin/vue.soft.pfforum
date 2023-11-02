@@ -66,6 +66,26 @@ app.get('/tools', async (req, res) => {
   }
 })
 
+// Обрабатываем DELETE запросы на URL /delete-tool/:id
+app.delete('/delete-tool/:id', async (req, res) => {
+  // Извлекаем id инструмента из параметров URL
+  const { id } = req.params
+
+  try {
+    // SQL запрос для удаления инструмента из базы данных
+    const result = await db.result(
+      'DELETE FROM dbo.nom WHERE id=$1',
+      [id],
+    )
+    res.json({ deleted: result.rowCount })
+  } catch (err) {
+    console.error('Error:', err.message)
+    console.error('Stack:', err.stack)
+    res.status(500).send(err.message)
+  }
+})
+
+
 // Обрабатываем POST запросы на URL /add-tool
 app.post('/add-tool', async (req, res) => {
   // Извлекаем данные из тела запроса
