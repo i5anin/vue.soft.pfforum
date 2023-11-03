@@ -48,6 +48,10 @@ import { fetchTools, addTool, deleteTool, updateTool } from '@/api/api'  // Из
 export default {
   name: 'EditToolModal',  // Имя компонента
   props: {  // Входные свойства компонента
+    visible: {
+      type: Boolean,
+      default: false,
+    },
     tool: {
       type: Object,  // Тип свойства
       default: () => ({  // Значение по умолчанию
@@ -58,10 +62,8 @@ export default {
   },
   components: { Modal }, // Список компонентов, используемых в данном компоненте
   data: () => ({  // Локальное состояние компонента
-    toolModel: null,  // Модель данных инструмента
-    typeOptions: [],  // Опции для выбора типа
-    groupOptions: [],  // Опции для выбора группы
-    materialOptions: [],  // Опции для выбора материала
+    toolModel: null, typeOptions: [],
+    groupOptions: [], materialOptions: [],
   }),
   watch: {  // Слежка за изменением свойств и данных
     tool: {
@@ -122,14 +124,8 @@ export default {
 
       // Составляем объект данных инструмента
       const toolData = {
-        name,
-        group_id: groupIndex + 1,
-        mat_id: matIndex + 1,
-        type_id: typeIndex + 1,
-        kolvo_sklad: Number(kolvo_sklad),
-        norma: Number(norma),
-        zakaz: Number(zakaz),
-        rad: Number(rad),
+        name, group_id: groupIndex + 1, mat_id: matIndex + 1, type_id: typeIndex + 1,
+        kolvo_sklad: Number(kolvo_sklad), norma: Number(norma), zakaz: Number(zakaz), rad: Number(rad),
       }
 
       try {
@@ -140,7 +136,7 @@ export default {
           // Если id не задан, это новый инструмент, и мы вызываем API для добавления
           result = await addTool(toolData)
           if (result) this.$emit('tool-added', result)  // Генерация пользовательского события с новым инструментом
-
+          if (result) this.$emit('close-modal')
         } else {
           // Если id задан, это существующий инструмент, и мы вызываем API для обновления
           result = await updateTool(id, toolData)
