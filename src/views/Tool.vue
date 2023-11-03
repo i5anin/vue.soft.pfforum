@@ -8,7 +8,6 @@
       v-bind='{ tool: editingTool, persistent: true, radiusOptions: radiusOptions }'
       @canceled='onClosePopup'
       @changes-saved='onSaveChanges'
-      @close-modal='openDialog = false' 
     />
     <!--  вынести в компонент??  -->
     <v-table hover>

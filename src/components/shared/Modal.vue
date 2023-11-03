@@ -1,5 +1,5 @@
 <template>
-  <v-dialog :model-value="visible" v-bind="modalProps" width="500">
+  <v-dialog :model-value="true" v-bind="modalProps" width="500">
     <template v-slot:activator="{ props }">
       <slot name="default" v-bind="props" />
     </template>
@@ -21,10 +21,6 @@
 <script>
 export default {
   props: {
-    visible: {
-      type: Boolean,
-      default: false,
-    },
     title: {
       type: String,
       default: 'Заголовок попапа',
