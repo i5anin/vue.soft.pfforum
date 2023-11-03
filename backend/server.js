@@ -28,8 +28,9 @@ app.listen(port, () => {
 app.get('/tools', async (req, res) => {
   try {
     const toolQuery = `
-     SELECT nom.id, nom.name, nom.group_id, nom.mat_id, nom.type_id, nom.rad, nom.kolvo_sklad, nom.norma, nom.zakaz
-     FROM dbo.nom
+    SELECT nom.id, nom.name, nom.group_id, nom.mat_id, nom.type_id, nom.rad, nom.kolvo_sklad, nom.norma, nom.zakaz
+    FROM dbo.nom
+    ORDER BY nom.id DESC
     `
     const groupQuery = `
       SELECT id, name AS group_name
