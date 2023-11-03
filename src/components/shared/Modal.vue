@@ -1,17 +1,17 @@
 <template>
-  <v-dialog :model-value="true" v-bind="modalProps" width="500">
-    <template v-slot:activator="{ props }">
-      <slot name="default" v-bind="props" />
+  <v-dialog :model-value='true' v-bind='modalProps' width='500'>
+    <template v-slot:activator='{ props }'>
+      <slot name='default' v-bind='props' />
     </template>
 
-    <template v-slot:default="{ isActive }">
+    <template v-slot:default='{ isActive }'>
       <v-card>
-        <v-card-title> {{ title }} </v-card-title>
+        <v-card-title> {{ title }}</v-card-title>
         <v-spacer />
-        <slot name="content"></slot>
+        <slot name='content' />
         <v-spacer />
         <v-card-actions>
-          <slot name="action" />
+          <slot name='action' />
         </v-card-actions>
       </v-card>
     </template>

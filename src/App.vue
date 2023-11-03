@@ -21,8 +21,4 @@ export default {
 body {
   font-family: 'Nunito', sans-serif;
 }
-.router-view-wrapper {
-  //padding-top: 60px; /* Задайте значение в зависимости от высоты вашей шапки */
-  //padding-left: 200px; /* Задайте значение в зависимости от ширины вашей боковой панели */
-}
 </style>

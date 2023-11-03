@@ -43,6 +43,4 @@ const search = ref('')
 const showSearch = ref(false)  // Переменная для управления видимостью поля поиска
 </script>
 
-<style scoped>
-/* Дополнительные стили, если они необходимы */
-</style>
+
