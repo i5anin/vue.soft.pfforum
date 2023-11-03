@@ -51,20 +51,10 @@ export default {
     tool: {
       type: Object,  // Тип свойства
       default: () => ({  // Значение по умолчанию
-        id: null,
-        group_name: '',
-        type_name: '',
-        mat_name: '',
-        name: '',
-        kolvo_sklad: 0,
-        norma: 0,
-        zakaz: 0,
-        rad: 0,
+        id: null, group_name: '', type_name: '', mat_name: '', name: '', kolvo_sklad: 0, norma: 0, zakaz: 0, rad: 0,
       }),
     },
-    radiusOptions: {
-      type: Array,  // Тип свойства
-    },
+    radiusOptions: { type: Array },// Тип свойства
   },
   components: { Modal }, // Список компонентов, используемых в данном компоненте
   data: () => ({  // Локальное состояние компонента
