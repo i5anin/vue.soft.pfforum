@@ -17,7 +17,6 @@ export async function fetchTools() {
 // Добавить новый инструмент
 export async function addTool(toolData) {
   try {
-    console.log("toolData")
     console.log(toolData)
     const response = await fetch(`${BASE_URL}/add-tool`, {
       method: 'POST',
