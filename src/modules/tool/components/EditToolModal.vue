@@ -139,15 +139,13 @@ export default {
 
           // Если id не задан, это новый инструмент, и мы вызываем API для добавления
           result = await addTool(toolData)
-          if (result) {
-            this.$emit('tool-added', result)  // Генерация пользовательского события с новым инструментом
-          }
+          if (result) this.$emit('tool-added', result)  // Генерация пользовательского события с новым инструментом
+
         } else {
           // Если id задан, это существующий инструмент, и мы вызываем API для обновления
           result = await updateTool(id, toolData)
-          if (result) {
-            this.$emit('tool-updated', result)  // Генерация пользовательского события с обновленным инструментом
-          }
+          if (result) this.$emit('tool-updated', result)  // Генерация пользовательского события с обновленным инструментом
+          if (result) this.$emit('changes-saved', result)  // Генерация пользовательского события с новым или обновленным инструментом
         }
       } catch (error) {
         console.error('Ошибка:', error.message)  // Вывод сообщения об ошибке в консоль

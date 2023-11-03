@@ -48,10 +48,8 @@ export default {
   components: { EditToolModal },
   data() {
     return {
-      openDialog: false,
-      tools: [],
-      editingTool: null,
-      radiusOptions: [0.2, 0.4, 0.6, 0.8, 1.0, 1.2],
+      openDialog: false, tools: [],
+      editingTool: null, radiusOptions: [0.2, 0.4, 0.6, 0.8, 1.0, 1.2],
     }
   },
   async created() {
@@ -76,26 +74,16 @@ export default {
       this.openDialog = false
     },
     async onSaveChanges(editedTool) {
-      this.openDialog = false
-      const updatedTool = await updateTool(editedTool.id, editedTool)
+      this.openDialog = false;
+      const updatedTool = await updateTool(editedTool.id, editedTool);
       if (updatedTool) {
-        const index = this.tools.findIndex(tool => tool.id === updatedTool.id)
-        if (index !== -1) {
-          this.$set(this.tools, index, updatedTool)
-        }
+        const rawData = await fetchTools();  // Получение обновленных данных с сервера
+        this.tools = this.processToolsData(rawData);  // Обновление списка инструментов
       }
     },
     onAddTool() {
       this.editingTool = {
-        id: null,
-        group_name: '',
-        type_name: '',
-        mat_name: '',
-        name: '',
-        kolvo_sklad: 0,
-        norma: 0,
-        zakaz: 0,
-        rad: 0,
+        id: null, group_name: '', type_name: '', mat_name: '', name: '', kolvo_sklad: 0, norma: 0, zakaz: 0, rad: 0,
       }
       this.openDialog = true
     },

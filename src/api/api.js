@@ -28,6 +28,7 @@ export async function addTool(toolData) {
       throw new Error('Network response was not ok: ' + response.statusText + ', body: ' + text)
     }
     const data = await response.json()
+    console.log('Result from addTool:', result);
     return data
   } catch (error) {
     console.error('There has been a problem with your fetch operation:', error)
