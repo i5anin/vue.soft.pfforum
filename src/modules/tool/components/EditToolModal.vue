@@ -42,7 +42,7 @@
 <script>
 // Импорт других компонентов и функций
 import Modal from '@/components/shared/Modal.vue'
-import { fetchTools, addTool as addToolApi, deleteTool } from '@/api/api'  // Изменили имя импортированной функции
+import { fetchTools, addTool, deleteTool, updateTool } from '@/api/api'  // Изменили имя импортированной функции
 
 // Экспорт компонента
 export default {
@@ -88,7 +88,7 @@ export default {
         : 'Добавить инструмент'
     },
   },
-  methods: {  // Методы компонента
+  methods: {
     async onDelete() {
       if (this.toolModel.id != null) {
         try {
@@ -101,52 +101,59 @@ export default {
         }
       }
     },
-    onCancel() {  // Обработчик клика по кнопке "Закрыть"
+    onCancel() {
       this.$emit('canceled')  // Генерация пользовательского события "canceled"
     },
-    onSave() {  // Обработчик клика по кнопке "Сохранить"
-      this.handleAddTool()  // Переименовали вызов метода
+    onSave() {
+      this.handleSaveTool()  // Вызов метода handleSaveTool при клике на кнопку "Сохранить"
     },
-    async handleAddTool() {  // Переименовали метод
-      // Проверка, что инструмент новый (у нового инструмента нет id)
-      if (this.toolModel.id == null) {
-        // Находим индекс для group, type и mat
-        const groupIndex = this.groupOptions.indexOf(this.toolModel.group_name)
-        const typeIndex = this.typeOptions.indexOf(this.toolModel.type_name)
-        const matIndex = this.materialOptions.indexOf(this.toolModel.mat_name)
+    async handleSaveTool() {
+      const { id, group_name, type_name, mat_name, name, kolvo_sklad, norma, zakaz, rad } = this.toolModel
+      // Находим индексы для group, type и mat
+      const groupIndex = this.groupOptions.indexOf(group_name)
+      const typeIndex = this.typeOptions.indexOf(type_name)
+      const matIndex = this.materialOptions.indexOf(mat_name)
 
-        console.log(typeIndex)
-        console.log(groupIndex)
-        console.log(matIndex)
+      // Если какой-либо индекс не найден, выводим ошибку и выходим из функции
+      if (groupIndex === -1 || typeIndex === -1 || matIndex === -1) {
+        console.error('Не удалось найти индекс для group, type или mat')
+        return
+      }
 
-        if (groupIndex === -1 || typeIndex === -1 || matIndex === -1) {
-          console.error('Не удалось найти индекс для group, type или mat')
-          return
-        }
+      // Составляем объект данных инструмента
+      const toolData = {
+        name,
+        group_id: groupIndex + 1,
+        mat_id: matIndex + 1,
+        type_id: typeIndex + 1,
+        kolvo_sklad: Number(kolvo_sklad),
+        norma: Number(norma),
+        zakaz: Number(zakaz),
+        rad: Number(rad),
+      }
 
-        const toolData = {
-          name: this.toolModel.name,
-          group_id: groupIndex,
-          mat_id: matIndex,
-          type_id: typeIndex,
-          kolvo_sklad: Number(this.toolModel.kolvo_sklad),
-          norma: Number(this.toolModel.norma),
-          zakaz: Number(this.toolModel.zakaz),
-          rad: Number(this.toolModel.rad),
-        }
-        console.log(toolData)
-        try {
-          // Отправка данных инструмента на сервер
-          const newTool = await addToolApi(toolData)  // Используем переименованную функцию
-          if (newTool) {
-            // Генерация пользовательского события с новым инструментом
-            this.$emit('tool-added', newTool)
+      try {
+        let result
+        console.log(id)
+        if (id == null) {
+
+          // Если id не задан, это новый инструмент, и мы вызываем API для добавления
+          result = await addTool(toolData)
+          if (result) {
+            this.$emit('tool-added', result)  // Генерация пользовательского события с новым инструментом
           }
-        } catch (error) {
-          console.error('Ошибка при добавлении инструмента:', error)
+        } else {
+          // Если id задан, это существующий инструмент, и мы вызываем API для обновления
+          result = await updateTool(id, toolData)
+          if (result) {
+            this.$emit('tool-updated', result)  // Генерация пользовательского события с обновленным инструментом
+          }
         }
+      } catch (error) {
+        console.error('Ошибка:', error.message)  // Вывод сообщения об ошибке в консоль
       }
     },
   },
+
 }
 </script>
