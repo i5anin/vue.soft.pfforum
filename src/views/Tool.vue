@@ -9,54 +9,92 @@
       @canceled='onClosePopup'
       @changes-saved='onSaveChanges'
     />
-    <!--  вынести в компонент??  -->
-    <v-table hover>
-      <thead>
-      <tr>
-        <!-- <th class="text-left">id</th>-->
-        <th class='text-left'>Название(Тип)</th>
-        <th class='text-left'>Группа</th>
-        <th class='text-left'>Применяемость материала</th>
-        <th class='text-left'>Радиус</th>
-        <th class='text-left'>Маркировка</th>
-        <th class='text-left'>Количесво на складе</th>
-        <th class='text-left'>Нормальный запас на неделю</th>
-        <th class='text-left'>Заказ</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr v-for='tool in tools' :key='tool.id' @click='onEditRow(tool)'>
-        <!-- td :style="{ color: 'grey' }">{{ tool.id }}</td>-->
-        <td>{{ tool.type_name }}</td>  <!-- Название(Тип) -->
-        <td>{{ tool.group_name }}</td> <!-- Группа -->
-        <td>{{ tool.mat_name }}</td>   <!-- Применяемость материала -->
-        <td>{{ tool.rad }}</td>        <!-- Радиус -->
-        <td>{{ tool.name }}</td>       <!-- Маркировка -->
-        <td>{{ tool.kolvo_sklad }}</td><!-- Количесво на складе -->
-        <td>{{ tool.norma }}</td>      <!-- Нормальный запас на неделю -->
-        <td>{{ tool.zakaz }}</td>      <!-- Заказ -->
-      </tr>
-      </tbody>
-    </v-table>
+    <v-data-table
+      :headers='headers'
+      :items='tools'
+      :server-items-length='totalTools'
+      :items-per-page='itemsPerPage'
+      :page.sync='currentPage'
+      :loading='loading'
+      @update:page='fetchTools'
+      @update:items-per-page='updateItemsPerPage'
+      class='elevation-1'
+      :items-per-page-options='[50, 100, 300]'
+    >
+      <template v-slot:item.type_name='{ item }'>
+        {{ item.type_name }}
+      </template>
+      <template v-slot:item.group_name='{ item }'>
+        {{ item.group_name }}
+      </template>
+      <template v-slot:item.mat_name='{ item }'>
+        {{ item.mat_name }}
+      </template>
+      <template v-slot:item.rad='{ item }'>
+        {{ item.rad }}
+      </template>
+      <template v-slot:item.name='{ item }'>
+        {{ item.name }}
+      </template>
+      <template v-slot:item.kolvo_sklad='{ item }'>
+        {{ item.kolvo_sklad }}
+      </template>
+      <template v-slot:item.norma='{ item }'>
+        {{ item.norma }}
+      </template>
+      <template v-slot:item.zakaz='{ item }'>
+        {{ item.zakaz }}
+      </template>
+    </v-data-table>
   </v-container>
 </template>
 <script>
 import EditToolModal from '@/modules/tool/components/EditToolModal.vue'
 import { fetchTools, updateTool } from '@/api/api'
+import { VDataTable } from 'vuetify/labs/VDataTable'
 
 export default {
-  components: { EditToolModal },
+  components: {
+    VDataTable,
+    EditToolModal,
+  },
   data() {
     return {
-      openDialog: false, tools: [],
-      editingTool: null, radiusOptions: [0.2, 0.4, 0.6, 0.8, 1.0, 1.2],
+      openDialog: false,
+      tools: [],
+      editingTool: null,
+      radiusOptions: [0.2, 0.4, 0.6, 0.8, 1.0, 1.2],
+      headers: [
+        { text: 'Название(Тип)', value: 'type_name' },
+        { text: 'Группа', value: 'group_name' },
+        { text: 'Применяемость материала', value: 'mat_name' },
+        { text: 'Радиус', value: 'rad' },
+        { text: 'Маркировка', value: 'name' },
+        { text: 'Количество на складе', value: 'kolvo_sklad' },
+        { text: 'Нормальный запас на неделю', value: 'norma' },
+        { text: 'Заказ', value: 'zakaz' },
+      ],
+      totalTools: 0,
+      itemsPerPage: 10,
+      currentPage: 1,
+      loading: false,
     }
   },
   async created() {
-    const rawData = await fetchTools()
-    this.tools = this.processToolsData(rawData)
+    await this.fetchTools()
   },
   methods: {
+    async fetchTools(page = this.currentPage, itemsPerPage = this.itemsPerPage) {
+      this.loading = true
+      const rawData = await fetchTools('', page, itemsPerPage)
+      this.tools = this.processToolsData(rawData)
+      this.totalTools = rawData.total
+      this.loading = false
+    },
+    updateItemsPerPage(itemsPerPage) {
+      this.itemsPerPage = itemsPerPage
+      this.fetchTools()
+    },
     processToolsData(rawData) {
       return rawData.tools.map(tool => {
         const group = rawData.groups.find(group => group.id === tool.group_id)
@@ -74,11 +112,10 @@ export default {
       this.openDialog = false
     },
     async onSaveChanges(editedTool) {
-      this.openDialog = false;
-      const updatedTool = await updateTool(editedTool.id, editedTool);
+      this.openDialog = false
+      const updatedTool = await updateTool(editedTool.id, editedTool)
       if (updatedTool) {
-        const rawData = await fetchTools();  // Получение обновленных данных с сервера
-        this.tools = this.processToolsData(rawData);  // Обновление списка инструментов
+        await this.fetchTools()
       }
     },
     onAddTool() {
