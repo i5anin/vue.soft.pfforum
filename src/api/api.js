@@ -1,16 +1,16 @@
 const BASE_URL = 'http://localhost:4000/api'
 
 // Получить все инструменты и связанные данные
-export async function fetchTools(search, page, limit) {
+export async function fetchTools(search = '', page = 1, limit = 10) {
   try {
-    const response = await fetch(`${BASE_URL}/tools?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}`)
+    const response = await fetch(`${BASE_URL}/tools?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}`);
     if (!response.ok) {
-      throw new Error('Network response was not ok ' + response.statusText)
+      throw new Error('Network response was not ok ' + response.statusText);
     }
-    const data = await response.json()
-    return data
+    const data = await response.json();
+    return data;
   } catch (error) {
-    console.error('There has been a problem with your fetch operation:', error)
+    console.error('There has been a problem with your fetch operation:', error);
   }
 }
 
