@@ -7,9 +7,9 @@
           <v-col>  <!-- Колонка для размещения элементов -->
             <!-- Комбобоксы и текстовые поля для ввода данных -->
             <!-- Каждый элемент привязан к соответствующему свойству объекта toolModel и имеет свой лейбл -->
-            <v-combobox label='Название (Тип)' v-model='toolModel.type_name' :items='typeOptions' required />
-            <v-combobox label='Группа' v-model='toolModel.group_name' :items='groupOptions' required />
-            <v-combobox label='Применяемость материала' v-model='toolModel.mat_name' :items='materialOptions'
+            <v-combobox label='Название (Тип)' v-model='toolModel.type' :items='typeOptions' required />
+            <v-combobox label='Группа' v-model='toolModel.group' :items='groupOptions' required />
+            <v-combobox label='Применяемость материала' v-model='toolModel.mat' :items='materialOptions'
                         required></v-combobox>
 
             <v-text-field label='Маркировка' v-model='toolModel.name' required />
@@ -59,7 +59,7 @@ export default {
   components: { Modal }, // Список компонентов, используемых в данном компоненте
   data: () => ({  // Локальное состояние компонента
     toolModel: null,  // Модель данных инструмента
-    typeOptions: [],  // Опции для выбора типа
+    typeOptions: [],  // Опции для выбора типа [{value: id, label: 'name'}]
     groupOptions: [],  // Опции для выбора группы
     materialOptions: [],  // Опции для выбора материала
   }),
@@ -67,7 +67,8 @@ export default {
     tool: {
       immediate: true,  // Немедленное выполнение при инициализации
       handler(tool) {  // Обработчик изменения свойства
-        this.toolModel = JSON.parse(JSON.stringify(tool))  // Клонирование объекта инструмента
+        const {mat, group, type} = tool
+        this.toolModel = JSON.parse(JSON.stringify({...tool, mat: mat?.id, group: group?.id, type: type?.id }))  // Клонирование объекта инструмента
       },
     },
   },
@@ -92,9 +93,9 @@ export default {
     async onDelete() {
       if (this.toolModel.id != null) {
         try {
-          const result = await deleteTool(this.toolModel.id)
-          if (result && result.deleted > 0) {
-            this.$emit('tool-deleted', this.toolModel.id)
+          const {result} = await deleteTool(this.toolModel.id)
+          if (result) {
+            this.$emit('changes-saved')
           }
         } catch (error) {
           console.error('Ошибка при удалении инструмента:', error)
@@ -104,28 +105,26 @@ export default {
     onCancel() {
       this.$emit('canceled')  // Генерация пользовательского события "canceled"
     },
-    onSave() {
-      this.handleSaveTool()  // Вызов метода handleSaveTool при клике на кнопку "Сохранить"
-    },
-    async handleSaveTool() {
-      const { id, group_name, type_name, mat_name, name, kolvo_sklad, norma, zakaz, rad } = this.toolModel
+    async onSave() {
+      const { id, group, type, mat, name, kolvo_sklad, norma, zakaz, rad } = this.toolModel
       // Находим индексы для group, type и mat
-      const groupIndex = this.groupOptions.indexOf(group_name)
-      const typeIndex = this.typeOptions.indexOf(type_name)
-      const matIndex = this.materialOptions.indexOf(mat_name)
+      // const groupIndex = this.groupOptions.indexOf(group_name)
+      // const typeIndex = this.typeOptions.indexOf(type_name)
+      // const matIndex = this.materialOptions.indexOf(mat_name)
 
       // Если какой-либо индекс не найден, выводим ошибку и выходим из функции
-      if (groupIndex === -1 || typeIndex === -1 || matIndex === -1) {
-        console.error('Не удалось найти индекс для group, type или mat')
-        return
-      }
+      // if (groupIndex === -1 || typeIndex === -1 || matIndex === -1) {
+      //  console.error('Не удалось найти индекс для group, type или mat')
+      //  return
+      // }
 
       // Составляем объект данных инструмента
       const toolData = {
+        id,
         name,
-        group_id: groupIndex + 1,
-        mat_id: matIndex + 1,
-        type_id: typeIndex + 1,
+        group_id: group,
+        mat_id: mat,
+        type_id: type,
         kolvo_sklad: Number(kolvo_sklad),
         norma: Number(norma),
         zakaz: Number(zakaz),
@@ -139,13 +138,13 @@ export default {
 
           // Если id не задан, это новый инструмент, и мы вызываем API для добавления
           result = await addTool(toolData)
-          if (result) this.$emit('tool-added', result)  // Генерация пользовательского события с новым инструментом
+          if (result) this.$emit('changes-saved')  // Генерация пользовательского события с новым инструментом
 
         } else {
           // Если id задан, это существующий инструмент, и мы вызываем API для обновления
           result = await updateTool(id, toolData)
-          if (result) this.$emit('tool-updated', result)  // Генерация пользовательского события с обновленным инструментом
-          if (result) this.$emit('changes-saved', result)  // Генерация пользовательского события с новым или обновленным инструментом
+          // if (result) this.$emit('changes-saved', result)  // Генерация пользовательского события с обновленным инструментом
+          if (result) this.$emit('changes-saved')  // Генерация пользовательского события с новым или обновленным инструментом
         }
       } catch (error) {
         console.error('Ошибка:', error.message)  // Вывод сообщения об ошибке в консоль

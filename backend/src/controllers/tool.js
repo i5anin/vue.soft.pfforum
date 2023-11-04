@@ -58,8 +58,8 @@ async function getTools(req, res) {
 async function deleteTool(req, res) {
   const { id } = req.params
   try {
-    const result = await pool.query('DELETE FROM tools WHERE id = $1 RETURNING *', [id])
-    res.json(result.rows[0])
+    await pool.query(`DELETE FROM dbo.nom WHERE id=$1`, [id])
+    res.json({result: true})
   } catch (error) {
     console.error(error)
     res.status(500).send(error.message)

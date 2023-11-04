@@ -1,5 +1,5 @@
 <template>
-  <v-list density='compact' nav='true' class='test'>
+  <v-list density='compact' :nav='true' class='test'>
     <template v-for='(item, index) in menuItems' :key='index'>
       <v-list-item
         v-if='!item.items'

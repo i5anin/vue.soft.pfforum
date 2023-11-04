@@ -7,8 +7,7 @@ export async function fetchTools(search = '', page = 1, limit = 10) {
     if (!response.ok) {
       throw new Error('Network response was not ok ' + response.statusText);
     }
-    const data = await response.json();
-    return data;
+    return response.json();
   } catch (error) {
     console.error('There has been a problem with your fetch operation:', error);
   }
@@ -42,6 +41,7 @@ export async function deleteTool(id) {
     const response = await fetch(`${BASE_URL}/delete-tool/${id}`, {
       method: 'DELETE',
     })
+    console.log(response)
     if (!response.ok) {
       throw new Error('Network response was not ok ' + response.statusText)
     }

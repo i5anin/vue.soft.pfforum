@@ -1,6 +1,7 @@
 <template>
   <header>
     <v-navigation-drawer
+      class='header'
       location='left'
       width='330'
       expand-on-hover
@@ -100,4 +101,31 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style scoped lang='css'>
+.header > div {
+  ::v-deep ::-webkit-scrollbar {
+    width: 0;
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-track {
+    width: 0 !important;
+  }
+  ::-webkit-scrollbar-thumb {
+    width: 0 !important;
+  }
+}
+
+::v-deep .v-navigation-drawer__content::-webkit-scrollbar-track{
+  -webkit-box-shadow: inset 0 0 6px #5d5d5d;
+  background-color: #5d5d5d;
+}
+::v-deep .v-navigation-drawer__content::-webkit-scrollbar{
+  width: 0;
+}
+::v-deep .v-navigation-drawer__content::-webkit-scrollbar-thumb{
+  -webkit-box-shadow: inset 0 0 6px #424242;
+  background-color: #424242;
+}
+
+</style>

@@ -18,6 +18,7 @@
       :loading='loading'
       @update:page='fetchTools'
       @update:items-per-page='updateItemsPerPage'
+      @click:row='onEditRow'
       class='elevation-1'
       hover
       :items-per-page-options='[50, 100, 300]'
@@ -63,15 +64,47 @@ export default {
       editingTool: null,
       radiusOptions: [0.2, 0.4, 0.6, 0.8, 1.0, 1.2],
       headers: [
-        { text: 'Название(Тип)', value: 'type_name' },
-        { text: 'Группа', value: 'group_name' },
-        { text: 'Применяемость материала', value: 'mat_name' },
-        { text: 'Радиус', value: 'rad' },
-        { text: 'Маркировка', value: 'name' },
-        { text: 'Количество на складе', value: 'kolvo_sklad' },
-        { text: 'Нормальный запас на неделю', value: 'norma' },
-        { text: 'Заказ', value: 'zakaz' },
+        { title: 'Название(Тип)', key: 'type_name', sortable: true },
+        { title: 'Группа', key: 'group_name', sortable: true },
+        { title: 'Применяемость материала', key: 'mat_name' , sortable: true},
+        { title: 'Радиус', key: 'rad', sortable: true },
+        { title: 'Маркировка', key: 'name', sortable: true },
+        { title: 'Количество на складе', key: 'kolvo_sklad', sortable: true },
+        { title: 'Нормальный запас на неделю', key: 'norma', sortable: true },
+        { title: 'Заказ', key: 'zakaz', sortable: true },
       ],
+      response: {
+        page: 1,
+        totalPages: 15,
+        totalElements: 150,
+        pageSize: 10,
+        data: [], // tools[]
+      },
+      toolsResponse: [{
+        group: {
+          name: 'Пластина',
+          id: 1,
+        },
+        id: null,
+        kolvo_sklad: 101,
+        mat: null,
+        name: 'новое имя инструмента',
+        norma: 1201,
+        rad: 0.8,
+        type_id: 1,
+        zakaz: 1301,
+      }],
+      putResponse: {
+        group_id: 1,
+        id: null,
+        kolvo_sklad: 101,
+        mat_id: 2,
+        name: 'новое имя инструмента',
+        norma: 1201,
+        rad: 0.8,
+        type_id: 1,
+        zakaz: 1301,
+      },
       totalTools: 0,
       itemsPerPage: 10,
       currentPage: 1,
@@ -86,9 +119,12 @@ export default {
       this.loading = true
       const rawData = await fetchTools('', page, itemsPerPage)
       this.tools = this.processToolsData(rawData)
+      console.log(rawData)
       this.totalTools = rawData.total
       this.loading = false
     },
+
+
     updateItemsPerPage(itemsPerPage) {
       this.itemsPerPage = itemsPerPage
       this.fetchTools()
@@ -109,12 +145,10 @@ export default {
     onClosePopup() {
       this.openDialog = false
     },
-    async onSaveChanges(editedTool) {
+    async onSaveChanges() {
       this.openDialog = false
-      const updatedTool = await updateTool(editedTool.id, editedTool)
-      if (updatedTool) {
-        await this.fetchTools()
-      }
+      await this.fetchTools()
+
     },
     onAddTool() {
       this.editingTool = {
@@ -122,7 +156,7 @@ export default {
       }
       this.openDialog = true
     },
-    onEditRow(tool) {
+    onEditRow(event, { item: tool }) {
       this.editingTool = tool
       this.openDialog = true
     },
