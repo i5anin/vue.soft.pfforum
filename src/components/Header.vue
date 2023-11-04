@@ -103,17 +103,10 @@ export default {
 
 <style scoped lang='css'>
 .header > div {
-  ::v-deep ::-webkit-scrollbar {
-    width: 0;
-    background: transparent;
-  }
 
-  ::-webkit-scrollbar-track {
-    width: 0 !important;
-  }
-  ::-webkit-scrollbar-thumb {
-    width: 0 !important;
-  }
+
+
+
 }
 
 ::v-deep .v-navigation-drawer__content::-webkit-scrollbar-track{
@@ -121,7 +114,7 @@ export default {
   background-color: #5d5d5d;
 }
 ::v-deep .v-navigation-drawer__content::-webkit-scrollbar{
-  width: 0;
+  width: 0; 
 }
 ::v-deep .v-navigation-drawer__content::-webkit-scrollbar-thumb{
   -webkit-box-shadow: inset 0 0 6px #424242;
