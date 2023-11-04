@@ -1,17 +1,17 @@
 const express = require('express');
-const router = express.Router();
-const controllers = require('./tool/controllers');
+const routers = express.Router();
+const controllers = require('./controllers/tool');
 
-router.get('/tools', controllers.getTools);
+routers.get('/tools', controllers.getTools);
 
-router.delete('/delete-tool/:id', controllers.deleteTool);
+routers.delete('/delete-tool/:id', controllers.deleteTool);
 
-router.put('/edit-tool/:id', controllers.editTool);
+routers.put('/edit-tool/:id', controllers.editTool);
 
-router.post('/add-tool', controllers.addTool);
+routers.post('/add-tool', controllers.addTool);
 
-router.post('/add-material', controllers.addMaterial);
-router.post('/add-type', controllers.addType);
-router.post('/add-group', controllers.addGroup);
+routers.post('/add-material', controllers.addMaterial);
+routers.post('/add-type', controllers.addType);
+routers.post('/add-group', controllers.addGroup);
 
-module.exports = router;
+module.exports = routers;

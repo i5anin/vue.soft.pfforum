@@ -74,7 +74,7 @@ app.get('/tools', async (req, res) => {
   }
 })
 
-// Обрабатываем DELETE запросы на URL /delete-tool/:id
+// Обрабатываем DELETE запросы на URL /delete-controllers/:id
 app.delete('/delete-tool/:id', async (req, res) => {
   // Извлекаем id инструмента из параметров URL
   const { id } = req.params
@@ -94,7 +94,7 @@ app.delete('/delete-tool/:id', async (req, res) => {
 })
 
 
-// Обрабатываем POST запросы на URL /add-tool
+// Обрабатываем POST запросы на URL /add-controllers
 app.post('/add-tool', async (req, res) => {
   // Извлекаем данные из тела запроса
   const { name, group_id, mat_id, type_id, kolvo_sklad, norma, zakaz, rad } = req.body

@@ -113,7 +113,6 @@ async function addMaterial(req, res) {
     res.status(500).send(err.message)
   }
 }
-
 async function addType(req, res) {
   const { name } = req.body
   if (!name) {
@@ -129,7 +128,6 @@ async function addType(req, res) {
     res.status(500).send(err.message)
   }
 }
-
 async function addGroup(req, res) {
   const { name } = req.body
   if (!name) {

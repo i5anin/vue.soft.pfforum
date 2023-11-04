@@ -1,10 +1,10 @@
 module.exports = {
   dbConfig: {
-    user: 'postgres',
-    host: 'localhost',
-    database: 'db',
-    password: '123qwe!',
-    port: 5432,
+    user: process.env.DB_USER || 'postgres',
+    host: process.env.DB_HOST || 'localhost',
+    database: process.env.DB_NAME || 'db',
+    password: process.env.DB_PASSWORD || '123qwe!',
+    port: process.env.DB_PORT || 5432,
   },
-  port: 4000,
+  port: process.env.PORT || 4000,
 };
