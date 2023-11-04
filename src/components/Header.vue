@@ -102,19 +102,13 @@ export default {
 </script>
 
 <style scoped lang='css'>
-.header > div {
-
-
-
-
-}
 
 ::v-deep .v-navigation-drawer__content::-webkit-scrollbar-track{
   -webkit-box-shadow: inset 0 0 6px #5d5d5d;
   background-color: #5d5d5d;
 }
 ::v-deep .v-navigation-drawer__content::-webkit-scrollbar{
-  width: 0; 
+  width: 0;
 }
 ::v-deep .v-navigation-drawer__content::-webkit-scrollbar-thumb{
   -webkit-box-shadow: inset 0 0 6px #424242;

@@ -81,11 +81,11 @@ export default {
         data: [], // tools[]
       },
       toolsResponse: [{
+        id: 2,
         group: {
           name: 'Пластина',
           id: 1,
         },
-        id: null,
         kolvo_sklad: 101,
         mat: null,
         name: 'новое имя инструмента',

@@ -1,34 +1,25 @@
+import axios from 'axios'
+
 const BASE_URL = 'http://localhost:4000/api'
 
 // Получить все инструменты и связанные данные
 export async function fetchTools(search = '', page = 1, limit = 10) {
   try {
-    const response = await fetch(`${BASE_URL}/tools?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}`);
-    if (!response.ok) {
-      throw new Error('Network response was not ok ' + response.statusText);
-    }
-    return response.json();
+    const response = await axios.get(`${BASE_URL}/tools`, {
+      params: { search, page, limit },
+    })
+    return response.data
   } catch (error) {
-    console.error('There has been a problem with your fetch operation:', error);
+    console.error('There has been a problem with your fetch operation:', error)
   }
 }
 
 // Добавить новый инструмент
 export async function addTool(toolData) {
   try {
-    console.log(toolData)
-    const response = await fetch(`${BASE_URL}/add-tool`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(toolData),
-    })
-    if (!response.ok) {
-      const text = await response.text()
-      throw new Error('Network response was not ok: ' + response.statusText + ', body: ' + text)
-    }
-    const data = await response.json()
-    console.log('Result from addTool:', result)
-    return data
+    const response = await axios.post(`${BASE_URL}/add-tool`, toolData)
+    console.log('Result from addTool:', response.data)
+    return response.data
   } catch (error) {
     console.error('There has been a problem with your fetch operation:', error)
     return null
@@ -38,14 +29,9 @@ export async function addTool(toolData) {
 // Удалить инструмент по ID
 export async function deleteTool(id) {
   try {
-    const response = await fetch(`${BASE_URL}/delete-tool/${id}`, {
-      method: 'DELETE',
-    })
+    const response = await axios.delete(`${BASE_URL}/delete-tool/${id}`)
     console.log(response)
-    if (!response.ok) {
-      throw new Error('Network response was not ok ' + response.statusText)
-    }
-    return await response.json()
+    return response.data
   } catch (error) {
     console.error('There has been a problem with your fetch operation:', error)
     return null
@@ -55,16 +41,8 @@ export async function deleteTool(id) {
 // Обновить существующий инструмент
 export async function updateTool(id, toolData) {
   try {
-    const response = await fetch(`${BASE_URL}/edit-tool/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(toolData),
-    })
-    if (!response.ok) {
-      throw new Error('Network response was not ok ' + response.statusText)
-    }
-    const data = await response.json()
-    return data
+    const response = await axios.put(`${BASE_URL}/edit-tool/${id}`, toolData)
+    return response.data
   } catch (error) {
     console.error('There has been a problem with your fetch operation:', error)
     return null
@@ -72,30 +50,16 @@ export async function updateTool(id, toolData) {
 }
 
 export async function addMaterial(name) {
-  const response = await fetch('/add-material', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ name }),
-  })
-  return response.json()
+  const response = await axios.post('/add-material', { name })
+  return response.data
 }
 
 export async function addType(name) {
-  const response = await fetch('/add-type', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name }),
-  })
-  return response.json()
+  const response = await axios.post('/add-type', { name })
+  return response.data
 }
 
 export async function addGroup(name) {
-  const response = await fetch('/add-group', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name }),
-  })
-  return response.json()
+  const response = await axios.post('/add-group', { name })
+  return response.data
 }
