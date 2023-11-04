@@ -3,12 +3,13 @@ const routers = express.Router();
 const controllers = require('./controllers/tool');
 
 routers.get('/tools', controllers.getTools);
+routers.get('/tool-library', controllers.getLibrary);
 
-routers.delete('/delete-tool/:id', controllers.deleteTool);
+routers.post('/tool', controllers.addTool);
 
-routers.put('/edit-tool/:id', controllers.editTool);
+routers.delete('/tool/:id', controllers.deleteTool);
+routers.put('/tool/:id', controllers.editTool);
 
-routers.post('/add-tool', controllers.addTool);
 
 routers.post('/add-material', controllers.addMaterial);
 routers.post('/add-type', controllers.addType);

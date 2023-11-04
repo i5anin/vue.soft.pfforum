@@ -6,60 +6,95 @@ const dbConfig = require('../config').dbConfig
 const pool = new Pool(dbConfig)
 
 // Определение контроллеров
+// Определение контроллеров
 async function getTools(req, res) {
   try {
     // Получение параметров запроса
     const { search, page = 1, limit = 10 } = req.query;
     const offset = (page - 1) * limit;
 
-    // Запросы
+    // Запрос на получение общего количества инструментов
+    const countQuery = `
+      SELECT COUNT(*) FROM dbo.nom
+      ${search ? `WHERE name LIKE '%${search}%'` : ''}
+    `;
+    const countResult = await pool.query(countQuery);
+    const totalCount = countResult.rows[0].count;
+
+    // Запрос на получение инструментов
     const toolQuery = `
-      SELECT nom.id, nom.name, nom.group_id, nom.mat_id, nom.type_id, nom.rad, nom.kolvo_sklad, nom.norma, nom.zakaz
-      FROM dbo.nom
+      SELECT
+        nom.id,
+        nom.name,
+        nom.group_id,
+        nom.mat_id,
+        nom.type_id,
+        nom.rad,
+        nom.kolvo_sklad,
+        nom.norma,
+        nom.zakaz,
+        grp.name as group_name,
+        mat.name as mat_name,
+        type.name as type_name
+      FROM
+        dbo.nom as nom
+      JOIN
+        dbo.group_id as grp
+      ON
+        nom.group_id = grp.id
+      LEFT JOIN
+        dbo.mat_id as mat
+      ON
+        nom.mat_id = mat.id
+      LEFT JOIN
+        dbo.type_id as type
+      ON
+        nom.type_id = type.id
       ${search ? `WHERE nom.name LIKE '%${search}%'` : ''}
-      ORDER BY nom.id DESC
+      ORDER BY
+        nom.id DESC
       LIMIT ${limit} OFFSET ${offset}
     `;
-    const groupQuery = `
-      SELECT id, name AS group_name
-      FROM dbo.group_id
-    `;
-    const matQuery = `
-      SELECT id, name AS mat_name
-      FROM dbo.mat_id
-    `;
-    const typeQuery = `
-      SELECT id, name AS type_name
-      FROM dbo.type_id
-    `;
+    const tools = await pool.query(toolQuery);
 
-    const [tools, groups, materials, types] =
-      await Promise.all([
-        pool.query(toolQuery),  // заменено db.any на pool.query
-        pool.query(groupQuery),  // заменено db.any на pool.query
-        pool.query(matQuery),  // заменено db.any на pool.query
-        pool.query(typeQuery),  // заменено db.any на pool.query
-      ]); //Promise.all Параллельное выполнение, Ждёт все промисы, Порядок результатов строгий
-
-    // Отправляем данные обратно клиенту в формате JSON
-    res.json({
-      tools: tools.rows,  // Обновлено, чтобы возвращать строки результата
-      groups: groups.rows,  // Обновлено, чтобы возвращать строки результата
-      materials: materials.rows,  // Обновлено, чтобы возвращать строки результата
-      types: types.rows,  // Обновлено, чтобы возвращать строки результата
+    // Форматирование данных инструментов
+    const formattedTools = tools.rows.map(tool => {
+      return {
+        id: tool.id,
+        name: tool.name,
+        kolvo_sklad: tool.kolvo_sklad,
+        norma: tool.norma,
+        rad: tool.rad,
+        zakaz: tool.zakaz,
+        mat: {
+          name: tool.mat_name,
+          id: tool.mat_id,
+        },
+        type: {
+          name: tool.type_name,
+          id: tool.type_id,
+        },
+        group: {
+          name: tool.group_name,
+          id: tool.group_id,
+        },
+      };
     });
+
+    res.json({ totalCount, tools: formattedTools });
+
   } catch (err) {
-    // Логируем ошибку в консоль и отправляем ее обратно клиенту
     console.error(err);
     res.status(500).send(err.message);
   }
 }
 
+
 async function deleteTool(req, res) {
   const { id } = req.params
   try {
     await pool.query(`DELETE FROM dbo.nom WHERE id=$1`, [id])
-    res.json({result: true})
+    res.json({ result: true })
   } catch (error) {
     console.error(error)
     res.status(500).send(error.message)
@@ -71,7 +106,7 @@ async function addTool(req, res) {
   try {
     const result = await pool.query(
       'INSERT INTO dbo.nom (name, group_id, mat_id, type_id, rad, kolvo_sklad, norma, zakaz ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
-      [name, group_id, mat_id, type_id, rad, kolvo_sklad, norma, zakaz]
+      [name, group_id, mat_id, type_id, rad, kolvo_sklad, norma, zakaz],
     )
     res.json(result.rows[0])
   } catch (err) {
@@ -97,6 +132,32 @@ async function editTool(req, res) {
   }
 }
 
+async function getLibrary(req, res) {
+  try {
+    const libraryQuery = `
+      SELECT * FROM dbo.library
+    `
+
+    const library = await pool.query(libraryQuery)
+
+    const formattedLibrary = library.rows.map(item => {
+      return {
+        id: item.id,
+        name: item.name,
+        // ... other fields ...
+      }
+    })
+
+    res.json({
+      library: formattedLibrary,
+    })
+
+  } catch (err) {
+    console.error(err)
+    res.status(500).send(err.message)
+  }
+}
+
 async function addMaterial(req, res) {
   const { name } = req.body
   if (!name) {
@@ -113,6 +174,7 @@ async function addMaterial(req, res) {
     res.status(500).send(err.message)
   }
 }
+
 async function addType(req, res) {
   const { name } = req.body
   if (!name) {
@@ -128,6 +190,7 @@ async function addType(req, res) {
     res.status(500).send(err.message)
   }
 }
+
 async function addGroup(req, res) {
   const { name } = req.body
   if (!name) {
@@ -145,4 +208,4 @@ async function addGroup(req, res) {
 }
 
 // Экспорт контроллеров
-module.exports = { getTools, deleteTool, addTool, editTool, addMaterial, addType, addGroup }
+module.exports = { getTools, deleteTool, addTool, editTool, addMaterial, addType, addGroup, getLibrary }
