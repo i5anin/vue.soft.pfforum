@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:4000'
+const BASE_URL = 'http://localhost:4000/api'
 
 // Получить все инструменты и связанные данные
 export async function fetchTools(search, page, limit) {
