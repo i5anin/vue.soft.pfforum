@@ -2,8 +2,9 @@
   "name": "pfforum",
   "version": "2.0.0",
   "scripts": {
-    "server": "node backend/server.js",
-    "dev": "vite --host",
+    "backend": "node backend/server.js",
+    "frontend": "vite --host",
+
     "build": "vite build",
     "build_debug": "vite build --debug",
     "preview": "vite preview"
