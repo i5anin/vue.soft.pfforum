@@ -27,10 +27,17 @@ app.listen(port, () => {
 
 app.get('/tools', async (req, res) => {
   try {
+    // Получение параметров запроса
+    const { search, page = 1, limit = 10 } = req.query
+    const offset = (page - 1) * limit
+
+    // Запросы
     const toolQuery = `
-    SELECT nom.id, nom.name, nom.group_id, nom.mat_id, nom.type_id, nom.rad, nom.kolvo_sklad, nom.norma, nom.zakaz
-    FROM dbo.nom
-    ORDER BY nom.id DESC
+      SELECT nom.id, nom.name, nom.group_id, nom.mat_id, nom.type_id, nom.rad, nom.kolvo_sklad, nom.norma, nom.zakaz
+      FROM dbo.nom
+      ${search ? `WHERE nom.name LIKE '%${search}%'` : ''}
+      ORDER BY nom.id DESC
+      LIMIT ${limit} OFFSET ${offset}
     `
     const groupQuery = `
       SELECT id, name AS group_name

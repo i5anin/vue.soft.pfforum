@@ -1,9 +1,9 @@
 const BASE_URL = 'http://localhost:4000'
 
 // Получить все инструменты и связанные данные
-export async function fetchTools() {
+export async function fetchTools(search, page, limit) {
   try {
-    const response = await fetch(`${BASE_URL}/tools`)
+    const response = await fetch(`${BASE_URL}/tools?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}`)
     if (!response.ok) {
       throw new Error('Network response was not ok ' + response.statusText)
     }
@@ -28,7 +28,7 @@ export async function addTool(toolData) {
       throw new Error('Network response was not ok: ' + response.statusText + ', body: ' + text)
     }
     const data = await response.json()
-    console.log('Result from addTool:', result);
+    console.log('Result from addTool:', result)
     return data
   } catch (error) {
     console.error('There has been a problem with your fetch operation:', error)
