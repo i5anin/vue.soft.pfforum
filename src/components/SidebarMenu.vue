@@ -29,7 +29,7 @@
     location='left'
     width='330'
     expand-on-hover
-    permanent
+    permanent="true"
     :rail='drawer'
     @mouseenter='isHovered = true'
     @mouseleave='handleMouseLeave' @input="$emit('update:drawer', $event)">
@@ -65,7 +65,7 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
-import { ref, computed, defineProps, defineEmits,onMounted, onBeforeUnmount  } from 'vue'
+import { ref, computed,onMounted, onBeforeUnmount  } from 'vue'
 import MenuList from '@/components/SidebarMenuList.vue'
 import { originalMenuItems, plotsMenuItems } from '@/data/menuItems'
 
@@ -73,9 +73,6 @@ const isHovered = ref(false)
 const drawer = ref(false)
 const isDisabledResizeWatcher = ref(false)
 const groupStates = ref({})
-
-// Получение props и emits
-const emit = defineEmits(['update:drawer'])
 
 const handleMouseLeave = () => {
   isHovered.value = false
