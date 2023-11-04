@@ -19,6 +19,7 @@
       @update:page='fetchTools'
       @update:items-per-page='updateItemsPerPage'
       class='elevation-1'
+      hover
       :items-per-page-options='[50, 100, 300]'
     >
       <template v-slot:item.type_name='{ item }'>
@@ -54,10 +55,7 @@ import { fetchTools, updateTool } from '@/api/api'
 import { VDataTable } from 'vuetify/labs/VDataTable'
 
 export default {
-  components: {
-    VDataTable,
-    EditToolModal,
-  },
+  components: { VDataTable, EditToolModal },
   data() {
     return {
       openDialog: false,

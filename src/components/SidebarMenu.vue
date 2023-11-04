@@ -1,7 +1,7 @@
 <template>
   <v-app-bar color='primary' sticky prominent dark>
     <!-- Левая кнопка -->
-    <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+    <v-app-bar-nav-icon variant='text' @click.stop='drawer = !drawer'></v-app-bar-nav-icon>
 
     <!-- Название -->
     <v-toolbar-title>
@@ -25,14 +25,17 @@
 
 
   <v-navigation-drawer
-    :value='true'
+    app
+    value
     location='left'
     width='330'
     expand-on-hover
-    permanent="true"
+    permanent='true'
     :rail='drawer'
     @mouseenter='isHovered = true'
-    @mouseleave='handleMouseLeave' @input="$emit('update:drawer', $event)">
+    @mouseleave='handleMouseLeave'
+    @input="$emit('update:drawer', $event)"
+  >
     <v-list>
       <v-list-item
         prepend-avatar='@/assets/logoWhite.svg'
@@ -65,7 +68,7 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
-import { ref, computed,onMounted, onBeforeUnmount  } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import MenuList from '@/components/SidebarMenuList.vue'
 import { originalMenuItems, plotsMenuItems } from '@/data/menuItems'
 
@@ -107,13 +110,13 @@ const onResize = (event) => {
   isDisabledResizeWatcher.value = event.target.innerWidth > 600
 }
 
-onMounted(()=> {
-  window.addEventListener("resize", onResize);
+onMounted(() => {
+  window.addEventListener('resize', onResize)
   onResize()
 })
 
-onBeforeUnmount(()=> {
-  window.removeEventListener("resize", onResize);
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', onResize)
 
 })
 
