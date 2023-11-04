@@ -2,7 +2,7 @@
   "name": "pfforum",
   "version": "2.0.0",
   "scripts": {
-    "backend": "node backend/server.js",
+    "backend": "node backend/src/app.js",
     "frontend": "vite --host",
 
     "build": "vite build",
