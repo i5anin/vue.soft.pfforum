@@ -4,6 +4,7 @@ const controllers = require('./controllers/tool');
 
 routers.get('/tools', controllers.getTools);
 routers.get('/tool-library', controllers.getLibrary);
+routers.get('/search', controllers.searchTools);
 
 routers.post('/tool', controllers.addTool);
 

@@ -142,22 +142,22 @@ async function getLibrary(req, res) {
     const groupQuery = `
       SELECT id, name AS group_name
       FROM dbo.group_id
-    `;
+    `
     const matQuery = `
       SELECT id, name AS mat_name
       FROM dbo.mat_id
-    `;
+    `
     const typeQuery = `
       SELECT id, name AS type_name
       FROM dbo.type_id
-    `;
+    `
 
     // Параллельное выполнение запросов к базе данных
     const [groups, materials, types] = await Promise.all([
       pool.query(groupQuery),
       pool.query(matQuery),
       pool.query(typeQuery),
-    ]);
+    ])
 
     // Форматирование результатов запросов в удобный для работы формат
     const formattedGroups = groups.rows.map(item => {
@@ -166,7 +166,7 @@ async function getLibrary(req, res) {
         name: item.group_name,
         // ... other fields ...
       }
-    });
+    })
 
     const formattedMaterials = materials.rows.map(item => {
       return {
@@ -174,7 +174,7 @@ async function getLibrary(req, res) {
         name: item.mat_name,
         // ... other fields ...
       }
-    });
+    })
 
     const formattedTypes = types.rows.map(item => {
       return {
@@ -182,19 +182,19 @@ async function getLibrary(req, res) {
         name: item.type_name,
         // ... other fields ...
       }
-    });
+    })
 
     // Отправка отформатированных данных обратно клиенту в формате JSON
     res.json({
       groups: formattedGroups,
       materials: formattedMaterials,
       types: formattedTypes,
-    });
+    })
 
   } catch (err) {
     // Логирование ошибки и отправка ее обратно клиенту с кодом состояния 500
-    console.error(err);
-    res.status(500).send(err.message);
+    console.error(err)
+    res.status(500).send(err.message)
   }
 }
 
@@ -247,5 +247,48 @@ async function addGroup(req, res) {
   }
 }
 
+async function searchTools(req, res) {
+  const { query, page = 1, limit = 10 } = req.query;
+  const offset = (page - 1) * limit;
+
+  if (!query) {
+    return res.status(400).send('Bad Request: Missing query parameter');
+  }
+
+  try {
+    const countQuery = `
+      SELECT COUNT(*)::INTEGER
+      FROM dbo.nom
+      WHERE nom.name ILIKE $1
+    `;
+
+    const countResult = await pool.query(countQuery, [`%${query}%`]);
+    const totalCount = countResult.rows[0].count;
+
+    const searchQuery = `
+      SELECT nom.id, nom.name
+      FROM dbo.nom
+      WHERE nom.name ILIKE $1
+      ORDER BY nom.id DESC
+      LIMIT ${limit} OFFSET ${offset}
+    `;
+
+    const result = await pool.query(searchQuery, [`%${query}%`]);
+
+    res.json({
+      currentPage: page,
+      itemsPerPage: limit,
+      totalCount,
+      tools: result.rows,
+    });
+
+  } catch (err) {
+    console.error('Error:', err.message);
+    console.error('Stack:', err.stack);
+    res.status(500).send(err.message);
+  }
+}
+
+
 // Экспорт контроллеров
-module.exports = { getTools, deleteTool, addTool, editTool, addMaterial, addType, addGroup, getLibrary }
+module.exports = { getTools, deleteTool, addTool, editTool, addMaterial, addType, addGroup, getLibrary, searchTools }
