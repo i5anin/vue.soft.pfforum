@@ -3,6 +3,7 @@
 import '@mdi/font/css/materialdesignicons.css'
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
+import ru from 'vuetify/lib/locale/ru' // Добавьте эту строку
 
 const savedTheme = localStorage.getItem('theme')
 const isDark =
@@ -10,6 +11,17 @@ const isDark =
   (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)
 
 const vuetify = createVuetify({
+  lang: {
+    locales: {
+      ru: {
+        ...ru,
+        VDataTableServer: {
+          itemsPerPageText: 'Строк на странице:',
+        },
+      },
+    },
+    current: 'ru',
+  },
   theme: {
     defaultTheme: savedTheme || (isDark ? 'dark' : 'light'),
     themes: {

@@ -9,10 +9,10 @@
       @canceled='onClosePopup'
       @changes-saved='onSaveChanges'
     />
-    <v-data-table
+    <v-data-table-server
       :headers='headers'
       :items='tools'
-      :server-items-length='totalTools'
+      :itemsLength='totalTools'
       :items-per-page='itemsPerPage'
       :page.sync='currentPage'
       :loading='loading'
@@ -21,43 +21,27 @@
       @click:row='onEditRow'
       class='elevation-1'
       hover
-      :items-per-page-options='[50, 100, 300]'
+      :items-per-page-options='[15, 50, 100, 300]'
     >
-      <template v-slot:item.type_name='{ item }'>
-        {{ item.type.name }}
-      </template>
-      <template v-slot:item.group_name='{ item }'>
-        {{ item.group.name }}
-      </template>
-      <template v-slot:item.mat_name='{ item }'>
-        {{ item.mat.name }}
-      </template>
-      <template v-slot:item.rad='{ item }'>
-        {{ item.rad }}
-      </template>
-      <template v-slot:item.name='{ item }'>
-        {{ item.name }}
-      </template>
-      <template v-slot:item.kolvo_sklad='{ item }'>
-        {{ item.kolvo_sklad }}
-      </template>
-      <template v-slot:item.norma='{ item }'>
-        {{ item.norma }}
-      </template>
-      <template v-slot:item.zakaz='{ item }'>
-        {{ item.zakaz }}
-      </template>
-    </v-data-table>
+      <template v-slot:item.type_name='{ item }'> {{ item.type.name }}</template>
+      <template v-slot:item.group_name='{ item }'> {{ item.group.name }}</template>
+      <template v-slot:item.mat_name='{ item }'> {{ item.mat.name }}</template>
+      <template v-slot:item.rad='{ item }'> {{ item.rad }}</template>
+      <template v-slot:item.name='{ item }'> {{ item.name }}</template>
+      <template v-slot:item.kolvo_sklad='{ item }'> {{ item.kolvo_sklad }}</template>
+      <template v-slot:item.norma='{ item }'> {{ item.norma }}</template>
+      <template v-slot:item.zakaz='{ item }'> {{ item.zakaz }}</template>
+    </v-data-table-server>
   </v-container>
 </template>
 
 <script>
 import EditToolModal from '@/modules/tool/components/EditToolModal.vue'
-import { VDataTable } from 'vuetify/labs/VDataTable'
+import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { getTools } from '@/api/api'
 
 export default {
-  components: { VDataTable, EditToolModal },
+  components: { VDataTableServer, EditToolModal },
   data() {
     return {
       openDialog: false,
@@ -84,15 +68,13 @@ export default {
     await this.getToolsTab()
   },
   methods: {
-    async getToolsTab() {
+    async getToolsTab(page = this.currentPage, itemsPerPage = this.itemsPerPage) {
       this.loading = true
       try {
-        const response = await getTools('', this.currentPage, this.itemsPerPage)
+        const response = await getTools('', page, itemsPerPage)  // Передача 'page' и 'itemsPerPage' в 'getTools'
+        this.currentPage = page
         this.tools = response.tools
-        console.log(response.totalCount) //904
-        console.log(this.currentPage) //1
-        console.log(this.itemsPerPage) //15
-        this.totalTools = response.totalCount; //904
+        this.totalTools = response.totalCount
       } catch (error) {
         console.error('There has been a problem with your fetch operation:', error)
       } finally {

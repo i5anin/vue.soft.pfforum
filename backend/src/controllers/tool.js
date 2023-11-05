@@ -10,16 +10,16 @@ const pool = new Pool(dbConfig)
 async function getTools(req, res) {
   try {
     // Получение параметров запроса
-    const { search, page = 1, limit = 10 } = req.query;
-    const offset = (page - 1) * limit;
+    const { search, page = 1, limit = 10 } = req.query
+    const offset = (page - 1) * limit
 
     // Запрос на получение общего количества инструментов
     const countQuery = `
   SELECT COUNT(*)::INTEGER FROM dbo.nom
   ${search ? `WHERE name LIKE '%${search}%'` : ''}
-    `;
-    const countResult = await pool.query(countQuery);
-    const totalCount = countResult.rows[0].count;
+    `
+    const countResult = await pool.query(countQuery)
+    const totalCount = countResult.rows[0].count
 
     // Запрос на получение инструментов
     const toolQuery = `
@@ -54,8 +54,8 @@ async function getTools(req, res) {
       ORDER BY
         nom.id DESC
       LIMIT ${limit} OFFSET ${offset}
-    `;
-    const tools = await pool.query(toolQuery);
+    `
+    const tools = await pool.query(toolQuery)
 
     // Форматирование данных инструментов
     const formattedTools = tools.rows.map(tool => {
@@ -78,14 +78,19 @@ async function getTools(req, res) {
           name: tool.group_name,
           id: tool.group_id,
         },
-      };
-    });
+      }
+    })
 
-    res.json({ totalCount, tools: formattedTools });
+    res.json({
+      currentPage: page,
+      itemsPerPage: limit,
+      totalCount,
+      tools: formattedTools,
+    })
 
   } catch (err) {
-    console.error(err);
-    res.status(500).send(err.message);
+    console.error(err)
+    res.status(500).send(err.message)
   }
 }
 

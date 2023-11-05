@@ -5,11 +5,8 @@ const BASE_URL = 'http://localhost:4000/api'
 // Получить все инструменты и связанные данные
 export async function getTools(search = '', page = 1, limit = 10) {
   try {
-    const response = await axios.get(`${BASE_URL}/tools`, {
-      params: { search, page, limit },
-    })
-    // Преобразование totalCount в число
-    response.data.totalCount = parseInt(response.data.totalCount, 10);
+    const response = await axios.get(`${BASE_URL}/tools`, { params: { search, page, limit } })
+    response.data.totalCount = parseInt(response.data.totalCount, 10)
     return response.data
   } catch (error) {
     console.error('There has been a problem with your fetch operation:', error)
@@ -21,7 +18,6 @@ export async function getTools(search = '', page = 1, limit = 10) {
 export async function addTool(toolData) {
   try {
     const response = await axios.post(`${BASE_URL}/add-tool`, toolData)
-    console.log('Result from addTool:', response.data)
     return response.data
   } catch (error) {
     console.error('There has been a problem with your fetch operation:', error)
