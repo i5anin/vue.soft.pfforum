@@ -111,17 +111,6 @@ export default {
     },
     async onSave() {
       const { id, group, type, mat, name, kolvo_sklad, norma, zakaz, rad } = this.toolModel
-      // Находим индексы для group, type и mat
-      // const groupIndex = this.groupOptions.indexOf(group_name)
-      // const typeIndex = this.typeOptions.indexOf(type_name)
-      // const matIndex = this.materialOptions.indexOf(mat_name)
-
-      // Если какой-либо индекс не найден, выводим ошибку и выходим из функции
-      // if (groupIndex === -1 || typeIndex === -1 || matIndex === -1) {
-      //  console.error('Не удалось найти индекс для group, type или mat')
-      //  return
-      // }
-
       // Составляем объект данных инструмента
       const toolData = {
         id,
@@ -134,6 +123,8 @@ export default {
         zakaz: Number(zakaz),
         rad: Number(rad),
       }
+
+      console.log(toolData)
 
       try {
         let result
