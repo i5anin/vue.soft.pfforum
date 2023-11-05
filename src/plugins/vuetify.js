@@ -11,11 +11,11 @@ const isDark =
 // Расширьте объект ruLocale, добавив свои строки локализации
 const ru = {
   ...ruLocale,
-  dataTableServer: {  // Добавьте свой объект dataTableServer
-    noDataText: 'Нет данных',
-    itemsPerPageText: 'Пункты на странице:',
-    // ... и другие свойства, которые вы хотите переопределить
-  },
+  // dataTableServer: {  // Добавьте свой объект dataTableServer
+    // noDataText: 'Нет данных',
+    // itemsPerPageText: 'Пункты на странице:',
+    // loadingText: 'Загрузка данных'
+  // },
 }
 
 const vuetify = createVuetify({
