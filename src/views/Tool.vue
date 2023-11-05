@@ -10,6 +10,10 @@
       @changes-saved='onSaveChanges'
     />
     <v-data-table-server
+      noDataText='Нет данных'
+      itemsPerPageText='Пункты на странице:'
+      loadingText='Загрузка данных'
+      :pageText="`${currentPage} из ${totalTools}`"
       :headers='headers'
       :items='tools'
       :itemsLength='totalTools'
