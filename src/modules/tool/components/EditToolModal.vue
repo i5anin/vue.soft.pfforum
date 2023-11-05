@@ -14,7 +14,6 @@
             <v-combobox label='Применяемость материала' v-model='toolModel.mat' :items='materialOptions'
                         item-text='text' item-value='value' required />
 
-
             <v-text-field label='Маркировка' v-model='toolModel.name' required />
             <v-text-field label='Количество на складе' v-model='toolModel.kolvo_sklad' required />
             <v-text-field label='Нормальный запас на неделю' v-model='toolModel.norma' required />
@@ -110,25 +109,37 @@ export default {
       this.$emit('canceled')  // Генерация пользовательского события "canceled"
     },
     async onSave() {
-      const { id, group, type, mat, name, kolvo_sklad, norma, zakaz, rad } = this.toolModel
+      const { id, group, type, mat, name, kolvo_sklad, norma, zakaz, rad } = this.toolModel;
+
+      // Получаем списки
+      const rawData = await getLibraries();
+      const groups = rawData.groups;
+      const materials = rawData.materials;
+      const types = rawData.types;
+
+      // Находим ID для каждого текстового значения
+      const groupId = groups.find(g => g.name === group).id;
+      const matId = materials.find(m => m.name === mat).id;
+      const typeId = types.find(t => t.name === type).id;
+
       // Составляем объект данных инструмента
       const toolData = {
         id,
         name,
-        group_id: group,
-        mat_id: mat,
-        type_id: type,
+        group_id: groupId,
+        mat_id: matId,
+        type_id: typeId,
         kolvo_sklad: Number(kolvo_sklad),
         norma: Number(norma),
         zakaz: Number(zakaz),
         rad: Number(rad),
       }
 
-      console.log(toolData)
+      console.log(toolData);
 
       try {
         let result
-        console.log(id)
+        // console.log(id)
         if (id == null) {
 
           // Если id не задан, это новый инструмент, и мы вызываем API для добавления

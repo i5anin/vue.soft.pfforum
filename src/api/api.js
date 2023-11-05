@@ -25,10 +25,10 @@ export async function getLibraries() {
 // Добавить новый инструмент
 export async function addTool(toolData) {
   try {
-    const response = await axios.post(`${BASE_URL}/add-tool`, toolData)
+    const response = await axios.post(`${BASE_URL}/tool`, toolData)
     return response.data
   } catch (error) {
-    console.error('There has been a problem with your fetch operation:', error)
+    console.error('There has been a problem with your fetch operation:', error.response ? error.response.data : error.message)
     return null
   }
 }
