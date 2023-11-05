@@ -135,8 +135,6 @@ export default {
         rad: Number(rad),
       }
 
-      console.log(toolData);
-
       try {
         let result
         // console.log(id)

@@ -36,7 +36,7 @@ export async function addTool(toolData) {
 // Удалить инструмент по ID
 export async function deleteTool(id) {
   try {
-    const response = await axios.delete(`${BASE_URL}/delete-tool/${id}`)
+    const response = await axios.delete(`${BASE_URL}/tool/${id}`)
     return response.data
   } catch (error) {
     console.error('There has been a problem with your fetch operation:', error)
