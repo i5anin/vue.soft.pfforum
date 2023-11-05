@@ -34,7 +34,9 @@
       <template v-slot:item.group_name='{ item }'> {{ item.group.name }}</template>
       <template v-slot:item.mat_name='{ item }'> {{ item.mat.name }}</template>
       <template v-slot:item.rad='{ item }'> {{ item.rad }}</template>
-      <template v-slot:item.name='{ item }'> {{ item.name }}</template>
+      <template v-slot:item.name='{ item }'>
+        <span :style="{ width: '11em', display: 'inline-block' }">{{ item.name }}</span>
+      </template>
       <template v-slot:item.kolvo_sklad='{ item }'> {{ item.kolvo_sklad }}</template>
       <template v-slot:item.norma='{ item }'> {{ item.norma }}</template>
       <template v-slot:item.zakaz='{ item }'> {{ item.zakaz }}</template>
