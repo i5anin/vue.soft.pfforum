@@ -1,8 +1,19 @@
 <template>
   <v-container>
-    <v-col class='pa-3 text-right'>
-      <v-btn color='blue' @click='onAddTool'>Новый инструмент</v-btn>
-    </v-col>
+    <v-row>
+      <v-col class='pa-3'>
+        <v-text-field
+          v-model="searchQuery"
+          label="Поиск"
+          outlined
+          clearable
+          @input="onSearch"
+        ></v-text-field>
+      </v-col>
+      <v-col class='pa-3 text-right'>
+        <v-btn color='blue' @click='onAddTool'>Новый инструмент</v-btn>
+      </v-col>
+    </v-row>
     <edit-tool-modal
       v-if='openDialog'
       v-bind='{ tool: editingTool, persistent: true, radiusOptions: radiusOptions }'
@@ -28,7 +39,6 @@
       hover
       fixed-header
       headers
-
     >
       <template v-slot:item.type_name='{ item }'> {{ item.type.name }}</template>
       <template v-slot:item.group_name='{ item }'> {{ item.group.name }}</template>
@@ -69,16 +79,17 @@ export default {
       itemsPerPage: 15,
       currentPage: 1,
       loading: false,
+      searchQuery: '',
     }
   },
   async mounted() {
     await this.getToolsTab()
   },
   methods: {
-    async getToolsTab(page = this.currentPage, itemsPerPage = this.itemsPerPage) {
+    async getToolsTab(page = this.currentPage, itemsPerPage = this.itemsPerPage, search = this.searchQuery) {
       this.loading = true
       try {
-        const response = await getTools('', page, itemsPerPage)  // Передача 'page' и 'itemsPerPage' в 'getTools'
+        const response = await getTools(search, page, itemsPerPage)
         this.currentPage = page
         this.tools = response.tools
         this.totalTools = response.totalCount
@@ -87,6 +98,9 @@ export default {
       } finally {
         this.loading = false
       }
+    },
+    onSearch() {
+      this.getToolsTab();
     },
     updateItemsPerPage(itemsPerPage) {
       this.itemsPerPage = itemsPerPage
