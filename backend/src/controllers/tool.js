@@ -6,28 +6,20 @@ const dbConfig = require('../config').dbConfig
 const pool = new Pool(dbConfig)
 
 // Определение контроллеров
+// Определение контроллеров
 async function getTools(req, res) {
   try {
     // Получение параметров запроса
-    const { search, page = 1, limit = 10 } = req.query;
-    const offset = (page - 1) * limit;
-
-    // Подготовка запроса и параметров в зависимости от наличия search
-    let searchCondition = '';
-    let queryParams = [limit, offset];  // перемещаем параметры limit и offset в начало массива queryParams
-    if (search) {
-      searchCondition = 'WHERE nom.name LIKE $1';
-      queryParams.unshift(`%${search}%`);  // добавляем параметр search в начало массива queryParams
-    }
+    const { search, page = 1, limit = 10 } = req.query
+    const offset = (page - 1) * limit
 
     // Запрос на получение общего количества инструментов
     const countQuery = `
-      SELECT COUNT(*)::INTEGER
-      FROM dbo.nom
-      ${searchCondition}
-    `;
-    const countResult = await pool.query(countQuery, search ? [queryParams[0]] : []);
-    const totalCount = countResult.rows[0].count;
+  SELECT COUNT(*)::INTEGER FROM dbo.nom
+  ${search ? `WHERE name LIKE '%${search}%'` : ''}
+    `
+    const countResult = await pool.query(countQuery)
+    const totalCount = countResult.rows[0].count
 
     // Запрос на получение инструментов
     const toolQuery = `
@@ -58,20 +50,50 @@ async function getTools(req, res) {
         dbo.type_id as type
       ON
         nom.type_id = type.id
-      ${searchCondition}
+      ${search ? `WHERE nom.name LIKE '%${search}%'` : ''}
       ORDER BY
         nom.id DESC
-      LIMIT $2 OFFSET $3
-    `;
-    const tools = await pool.query(toolQuery, queryParams);
+      LIMIT ${limit} OFFSET ${offset}
+    `
+    const tools = await pool.query(toolQuery)
 
-    // (остальная часть кода остается неизменной)
+    // Форматирование данных инструментов
+    const formattedTools = tools.rows.map(tool => {
+      return {
+        id: tool.id,
+        name: tool.name,
+        kolvo_sklad: tool.kolvo_sklad,
+        norma: tool.norma,
+        rad: tool.rad,
+        zakaz: tool.zakaz,
+        mat: {
+          name: tool.mat_name,
+          id: tool.mat_id,
+        },
+        type: {
+          name: tool.type_name,
+          id: tool.type_id,
+        },
+        group: {
+          name: tool.group_name,
+          id: tool.group_id,
+        },
+      }
+    })
+
+    res.json({
+      currentPage: page,
+      itemsPerPage: limit,
+      totalCount,
+      tools: formattedTools,
+    })
 
   } catch (err) {
-    console.error(err);
-    res.status(500).send(err.message);
+    console.error(err)
+    res.status(500).send(err.message)
   }
 }
+
 
 async function deleteTool(req, res) {
   const { id } = req.params
@@ -225,5 +247,48 @@ async function addGroup(req, res) {
   }
 }
 
+async function searchTools(req, res) {
+  const { query, page = 1, limit = 10 } = req.query;
+  const offset = (page - 1) * limit;
+
+  if (!query) {
+    return res.status(400).send('Bad Request: Missing query parameter');
+  }
+
+  try {
+    const countQuery = `
+      SELECT COUNT(*)::INTEGER
+      FROM dbo.nom
+      WHERE nom.name ILIKE $1
+    `;
+
+    const countResult = await pool.query(countQuery, [`%${query}%`]);
+    const totalCount = countResult.rows[0].count;
+
+    const searchQuery = `
+      SELECT nom.id, nom.name
+      FROM dbo.nom
+      WHERE nom.name ILIKE $1
+      ORDER BY nom.id DESC
+      LIMIT ${limit} OFFSET ${offset}
+    `;
+
+    const result = await pool.query(searchQuery, [`%${query}%`]);
+
+    res.json({
+      currentPage: page,
+      itemsPerPage: limit,
+      totalCount,
+      tools: result.rows,
+    });
+
+  } catch (err) {
+    console.error('Error:', err.message);
+    console.error('Stack:', err.stack);
+    res.status(500).send(err.message);
+  }
+}
+
+
 // Экспорт контроллеров
-module.exports = { getTools, deleteTool, addTool, editTool, addMaterial, addType, addGroup, getLibrary }
+module.exports = { getTools, deleteTool, addTool, editTool, addMaterial, addType, addGroup, getLibrary, searchTools }
