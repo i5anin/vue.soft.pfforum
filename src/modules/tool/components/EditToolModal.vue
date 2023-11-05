@@ -7,10 +7,13 @@
           <v-col>  <!-- Колонка для размещения элементов -->
             <!-- Комбобоксы и текстовые поля для ввода данных -->
             <!-- Каждый элемент привязан к соответствующему свойству объекта toolModel и имеет свой лейбл -->
-            <v-combobox label='Название (Тип)' v-model='toolModel.type' :items='typeOptions' required />
-            <v-combobox label='Группа' v-model='toolModel.group' :items='groupOptions' required />
+            <v-combobox label='Название (Тип)' v-model='toolModel.type' :items='typeOptions' item-text='text'
+                        item-value='value' required />
+            <v-combobox label='Группа' v-model='toolModel.group' :items='groupOptions' item-text='text'
+                        item-value='value' required />
             <v-combobox label='Применяемость материала' v-model='toolModel.mat' :items='materialOptions'
-                        required></v-combobox>
+                        item-text='text' item-value='value' required />
+
 
             <v-text-field label='Маркировка' v-model='toolModel.name' required />
             <v-text-field label='Количество на складе' v-model='toolModel.kolvo_sklad' required />
@@ -42,7 +45,7 @@
 <script>
 // Импорт других компонентов и функций
 import Modal from '@/components/shared/Modal.vue'
-import { getTools, addTool, deleteTool, updateTool } from '@/api/api'  // Изменили имя импортированной функции
+import { addTool, deleteTool, updateTool, getLibraries } from '@/api/api'  // Изменили имя импортированной функции
 
 // Экспорт компонента
 export default {
@@ -67,19 +70,20 @@ export default {
     tool: {
       immediate: true,  // Немедленное выполнение при инициализации
       handler(tool) {  // Обработчик изменения свойства
-        const {mat, group, type} = tool
-        this.toolModel = JSON.parse(JSON.stringify({...tool, mat: mat?.id, group: group?.id, type: type?.id }))  // Клонирование объекта инструмента
+        const { mat, group, type } = tool
+        this.toolModel = JSON.parse(JSON.stringify({ ...tool, mat: mat?.name, group: group?.name, type: type?.name }))  // Клонирование объекта инструмента
       },
     },
   },
-  async created() {  // Хук жизненного цикла, вызывается при создании компонента
-    const rawData = await getTools()  // Получение данных с сервера
-    // console.log(rawData)
-    // Обновление опций для выбора на основе полученных данных
-    this.typeOptions = rawData.types.map(type => type.type_name)
-    this.groupOptions = rawData.groups.map(group => group.group_name)
-    this.materialOptions = rawData.materials.map(material => material.mat_name)
-    // console.log(this.typeOptions, this.groupOptions, this.materialOptions)  // Выведите обработанные данные
+  async created() {
+    try {
+      const rawData = await getLibraries()
+      this.typeOptions = rawData.types.map(type => type.name)
+      this.groupOptions = rawData.groups.map(group => group.name)
+      this.materialOptions = rawData.materials.map(material => material.name)
+    } catch (error) {
+      console.error('Ошибка при получении данных:', error)
+    }
   },
   computed: {  // Вычисляемые свойства
     popupTitle() {  // Заголовок модального окна
@@ -93,7 +97,7 @@ export default {
     async onDelete() {
       if (this.toolModel.id != null) {
         try {
-          const {result} = await deleteTool(this.toolModel.id)
+          const { result } = await deleteTool(this.toolModel.id)
           if (result) {
             this.$emit('changes-saved')
           }

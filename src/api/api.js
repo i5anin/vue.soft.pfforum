@@ -15,7 +15,7 @@ export async function getTools(search = '', page = 1, limit = 10) {
 
 export async function getLibraries() {
   try {
-    const response = await axios.get(`${BASE_URL}/libraries`);
+    const response = await axios.get(`${BASE_URL}/tool-library`);
     return response.data;
   } catch (error) {
     console.error('There has been a problem with your fetch operation:', error);
@@ -48,7 +48,7 @@ export async function deleteTool(id) {
 // Обновить существующий инструмент
 export async function updateTool(id, toolData) {
   try {
-    const response = await axios.put(`${BASE_URL}/edit-tool/${id}`, toolData)
+    const response = await axios.put(`${BASE_URL}/tool/${id}`, toolData)
     return response.data
   } catch (error) {
     console.error('There has been a problem with your fetch operation:', error)
