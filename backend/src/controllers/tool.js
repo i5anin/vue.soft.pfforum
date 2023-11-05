@@ -120,7 +120,6 @@ async function addTool(req, res) {
   }
 }
 
-
 async function editTool(req, res) {
   // Извлекаем id инструмента из параметров URL
   const { id } = req.params
@@ -139,27 +138,63 @@ async function editTool(req, res) {
 
 async function getLibrary(req, res) {
   try {
-    const libraryQuery = `
-      SELECT * FROM dbo.library
-    `
+    // Запросы к базе данных для получения данных о группах, материалах и типах
+    const groupQuery = `
+      SELECT id, name AS group_name
+      FROM dbo.group_id
+    `;
+    const matQuery = `
+      SELECT id, name AS mat_name
+      FROM dbo.mat_id
+    `;
+    const typeQuery = `
+      SELECT id, name AS type_name
+      FROM dbo.type_id
+    `;
 
-    const library = await pool.query(libraryQuery)
+    // Параллельное выполнение запросов к базе данных
+    const [groups, materials, types] = await Promise.all([
+      pool.query(groupQuery),
+      pool.query(matQuery),
+      pool.query(typeQuery),
+    ]);
 
-    const formattedLibrary = library.rows.map(item => {
+    // Форматирование результатов запросов в удобный для работы формат
+    const formattedGroups = groups.rows.map(item => {
       return {
         id: item.id,
-        name: item.name,
+        name: item.group_name,
         // ... other fields ...
       }
-    })
+    });
 
+    const formattedMaterials = materials.rows.map(item => {
+      return {
+        id: item.id,
+        name: item.mat_name,
+        // ... other fields ...
+      }
+    });
+
+    const formattedTypes = types.rows.map(item => {
+      return {
+        id: item.id,
+        name: item.type_name,
+        // ... other fields ...
+      }
+    });
+
+    // Отправка отформатированных данных обратно клиенту в формате JSON
     res.json({
-      library: formattedLibrary,
-    })
+      groups: formattedGroups,
+      materials: formattedMaterials,
+      types: formattedTypes,
+    });
 
   } catch (err) {
-    console.error(err)
-    res.status(500).send(err.message)
+    // Логирование ошибки и отправка ее обратно клиенту с кодом состояния 500
+    console.error(err);
+    res.status(500).send(err.message);
   }
 }
 
