@@ -19,12 +19,15 @@
       :items-per-page='itemsPerPage'
       :page.sync='currentPage'
       :loading='loading'
+      density='compact'
       :items-per-page-options='[15, 50, 100, 300]'
       @update:page='getToolsTab'
       @update:items-per-page='updateItemsPerPage'
       @click:row='onEditRow'
       class='elevation-1'
       hover
+      fixed-header
+      headers
 
     >
       <template v-slot:item.type_name='{ item }'> {{ item.type.name }}</template>
