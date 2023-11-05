@@ -1,6 +1,5 @@
 import axios from 'axios'
-
-const BASE_URL = 'http://localhost:4000/api'
+const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:4000/api'
 
 // Получить все инструменты и связанные данные
 export async function getTools(search = '', page = 1, limit = 10) {
@@ -15,10 +14,10 @@ export async function getTools(search = '', page = 1, limit = 10) {
 
 export async function getLibraries() {
   try {
-    const response = await axios.get(`${BASE_URL}/tool-library`);
-    return response.data;
+    const response = await axios.get(`${BASE_URL}/tool-library`)
+    return response.data
   } catch (error) {
-    console.error('There has been a problem with your fetch operation:', error);
+    console.error('There has been a problem with your fetch operation:', error)
   }
 }
 
@@ -57,7 +56,7 @@ export async function updateTool(id, toolData) {
 }
 
 export async function addMaterial(name) {
-  const response = await axios.post('/add-material', { name })
+  const response = await axios.post(`${BASE_URL}/add-material`, { name })
   return response.data
 }
 

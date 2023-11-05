@@ -4,7 +4,6 @@
   "scripts": {
     "backend": "node backend/src/app.js",
     "frontend": "vite --host",
-
     "build": "vite build",
     "build_debug": "vite build --debug",
     "preview": "vite preview"
@@ -13,6 +12,7 @@
     "@fontsource/nunito": "^5.0.15",
     "@mdi/font": "^7.0.96",
     "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
     "joi": "^17.11.0",
     "moment": "^2.29.4",
     "pg": "^8.11.3",
