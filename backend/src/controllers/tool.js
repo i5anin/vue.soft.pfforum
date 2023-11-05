@@ -6,56 +6,67 @@ const dbConfig = require('../config').dbConfig
 const pool = new Pool(dbConfig)
 
 // Определение контроллеров
-// Определение контроллеров
 async function getTools(req, res) {
   try {
     // Получение параметров запроса
-    const { search, page = 1, limit = 10 } = req.query
-    const offset = (page - 1) * limit
+    const { search } = req.query;
+    const page = parseInt(req.query.page || 1, 10);
+    const limit = parseInt(req.query.limit || 15, 10);
+    const offset = (page - 1) * limit;
+
+    // Подготовка параметров для запросов
+    const searchCondition = search ? `WHERE nom.name LIKE $1` : '';
+    const limitOffsetCondition = search ? `LIMIT $2::bigint OFFSET $3::bigint` : `LIMIT $1::bigint OFFSET $2::bigint`;
+    const queryParams = search ? [`%${search}%`, limit, offset] : [limit, offset];
 
     // Запрос на получение общего количества инструментов
     const countQuery = `
-  SELECT COUNT(*)::INTEGER FROM dbo.nom
-  ${search ? `WHERE name LIKE '%${search}%'` : ''}
-    `
-    const countResult = await pool.query(countQuery)
-    const totalCount = countResult.rows[0].count
+            SELECT COUNT(*)::INTEGER FROM dbo.nom
+            ${searchCondition}
+        `;
 
     // Запрос на получение инструментов
     const toolQuery = `
-      SELECT
-        nom.id,
-        nom.name,
-        nom.group_id,
-        nom.mat_id,
-        nom.type_id,
-        nom.rad,
-        nom.kolvo_sklad,
-        nom.norma,
-        nom.zakaz,
-        grp.name as group_name,
-        mat.name as mat_name,
-        type.name as type_name
-      FROM
-        dbo.nom as nom
-      JOIN
-        dbo.group_id as grp
-      ON
-        nom.group_id = grp.id
-      LEFT JOIN
-        dbo.mat_id as mat
-      ON
-        nom.mat_id = mat.id
-      LEFT JOIN
-        dbo.type_id as type
-      ON
-        nom.type_id = type.id
-      ${search ? `WHERE nom.name LIKE '%${search}%'` : ''}
-      ORDER BY
-        nom.id DESC
-      LIMIT ${limit} OFFSET ${offset}
-    `
-    const tools = await pool.query(toolQuery)
+            SELECT
+                nom.id,
+                nom.name,
+                nom.group_id,
+                nom.mat_id,
+                nom.type_id,
+                nom.rad,
+                nom.kolvo_sklad,
+                nom.norma,
+                nom.zakaz,
+                grp.name as group_name,
+                mat.name as mat_name,
+                type.name as type_name
+            FROM
+                dbo.nom as nom
+            JOIN
+                dbo.group_id as grp
+            ON
+                nom.group_id = grp.id
+            LEFT JOIN
+                dbo.mat_id as mat
+            ON
+                nom.mat_id = mat.id
+            LEFT JOIN
+                dbo.type_id as type
+            ON
+                nom.type_id = type.id
+            ${searchCondition}
+            ORDER BY
+                nom.id DESC
+            ${limitOffsetCondition}
+        `;
+
+    // Выполнение запросов
+    const [countResult, tools] = await Promise.all([
+      pool.query(countQuery, search ? [`%${search}%`] : []),
+      pool.query(toolQuery, queryParams)
+    ]);
+
+    const totalCount = countResult.rows[0].count;
 
     // Форматирование данных инструментов
     const formattedTools = tools.rows.map(tool => {
@@ -78,21 +89,22 @@ async function getTools(req, res) {
           name: tool.group_name,
           id: tool.group_id,
         },
-      }
-    })
+      };
+    });
 
     res.json({
       currentPage: page,
       itemsPerPage: limit,
       totalCount,
       tools: formattedTools,
-    })
+    });
 
   } catch (err) {
-    console.error(err)
-    res.status(500).send(err.message)
+    console.error(err);
+    res.status(500).send(err.message);
   }
 }
+
 
 
 async function deleteTool(req, res) {
