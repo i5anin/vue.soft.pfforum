@@ -16,7 +16,7 @@
       :items-per-page='itemsPerPage'
       :page.sync='currentPage'
       :loading='loading'
-      @update:page='fetchTools'
+      @update:page='getToolsTab'
       @update:items-per-page='updateItemsPerPage'
       @click:row='onEditRow'
       class='elevation-1'
@@ -24,13 +24,13 @@
       :items-per-page-options='[50, 100, 300]'
     >
       <template v-slot:item.type_name='{ item }'>
-        {{ item.type_name }}
+        {{ item.type.name }}
       </template>
       <template v-slot:item.group_name='{ item }'>
-        {{ item.group_name }}
+        {{ item.group.name }}
       </template>
       <template v-slot:item.mat_name='{ item }'>
-        {{ item.mat_name }}
+        {{ item.mat.name }}
       </template>
       <template v-slot:item.rad='{ item }'>
         {{ item.rad }}
@@ -50,10 +50,11 @@
     </v-data-table>
   </v-container>
 </template>
+
 <script>
 import EditToolModal from '@/modules/tool/components/EditToolModal.vue'
-import { fetchTools, updateTool } from '@/api/api'
 import { VDataTable } from 'vuetify/labs/VDataTable'
+import { getTools } from '@/api/api'
 
 export default {
   components: { VDataTable, EditToolModal },
@@ -66,89 +67,48 @@ export default {
       headers: [
         { title: 'Название(Тип)', key: 'type_name', sortable: true },
         { title: 'Группа', key: 'group_name', sortable: true },
-        { title: 'Применяемость материала', key: 'mat_name' , sortable: true},
+        { title: 'Применяемость материала', key: 'mat_name', sortable: true },
         { title: 'Радиус', key: 'rad', sortable: true },
         { title: 'Маркировка', key: 'name', sortable: true },
         { title: 'Количество на складе', key: 'kolvo_sklad', sortable: true },
         { title: 'Нормальный запас на неделю', key: 'norma', sortable: true },
         { title: 'Заказ', key: 'zakaz', sortable: true },
       ],
-      response: {
-        page: 1,
-        totalPages: 15,
-        totalElements: 150,
-        pageSize: 10,
-        data: [], // tools[]
-      },
-      toolsResponse: [{
-        id: 2,
-        group: {
-          name: 'Пластина',
-          id: 1,
-        },
-        kolvo_sklad: 101,
-        mat: null,
-        name: 'новое имя инструмента',
-        norma: 1201,
-        rad: 0.8,
-        type_id: 1,
-        zakaz: 1301,
-      }],
-      putResponse: {
-        group_id: 1,
-        id: null,
-        kolvo_sklad: 101,
-        mat_id: 2,
-        name: 'новое имя инструмента',
-        norma: 1201,
-        rad: 0.8,
-        type_id: 1,
-        zakaz: 1301,
-      },
       totalTools: 0,
-      itemsPerPage: 10,
+      itemsPerPage: 15,
       currentPage: 1,
       loading: false,
     }
   },
-  async created() {
-    await this.fetchTools()
+  async mounted() {
+    await this.getToolsTab()
   },
   methods: {
-    async fetchTools(page = this.currentPage, itemsPerPage = this.itemsPerPage) {
+    async getToolsTab() {
       this.loading = true
-      const rawData = await fetchTools('', page, itemsPerPage)
-      this.tools = this.processToolsData(rawData)
-      console.log(rawData)
-      this.totalTools = rawData.total
-      this.loading = false
+      try {
+        const response = await getTools('', this.currentPage, this.itemsPerPage)
+        this.tools = response.tools
+        console.log(response.totalCount) //904
+        console.log(this.currentPage) //1
+        console.log(this.itemsPerPage) //15
+        this.totalTools = response.totalCount; //904
+      } catch (error) {
+        console.error('There has been a problem with your fetch operation:', error)
+      } finally {
+        this.loading = false
+      }
     },
-
-
     updateItemsPerPage(itemsPerPage) {
       this.itemsPerPage = itemsPerPage
-      this.fetchTools()
-    },
-    processToolsData(rawData) {
-      return rawData.tools.map(tool => {
-        const group = rawData.groups.find(group => group.id === tool.group_id)
-        const material = rawData.materials.find(material => material.id === tool.mat_id)
-        const type = rawData.types.find(type => type.id === tool.type_id)
-        return {
-          ...tool,
-          group_name: group ? group.group_name : '',
-          mat_name: material ? material.mat_name : '',
-          type_name: type ? type.type_name : '',
-        }
-      })
+      this.getToolsTab()
     },
     onClosePopup() {
       this.openDialog = false
     },
     async onSaveChanges() {
       this.openDialog = false
-      await this.fetchTools()
-
+      await this.getToolsTab()
     },
     onAddTool() {
       this.editingTool = {

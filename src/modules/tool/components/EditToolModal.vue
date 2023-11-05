@@ -42,7 +42,7 @@
 <script>
 // Импорт других компонентов и функций
 import Modal from '@/components/shared/Modal.vue'
-import { fetchTools, addTool, deleteTool, updateTool } from '@/api/api'  // Изменили имя импортированной функции
+import { getTools, addTool, deleteTool, updateTool } from '@/api/api'  // Изменили имя импортированной функции
 
 // Экспорт компонента
 export default {
@@ -73,7 +73,7 @@ export default {
     },
   },
   async created() {  // Хук жизненного цикла, вызывается при создании компонента
-    const rawData = await fetchTools()  // Получение данных с сервера
+    const rawData = await getTools()  // Получение данных с сервера
     // console.log(rawData)
     // Обновление опций для выбора на основе полученных данных
     this.typeOptions = rawData.types.map(type => type.type_name)

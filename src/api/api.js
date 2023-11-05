@@ -3,16 +3,19 @@ import axios from 'axios'
 const BASE_URL = 'http://localhost:4000/api'
 
 // Получить все инструменты и связанные данные
-export async function fetchTools(search = '', page = 1, limit = 10) {
+export async function getTools(search = '', page = 1, limit = 10) {
   try {
     const response = await axios.get(`${BASE_URL}/tools`, {
       params: { search, page, limit },
     })
+    // Преобразование totalCount в число
+    response.data.totalCount = parseInt(response.data.totalCount, 10);
     return response.data
   } catch (error) {
     console.error('There has been a problem with your fetch operation:', error)
   }
 }
+
 
 // Добавить новый инструмент
 export async function addTool(toolData) {
@@ -30,7 +33,6 @@ export async function addTool(toolData) {
 export async function deleteTool(id) {
   try {
     const response = await axios.delete(`${BASE_URL}/delete-tool/${id}`)
-    console.log(response)
     return response.data
   } catch (error) {
     console.error('There has been a problem with your fetch operation:', error)

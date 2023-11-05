@@ -15,8 +15,8 @@ async function getTools(req, res) {
 
     // Запрос на получение общего количества инструментов
     const countQuery = `
-      SELECT COUNT(*) FROM dbo.nom
-      ${search ? `WHERE name LIKE '%${search}%'` : ''}
+  SELECT COUNT(*)::INTEGER FROM dbo.nom
+  ${search ? `WHERE name LIKE '%${search}%'` : ''}
     `;
     const countResult = await pool.query(countQuery);
     const totalCount = countResult.rows[0].count;
