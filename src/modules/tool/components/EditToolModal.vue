@@ -67,11 +67,7 @@ export default {
   },
   components: { Modal },
   data: () => ({
-    toolModel: null,
-    typeOptions: [],
-    groupOptions: [],
-    materialOptions: [],
-    confirmDeleteDialog: false,
+    toolModel: null, typeOptions: [], groupOptions: [], materialOptions: [], confirmDeleteDialog: false,
   }),
   watch: {
     tool: {
