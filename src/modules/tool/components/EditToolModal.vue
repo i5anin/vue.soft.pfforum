@@ -1,53 +1,53 @@
 <template>
-    <Modal :title='popupTitle'>
-      <template #content>
-        <v-container>
-          <v-row>
-            <v-col>
-              <v-combobox label='Название (Тип)' v-model='toolModel.type' :items='typeOptions' item-text='text'
-                          item-value='value' required />
-              <v-combobox label='Группа' v-model='toolModel.group' :items='groupOptions' item-text='text'
-                          item-value='value' required />
-              <v-combobox label='Применяемость материала' v-model='toolModel.mat' :items='materialOptions'
-                          item-text='text' item-value='value' required />
+  <Modal :title='popupTitle'>
+    <template #content>
+      <v-container>
+        <v-row>
+          <v-col>
+            <v-combobox label='Название (Тип)' v-model='toolModel.type' :items='typeOptions' item-text='text'
+                        item-value='value' required />
+            <v-combobox label='Группа' v-model='toolModel.group' :items='groupOptions' item-text='text'
+                        item-value='value' required />
+            <v-combobox label='Применяемость материала' v-model='toolModel.mat' :items='materialOptions'
+                        item-text='text' item-value='value' required />
 
-              <v-text-field label='Маркировка' v-model='toolModel.name' required />
-              <v-text-field label='Количество на складе' v-model='toolModel.kolvo_sklad' required />
-              <v-text-field label='Нормальный запас на неделю' v-model='toolModel.norma' required />
-              <v-text-field label='Заказ' v-model='toolModel.zakaz' required />
+            <v-text-field label='Маркировка' v-model='toolModel.name' required />
+            <v-text-field label='Количество на складе' v-model='toolModel.kolvo_sklad' required />
+            <v-text-field label='Нормальный запас на неделю' v-model='toolModel.norma' required />
+            <v-text-field label='Заказ' v-model='toolModel.zakaz' required />
 
-              <v-select label='Радиус' v-model='toolModel.rad' :items='radiusOptions' required />
-            </v-col>
-          </v-row>
-        </v-container>
-      </template>
-      <template #action>
-        <v-btn color='red darken-1' variant='text' @click='confirmDelete' class='text-none text-subtitle-1 ml-3'>
-          Удалить
-        </v-btn>
-        <v-spacer />
-        <v-btn color='red darken-1' variant='text' @click='onCancel' class='text-none text-subtitle-1 ml-3'>
-          Закрыть
-        </v-btn>
-        <v-btn prepend-icon='mdi-check-circle' @click='onSave' class='text-none text-subtitle-1 pl-3'
-               color='blue darken-1' size='large' variant='flat'>
-          Сохранить
-        </v-btn>
-      </template>
-    </Modal>
+            <v-select label='Радиус' v-model='toolModel.rad' :items='radiusOptions' required />
+          </v-col>
+        </v-row>
+      </v-container>
+    </template>
+    <template #action>
+      <v-btn color='red darken-1' variant='text' @click='confirmDelete' class='text-none text-subtitle-1 ml-3'>
+        Удалить
+      </v-btn>
+      <v-spacer />
+      <v-btn color='red darken-1' variant='text' @click='onCancel' class='text-none text-subtitle-1 ml-3'>
+        Закрыть
+      </v-btn>
+      <v-btn prepend-icon='mdi-check-circle' @click='onSave' class='text-none text-subtitle-1 pl-3'
+             color='blue darken-1' size='large' variant='flat'>
+        Сохранить
+      </v-btn>
+    </template>
+  </Modal>
 
-    <!-- Диалоговое окно для подтверждения удаления -->
-    <v-dialog v-model='confirmDeleteDialog' persistent max-width='290'>
-      <v-card>
-        <v-card-title class='headline'>Удалить инструмент?</v-card-title>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color='blue darken-1' text @click='confirmDeleteDialog = false'>Отмена</v-btn>
-          <v-btn color='blue darken-1' text @click='onDelete'>Удалить</v-btn>
-          <v-spacer></v-spacer>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+  <!-- Диалоговое окно для подтверждения удаления -->
+  <v-dialog v-model='confirmDeleteDialog' persistent max-width='290'>
+    <v-card>
+      <v-card-title class='headline'>Удалить инструмент?</v-card-title>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color='blue darken-1' text @click='confirmDeleteDialog = false'>Отмена</v-btn>
+        <v-btn color='blue darken-1' text @click='onDelete'>Удалить</v-btn>
+        <v-spacer></v-spacer>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
@@ -108,9 +108,7 @@ export default {
       if (this.toolModel.id != null) {
         try {
           const { result } = await deleteTool(this.toolModel.id)
-          if (result) {
-            this.$emit('changes-saved')
-          }
+          if (result) this.$emit('changes-saved')
         } catch (error) {
           console.error('Ошибка при удалении инструмента:', error)
         }
