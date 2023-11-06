@@ -4,10 +4,12 @@ export const originalMenuItems = [
     title: 'Главная',
     icon: 'mdi-home',
     path: '/',
+    access: ['admin'],
   },
   {
     title: 'Станки',
     icon: 'mdi-expansion-card-variant',
+    access: ['admin'],
     items: [
       {
         title: 'Мониторинг',
@@ -21,7 +23,12 @@ export const originalMenuItems = [
       },
     ],
   },
-  { title: 'План', icon: 'mdi-format-list-checks', path: '/plan' },
+  {
+    title: 'План',
+    icon: 'mdi-format-list-checks',
+    path: '/plan',
+    access: ['admin'],
+  },
   {
     title: 'Статистика',
     icon: 'mdi-chart-bar',
@@ -33,6 +40,7 @@ export const originalMenuItems = [
   {
     title: 'Отчёты',
     icon: 'mdi-file-document-outline',
+    access: ['admin', 'hohlov'],
     items: [
       { title: 'Заготовка (за неделю)' },
       { title: 'Слесарка (за неделю)' },
@@ -54,6 +62,7 @@ export const plotsMenuItems = [
   {
     title: 'Отдел ТО и ПП',
     icon: 'mdi-tools',
+    access: ['admin', 'hohlov'],
     items: [
       { title: 'Ремонт оборудования' },
       { title: 'Закупка инструмента' },
@@ -70,6 +79,7 @@ export const plotsMenuItems = [
   {
     title: 'Участок ОТК',
     icon: 'mdi-android-studio',
+    access: ['admin', 'hohlov'],
     items: [
       { title: 'Выходной контроль' },
       { title: 'Операционный контроль' },
@@ -93,13 +103,26 @@ export const plotsMenuItems = [
   {
     title: 'Экраны',
     icon: 'mdi-monitor',
+    access: ['admin', 'hohlov'],
     items: [
       { title: 'Слесарный участок' },
       { title: 'Участок ОТК' },
       { title: 'Участок упаковки' },
-      { title: 'Станки' },
-      { title: 'Токарный участок' },
-      { title: 'Фрезерный участок' },
+    ],
+  },
+  {
+    title: 'Станки',
+    icon: 'mdi-expansion-card-variant',
+    access: ['admin', 'hohlov'],
+    items: [
+      {
+        title: 'Токарный участок',
+        path:  '/*',
+      },
+      {
+        title: 'Фрезерный участок',
+        path: '/*',
+      },
     ],
   },
 ]
