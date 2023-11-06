@@ -15,9 +15,10 @@
       <v-list>
         <v-list-item
           prepend-avatar='@/assets/avatar.png'
-          title='Исанин Сергей'
-          subtitle='Администратор'
+          title='Пользователь'
+          subtitle='Тестирование'
         />
+        <!-- title='Исанин Сергей' subtitle='Администратор'-->
       </v-list>
       <v-divider />
       <!--  -->
@@ -89,16 +90,16 @@ export default {
     filterForHohlov(items) {
       return items.filter(item => item.access && item.access.includes('hohlov')).map(item => {
         // Задаем иконку по умолчанию, если не задана
-        if (!item.icon) item.icon = 'mdi-circle-outline';
+        if (!item.icon) item.icon = 'mdi-circle-outline'
         // Проверяем подпункты
         if (item.items) {
           item.items = item.items.map(subItem => {
-            if (!subItem.icon) subItem.icon = 'mdi-circle-outline';
-            return subItem;
-          });
+            if (!subItem.icon) subItem.icon = 'mdi-circle-outline'
+            return subItem
+          })
         }
-        return item;
-      });
+        return item
+      })
     },
     processMenuItems(items) {
       // Этот метод больше не нужен, так как логика была интегрирована в filterForHohlov
@@ -110,14 +111,16 @@ export default {
 
 <style scoped lang='css'>
 
-::v-deep .v-navigation-drawer__content::-webkit-scrollbar-track{
+::v-deep .v-navigation-drawer__content::-webkit-scrollbar-track {
   -webkit-box-shadow: inset 0 0 6px #5d5d5d;
   background-color: #5d5d5d;
 }
-::v-deep .v-navigation-drawer__content::-webkit-scrollbar{
+
+::v-deep .v-navigation-drawer__content::-webkit-scrollbar {
   width: 0;
 }
-::v-deep .v-navigation-drawer__content::-webkit-scrollbar-thumb{
+
+::v-deep .v-navigation-drawer__content::-webkit-scrollbar-thumb {
   -webkit-box-shadow: inset 0 0 6px #424242;
   background-color: #424242;
 }
