@@ -1,13 +1,9 @@
 <template>
-  <div>
-    <!-- Определение шаблона компонента -->
-    <Modal :title='popupTitle'>  <!-- Привязка заголовка модального окна к переменной popupTitle -->
-      <template #content>  <!-- Слот для содержимого модального окна -->
-        <v-container>  <!-- Контейнер для разметки содержимого -->
-          <v-row>  <!-- Ряд для группировки элементов -->
-            <v-col>  <!-- Колонка для размещения элементов -->
-              <!-- Комбобоксы и текстовые поля для ввода данных -->
-              <!-- Каждый элемент привязан к соответствующему свойству объекта toolModel и имеет свой лейбл -->
+    <Modal :title='popupTitle'>
+      <template #content>
+        <v-container>
+          <v-row>
+            <v-col>
               <v-combobox label='Название (Тип)' v-model='toolModel.type' :items='typeOptions' item-text='text'
                           item-value='value' required />
               <v-combobox label='Группа' v-model='toolModel.group' :items='groupOptions' item-text='text'
@@ -25,8 +21,7 @@
           </v-row>
         </v-container>
       </template>
-      <template #action>  <!-- Слот для действий модального окна -->
-        <!-- Кнопки для закрытия модального окна и сохранения данных -->
+      <template #action>
         <v-btn color='red darken-1' variant='text' @click='confirmDelete' class='text-none text-subtitle-1 ml-3'>
           Удалить
         </v-btn>
@@ -42,18 +37,17 @@
     </Modal>
 
     <!-- Диалоговое окно для подтверждения удаления -->
-    <v-dialog v-model="confirmDeleteDialog" persistent max-width="290">
+    <v-dialog v-model='confirmDeleteDialog' persistent max-width='290'>
       <v-card>
-        <v-card-title class="headline">Удалить инструмент?</v-card-title>
+        <v-card-title class='headline'>Удалить инструмент?</v-card-title>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="confirmDeleteDialog = false">Отмена</v-btn>
-          <v-btn color="blue darken-1" text @click="onDelete">Удалить</v-btn>
+          <v-btn color='blue darken-1' text @click='confirmDeleteDialog = false'>Отмена</v-btn>
+          <v-btn color='blue darken-1' text @click='onDelete'>Удалить</v-btn>
           <v-spacer></v-spacer>
         </v-card-actions>
       </v-card>
     </v-dialog>
-  </div>
 </template>
 
 <script>
@@ -107,10 +101,10 @@ export default {
   },
   methods: {
     confirmDelete() {
-      this.confirmDeleteDialog = true;
+      this.confirmDeleteDialog = true
     },
     async onDelete() {
-      this.confirmDeleteDialog = false;
+      this.confirmDeleteDialog = false
       if (this.toolModel.id != null) {
         try {
           const { result } = await deleteTool(this.toolModel.id)
@@ -126,28 +120,28 @@ export default {
       this.$emit('canceled')
     },
     async onSave() {
-      const { id, group, type, mat, name, kolvo_sklad, norma, zakaz, rad } = this.toolModel;
+      const { id, group, type, mat, name, kolvo_sklad, norma, zakaz, rad } = this.toolModel
 
-      const rawData = await getLibraries();
-      const groups = rawData.groups;
-      const materials = rawData.materials;
-      const types = rawData.types;
+      const rawData = await getLibraries()
+      const groups = rawData.groups
+      const materials = rawData.materials
+      const types = rawData.types
 
-      let groupId = groups.find(g => g.name === group)?.id;
-      let matId = materials.find(m => m.name === mat)?.id;
-      let typeId = types.find(t => t.name === type)?.id;
+      let groupId = groups.find(g => g.name === group)?.id
+      let matId = materials.find(m => m.name === mat)?.id
+      let typeId = types.find(t => t.name === type)?.id
 
       if (!groupId) {
-        const newGroup = await addGroup(group);
-        groupId = newGroup.id;
+        const newGroup = await addGroup(group)
+        groupId = newGroup.id
       }
       if (!matId) {
-        const newMaterial = await addMaterial(mat);
-        matId = newMaterial.id;
+        const newMaterial = await addMaterial(mat)
+        matId = newMaterial.id
       }
       if (!typeId) {
-        const newType = await addType(type);
-        typeId = newType.id;
+        const newType = await addType(type)
+        typeId = newType.id
       }
 
       const toolData = {
