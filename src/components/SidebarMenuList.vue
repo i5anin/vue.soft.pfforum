@@ -8,15 +8,8 @@
         @click='onNavigate(item.path)'
       >
       </v-list-item>
-      <v-list-group
-        v-else
-        :value='groupStates[item.title]'
-        @input='
-          (val) => {
-            groupStates[item.title] = val
-          }
-        '
-      >
+      <v-list-group v-else :value='groupStates[item.title]'
+                    @input='(val) => { groupStates[item.title] = val}'>
         <template v-slot:activator='{ props }'>
           <v-list-item
             v-bind='props'
