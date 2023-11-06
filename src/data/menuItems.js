@@ -9,7 +9,11 @@ export const originalMenuItems = [
     title: 'Станки',
     icon: 'mdi-expansion-card-variant',
     items: [
-      { title: 'Мониторинг', icon: 'mdi-monitor-dashboard', path: '/cnc_stat' },
+      {
+        title: 'Мониторинг',
+        icon: 'mdi-monitor-dashboard',
+        path: '/cnc_stat',
+      },
       {
         title: 'Загрузка станков',
         icon: 'mdi-clock-time-eight-outline',
@@ -17,7 +21,7 @@ export const originalMenuItems = [
       },
     ],
   },
-  { title: 'План', icon: 'mdi-format-list-checks' },
+  { title: 'План', icon: 'mdi-format-list-checks', path: '/plan' },
   {
     title: 'Статистика',
     icon: 'mdi-chart-bar',
@@ -56,7 +60,7 @@ export const plotsMenuItems = [
       { title: 'Инструмент', path: '/Tool' },
     ],
   },
-  { title: 'Участок заготовки', icon: 'mdi-cog' },
+  { title: 'Участок заготовки', icon: 'mdi-cog', path: '/machining_area' },
   { title: 'Отдел продаж', icon: 'mdi-chart-line' },
   {
     title: 'Слесарный участок',

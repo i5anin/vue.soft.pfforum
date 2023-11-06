@@ -2,6 +2,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '@/views/Home.vue'
 import Tool from '@/views/Tool.vue'
+import Login from '@/views/Login.vue'
 import Error404 from '@/views/404.vue'
 
 const routes = [
@@ -9,6 +10,11 @@ const routes = [
     path: '/',
     name: 'Home',
     component: Home,
+  },
+  {
+    path: '/Login',
+    name: 'Login',
+    component: Login,
   },
   {
     path: '/Tool',
