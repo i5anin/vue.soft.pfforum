@@ -75,31 +75,38 @@ export default {
   }),
   computed: {
     originalMenuItemsComputed() {
-      return this.processMenuItems(originalMenuItems)
+      return this.filterForHohlov(originalMenuItems)
     },
     plotsMenuItemsComputed() {
-      return this.processMenuItems(plotsMenuItems)
+      return this.filterForHohlov(plotsMenuItems)
     },
     groupStates() {
-      return []
+      // Инициализация состояния группы, если необходимо
+      return {}
     },
   },
   methods: {
-    processMenuItems(items) {
-      return items.map((item) => {
-        if (!item.icon) item.icon = 'mdi-circle-outline'
+    filterForHohlov(items) {
+      return items.filter(item => item.access && item.access.includes('hohlov')).map(item => {
+        // Задаем иконку по умолчанию, если не задана
+        if (!item.icon) item.icon = 'mdi-circle-outline';
+        // Проверяем подпункты
         if (item.items) {
-          item.items = item.items.map((subItem) => {
-            if (!subItem.icon) subItem.icon = 'mdi-circle-outline'
-            return subItem
-          })
+          item.items = item.items.map(subItem => {
+            if (!subItem.icon) subItem.icon = 'mdi-circle-outline';
+            return subItem;
+          });
         }
-        return item
-      })
+        return item;
+      });
+    },
+    processMenuItems(items) {
+      // Этот метод больше не нужен, так как логика была интегрирована в filterForHohlov
     },
   },
 }
 </script>
+
 
 <style scoped lang='css'>
 
