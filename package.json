@@ -5,8 +5,7 @@
     "backend": "node backend/src/app.js",
     "frontend": "vite --host",
 
-    "pm_vue": "pm2 frontend pm2.config.js",
-    "pm_server": "pm2 backend pm2.config.js",
+    "pm": "pm2 start ecosystem.config.js",
 
     "build": "vite build",
     "build_debug": "vite build --debug",

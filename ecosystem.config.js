@@ -1,22 +1,30 @@
 module.exports = {
   apps: [
     {
-      name: 'soft.vue.pf-forum',
-      script: 'npm',
-      args: 'run serve',
+      name: 'backend soft',
+      script: 'backend/src/app.js',
+      watch: true,
       env: {
+        // Ваши переменные окружения для бэкенда
         PM2_PUBLIC_KEY: process.env.PM2_PUBLIC_KEY,
-        PM2_SECRET_KEY: process.env.PM2_SECRET_KEY
-      }
+        PM2_SECRET_KEY: process.env.PM2_SECRET_KEY,
+        // Другие переменные окружения
+      },
+      instances: 1,
+      exec_mode: 'cluster',
     },
     {
-      name: 'backend.soft.vue.pf-forum',
-      script: 'backend/server.js',
-      args: 'run server',
+      name: 'frontend soft',
+      script: 'npx', // Используйте npx для запуска локальных пакетов
+      args: 'vite --host',
+      interpreter: 'none',
+      watch: true,
       env: {
+        // Ваши переменные окружения для фронтенда
         PM2_PUBLIC_KEY: process.env.PM2_PUBLIC_KEY,
-        PM2_SECRET_KEY: process.env.PM2_SECRET_KEY
-      }
-    }
-  ]
+        PM2_SECRET_KEY: process.env.PM2_SECRET_KEY,
+        // Другие переменные окружения
+      },
+    },
+  ],
 };
