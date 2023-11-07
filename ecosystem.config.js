@@ -8,6 +8,7 @@ module.exports = {
         // Ваши переменные окружения для бэкенда
         PM2_PUBLIC_KEY: process.env.PM2_PUBLIC_KEY,
         PM2_SECRET_KEY: process.env.PM2_SECRET_KEY,
+        NODE_ENV: process.env.NODE_ENV,
         // Другие переменные окружения
       },
       instances: 1,
@@ -15,14 +16,15 @@ module.exports = {
     },
     {
       name: 'frontend soft',
-      script: './node_modules/.bin/vite',
-      args: '--host',
+      script: 'npx', // Используйте npx для запуска локальных пакетов
+      args: 'vite --host',
       interpreter: 'none',
       watch: true,
       env: {
         // Ваши переменные окружения для фронтенда
         PM2_PUBLIC_KEY: process.env.PM2_PUBLIC_KEY,
         PM2_SECRET_KEY: process.env.PM2_SECRET_KEY,
+        NODE_ENV: process.env.NODE_ENV,
         // Другие переменные окружения
       },
     },
