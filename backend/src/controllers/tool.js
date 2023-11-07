@@ -176,7 +176,6 @@ async function getLibrary(req, res) {
       return {
         id: item.id,
         name: item.group_name,
-        // ... other fields ...
       }
     })
 
@@ -184,7 +183,6 @@ async function getLibrary(req, res) {
       return {
         id: item.id,
         name: item.mat_name,
-        // ... other fields ...
       }
     })
 
@@ -192,7 +190,6 @@ async function getLibrary(req, res) {
       return {
         id: item.id,
         name: item.type_name,
-        // ... other fields ...
       }
     })
 
