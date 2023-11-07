@@ -15,8 +15,8 @@ module.exports = {
     },
     {
       name: 'frontend soft',
-      script: 'npx', // Используйте npx для запуска локальных пакетов
-      args: 'vite --host',
+      script: './node_modules/.bin/vite',
+      args: '--host',
       interpreter: 'none',
       watch: true,
       env: {
