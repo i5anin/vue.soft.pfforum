@@ -20,4 +20,4 @@ echo "Перезапуск приложений через PM2..."
 npx pm2 restart ecosystem.config.js
 
 # Выводим статус запущенных приложений
-npx pm2 status
+npx pm2 status 

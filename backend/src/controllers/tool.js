@@ -26,7 +26,7 @@ async function getTools(req, res) {
     // Запрос на получение общего количества инструментов
     const countQuery = `
       SELECT COUNT(*)::INTEGER
-      FROM dbo.nom ${searchCondition}
+      FROM dbo.tool_nom ${searchCondition}
     `
 
     // Запрос на получение инструментов
@@ -109,7 +109,7 @@ async function deleteTool(req, res) {
   const { id } = req.params
   try {
     await pool.query(`DELETE
-                      FROM dbo.nom
+                      FROM dbo.tool_nom
                       WHERE id = $1`, [id])
     res.json({ result: true })
   } catch (error) {
@@ -123,7 +123,7 @@ async function addTool(req, res) {
     req.body
   try {
     const result = await pool.query(
-      'INSERT INTO dbo.nom (name, group_id, mat_id, type_id, rad, kolvo_sklad, norma, zakaz ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
+      'INSERT INTO dbo.tool_nom (name, group_id, mat_id, type_id, rad, kolvo_sklad, norma, zakaz ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
       [name, group_id, mat_id, type_id, rad, kolvo_sklad, norma, zakaz],
     )
     res.json(result.rows[0])
@@ -142,7 +142,7 @@ async function editTool(req, res) {
 
   try {
     const result = await pool.query(
-      'UPDATE dbo.nom SET name=$1, group_id=$2, mat_id=$3, type_id=$4, kolvo_sklad=$5, norma=$6, zakaz=$7, rad=$8 WHERE id=$9 RETURNING *',
+      'UPDATE dbo.tool_nom SET name=$1, group_id=$2, mat_id=$3, type_id=$4, kolvo_sklad=$5, norma=$6, zakaz=$7, rad=$8 WHERE id=$9 RETURNING *',
       [name, group_id, mat_id, type_id, kolvo_sklad, norma, zakaz, rad, id],
     )
     res.json(result.rows[0]) // Обновлено, чтобы возвращать первую строку результата
@@ -256,7 +256,7 @@ async function searchTools(req, res) {
   try {
     const countQuery = `
       SELECT COUNT(*)::INTEGER
-      FROM dbo.nom
+      FROM dbo.tool_nom
       WHERE nom.name ILIKE $1
     `
 
@@ -265,7 +265,7 @@ async function searchTools(req, res) {
 
     const searchQuery = `
       SELECT nom.id, nom.name
-      FROM dbo.nom
+      FROM dbo.tool_nom
       WHERE nom.name ILIKE $1
       ORDER BY nom.id DESC
       LIMIT ${limit} OFFSET ${offset}
