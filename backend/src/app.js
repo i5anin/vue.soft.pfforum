@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const config = require('./config');
 const routers = require('./routers');
-const { getLocalIp } = require('./db_type');
+const { getNetworkDetails } = require('./db_type');
 
 const app = express();
 
@@ -20,9 +20,14 @@ app.use((err, req, res, next) => {
   });
 });
 
-const localIp = getLocalIp();
+try {
+  const { localIp } = getNetworkDetails();
 
-app.listen(config.port, localIp, () => {
-  console.log(`DB connect http://${config.dbConfig.host}:${config.dbConfig.port}`);
-  console.log(`Server is running on http://${localIp}:${config.server.port}`);
-});
+  app.listen(config.port, localIp, () => {
+    console.log(`DB connect http://${config.dbConfig.host}:${config.dbConfig.port}`);
+    console.log(`Server is running on http://${localIp}:${config.server.port}`);
+  });
+} catch (error) {
+  console.error(error.message);
+  // Handle the error appropriately. You might want to exit the process if the IP cannot be determined
+}

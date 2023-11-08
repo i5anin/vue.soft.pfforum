@@ -1,33 +1,28 @@
 const os = require('os')
 
-const getLocalIp = () => {
+const getNetworkDetails = () => {
   const nets = os.networkInterfaces()
-  for (const name of Object.keys(nets)) {
-    for (const net of nets[name]) {
-      // This will ensure that the IP address is from the local network and not an internal (localhost) address
-      if (net.family === 'IPv4' && !net.internal && net.address.startsWith('192.168.')) {
-        return net.address
-      }
-    }
-  }
-  throw new Error('Локальный IP-адрес не найден.')
-}
-
-const getDatabaseInfo = () => {
-  const nets = os.networkInterfaces()
+  let localIp = ''
   let databaseType = 'test' // Default to test
 
   for (const name of Object.keys(nets)) {
     for (const net of nets[name]) {
+      // Ensure the IP address is from the local network and not an internal (localhost) address
       if (net.family === 'IPv4' && !net.internal && net.address.startsWith('192.168.')) {
-        if (net.address === '192.168.0.10') {
+        localIp = net.address
+        // Check if the IP address is the production database IP
+        if (localIp === '192.168.0.10') {
           databaseType = 'production'
         }
-        return { localIp: net.address, databaseType }
+        // Return as soon as we find the first matching IP address
+        return { databaseType } // "databaseType": "test"
       }
     }
   }
-  throw new Error('Локальный IP-адрес не найден.')
+
+  if (!localIp) {
+    throw new Error('Локальный IP-адрес не найден.')
+  }
 }
 
-module.exports = { getLocalIp, getDatabaseInfo }
+module.exports = { getNetworkDetails }

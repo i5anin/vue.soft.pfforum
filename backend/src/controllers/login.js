@@ -1,24 +1,34 @@
+//login
+
 require('dotenv').config() // Это должно быть в самом верху файла
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const { Pool } = require('pg')
 const dbConfig = require('../config').dbConfig
-const { getDatabaseInfo } = require('../db_type')
+const { getNetworkDetails } = require('../db_type')
 const express = require('express')
 const app = express()
 
 // Создаем экземпляр pool используя конфигурацию из вашего файла config
 const pool = new Pool(dbConfig)
 
-
 app.get('/api/database-info', (req, res) => {
   try {
-    const dbInfo = getDatabaseInfo()
+    const dbInfo = getNetworkDetails()
     res.json(dbInfo)
   } catch (error) {
     res.status(500).json({ error: error.message })
   }
 })
+
+exports.getDatabaseInfo = async (req, res) => {
+  try {
+    const dbInfo = getNetworkDetails();
+    res.json(dbInfo);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 
 exports.validateUser = async (req, res) => {
