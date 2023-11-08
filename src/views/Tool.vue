@@ -3,11 +3,11 @@
     <v-row>
       <v-col class='pa-3'>
         <v-text-field
-          v-model="searchQuery"
-          label="Поиск"
+          v-model='searchQuery'
+          label='Поиск'
           outlined
           clearable
-          @input="onSearch"
+          @input='onSearch'
         ></v-text-field>
       </v-col>
       <v-col class='pa-3 text-right'>
@@ -67,7 +67,7 @@ export default {
       openDialog: false,
       tools: [],
       editingTool: null,
-      radiusOptions: [0.2, 0.4, 0.6, 0.8, 1.0, 1.2],
+      radiusOptions: [0.2, 0.4, 0.8, 1.0, 1.2, 1.6],
       headers: [
         { title: 'Название(Тип)', key: 'type_name', sortable: true },
         { title: 'Группа', key: 'group_name', sortable: true },
@@ -103,7 +103,7 @@ export default {
       }
     },
     onSearch() {
-      this.getToolsTab();
+      this.getToolsTab()
     },
     updateItemsPerPage(itemsPerPage) {
       this.itemsPerPage = itemsPerPage
