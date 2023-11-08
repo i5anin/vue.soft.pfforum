@@ -5,11 +5,9 @@ module.exports = {
       script: 'backend/src/app.js',
       watch: true,
       env: {
-        // Ваши переменные окружения для бэкенда
         PM2_PUBLIC_KEY: process.env.PM2_PUBLIC_KEY,
         PM2_SECRET_KEY: process.env.PM2_SECRET_KEY,
         NODE_ENV: process.env.NODE_ENV,
-        // Другие переменные окружения
       },
       instances: 1,
       exec_mode: 'cluster',
@@ -21,12 +19,10 @@ module.exports = {
       interpreter: 'none',
       watch: true,
       env: {
-        // Ваши переменные окружения для фронтенда
         PM2_PUBLIC_KEY: process.env.PM2_PUBLIC_KEY,
         PM2_SECRET_KEY: process.env.PM2_SECRET_KEY,
         NODE_ENV: process.env.NODE_ENV,
-        // Другие переменные окружения
       },
     },
   ],
-};
+}

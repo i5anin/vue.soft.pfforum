@@ -34,6 +34,6 @@ app.use((err, req, res, next) => {
 // Запускаем сервер на заданном порту
 app.listen(config.port, () => {
   console.log(`DB connect http://${config.dbConfig.host}:${config.dbConfig.port}`);
-  console.log(`Server is running on http://${config.server.host}:${config.server.port}`);
+  console.log(`Server is run http://${config.server.host}:${config.server.port}`);
 });
 
