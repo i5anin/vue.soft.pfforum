@@ -4,9 +4,10 @@ const { getNetworkDetails } = require('../db_type')
 const config = require('../config')
 
 const networkDetails = getNetworkDetails()
-const dbConfig = networkDetails.databaseType === 'build'
-  ? config.dbConfig
-  : config.dbConfigTest
+const dbConfig =
+  networkDetails.databaseType === 'build'
+    ? config.dbConfig
+    : config.dbConfigTest
 // Создание пула подключений к БД
 const pool = new Pool(dbConfig)
 
@@ -20,7 +21,7 @@ async function getTools(req, res) {
     const offset = (page - 1) * limit
 
     // Подготовка параметров для запросов
-    const searchCondition = search ? `WHERE nom.name LIKE $1` : ''
+    const searchCondition = search ? `WHERE tool_nom.name ILIKE $1` : ''
     const limitOffsetCondition = search
       ? `LIMIT $2::bigint OFFSET $3::bigint`
       : `LIMIT $1::bigint OFFSET $2::bigint`
@@ -45,23 +46,23 @@ async function getTools(req, res) {
              tool_nom.kolvo_sklad,
              tool_nom.norma,
              tool_nom.zakaz,
-             tool_group_id.name as group_name,
-             tool_mat_id.name   as mat_name,
-             tool_type_id.name  as type_name
+             tool_group.name as group_name,
+             tool_mat.name   as mat_name,
+             tool_type.name  as type_name
       FROM dbo.tool_nom as tool_nom
              JOIN
-           dbo.tool_group_id as tool_group_id
+           dbo.tool_group as tool_group
            ON
-             tool_nom.group_id = tool_group_id.id
+             tool_nom.group_id = tool_group.id
              LEFT JOIN
-           dbo.tool_mat_id as tool_mat_id
+           dbo.tool_mat as tool_mat
            ON
-             tool_nom.mat_id = tool_mat_id.id
+             tool_nom.mat_id = tool_mat.id
              LEFT JOIN
-           dbo.tool_type_id as tool_type_id
+           dbo.tool_type as tool_type
            ON
-               tool_nom.type_id = tool_type_id.id
-               ${searchCondition}
+              tool_nom.type_id = tool_type.id
+              ${searchCondition}
       ORDER BY tool_nom.id DESC
         ${limitOffsetCondition}
     `
@@ -113,9 +114,12 @@ async function getTools(req, res) {
 async function deleteTool(req, res) {
   const { id } = req.params
   try {
-    await pool.query(`DELETE
+    await pool.query(
+      `DELETE
                       FROM dbo.tool_nom
-                      WHERE id = $1`, [id])
+                      WHERE id = $1`,
+      [id]
+    )
     res.json({ result: true })
   } catch (error) {
     console.error(error)
@@ -129,7 +133,7 @@ async function addTool(req, res) {
   try {
     const result = await pool.query(
       'INSERT INTO dbo.tool_nom (name, group_id, mat_id, type_id, rad, kolvo_sklad, norma, zakaz ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
-      [name, group_id, mat_id, type_id, rad, kolvo_sklad, norma, zakaz],
+      [name, group_id, mat_id, type_id, rad, kolvo_sklad, norma, zakaz]
     )
     res.json(result.rows[0])
   } catch (err) {
@@ -142,12 +146,13 @@ async function editTool(req, res) {
   // Извлекаем id инструмента из параметров URL
   const { id } = req.params
   // Извлекаем данные из тела запроса
-  const { name, group_id, mat_id, type_id, kolvo_sklad, norma, zakaz, rad } = req.body
+  const { name, group_id, mat_id, type_id, kolvo_sklad, norma, zakaz, rad } =
+    req.body
 
   try {
     const result = await pool.query(
       'UPDATE dbo.tool_nom SET name=$1, group_id=$2, mat_id=$3, type_id=$4, kolvo_sklad=$5, norma=$6, zakaz=$7, rad=$8 WHERE id=$9 RETURNING *',
-      [name, group_id, mat_id, type_id, kolvo_sklad, norma, zakaz, rad, id],
+      [name, group_id, mat_id, type_id, kolvo_sklad, norma, zakaz, rad, id]
     )
 
     // Проверяем, была ли обновлена хотя бы одна строка
@@ -168,21 +173,20 @@ async function editTool(req, res) {
   }
 }
 
-
 async function getLibrary(req, res) {
   try {
     // Запросы к базе данных для получения данных о группах, материалах и типах
     const groupQuery = `
         SELECT id, name AS group_name
-        FROM dbo.tool_group_id
+        FROM dbo.tool_group
     `
     const matQuery = `
       SELECT id, name AS mat_name
-      FROM dbo.tool_mat_id
+      FROM dbo.tool_mat
     `
     const typeQuery = `
       SELECT id, name AS type_name
-      FROM dbo.tool_type_id
+      FROM dbo.tool_type
     `
 
     // Параллельное выполнение запросов к базе данных
@@ -231,7 +235,9 @@ async function addMaterial(req, res) {
   const { name } = req.body
   try {
     const result = await pool.query(
-      'INSERT INTO dbo.tool_mat_id (name) VALUES ($1) RETURNING *', [name])
+      'INSERT INTO dbo.tool_mat (name) VALUES ($1) RETURNING *',
+      [name]
+    )
     res.json(result.rows[0])
   } catch (err) {
     console.error('Error:', err.message)
@@ -242,7 +248,10 @@ async function addMaterial(req, res) {
 async function addType(req, res) {
   const { name } = req.body
   try {
-    const result = await pool.query('INSERT INTO dbo.tool_type_id (name) VALUES ($1) RETURNING *', [name])
+    const result = await pool.query(
+      'INSERT INTO dbo.tool_type (name) VALUES ($1) RETURNING *',
+      [name]
+    )
     res.json(result.rows[0])
   } catch (err) {
     console.error('Error:', err.message)
@@ -253,7 +262,10 @@ async function addType(req, res) {
 async function addGroup(req, res) {
   const { name } = req.body
   try {
-    const result = await pool.query('INSERT INTO dbo.tool_group_id (name) VALUES ($1) RETURNING *', [name])
+    const result = await pool.query(
+      'INSERT INTO dbo.tool_group (name) VALUES ($1) RETURNING *',
+      [name]
+    )
     res.json(result.rows[0])
   } catch (err) {
     console.error('Error:', err.message)
@@ -273,17 +285,17 @@ async function searchTools(req, res) {
     const countQuery = `
       SELECT COUNT(*)::INTEGER
       FROM dbo.tool_nom
-      WHERE nom.name ILIKE $1
+      WHERE tool_nom.name ILIKE $1
     `
 
     const countResult = await pool.query(countQuery, [`%${query}%`])
     const totalCount = countResult.rows[0].count
 
     const searchQuery = `
-      SELECT nom.id, nom.name
+      SELECT nom.id, tool_nom.name
       FROM dbo.tool_nom
-      WHERE nom.name ILIKE $1
-      ORDER BY nom.id DESC
+      WHERE tool_nom.name ILIKE $1
+      ORDER BY tool_nom.id DESC
       LIMIT ${limit} OFFSET ${offset}
     `
 
