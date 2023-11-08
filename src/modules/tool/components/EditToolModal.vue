@@ -55,6 +55,7 @@ import Modal from '@/components/shared/Modal.vue'
 import { addTool, deleteTool, updateTool, getLibraries, addMaterial, addType, addGroup } from '@/api/api'
 
 export default {
+  emits: ['canceled', 'changesSaved'],
   name: 'EditToolModal',
   props: {
     tool: {
@@ -62,6 +63,10 @@ export default {
       default: () => ({
         id: null, group_name: '', type_name: '', mat_name: '', name: '', kolvo_sklad: 0, norma: 0, zakaz: 0, rad: 0,
       }),
+    },
+    persistent: {
+      type: Boolean,
+      default: false,
     },
     radiusOptions: { type: Array },
   },
@@ -73,8 +78,13 @@ export default {
     tool: {
       immediate: true,
       handler(tool) {
-        const { mat, group, type } = tool
-        this.toolModel = JSON.parse(JSON.stringify({ ...tool, mat: mat?.name, group: group?.name, type: type?.name }))
+        this.toolModel = {
+          ...tool,
+          kolvo_sklad: tool.kolvo_sklad || '', // Заменить 0 на пустую строку
+          norma: tool.norma || '',               // Заменить 0 на пустую строку
+          zakaz: tool.zakaz || '',               // Заменить 0 на пустую строку
+          rad: tool.rad || '',                   // Заменить 0 на пустую строку
+        };
       },
     },
   },

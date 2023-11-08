@@ -16,7 +16,9 @@
     </v-row>
     <edit-tool-modal
       v-if='openDialog'
-      v-bind='{ tool: editingTool, persistent: true, radiusOptions: radiusOptions }'
+      :tool='editingTool'
+      :persistent='true'
+      :radiusOptions='radiusOptions'
       @canceled='onClosePopup'
       @changes-saved='onSaveChanges'
     />
@@ -58,6 +60,7 @@ import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { getTools } from '@/api/api'
 
 export default {
+  emits: ['changes-saved', 'canceled'],
   components: { VDataTableServer, EditToolModal },
   data() {
     return {

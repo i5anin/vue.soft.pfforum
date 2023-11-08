@@ -4,7 +4,7 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const config = require('./config');
 const routers = require('./routers')
-
+const os = require('os');
 
 const app = express()
 
@@ -29,11 +29,31 @@ app.use((err, req, res, next) => {
   });
 });
 
+const networkInterfaces = os.networkInterfaces();
+
+let localIp;
+for (let interfaceDetail of Object.values(networkInterfaces)) {
+  for (let interface of interfaceDetail) {
+    // Проверяем, что это IPv4 и не внутренний адрес (не 127.0.0.1), и что он соответствует подсети 192.168.3.*
+    if (interface.family === 'IPv4' && !interface.internal && interface.address.startsWith('192.168.')) {
+      localIp = interface.address;
+      break;
+    }
+  }
+  if (localIp) {
+    break;
+  }
+}
+
+if (!localIp) {
+  throw new Error('Не удалось определить локальный IP-адрес.');
+}
+
 
 // Запускаем сервер на заданном порту
 // Запускаем сервер на заданном порту
-app.listen(config.port, () => {
+app.listen(config.port, localIp, () => {
   console.log(`DB connect http://${config.dbConfig.host}:${config.dbConfig.port}`);
-  console.log(`Server is run http://${config.server.host}:${config.server.port}`);
+  console.log(`Server is running on http://${localIp}:${config.server.port}`);
 });
 
