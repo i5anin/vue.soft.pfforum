@@ -62,12 +62,12 @@ export async function addMaterial(name) {
 }
 
 export async function addType(name) {
-  const response = await axios.post('/add-type', { name })
+  const response = await axios.post(`${BASE_URL}/add-type`, { name })
   return response.data
 }
 
 export async function addGroup(name) {
-  const response = await axios.post('/add-group', { name })
+  const response = await axios.post(`${BASE_URL}/add-group`, { name })
   return response.data
 }
 
