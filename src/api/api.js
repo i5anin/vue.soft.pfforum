@@ -2,6 +2,16 @@ import axios from 'axios'
 
 const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:4000/api'
 
+export async function getDatabaseInfo() {
+  try {
+    const response = await axios.get(`${BASE_URL}/database-info`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching database info:', error);
+    throw error; // Выбросите ошибку, чтобы можно было её обработать в компоненте
+  }
+}
+
 // Получить все инструменты и связанные данные
 export async function getTools(search = '', page = 1, limit = 10) {
   try {

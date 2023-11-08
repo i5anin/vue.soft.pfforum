@@ -17,6 +17,7 @@ module.exports = {
       script: 'npx', // Используйте npx для запуска локальных пакетов
       args: 'vite --host',
       interpreter: 'none',
+      instances: 1,
       watch: true,
       env: {
         PM2_PUBLIC_KEY: process.env.PM2_PUBLIC_KEY,

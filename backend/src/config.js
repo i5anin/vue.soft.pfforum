@@ -1,4 +1,11 @@
 module.exports = {
+  dbConfigTest: {
+    user: process.env.DB_TEST_USER,
+    host: process.env.DB_TEST_HOST,
+    database: process.env.DB_TEST_NAME,
+    password: process.env.DB_TEST_PASSWORD,
+    port: process.env.DB_TEST_PORT,
+  },
   dbConfig: {
     user: process.env.DB_USER,
     host: process.env.DB_HOST,
@@ -7,8 +14,8 @@ module.exports = {
     port: process.env.DB_PORT,
   },
   server: {
-    host: '192.168.0.11', // Или другой хост, если он у вас есть
-    port: process.env.PORT || 3000 // Значение порта по умолчанию, если переменная окружения не установлена
+    host: process.env.HOST,
+    port: process.env.PORT,
   },
   port: process.env.PORT,
 }

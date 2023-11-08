@@ -1,7 +1,12 @@
 // Импорт зависимостей
 const { Pool } = require('pg')
-const dbConfig = require('../config').dbConfig
+const { getNetworkDetails } = require('../db_type')
+const config = require('../config')
 
+const networkDetails = getNetworkDetails()
+const dbConfig = networkDetails.databaseType === 'build'
+  ? config.dbConfig
+  : config.dbConfigTest
 // Создание пула подключений к БД
 const pool = new Pool(dbConfig)
 
@@ -135,31 +140,31 @@ async function addTool(req, res) {
 
 async function editTool(req, res) {
   // Извлекаем id инструмента из параметров URL
-  const { id } = req.params;
+  const { id } = req.params
   // Извлекаем данные из тела запроса
-  const { name, group_id, mat_id, type_id, kolvo_sklad, norma, zakaz, rad } = req.body;
+  const { name, group_id, mat_id, type_id, kolvo_sklad, norma, zakaz, rad } = req.body
 
   try {
     const result = await pool.query(
       'UPDATE dbo.tool_nom SET name=$1, group_id=$2, mat_id=$3, type_id=$4, kolvo_sklad=$5, norma=$6, zakaz=$7, rad=$8 WHERE id=$9 RETURNING *',
       [name, group_id, mat_id, type_id, kolvo_sklad, norma, zakaz, rad, id],
-    );
+    )
 
     // Проверяем, была ли обновлена хотя бы одна строка
     if (result.rowCount > 0) {
       // Возвращаем обновленный инструмент
       res.json({
         message: 'Инструмент успешно обновлен.',
-        tool: result.rows[0]
-      });
+        tool: result.rows[0],
+      })
     } else {
       // Если строка с таким id не найдена, возвращаем сообщение об ошибке
-      res.status(404).send('Инструмент с указанным ID не найден.');
+      res.status(404).send('Инструмент с указанным ID не найден.')
     }
   } catch (err) {
-    console.error('Error:', err.message);
-    console.error('Stack:', err.stack);
-    res.status(500).send(err.message);
+    console.error('Error:', err.message)
+    console.error('Stack:', err.stack)
+    res.status(500).send(err.message)
   }
 }
 
