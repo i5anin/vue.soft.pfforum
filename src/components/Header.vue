@@ -83,7 +83,7 @@ export default {
     },
     groupStates() {
       // Инициализация состояния группы, если необходимо
-      return {}
+      return []
     },
   },
   methods: {
