@@ -12,9 +12,9 @@
                         item-text='text' item-value='value' required />
 
             <v-text-field label='Маркировка' v-model='toolModel.name' required />
-            <v-text-field label='Количество на складе' v-model='toolModel.kolvo_sklad' required />
-            <v-text-field label='Нормальный запас на неделю' v-model='toolModel.norma' required />
-            <v-text-field label='Заказ' v-model='toolModel.zakaz' required />
+<!--            <v-text-field label='Количество на складе' v-model='toolModel.kolvo_sklad' required />-->
+<!--            <v-text-field label='Нормальный запас на неделю' v-model='toolModel.norma' required />-->
+<!--            <v-text-field label='Заказ' v-model='toolModel.zakaz' required />-->
 
             <v-select label='Радиус' v-model='toolModel.rad' :items='radiusOptions' required />
           </v-col>
