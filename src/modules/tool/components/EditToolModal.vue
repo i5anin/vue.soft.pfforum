@@ -60,7 +60,7 @@ export default {
     tool: {
       type: Object,
       default: () => ({
-        id: null, group_name: '', type_name: '', mat_name: '', name: '', kolvo_sklad: 0, norma: 0, zakaz: 0, rad: 0,
+        id: null, group_name: '', type_name: '', mat_name: '', name: '', kolvo_sklad: '', norma: '', zakaz: '', rad: '',
       }),
     },
     radiusOptions: { type: Array },
@@ -74,7 +74,16 @@ export default {
       immediate: true,
       handler(tool) {
         const { mat, group, type } = tool
-        this.toolModel = JSON.parse(JSON.stringify({ ...tool, mat: mat?.name, group: group?.name, type: type?.name }))
+        this.toolModel = JSON.parse(JSON.stringify({
+          ...tool,
+          kolvo_sklad: tool.kolvo_sklad || '',
+          norma: tool.norma || '',
+          zakaz: tool.zakaz || '',
+          rad: tool.rad || '',
+          mat: mat?.name,
+          group: group?.name,
+          type: type?.name,
+        }))
       },
     },
   },
