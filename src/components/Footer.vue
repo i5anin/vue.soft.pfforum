@@ -2,7 +2,7 @@
   <v-footer class='container'>
     Все права защищены 2023
     <v-spacer />
-    <span :class="{'text-red': databaseInfo && databaseInfo.databaseType === 'build'}" v-if='databaseInfo'>
+    <span :class="{'text-red': databaseInfo && databaseInfo.databaseType === 'build'}" v-if='databaseInfo'>Версия
       {{ databaseInfo.databaseType }}
     </span>
   </v-footer>
