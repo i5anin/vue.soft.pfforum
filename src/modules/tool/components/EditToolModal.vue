@@ -4,12 +4,30 @@
       <v-container>
         <v-row>
           <v-col>
-            <v-combobox label='Название (Тип)' v-model='toolModel.type.name' :items='typeOptions' item-text='text'
-                        item-value='value' required />
-            <v-combobox label='Группа' v-model='toolModel.group.name' :items='groupOptions' item-text='text'
-                        item-value='value' required />
-            <v-combobox label='Применяемость материала' v-model='toolModel.mat.name' :items='materialOptions'
-                        item-text='text' item-value='value' required />
+            <v-combobox
+              label='Название (Тип)'
+              v-model='toolModel.type'
+              :items='typeOptions'
+              item-text='text'
+              item-value='value'
+              required
+            />
+            <v-combobox
+              label='Группа'
+              v-model='toolModel.group'
+              :items='groupOptions'
+              item-text='text'
+              item-value='value'
+              required
+            />
+            <v-combobox
+              label='Применяемость материала'
+              v-model='toolModel.mat'
+              :items='materialOptions'
+              item-text='text'
+              item-value='value'
+              required
+            />
 
             <v-text-field label='Маркировка' v-model='toolModel.name' required />
             <v-text-field label='Количество на складе' v-model='toolModel.kolvo_sklad' required />
@@ -41,10 +59,10 @@
     <v-card>
       <v-card-title class='headline'>Удалить инструмент?</v-card-title>
       <v-card-actions>
-        <v-spacer></v-spacer>
+        <v-spacer/>
         <v-btn color='blue darken-1' text @click='confirmDeleteDialog = false'>Отмена</v-btn>
         <v-btn color='blue darken-1' text @click='onDelete'>Удалить</v-btn>
-        <v-spacer></v-spacer>
+        <v-spacer/>
       </v-card-actions>
     </v-card>
   </v-dialog>
