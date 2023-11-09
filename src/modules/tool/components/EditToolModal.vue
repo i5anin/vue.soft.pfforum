@@ -4,30 +4,12 @@
       <v-container>
         <v-row>
           <v-col>
-            <v-combobox
-              label='Название (Тип)'
-              v-model='toolModel.type'
-              :items='typeOptions'
-              item-text='text'
-              item-value='value'
-              required
-            />
-            <v-combobox
-              label='Группа'
-              v-model='toolModel.group'
-              :items='groupOptions'
-              item-text='text'
-              item-value='value'
-              required
-            />
-            <v-combobox
-              label='Применяемость материала'
-              v-model='toolModel.mat'
-              :items='materialOptions'
-              item-text='text'
-              item-value='value'
-              required
-            />
+            <v-combobox label='Название (Тип)' v-model='toolModel.type' :items='typeOptions' item-text='text'
+                        item-value='value' required />
+            <v-combobox label='Группа' v-model='toolModel.group' :items='groupOptions' item-text='text'
+                        item-value='value' required />
+            <v-combobox label='Применяемость материала' v-model='toolModel.mat' :items='materialOptions'
+                        item-text='text' item-value='value' required />
 
             <v-text-field label='Маркировка' v-model='toolModel.name' required />
             <v-text-field label='Количество на складе' v-model='toolModel.kolvo_sklad' required />
@@ -59,10 +41,10 @@
     <v-card>
       <v-card-title class='headline'>Удалить инструмент?</v-card-title>
       <v-card-actions>
-        <v-spacer/>
+        <v-spacer></v-spacer>
         <v-btn color='blue darken-1' text @click='confirmDeleteDialog = false'>Отмена</v-btn>
         <v-btn color='blue darken-1' text @click='onDelete'>Удалить</v-btn>
-        <v-spacer/>
+        <v-spacer></v-spacer>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -73,7 +55,6 @@ import Modal from '@/components/shared/Modal.vue'
 import { addTool, deleteTool, updateTool, getLibraries, addMaterial, addType, addGroup } from '@/api/api'
 
 export default {
-  emits: ['canceled', 'changesSaved'],
   name: 'EditToolModal',
   props: {
     tool: {
@@ -82,32 +63,18 @@ export default {
         id: null, group_name: '', type_name: '', mat_name: '', name: '', kolvo_sklad: 0, norma: 0, zakaz: 0, rad: 0,
       }),
     },
-    persistent: {
-      type: Boolean,
-      default: false,
-    },
     radiusOptions: { type: Array },
   },
   components: { Modal },
   data: () => ({
-    toolModel: {
-      type: {},
-      group: {},
-      mat: {},
-    },
-    typeOptions: [], groupOptions: [], materialOptions: [], confirmDeleteDialog: false,
+    toolModel: null, typeOptions: [], groupOptions: [], materialOptions: [], confirmDeleteDialog: false,
   }),
   watch: {
     tool: {
       immediate: true,
       handler(tool) {
-        this.toolModel = {
-          ...tool,
-          kolvo_sklad: tool.kolvo_sklad || '',
-          norma: tool.norma || '',
-          zakaz: tool.zakaz || '',
-          rad: tool.rad || '',
-        }
+        const { mat, group, type } = tool
+        this.toolModel = JSON.parse(JSON.stringify({ ...tool, mat: mat?.name, group: group?.name, type: type?.name }))
       },
     },
   },
@@ -117,7 +84,6 @@ export default {
       this.typeOptions = rawData.types.map(type => type.name)
       this.groupOptions = rawData.groups.map(group => group.name)
       this.materialOptions = rawData.materials.map(material => material.name)
-
     } catch (error) {
       console.error('Ошибка при получении данных:', error)
     }
@@ -148,17 +114,7 @@ export default {
       this.$emit('canceled')
     },
     async onSave() {
-      const {
-        id,
-        group: { name: group },
-        type: { name: type },
-        mat: { name: mat },
-        name,
-        kolvo_sklad,
-        norma,
-        zakaz,
-        rad,
-      } = this.toolModel
+      const { id, group, type, mat, name, kolvo_sklad, norma, zakaz, rad } = this.toolModel
 
       const rawData = await getLibraries()
       const groups = rawData.groups
@@ -198,11 +154,9 @@ export default {
         let result
         if (id == null) {
           result = await addTool(toolData)
-          console.log(toolData)
           if (result) this.$emit('changes-saved')
         } else {
           result = await updateTool(id, toolData)
-          console.log(toolData)
           if (result) this.$emit('changes-saved')
         }
       } catch (error) {
