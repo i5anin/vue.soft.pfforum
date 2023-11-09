@@ -4,11 +4,11 @@
       <v-container>
         <v-row>
           <v-col>
-            <v-combobox label='Название (Тип)' v-model='toolModel.type' :items='typeOptions' item-text='text'
+            <v-combobox label='Название (Тип)' v-model='toolModel.type.name' :items='typeOptions' item-text='text'
                         item-value='value' required />
-            <v-combobox label='Группа' v-model='toolModel.group' :items='groupOptions' item-text='text'
+            <v-combobox label='Группа' v-model='toolModel.group.name' :items='groupOptions' item-text='text'
                         item-value='value' required />
-            <v-combobox label='Применяемость материала' v-model='toolModel.mat' :items='materialOptions'
+            <v-combobox label='Применяемость материала' v-model='toolModel.mat.name' :items='materialOptions'
                         item-text='text' item-value='value' required />
 
             <v-text-field label='Маркировка' v-model='toolModel.name' required />
@@ -72,7 +72,12 @@ export default {
   },
   components: { Modal },
   data: () => ({
-    toolModel: null, typeOptions: [], groupOptions: [], materialOptions: [], confirmDeleteDialog: false,
+    toolModel: {
+      type: {},
+      group: {},
+      mat: {},
+    },
+    typeOptions: [], groupOptions: [], materialOptions: [], confirmDeleteDialog: false,
   }),
   watch: {
     tool: {
@@ -80,11 +85,11 @@ export default {
       handler(tool) {
         this.toolModel = {
           ...tool,
-          kolvo_sklad: tool.kolvo_sklad || '', // Заменить 0 на пустую строку
-          norma: tool.norma || '',               // Заменить 0 на пустую строку
-          zakaz: tool.zakaz || '',               // Заменить 0 на пустую строку
-          rad: tool.rad || '',                   // Заменить 0 на пустую строку
-        };
+          kolvo_sklad: tool.kolvo_sklad || '',
+          norma: tool.norma || '',
+          zakaz: tool.zakaz || '',
+          rad: tool.rad || '',
+        }
       },
     },
   },
@@ -94,6 +99,7 @@ export default {
       this.typeOptions = rawData.types.map(type => type.name)
       this.groupOptions = rawData.groups.map(group => group.name)
       this.materialOptions = rawData.materials.map(material => material.name)
+
     } catch (error) {
       console.error('Ошибка при получении данных:', error)
     }
@@ -124,7 +130,17 @@ export default {
       this.$emit('canceled')
     },
     async onSave() {
-      const { id, group, type, mat, name, kolvo_sklad, norma, zakaz, rad } = this.toolModel
+      const {
+        id,
+        group: { name: group },
+        type: { name: type },
+        mat: { name: mat },
+        name,
+        kolvo_sklad,
+        norma,
+        zakaz,
+        rad,
+      } = this.toolModel
 
       const rawData = await getLibraries()
       const groups = rawData.groups
@@ -164,9 +180,11 @@ export default {
         let result
         if (id == null) {
           result = await addTool(toolData)
+          console.log(toolData)
           if (result) this.$emit('changes-saved')
         } else {
           result = await updateTool(id, toolData)
+          console.log(toolData)
           if (result) this.$emit('changes-saved')
         }
       } catch (error) {
