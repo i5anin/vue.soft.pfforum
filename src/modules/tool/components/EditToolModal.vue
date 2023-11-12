@@ -52,7 +52,7 @@
 
 <script>
 import Modal from '@/components/shared/Modal.vue'
-import { addTool, deleteTool, updateTool, getLibraries, addMaterial, addType, addGroup } from '@/api/api'
+import { addTool, deleteTool, updateTool, getLibraries, addMaterial, addType, addGroup } from '@/api'
 
 export default {
   name: 'EditToolModal',

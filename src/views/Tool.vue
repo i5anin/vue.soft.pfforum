@@ -57,7 +57,7 @@
 <script>
 import EditToolModal from '@/modules/tool/components/EditToolModal.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
-import { getTools } from '@/api/api'
+import { getTools } from '@/api'
 
 export default {
   emits: ['changes-saved', 'canceled'],

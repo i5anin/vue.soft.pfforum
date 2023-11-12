@@ -1,15 +1,17 @@
 <template>
-  <v-footer class='container'>
+  <v-footer
+    v-if='databaseInfo'
+    class='container'>
     Все права защищены 2023
     <v-spacer />
-    <span :class="{'text-red': databaseInfo && databaseInfo.databaseType === 'build'}" v-if='databaseInfo'>Версия
-      {{ databaseInfo.databaseType }}
+    <span :class="{ 'text-red': isBuildDatabase }">
+      Версия {{ databaseInfo.databaseType }}
     </span>
   </v-footer>
 </template>
 
 <script>
-import { getDatabaseInfo } from '@/api/api' // Убедитесь, что путь к api.js правильный
+import { getDatabaseInfo } from '@/api'
 
 export default {
   name: 'Footer',
@@ -18,11 +20,17 @@ export default {
       databaseInfo: null,
     }
   },
-  async created() {
+  computed: {
+    isBuildDatabase() {
+      return this.databaseInfo
+        && this.databaseInfo.databaseType
+        === 'build'
+    },
+  },
+  async mounted() {
     try {
       this.databaseInfo = await getDatabaseInfo()
     } catch (error) {
-      // Обработка ошибок, возможно показать сообщение пользователю
       console.error('Failed to load database info:', error)
     }
   },

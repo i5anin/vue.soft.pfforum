@@ -4,15 +4,14 @@ const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:4000/api'
 
 export async function getDatabaseInfo() {
   try {
-    const response = await axios.get(`${BASE_URL}/database-info`);
-    return response.data;
+    const response = await axios.get(`${BASE_URL}/database-info`)
+    return response.data
   } catch (error) {
-    console.error('Error fetching database info:', error);
-    throw error; // Выбросите ошибку, чтобы можно было её обработать в компоненте
+    console.error('Error fetching database info:', error)
+    throw error
   }
 }
 
-// Получить все инструменты и связанные данные
 export async function getTools(search = '', page = 1, limit = 10) {
   try {
     const response = await axios.get(`${BASE_URL}/tools`, { params: { search, page, limit } })
@@ -31,7 +30,6 @@ export async function getLibraries() {
     console.error('There has been a problem with your fetch operation:', error)
   }
 }
-
 
 // Добавить новый инструмент
 export async function addTool(toolData) {

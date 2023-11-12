@@ -1,4 +1,4 @@
-// plugins/api.js
+// plugins/index.js
 import { loadFonts } from './webfontloader'
 import vuetify from './vuetify'
 
