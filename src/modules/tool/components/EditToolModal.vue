@@ -35,10 +35,6 @@
                           required
                           :rules='[v => v.length >= 3 || "Минимальная длина: 3 символа"]'
             />
-            <!-- <v-text-field label='Количество на складе' v-model='toolModel.kolvo_sklad' required />-->
-            <!-- <v-text-field label='Нормальный запас на неделю' v-model='toolModel.norma' required />-->
-            <!-- <v-text-field label='Заказ' v-model='toolModel.zakaz' required />-->
-
             <v-select label='Радиус' v-model='toolModel.rad' :items='radiusOptions' required />
           </v-col>
         </v-row>
