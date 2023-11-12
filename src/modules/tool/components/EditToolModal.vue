@@ -12,9 +12,9 @@
                         item-text='text' item-value='value' required />
 
             <v-text-field label='Маркировка' v-model='toolModel.name' required />
-<!--            <v-text-field label='Количество на складе' v-model='toolModel.kolvo_sklad' required />-->
-<!--            <v-text-field label='Нормальный запас на неделю' v-model='toolModel.norma' required />-->
-<!--            <v-text-field label='Заказ' v-model='toolModel.zakaz' required />-->
+            <!-- <v-text-field label='Количество на складе' v-model='toolModel.kolvo_sklad' required />-->
+            <!-- <v-text-field label='Нормальный запас на неделю' v-model='toolModel.norma' required />-->
+            <!-- <v-text-field label='Заказ' v-model='toolModel.zakaz' required />-->
 
             <v-select label='Радиус' v-model='toolModel.rad' :items='radiusOptions' required />
           </v-col>
@@ -35,24 +35,13 @@
       </v-btn>
     </template>
   </Modal>
-
-  <!-- Диалоговое окно для подтверждения удаления -->
-  <v-dialog v-model='confirmDeleteDialog' persistent max-width='290'>
-    <v-card>
-      <v-card-title class='headline'>Удалить инструмент?</v-card-title>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color='blue darken-1' text @click='confirmDeleteDialog = false'>Отмена</v-btn>
-        <v-btn color='blue darken-1' text @click='onDelete'>Удалить</v-btn>
-        <v-spacer></v-spacer>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+  <DeleteConfirmationDialog :confirmDeleteDialog="confirmDeleteDialog" :onDelete="onDelete" />
 </template>
 
 <script>
 import Modal from '@/components/shared/Modal.vue'
 import { addTool, deleteTool, updateTool, getLibraries, addMaterial, addType, addGroup } from '@/api'
+import DeleteConfirmationDialog from '@/modules/tool/components/DeleteConfirmationDialog.vue'
 
 export default {
   name: 'EditToolModal',
@@ -65,7 +54,7 @@ export default {
     },
     radiusOptions: { type: Array },
   },
-  components: { Modal },
+  components: { DeleteConfirmationDialog, Modal },
   data: () => ({
     toolModel: null, typeOptions: [], groupOptions: [], materialOptions: [], confirmDeleteDialog: false,
   }),
