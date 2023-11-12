@@ -32,9 +32,7 @@ export default {
   methods: {
     navigate() {
       const { path } = this.item
-      if (path == null) {
-        return
-      }
+      if (path == null) return
       this.$router.push({ path })
     },
   },
