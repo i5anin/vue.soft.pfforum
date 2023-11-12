@@ -11,7 +11,10 @@
                         item-value='value'
                         required
                         :counter='3'
-                        :rules='[v => v.length >= 3 || "Минимальная длина: 3 символа"]'
+                        :rules='[
+                          v => !!v || "Поле обязательно для заполнения",
+                          v => v && v.length >= 3 || "Минимальная длина: 3 символа",
+                        ]'
             />
             <v-combobox label='Группа'
                         v-model='toolModel.group'
@@ -19,7 +22,10 @@
                         item-text='text'
                         item-value='value'
                         required
-                        :rules='[v => v.length >= 3 || "Минимальная длина: 3 символа"]'
+                        :rules='[
+                          v => !!v || "Поле обязательно для заполнения",
+                          v => v && v.length >= 3 || "Минимальная длина: 3 символа",
+                        ]'
             />
             <v-combobox label='Применяемость материала'
                         v-model='toolModel.mat'
@@ -27,15 +33,26 @@
                         item-text='text'
                         item-value='value'
                         required
-                        :rules='[v => v.length >= 3 || "Минимальная длина: 3 символа"]'
+                        :rules='[
+                          v => !!v || "Поле обязательно для заполнения",
+                          v => v && v.length >= 3 || "Минимальная длина: 3 символа",
+                        ]'
             />
 
             <v-text-field label='Маркировка'
                           v-model='toolModel.name'
                           required
-                          :rules='[v => v.length >= 3 || "Минимальная длина: 3 символа"]'
+                          :rules=' [
+                          v=> !!v || "Поле обязательно для заполнения",
+              v => v && v.length >= 3 || "Минимальная длина: 3 символа",
+              ]'
             />
-            <v-select label='Радиус' v-model='toolModel.rad' :items='radiusOptions' required />
+            <v-select label='Радиус'
+                      v-model='toolModel.rad'
+                      :items='radiusOptions'
+                      required
+                      :rules='[v => /^\d+$/.test(v) || "Введите корректное количество (только цифры)"]'
+            />
           </v-col>
         </v-row>
       </v-container>
@@ -45,11 +62,19 @@
         Удалить
       </v-btn>
       <v-spacer />
-      <v-btn color='red darken-1' variant='text' @click='onCancel' class='text-none text-subtitle-1 ml-3'>
+      <v-btn
+        color='red darken-1'
+        variant='text'
+        @click='onCancel'
+        class='text-none text-subtitle-1 ml-3'>
         Закрыть
       </v-btn>
-      <v-btn prepend-icon='mdi-check-circle' @click='onSave' class='text-none text-subtitle-1 pl-3'
-             color='blue darken-1' size='large' variant='flat'>
+      <v-btn prepend-icon='mdi-check-circle'
+             @click='onSave'
+             class='text-none text-subtitle-1 pl-3'
+             color='blue darken-1'
+             size='large'
+             variant='flat'>
         Сохранить
       </v-btn>
     </template>
@@ -79,14 +104,14 @@ export default {
   },
   components: { DeleteConfirmationDialog, Modal },
   data: () => ({
-    toolModel: null, typeOptions: [], groupOptions: [], materialOptions: [], confirmDeleteDialog: false,
+    toolModel: {}, typeOptions: [], groupOptions: [], materialOptions: [], confirmDeleteDialog: false,
   }),
   watch: {
     tool: {
       immediate: true,
       handler(tool) {
-        const { mat, group, type } = tool
-        this.toolModel = JSON.parse(JSON.stringify({
+        const { mat, group, type } = tool;
+        this.toolModel = {
           ...tool,
           kolvo_sklad: tool.kolvo_sklad || '',
           norma: tool.norma || '',
@@ -95,7 +120,7 @@ export default {
           mat: mat?.name,
           group: group?.name,
           type: type?.name,
-        }))
+        };
       },
     },
   },
@@ -121,13 +146,13 @@ export default {
       this.confirmDeleteDialog = true
     },
     async onDelete() {
-      this.confirmDeleteDialog = false
-      if (this.toolModel.id != null) {
+      const { id } = this.toolModel;
+      if (id != null) {
         try {
-          const { result } = await deleteTool(this.toolModel.id)
-          if (result) this.$emit('changes-saved')
+          const { result } = await deleteTool(id);
+          if (result) this.$emit('changes-saved');
         } catch (error) {
-          console.error('Ошибка при удалении инструмента:', error)
+          console.error('Ошибка при удалении инструмента:', error);
         }
       }
     },
@@ -135,7 +160,9 @@ export default {
       this.$emit('canceled')
     },
     async onSave() {
-      const { id, group, type, mat, name, kolvo_sklad, norma, zakaz, rad } = this.toolModel
+      const {
+        id, group, type, mat, name, kolvo_sklad, norma, zakaz, rad,
+      } = this.toolModel
 
       const rawData = await getLibraries()
       const groups = rawData.groups
@@ -147,7 +174,6 @@ export default {
       let typeId = types.find(t => t.name === type)?.id
 
       if (this.toolModel.name.length < 3 || this.toolModel.group.length < 3 || this.toolModel.mat.length < 3) {
-        // Отобразить сообщение об ошибке (можете использовать vuetify's snackbar или другие подходящие средства)
         console.error('Ошибка валидации: Минимальная длина для полей - 3 символа.')
         return
       }
