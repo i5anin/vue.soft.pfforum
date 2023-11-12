@@ -4,14 +4,37 @@
       <v-container>
         <v-row>
           <v-col>
-            <v-combobox label='Название (Тип)' v-model='toolModel.type' :items='typeOptions' item-text='text'
-                        item-value='value' required />
-            <v-combobox label='Группа' v-model='toolModel.group' :items='groupOptions' item-text='text'
-                        item-value='value' required />
-            <v-combobox label='Применяемость материала' v-model='toolModel.mat' :items='materialOptions'
-                        item-text='text' item-value='value' required />
+            <v-combobox label='Название (Тип)'
+                        v-model='toolModel.type'
+                        :items='typeOptions'
+                        item-text='text'
+                        item-value='value'
+                        required
+                        :counter='3'
+                        :rules='[v => v.length >= 3 || "Минимальная длина: 3 символа"]'
+            />
+            <v-combobox label='Группа'
+                        v-model='toolModel.group'
+                        :items='groupOptions'
+                        item-text='text'
+                        item-value='value'
+                        required
+                        :rules='[v => v.length >= 3 || "Минимальная длина: 3 символа"]'
+            />
+            <v-combobox label='Применяемость материала'
+                        v-model='toolModel.mat'
+                        :items='materialOptions'
+                        item-text='text'
+                        item-value='value'
+                        required
+                        :rules='[v => v.length >= 3 || "Минимальная длина: 3 символа"]'
+            />
 
-            <v-text-field label='Маркировка' v-model='toolModel.name' required />
+            <v-text-field label='Маркировка'
+                          v-model='toolModel.name'
+                          required
+                          :rules='[v => v.length >= 3 || "Минимальная длина: 3 символа"]'
+            />
             <!-- <v-text-field label='Количество на складе' v-model='toolModel.kolvo_sklad' required />-->
             <!-- <v-text-field label='Нормальный запас на неделю' v-model='toolModel.norma' required />-->
             <!-- <v-text-field label='Заказ' v-model='toolModel.zakaz' required />-->
@@ -35,7 +58,11 @@
       </v-btn>
     </template>
   </Modal>
-  <DeleteConfirmationDialog :confirmDeleteDialog="confirmDeleteDialog" :onDelete="onDelete" />
+  <DeleteConfirmationDialog
+    :confirmDeleteDialog='confirmDeleteDialog'
+    :onDelete='onDelete'
+    @update:confirmDeleteDialog='updateConfirmDeleteDialog'
+  />
 </template>
 
 <script>
@@ -122,6 +149,12 @@ export default {
       let groupId = groups.find(g => g.name === group)?.id
       let matId = materials.find(m => m.name === mat)?.id
       let typeId = types.find(t => t.name === type)?.id
+
+      if (this.toolModel.name.length < 3 || this.toolModel.group.length < 3 || this.toolModel.mat.length < 3) {
+        // Отобразить сообщение об ошибке (можете использовать vuetify's snackbar или другие подходящие средства)
+        console.error('Ошибка валидации: Минимальная длина для полей - 3 символа.')
+        return
+      }
 
       if (!groupId) {
         const newGroup = await addGroup(group)

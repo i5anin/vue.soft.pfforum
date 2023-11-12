@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model='confirmDeleteDialog' persistent max-width='290' class="v-dialog-delete">
+  <v-dialog :modelValue='confirmDeleteDialog' @update:modelValue='updateModelValue' persistent max-width='290' class="v-dialog-delete">
     <v-card>
       <v-card-title class='headline'>Удалить инструмент?</v-card-title>
       <v-card-actions>
@@ -18,10 +18,15 @@ export default {
     confirmDeleteDialog: Boolean,
     onDelete: Function,
   },
+  methods: {
+    updateModelValue(newValue) {
+      this.$emit('update:confirmDeleteDialog', newValue);
+    },
+  },
 };
 </script>
 
-<style scoped lang="css">
+<style scoped lang='css'>
 .v-dialog-delete .v-card-title {
   font-size: 20px;
   color: red;
