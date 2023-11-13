@@ -11,6 +11,32 @@ const dbConfig =
 // Создание пула подключений к БД
 const pool = new Pool(dbConfig)
 
+async function getToolNomSpec(req, res) {
+  try {
+    const specQuery = `
+      SELECT
+        id,
+        rad,
+        shag,
+        gab
+      FROM dbo.tool_nom_spec
+    `;
+
+    const result = await pool.query(specQuery);
+
+    if (result.rows.length > 0) {
+      res.json(result.rows);
+    } else {
+      res.status(404).send('Спецификации не найдены.');
+    }
+  } catch (err) {
+    console.error('Error:', err.message);
+    console.error('Stack:', err.stack);
+    res.status(500).send(err.message);
+  }
+}
+
+
 // Определение контроллеров
 async function getTools(req, res) {
   try {
@@ -324,5 +350,5 @@ module.exports = {
   addType,
   addGroup,
   getLibrary,
-  searchTools,
+  getToolNomSpec,
 }

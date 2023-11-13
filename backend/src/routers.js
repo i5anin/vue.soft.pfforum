@@ -5,7 +5,9 @@ const login = require('./controllers/login');
 const { validateUser, getDatabaseInfo } = require('./controllers/login')
 
 routers.get('/tools', controllers.getTools);
+
 routers.get('/tool-library', controllers.getLibrary);
+routers.get('/tool-spec', controllers.getToolNomSpec);
 
 routers.post('/tool', controllers.addTool);
 
@@ -21,5 +23,6 @@ routers.post('/validate-user', login.validateUser);
 
 routers.post('/validate-user', validateUser);
 routers.get('/database-info', getDatabaseInfo);
+
 
 module.exports = routers;

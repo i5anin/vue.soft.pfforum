@@ -1,10 +1,10 @@
-<mxfile host="app.diagrams.net" modified="2023-11-13T06:34:28.577Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36" etag="2L8I9DBIzT_tNH0UtM8t" version="22.1.0" type="device">
+<mxfile host="app.diagrams.net" modified="2023-11-13T07:09:04.591Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36" etag="nB_BdyxceA3qp_X7U8Zo" version="22.1.0" type="device">
   <diagram name="Страница — 1" id="nFLk3jnH2Kj02EvxrJm-">
     <mxGraphModel dx="2261" dy="1967" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="UyTcibLwogBtFu6U8jmR-4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="UyTcibLwogBtFu6U8jmR-1" target="UyTcibLwogBtFu6U8jmR-2">
+        <mxCell id="UyTcibLwogBtFu6U8jmR-4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" edge="1" parent="1" source="UyTcibLwogBtFu6U8jmR-1" target="UyTcibLwogBtFu6U8jmR-2">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="UyTcibLwogBtFu6U8jmR-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="UyTcibLwogBtFu6U8jmR-1" target="UyTcibLwogBtFu6U8jmR-6">
@@ -40,22 +40,22 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="UyTcibLwogBtFu6U8jmR-1" value="1. Заполнение данных" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="UyTcibLwogBtFu6U8jmR-1" value="1. Заполнение данных" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
           <mxGeometry x="20" y="40" width="210" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="UyTcibLwogBtFu6U8jmR-5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="UyTcibLwogBtFu6U8jmR-2" target="UyTcibLwogBtFu6U8jmR-3">
+        <mxCell id="UyTcibLwogBtFu6U8jmR-5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" edge="1" parent="1" source="UyTcibLwogBtFu6U8jmR-2" target="UyTcibLwogBtFu6U8jmR-3">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="UyTcibLwogBtFu6U8jmR-34" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="UyTcibLwogBtFu6U8jmR-2" target="UyTcibLwogBtFu6U8jmR-33">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="UyTcibLwogBtFu6U8jmR-2" value="2. Приход на склад" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="UyTcibLwogBtFu6U8jmR-2" value="2. Приход на склад" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
           <mxGeometry x="20" y="130" width="210" height="60" as="geometry" />
         </mxCell>
         <mxCell id="UyTcibLwogBtFu6U8jmR-25" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="UyTcibLwogBtFu6U8jmR-3" target="UyTcibLwogBtFu6U8jmR-23">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="UyTcibLwogBtFu6U8jmR-3" value="3. Оператор выбирает инструмент" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="UyTcibLwogBtFu6U8jmR-3" value="3. Оператор выбирает инструмент" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
           <mxGeometry x="20" y="230" width="210" height="60" as="geometry" />
         </mxCell>
         <mxCell id="UyTcibLwogBtFu6U8jmR-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="UyTcibLwogBtFu6U8jmR-6" target="UyTcibLwogBtFu6U8jmR-17">
@@ -93,7 +93,7 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="UyTcibLwogBtFu6U8jmR-23" value="Видит только те что есть на складе" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="250" y="190" width="239" height="40" as="geometry" />
+          <mxGeometry x="260" y="190" width="220" height="40" as="geometry" />
         </mxCell>
         <mxCell id="UyTcibLwogBtFu6U8jmR-29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="UyTcibLwogBtFu6U8jmR-28" target="UyTcibLwogBtFu6U8jmR-1">
           <mxGeometry relative="1" as="geometry" />
