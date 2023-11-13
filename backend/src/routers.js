@@ -4,6 +4,8 @@ const controllers = require('./controllers/tool');
 const login = require('./controllers/login');
 const { validateUser, getDatabaseInfo } = require('./controllers/login')
 
+
+// --- TOOL ---
 routers.get('/tools', controllers.getTools);
 
 routers.get('/tool-library', controllers.getLibrary);
@@ -18,6 +20,8 @@ routers.put('/tool/:id', controllers.editTool);
 routers.post('/add-material', controllers.addMaterial);
 routers.post('/add-type', controllers.addType);
 routers.post('/add-group', controllers.addGroup);
+
+// --- TOOL ---
 
 routers.post('/validate-user', login.validateUser);
 
