@@ -1,18 +1,18 @@
 <template>
   <v-container>
     <v-row>
-      <v-col class="pa-3 text-right">
-        <v-btn color="green" @click="getData">Получить данные</v-btn>
+      <v-col class='pa-3 text-right'>
+        <v-btn color='green' @click='getData'>Получить данные</v-btn>
       </v-col>
     </v-row>
 
     <v-data-table
-      :headers="headers"
-      :items="data"
-      :items-per-page="10"
-      class="elevation-1"
+      :headers='headers'
+      :items='data'
+      :items-per-page='10'
+      class='elevation-1'
     >
-      <template v-slot:item="{ item }">
+      <template v-slot:item='{ item }'>
         <tr>
           <td>{{ item.name }}</td>
         </tr>
@@ -28,9 +28,7 @@ export default {
   data() {
     return {
       data: [],
-      headers: [
-        { text: 'Name', value: 'name' },
-      ],
+      headers: [{ text: 'Name', value: 'name' }],
     }
   },
   methods: {
@@ -41,11 +39,11 @@ export default {
           ...response.groups,
           ...response.materials,
           ...response.types,
-        ];
+        ]
       } catch (error) {
         console.error('Error fetching data:', error)
       }
     },
   },
-};
+}
 </script>

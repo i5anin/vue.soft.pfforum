@@ -68,10 +68,6 @@ async function getTools(req, res) {
              tool_nom.group_id,
              tool_nom.mat_id,
              tool_nom.type_id,
-             tool_nom.rad,
-             tool_nom.kolvo_sklad,
-             tool_nom.norma,
-             tool_nom.zakaz,
              tool_group.name as group_name,
              tool_mat.name   as mat_name,
              tool_type.name  as type_name

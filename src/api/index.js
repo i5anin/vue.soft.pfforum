@@ -25,6 +25,7 @@ export async function getTools(search = '', page = 1, limit = 10) {
 export async function getLibraries() {
   try {
     const response = await axios.get(`${BASE_URL}/tool-library`)
+    console.log(response.data)
     return response.data
   } catch (error) {
     console.error('There has been a problem with your fetch operation:', error)
