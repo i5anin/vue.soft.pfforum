@@ -14,6 +14,7 @@
     >
       <template v-slot:item='{ item }'>
         <tr>
+          <td>{{ item.id }}</td>
           <td>{{ item.name }}</td>
         </tr>
       </template>
@@ -35,15 +36,18 @@ export default {
     async getData() {
       try {
         const response = await getLibraries()
+        console.log(response.groups[1].name)
+        console.log(response.groups[1].id)
         this.data = [
           ...response.groups,
           ...response.materials,
           ...response.types,
-        ]
+        ].map((item, index) => ({ ...item, id: index + 1 }))
       } catch (error) {
         console.error('Error fetching data:', error)
       }
-    },
+    }
+    ,
   },
 }
 </script>
