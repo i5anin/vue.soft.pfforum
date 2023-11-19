@@ -2,12 +2,11 @@
   <v-container>
     <v-row>
       <v-col class='pa-3 text-right'>
-        <v-btn color='green' @click='getData'>Получить данные</v-btn>
+        <v-btn color='green' @click='getData'>Обновить данные</v-btn>
       </v-col>
     </v-row>
 
     <v-data-table
-      hover
       :headers='headers'
       :items='data'
       :items-per-page='10'
@@ -59,6 +58,9 @@ export default {
       const index = this.data.indexOf(item)
       this.data.splice(index, 1)
     },
+  },
+  mounted() {
+    this.getData()
   },
 }
 </script>
