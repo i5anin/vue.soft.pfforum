@@ -36,8 +36,10 @@ export default {
       }
     },
     deleteItem(item, list) {
-      const index = list.indexOf(item)
-      list.splice(index, 1)
+      if (confirm('Вы уверены, что хотите удалить этот элемент?')) {
+        const index = list.indexOf(item)
+        list.splice(index, 1)
+      }
     },
   },
   mounted() {
