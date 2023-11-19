@@ -20,19 +20,19 @@ async function getToolNomSpec(req, res) {
         shag,
         gab
       FROM dbo.tool_nom_spec
-    `;
+    `
 
-    const result = await pool.query(specQuery);
+    const result = await pool.query(specQuery)
 
     if (result.rows.length > 0) {
-      res.json(result.rows);
+      res.json(result.rows)
     } else {
-      res.status(404).send('Спецификации не найдены.');
+      res.status(404).send('Спецификации не найдены.')
     }
   } catch (err) {
-    console.error('Error:', err.message);
-    console.error('Stack:', err.stack);
-    res.status(500).send(err.message);
+    console.error('Error:', err.message)
+    console.error('Stack:', err.stack)
+    res.status(500).send(err.message)
   }
 }
 
@@ -70,7 +70,11 @@ async function getTools(req, res) {
              tool_nom.type_id,
              tool_group.name as group_name,
              tool_mat.name   as mat_name,
-             tool_type.name  as type_name
+             tool_type.name  as type_name,
+             tool_nom_spec.rad,
+             tool_nom_spec.param2,
+             tool_nom_spec.param3,
+             tool_nom_spec.param4
       FROM dbo.tool_nom as tool_nom
              JOIN
            dbo.tool_group as tool_group
@@ -84,6 +88,10 @@ async function getTools(req, res) {
            dbo.tool_type as tool_type
            ON
               tool_nom.type_id = tool_type.id
+             LEFT JOIN
+           dbo.tool_nom_spec as tool_nom_spec
+           ON
+              tool_nom.id = tool_nom_spec.id
               ${searchCondition}
       ORDER BY tool_nom.id DESC
         ${limitOffsetCondition}
@@ -118,6 +126,12 @@ async function getTools(req, res) {
           name: tool.group_name,
           id: tool.group_id,
         },
+        spec: {
+          rad: tool.rad,
+          param2: tool.param2,
+          param3: tool.param3,
+          param4: tool.param4,
+        },
       }
     })
 
@@ -138,9 +152,9 @@ async function deleteTool(req, res) {
   try {
     await pool.query(
       `DELETE
-                      FROM dbo.tool_nom
-                      WHERE id = $1`,
-      [id]
+       FROM dbo.tool_nom
+       WHERE id = $1`,
+      [id],
     )
     res.json({ result: true })
   } catch (error) {
@@ -155,7 +169,7 @@ async function addTool(req, res) {
   try {
     const result = await pool.query(
       'INSERT INTO dbo.tool_nom (name, group_id, mat_id, type_id, rad, kolvo_sklad, norma, zakaz ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
-      [name, group_id, mat_id, type_id, rad, kolvo_sklad, norma, zakaz]
+      [name, group_id, mat_id, type_id, rad, kolvo_sklad, norma, zakaz],
     )
     res.json(result.rows[0])
   } catch (err) {
@@ -174,7 +188,7 @@ async function editTool(req, res) {
   try {
     const result = await pool.query(
       'UPDATE dbo.tool_nom SET name=$1, group_id=$2, mat_id=$3, type_id=$4, kolvo_sklad=$5, norma=$6, zakaz=$7, rad=$8 WHERE id=$9 RETURNING *',
-      [name, group_id, mat_id, type_id, kolvo_sklad, norma, zakaz, rad, id]
+      [name, group_id, mat_id, type_id, kolvo_sklad, norma, zakaz, rad, id],
     )
 
     // Проверяем, была ли обновлена хотя бы одна строка
@@ -258,7 +272,7 @@ async function addMaterial(req, res) {
   try {
     const result = await pool.query(
       'INSERT INTO dbo.tool_mat (name) VALUES ($1) RETURNING *',
-      [name]
+      [name],
     )
     res.json(result.rows[0])
   } catch (err) {
@@ -272,7 +286,7 @@ async function addType(req, res) {
   try {
     const result = await pool.query(
       'INSERT INTO dbo.tool_type (name) VALUES ($1) RETURNING *',
-      [name]
+      [name],
     )
     res.json(result.rows[0])
   } catch (err) {
@@ -286,7 +300,7 @@ async function addGroup(req, res) {
   try {
     const result = await pool.query(
       'INSERT INTO dbo.tool_group (name) VALUES ($1) RETURNING *',
-      [name]
+      [name],
     )
     res.json(result.rows[0])
   } catch (err) {
