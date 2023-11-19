@@ -21,8 +21,8 @@
 
 <script setup>
 import { ref } from 'vue';
-import ToolTable from '@/views/ToolTable.vue';
-import ToolLibraryTable from '@/views/ToolLibraryTable.vue';
+import ToolTable from '@/views/Tools/ToolTable.vue';
+import ToolLibraryTable from '@/views/Tools/ToolLibraryTable.vue';
 
 const tab = ref('one'); // Initialize the 'tab' variable with a default value
 </script>

@@ -12,32 +12,43 @@
       :items-per-page='10'
       class='elevation-1'
     >
-      <template v-slot:item='{ item }'>
-        <tr>
-          <td>{{ item.id }}</td>
-          <td>{{ item.name }}</td>
-        </tr>
+      <template v-slot:item.id='{ item }'>
+        <td>{{ item.id }}</td>
       </template>
+      <template v-slot:item.name='{ item }'>
+        <td>{{ item.name }}</td>
+      </template>
+<!--      <td>-->
+<!--        <v-btn prepend-icon='$delete'>-->
+<!--          удалить-->
+<!--        </v-btn>-->
+<!--      </td>-->
+
+
     </v-data-table>
   </v-container>
 </template>
 
 <script>
 import { getLibraries } from '@/api'
+import { VDataTable } from 'vuetify/labs/VDataTable'
+
 
 export default {
+  components: { VDataTable },
   data() {
     return {
       data: [],
-      headers: [{ text: 'Name', value: 'name' }],
+      headers: [
+        { text: 'ID', value: 'id' },
+        { text: 'Name', value: 'name' },
+      ],
     }
   },
   methods: {
     async getData() {
       try {
         const response = await getLibraries()
-        console.log(response.groups[1].name)
-        console.log(response.groups[1].id)
         this.data = [
           ...response.groups,
           ...response.materials,
@@ -46,8 +57,7 @@ export default {
       } catch (error) {
         console.error('Error fetching data:', error)
       }
-    }
-    ,
+    },
   },
 }
 </script>
