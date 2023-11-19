@@ -6,39 +6,36 @@
       </v-col>
     </v-row>
 
-    <v-data-table
-      :headers='headers'
-      :items='data'
-      :items-per-page='10'
-      class='elevation-1'
-    >
-      <template v-slot:item.id='{ item }'>
-        <td>{{ item.id }}</td>
+    <v-simple-table>
+      <template v-slot:default>
+        <thead>
+        <tr>
+          <th class="text-left">ID</th>
+          <th class="text-left">Name</th>
+          <th class="text-left">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="item in data" :key="item.id">
+          <td>{{ item.id }}</td>
+          <td>{{ item.name }}</td>
+          <td>
+            <v-btn color='red' @click='deleteItem(item)'>Удалить</v-btn>
+          </td>
+        </tr>
+        </tbody>
       </template>
-      <template v-slot:item.name='{ item }'>
-        <td>{{ item.name }}</td>
-      </template>
-      <template v-slot:item.actions='{ item }'>
-        <v-btn color='red' @click='deleteItem(item)'>Удалить</v-btn>
-      </template>
-    </v-data-table>
+    </v-simple-table>
   </v-container>
 </template>
 
 <script>
 import { getLibraries } from '@/api'
-import { VDataTable } from 'vuetify/labs/VDataTable'
 
 export default {
-  components: { VDataTable },
   data() {
     return {
       data: [],
-      headers: [
-        { text: 'ID', value: 'id' },
-        { text: 'Name', value: 'name' },
-        { text: 'Actions', value: 'actions' },
-      ],
     }
   },
   methods: {
