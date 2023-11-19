@@ -7,82 +7,9 @@
     </v-row>
 
     <v-row>
-      <v-col cols='4'>
-        <h2 class='text-h4'>Группы</h2>
-        <v-simple-table class='styled-table'>
-          <template v-slot:default>
-            <thead>
-            <tr>
-              <th class='text-left'>ID</th>
-              <th class='text-left'>Название</th>
-              <th class='text-left'>Кнопка</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr v-for='item in groups' :key='item.id' class='row'>
-              <td>{{ item.id }}</td>
-              <td>{{ item.name }}</td>
-              <td>
-                <v-btn density='compact' icon='mdi-open-in-new' @click='deleteItem(item, groups)'>
-                  <v-icon>mdi-delete</v-icon>
-                </v-btn>
-              </td>
-            </tr>
-            </tbody>
-          </template>
-        </v-simple-table>
-      </v-col>
-
-      <v-col cols='4'>
-        <h2 class='text-h4'>Материалы</h2>
-        <v-simple-table class='styled-table'>
-          <template v-slot:default>
-            <thead>
-            <tr>
-              <th class='text-left'>ID</th>
-              <th class='text-left'>Название</th>
-              <th class='text-left'>Кнопка</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr v-for='item in materials' :key='item.id' class='row'>
-              <td>{{ item.id }}</td>
-              <td>{{ item.name }}</td>
-              <td>
-                <v-btn density='compact' icon='mdi-open-in-new' @click='deleteItem(item, materials)'>
-                  <v-icon>mdi-delete</v-icon>
-                </v-btn>
-              </td>
-            </tr>
-            </tbody>
-          </template>
-        </v-simple-table>
-      </v-col>
-
-      <v-col cols='4'>
-        <h2 class='text-h4'>Типы</h2>
-        <v-simple-table class='styled-table'>
-          <template v-slot:default>
-            <thead>
-            <tr>
-              <th class='text-left'>ID</th>
-              <th class='text-left'>Название</th>
-              <th class='text-left'>Кнопка</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr v-for='item in types' :key='item.id' class='row'>
-              <td>{{ item.id }}</td>
-              <td>{{ item.name }}</td>
-              <td>
-                <v-btn density='compact' icon='mdi-open-in-new' @click='deleteItem(item, types)'>
-                  <v-icon>mdi-delete</v-icon>
-                </v-btn>
-              </td>
-            </tr>
-            </tbody>
-          </template>
-        </v-simple-table>
+      <v-col cols='4' v-for='(items, title) in tables' :key='title'>
+        <h2 class='text-h4'>{{ title }}</h2>
+        <data-table :items='items' @deleteItem='deleteItem' />
       </v-col>
     </v-row>
   </v-container>
@@ -90,22 +17,20 @@
 
 <script>
 import { getLibraries } from '@/api'
+import DataTable from './DataTable.vue'
 
 export default {
+  components: { DataTable },
   data() {
-    return {
-      groups: [],
-      materials: [],
-      types: [],
-    }
+    return { tables: { 'Группы': [], 'Материалы': [], 'Типы': [] } }
   },
   methods: {
     async getData() {
       try {
         const response = await getLibraries()
-        this.groups = response.groups.map((item, index) => ({ ...item, id: index + 1 }))
-        this.materials = response.materials.map((item, index) => ({ ...item, id: index + 1 }))
-        this.types = response.types.map((item, index) => ({ ...item, id: index + 1 }))
+        this.tables['Группы'] = response.groups.map((item, index) => ({ ...item, id: index + 1 }))
+        this.tables['Материалы'] = response.materials.map((item, index) => ({ ...item, id: index + 1 }))
+        this.tables['Типы'] = response.types.map((item, index) => ({ ...item, id: index + 1 }))
       } catch (error) {
         console.error('Error fetching data:', error)
       }
@@ -122,14 +47,6 @@ export default {
 </script>
 
 <style scoped>
-.styled-table {
-  border-collapse: collapse;
-  margin: 15px 0;
-  font-size: 0.9em;
-  min-width: 400px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-}
-
 .styled-table thead tr {
   background-color: #005b98;
   color: #ffffff;
@@ -153,17 +70,9 @@ export default {
   border-bottom: 2px solid #005b98;
 }
 
-.styled-table tbody tr.active-row {
+.styled-table tbody {
   font-weight: bold;
   color: #005b98;
 }
 
-.row:hover .delete-button {
-  display: block;
-}
-
-.delete-button {
-  display: none;
-  border-radius: 50%;
-}
 </style>
