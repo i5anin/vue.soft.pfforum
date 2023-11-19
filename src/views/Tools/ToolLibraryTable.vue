@@ -18,13 +18,9 @@
       <template v-slot:item.name='{ item }'>
         <td>{{ item.name }}</td>
       </template>
-<!--      <td>-->
-<!--        <v-btn prepend-icon='$delete'>-->
-<!--          удалить-->
-<!--        </v-btn>-->
-<!--      </td>-->
-
-
+      <template v-slot:item.actions='{ item }'>
+        <v-btn color='red' @click='deleteItem(item)'>Удалить</v-btn>
+      </template>
     </v-data-table>
   </v-container>
 </template>
@@ -32,7 +28,6 @@
 <script>
 import { getLibraries } from '@/api'
 import { VDataTable } from 'vuetify/labs/VDataTable'
-
 
 export default {
   components: { VDataTable },
@@ -42,6 +37,7 @@ export default {
       headers: [
         { text: 'ID', value: 'id' },
         { text: 'Name', value: 'name' },
+        { text: 'Actions', value: 'actions' },
       ],
     }
   },
@@ -57,6 +53,10 @@ export default {
       } catch (error) {
         console.error('Error fetching data:', error)
       }
+    },
+    deleteItem(item) {
+      const index = this.data.indexOf(item)
+      this.data.splice(index, 1)
     },
   },
 }
