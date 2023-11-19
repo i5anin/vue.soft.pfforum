@@ -7,6 +7,7 @@
     </v-row>
 
     <v-data-table
+      hover
       :headers='headers'
       :items='data'
       :items-per-page='10'
