@@ -3,56 +3,89 @@
     <template #content>
       <v-container>
         <v-row>
-          <v-col>
-            <v-combobox label='Название (Тип)'
-                        v-model='toolModel.type'
-                        :items='typeOptions'
-                        item-text='text'
-                        item-value='value'
-                        required
-                        :counter='3'
-                        :rules='[
-                          v => !!v || "Поле обязательно для заполнения",
-                          v => v && v.length >= 3 || "Минимальная длина: 3 символа",
-                        ]'
-            />
-            <v-combobox label='Группа'
-                        v-model='toolModel.group'
-                        :items='groupOptions'
-                        item-text='text'
-                        item-value='value'
-                        required
-                        :rules='[
-                          v => !!v || "Поле обязательно для заполнения",
-                          v => v && v.length >= 3 || "Минимальная длина: 3 символа",
-                        ]'
-            />
-            <v-combobox label='Применяемость материала'
-                        v-model='toolModel.mat'
-                        :items='materialOptions'
-                        item-text='text'
-                        item-value='value'
-                        required
-                        :rules='[
-                          v => !!v || "Поле обязательно для заполнения",
-                          v => v && v.length >= 3 || "Минимальная длина: 3 символа",
-                        ]'
-            />
+          <v-col cols='12' lg='6'>
+            <!-- левый столбец -->
+            <div>
 
-            <v-text-field label='Маркировка'
-                          v-model='toolModel.name'
+              <v-combobox label='Название (Тип)'
+                          v-model='toolModel.type'
+                          :items='typeOptions'
+                          item-text='text'
+                          item-value='value'
                           required
-                          :rules=' [
+                          :counter='3'
+                          :rules='[
+                          v => !!v || "Поле обязательно для заполнения",
+                          v => v && v.length >= 3 || "Минимальная длина: 3 символа",
+                        ]'
+              />
+              <v-combobox label='Группа'
+                          v-model='toolModel.group'
+                          :items='groupOptions'
+                          item-text='text'
+                          item-value='value'
+                          required
+                          :rules='[
+                          v => !!v || "Поле обязательно для заполнения",
+                          v => v && v.length >= 3 || "Минимальная длина: 3 символа",
+                        ]'
+              />
+              <v-combobox label='Применяемость материала'
+                          v-model='toolModel.mat'
+                          :items='materialOptions'
+                          item-text='text'
+                          item-value='value'
+                          required
+                          :rules='[
+                          v => !!v || "Поле обязательно для заполнения",
+                          v => v && v.length >= 3 || "Минимальная длина: 3 символа",
+                        ]'
+              />
+
+              <v-text-field label='Маркировка'
+                            v-model='toolModel.name'
+                            required
+                            :rules=' [
                           v=> !!v || "Поле обязательно для заполнения",
               v => v && v.length >= 3 || "Минимальная длина: 3 символа",
               ]'
-            />
-            <v-select label='Радиус'
-                      v-model='toolModel.rad'
-                      :items='radiusOptions'
-                      required
-                      :rules='[v => /^\d+$/.test(v) || "Введите корректное количество (только цифры)"]'
-            />
+              />
+            </div>
+          </v-col>
+          <!-- правый столбец -->
+          <v-col cols='12' lg='6'>
+            <div>
+              <v-select label='Радиус'
+                        v-model='toolModel.radius'
+                        :items='radiusOptions'
+                        required
+                        :rules='[v => /^\d+$/.test(v) || "Введите корректное количество (только цифры)"]'
+              />
+              <v-text-field label='Диаметр'
+                            v-model='toolModel.diam'
+                            :items='radiusOptions'
+                            required
+                            :rules='[v => /^\d+$/.test(v) || "Введите корректное количество (только цифры)"]'
+              />
+              <v-text-field label='Шаг'
+                            v-model='toolModel.shag'
+                            :items='radiusOptions'
+                            required
+                            :rules='[v => /^\d+$/.test(v) || "Введите корректное количество (только цифры)"]'
+              />
+              <v-text-field label='Габариты'
+                            v-model='toolModel.gabarit'
+                            :items='radiusOptions'
+                            required
+                            :rules='[v => /^\d+$/.test(v) || "Введите корректное количество (только цифры)"]'
+              />
+              <v-text-field label='Вылет'
+                            v-model='toolModel.width'
+                            :items='radiusOptions'
+                            required
+                            :rules='[v => /^\d+$/.test(v) || "Введите корректное количество (только цифры)"]'
+              />
+            </div>
           </v-col>
         </v-row>
       </v-container>
@@ -97,7 +130,9 @@ export default {
     tool: {
       type: Object,
       default: () => ({
-        id: null, group_name: '', type_name: '', mat_name: '', name: '', kolvo_sklad: '', norma: '', zakaz: '', rad: '',
+        id: null, group_name: '', type_name: '', mat_name: '', name: '', diam: '', shag: '',
+        fields: [],
+        typeOptions: ['Radius', 'Diameter', 'Step', 'Dimensions', 'Projection'],
       }),
     },
     radiusOptions: { type: Array },
@@ -110,17 +145,20 @@ export default {
     tool: {
       immediate: true,
       handler(tool) {
-        const { mat, group, type } = tool;
+        const { mat, group, type } = tool
         this.toolModel = {
           ...tool,
-          kolvo_sklad: tool.kolvo_sklad || '',
-          norma: tool.norma || '',
-          zakaz: tool.zakaz || '',
-          rad: tool.rad || '',
+
           mat: mat?.name,
           group: group?.name,
           type: type?.name,
-        };
+
+          radius: tool.spec?.radius,
+          shag: tool.spec?.shag,
+          gabarit: tool.spec?.gabarit,
+          width: tool.spec?.width,
+          diam: tool.spec?.diam,
+        }
       },
     },
   },
@@ -142,17 +180,20 @@ export default {
     },
   },
   methods: {
+    addField() {
+      this.fields.push({ type: '', value: '' })
+    },
     confirmDelete() {
       this.confirmDeleteDialog = true
     },
     async onDelete() {
-      const { id } = this.toolModel;
+      const { id } = this.toolModel
       if (id != null) {
         try {
-          const { result } = await deleteTool(id);
-          if (result) this.$emit('changes-saved');
+          const { result } = await deleteTool(id)
+          if (result) this.$emit('changes-saved')
         } catch (error) {
-          console.error('Ошибка при удалении инструмента:', error);
+          console.error('Ошибка при удалении инструмента:', error)
         }
       }
     },
@@ -161,7 +202,7 @@ export default {
     },
     async onSave() {
       const {
-        id, group, type, mat, name, kolvo_sklad, norma, zakaz, rad,
+        id, group, type, mat, name,
       } = this.toolModel
 
       const rawData = await getLibraries()
@@ -197,9 +238,7 @@ export default {
         group_id: groupId,
         mat_id: matId,
         type_id: typeId,
-        kolvo_sklad: Number(kolvo_sklad),
-        norma: Number(norma),
-        zakaz: Number(zakaz),
+
         rad: Number(rad),
       }
 
@@ -219,3 +258,5 @@ export default {
   },
 }
 </script>
+
+
