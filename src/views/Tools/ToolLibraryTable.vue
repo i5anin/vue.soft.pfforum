@@ -17,7 +17,7 @@
 
 <script>
 import { getLibraries } from '@/api'
-import DataTable from './DataTable.vue'
+import DataTable from './LibraryDataTable.vue'
 
 export default {
   components: { DataTable },

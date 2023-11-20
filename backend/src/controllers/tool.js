@@ -63,39 +63,41 @@ async function getTools(req, res) {
 
     // Запрос на получение инструментов
     const toolQuery = `
-      SELECT tool_nom.id,
-             tool_nom.name,
-             tool_nom.group_id,
-             tool_nom.mat_id,
-             tool_nom.type_id,
-             tool_group.name as group_name,
-             tool_mat.name   as mat_name,
-             tool_type.name  as type_name,
-             tool_nom_spec.rad,
-             tool_nom_spec.param2,
-             tool_nom_spec.param3,
-             tool_nom_spec.param4
-      FROM dbo.tool_nom as tool_nom
-             JOIN
-           dbo.tool_group as tool_group
-           ON
-             tool_nom.group_id = tool_group.id
-             LEFT JOIN
-           dbo.tool_mat as tool_mat
-           ON
-             tool_nom.mat_id = tool_mat.id
-             LEFT JOIN
-           dbo.tool_type as tool_type
-           ON
-              tool_nom.type_id = tool_type.id
-             LEFT JOIN
-           dbo.tool_nom_spec as tool_nom_spec
-           ON
-              tool_nom.id = tool_nom_spec.id
-              ${searchCondition}
-      ORDER BY tool_nom.id DESC
-        ${limitOffsetCondition}
-    `
+  SELECT tool_nom.id,
+         tool_nom.name,
+         tool_nom.group_id,
+         tool_nom.mat_id,
+         tool_nom.type_id,
+         tool_group.name as group_name,
+         tool_mat.name   as mat_name,
+         tool_type.name  as type_name,
+         tool_nom_spec.radius,
+         tool_nom_spec.shag,
+         tool_nom_spec.gabarit,
+         tool_nom_spec.width,
+         tool_nom_spec.diam
+  FROM dbo.tool_nom as tool_nom
+         JOIN
+       dbo.tool_group as tool_group
+       ON
+         tool_nom.group_id = tool_group.id
+         LEFT JOIN
+       dbo.tool_mat as tool_mat
+       ON
+         tool_nom.mat_id = tool_mat.id
+         LEFT JOIN
+       dbo.tool_type as tool_type
+       ON
+          tool_nom.type_id = tool_type.id
+         LEFT JOIN
+       dbo.tool_nom_spec as tool_nom_spec
+       ON
+          tool_nom.id = tool_nom_spec.id
+          ${searchCondition}
+  ORDER BY tool_nom.id DESC
+    ${limitOffsetCondition}
+`
+
 
     // Выполнение запросов
     const [countResult, tools] = await Promise.all([
@@ -127,10 +129,11 @@ async function getTools(req, res) {
           id: tool.group_id,
         },
         spec: {
-          rad: tool.rad,
-          param2: tool.param2,
-          param3: tool.param3,
-          param4: tool.param4,
+          radius: tool.radius,
+          shag: tool.shag,
+          gabarit: tool.gabarit,
+          width: tool.width,
+          diam: tool.diam,
         },
       }
     })

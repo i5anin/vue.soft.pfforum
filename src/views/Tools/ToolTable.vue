@@ -45,11 +45,15 @@
       <template v-slot:item.type_name='{ item }'> {{ item.type.name }}</template>
       <template v-slot:item.group_name='{ item }'> {{ item.group.name }}</template>
       <template v-slot:item.mat_name='{ item }'> {{ item.mat.name }}</template>
-      <template v-slot:item.rad='{ item }'> {{ item.rad }}</template>
+
+      <template v-slot:item.radius='{ item }'> {{ item.spec.radius }}</template>
+      <template v-slot:item.diam='{ item }'> {{ item.spec.diam }}</template>
+      <template v-slot:item.shag='{ item }'> {{ item.spec.shag }}</template>
+      <template v-slot:item.gabarit='{ item }'> {{ item.spec.gabarit }}</template>
+      <template v-slot:item.width='{ item }'> {{ item.spec.width }}</template>
+
       <template v-slot:item.name='{ item }'> {{ item.name }}</template>
-      <template v-slot:item.kolvo_sklad='{ item }'> {{ item.kolvo_sklad }}</template>
-      <template v-slot:item.norma='{ item }'> {{ item.norma }}</template>
-      <template v-slot:item.zakaz='{ item }'> {{ item.zakaz }}</template>
+
     </v-data-table-server>
   </v-container>
 </template>
@@ -72,14 +76,17 @@ export default {
         { title: 'Название(Тип)', key: 'type_name', sortable: true },
         { title: 'Группа', key: 'group_name', sortable: true },
         { title: 'Применяемость материала', key: 'mat_name', sortable: true },
-        { title: 'Радиус', key: 'rad', sortable: true },
-        { title: 'Диаметр', key: 'd', sortable: true },
-        { title: 'Шаг', key: 'sh', sortable: true },
-        { title: 'Габариты', key: 'g', sortable: true },
-        { title: 'Вылет', key: 'v', sortable: true },
+
+        { title: 'Радиус', key: 'radius', sortable: true },
+        { title: 'Диаметр', key: 'diam', sortable: true },
+        { title: 'Шаг', key: 'shag', sortable: true },
+        { title: 'Габариты', key: 'gabarit', sortable: true },
+        { title: 'Вылет', key: 'width', sortable: true },
+
         { title: 'Маркировка', key: 'name', sortable: true },
       ],
       totalTools: 0,
+      spec: 0,
       itemsPerPage: 15,
       currentPage: 1,
       loading: false,
@@ -97,6 +104,9 @@ export default {
         this.currentPage = page
         this.tools = response.tools
         this.totalTools = response.totalCount
+        this.spec = response.tools.spec
+
+        console.log(response)
       } catch (error) {
         console.error('There has been a problem with your fetch operation:', error)
       } finally {
@@ -119,7 +129,8 @@ export default {
     },
     onAddTool() {
       this.editingTool = {
-        id: null, group_name: '', type_name: '', mat_name: '', name: '', kolvo_sklad: 0, norma: 0, zakaz: 0, rad: 0,
+        id: null, group_name: '', type_name: '', mat_name: '', name: '',
+        radius: 0, shag: 0, gabarit: 0, width: 0, diam: 0,
       }
       this.openDialog = true
     },
