@@ -209,11 +209,11 @@ export default {
 
 
       if (this.toolModel.diam) {
-        this.selectedType = 'Диаметр';
+        this.selectedType = 'Диаметр'
       } else if (this.toolModel.radius) {
-        this.selectedType = 'Радиус';
+        this.selectedType = 'Радиус'
       } else {
-        this.selectedType = ''; // Очищаем выбранный тип, если оба поля пусты
+        this.selectedType = '' // Очищаем выбранный тип, если оба поля пусты
       }
 
     } catch (error) {
@@ -230,9 +230,9 @@ export default {
   methods: {
     parseToFloat(value) {
       if (value === null) {
-        return 0; // Или другое значение по умолчанию
+        return 0 // Или другое значение по умолчанию
       }
-      return parseFloat(value.toString().replace(',', '.'));
+      return parseFloat(value.toString().replace(',', '.'))
     },
 
     checkDisabledStatus() {
@@ -242,9 +242,9 @@ export default {
     },
     onTypeChange() {
       if (this.selectedType === 'Радиус' && !this.toolModel.radius) {
-        this.selectedType = ''; // Очищаем выбранный тип, если радиус пуст
+        this.selectedType = '' // Очищаем выбранный тип, если радиус пуст
       } else if (this.selectedType === 'Диаметр' && !this.toolModel.diam) {
-        this.toolModel.diam = this.toolModel.radius; // Сохраняем значение радиуса как диаметр, если диаметр пуст
+        this.toolModel.diam = this.toolModel.radius // Сохраняем значение радиуса как диаметр, если диаметр пуст
       }
     },
 
@@ -304,12 +304,12 @@ export default {
         mat_id: parseInt(matId),
         type_id: parseInt(typeId),
 
-        radius: this.parseToFloat(this.toolModel.radius),
-        shag: this.parseToFloat(this.toolModel.shag),
-        gabarit: this.parseToFloat(this.toolModel.gabarit),
-        width: this.parseToFloat(this.toolModel.width),
-        diam: this.parseToFloat(this.toolModel.diam),
-      };
+        radius: this.toolModel.radius,
+        shag: this.toolModel.shag,
+        gabarit: this.toolModel.gabarit,
+        width: this.toolModel.width,
+        diam: this.toolModel.diam,
+      }
       console.log(toolData)
 
       try {
