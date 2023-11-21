@@ -46,7 +46,7 @@
       <template v-slot:item.group_name='{ item }'> {{ item.group.name }}</template>
       <template v-slot:item.mat_name='{ item }'> {{ item.mat.name }}</template>
 
-      <template v-slot:item.radius='{ item }'> {{ item.spec.radius }}</template>
+      <template v-slot:item.radius='{ item }'> {{ item.spec.radius || '' }}</template>
       <template v-slot:item.diam='{ item }'> {{ item.spec.diam }}</template>
       <template v-slot:item.shag='{ item }'> {{ item.spec.shag }}</template>
       <template v-slot:item.gabarit='{ item }'> {{ item.spec.gabarit }}</template>
@@ -71,7 +71,6 @@ export default {
       openDialog: false,
       tools: [],
       editingTool: null,
-      radiusOptions: [0.1, 0.15, 0.2, 0.4, 0.8, 1.0, 1.2, 1.6],
       headers: [
         { title: 'Название(Тип)', key: 'type_name', sortable: true },
         { title: 'Группа', key: 'group_name', sortable: true },
