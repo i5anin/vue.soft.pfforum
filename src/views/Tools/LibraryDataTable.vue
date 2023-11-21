@@ -11,7 +11,7 @@
       <tbody>
       <tr v-for="item in items" :key="item.id" class="row">
         <td>{{ item.id }}</td>
-        <td>{{ item.name }}</td>
+        <td>{{ item.name || '' }}</td>
         <td>
           <v-btn density="compact" icon="mdi-plus" @click='deleteItem(item)'>
             <v-icon>mdi-delete</v-icon>

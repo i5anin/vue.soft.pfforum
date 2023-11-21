@@ -9,14 +9,14 @@
     <v-row>
       <v-col cols='4' v-for='(items, title) in tables' :key='title'>
         <h2 class='text-h4'>{{ title }}</h2>
-        <data-table :items='items' @deleteItem='deleteItem' />
+        <data-table :items='items' @deleteItem='item => deleteItem(item, items, title)' />
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
-import { getLibraries } from '@/api'
+import { deleteGroup, deleteMaterial, deleteType, getLibraries } from '@/api'
 import DataTable from './LibraryDataTable.vue'
 
 export default {
@@ -28,18 +28,35 @@ export default {
     async getData() {
       try {
         const response = await getLibraries();
-        this.tables['Группы'] = response.groups.sort((a, b) => a.name.localeCompare(b.name));
-        this.tables['Материалы'] = response.materials.sort((a, b) => a.name.localeCompare(b.name));
-        this.tables['Типы'] = response.types.sort((a, b) => a.name.localeCompare(b.name));
+        this.tables['Группы'] = response.groups.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        this.tables['Материалы'] = response.materials.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        this.tables['Типы'] = response.types.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     },
 
-    deleteItem(item, list) {
+    async deleteItem(item, list, type) {
       if (confirm('Вы уверены, что хотите удалить этот элемент?')) {
-        const index = list.indexOf(item)
-        list.splice(index, 1)
+        try {
+          switch (type) {
+            case 'Материалы':
+              await deleteMaterial(item.id);
+              break;
+            case 'Типы':
+              await deleteType(item.id);
+              break;
+            case 'Группы':
+              await deleteGroup(item.id);
+              break;
+            default:
+              throw new Error(`Неизвестный тип: ${type}`);
+          }
+          const index = list.indexOf(item);
+          list.splice(index, 1);
+        } catch (error) {
+          console.error('There has been a problem with your delete operation:', error);
+        }
       }
     },
   },
