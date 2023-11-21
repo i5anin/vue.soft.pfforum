@@ -293,14 +293,14 @@ export default {
       const toolData = {
         id,
         name: this.toolModel.name,
-        group_id: groupId, // используем id объекта group
-        mat_id: matId, // используем id объекта mat
-        type_id: typeId, // используем id объекта type
-        radius: this.toolModel.radius,
-        shag: this.toolModel.shag,
-        gabarit: this.toolModel.gabarit,
-        width: this.toolModel.width,
-        diam: this.toolModel.diameter,
+        group_id: parseInt(groupId), // Преобразуем id объекта group в число
+        mat_id: parseInt(matId), // Преобразуем id объекта mat в число
+        type_id: parseInt(typeId), // Преобразуем id объекта type в число
+        radius: parseFloat(this.toolModel.radius), // Преобразуем в число
+        shag: parseFloat(this.toolModel.shag), // Преобразуем в число
+        gabarit: parseFloat(this.toolModel.gabarit), // Преобразуем в число
+        width: parseFloat(this.toolModel.width), // Преобразуем в число
+        diam: parseFloat(this.toolModel.diameter), // Преобразуем в число
       }
       console.log(toolData)
 
