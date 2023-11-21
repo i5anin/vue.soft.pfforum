@@ -77,7 +77,7 @@
                   <v-text-field
                     v-else-if="selectedType === 'Диаметр'"
                     label='Диаметр (Сверла)'
-                    v-model='toolModel.diameter'
+                    v-model='toolModel.diam'
                     required
 
                   />
@@ -153,9 +153,9 @@ export default {
         type_name: '',
         mat_name: '',
         name: '',
-        diameter: '', // Переименовано из diam
+        diam: '', // Переименовано из diam
         shag: '',
-        typeOptions: ['Radius', 'Diameter', 'Step', 'Dimensions', 'Projection'],
+        typeOptions: ['Radius', 'Diam', 'Step', 'Dimensions', 'Projection'],
       }),
     },
     radiusOptions: { type: Array },
@@ -168,7 +168,7 @@ export default {
       mat: '',
       name: '',
       radius: '',
-      diameter: '', // Переименовано из diam
+      diam: '', // Переименовано из diam
     },
     typeOptions: [],
     groupOptions: [],
@@ -194,9 +194,9 @@ export default {
           shag: tool.spec?.shag,
           gabarit: tool.spec?.gabarit,
           width: tool.spec?.width,
-          diameter: tool.spec?.diam, // Переименовано из diam
+          diam: tool.spec?.diam, // Переименовано из diam
         }
-        console.log('Tool Model:', this.toolModel) // Добавленный console.log
+        console.log('Загрузка модели Tool Model:', this.toolModel) // Добавленный console.log
       },
     },
   },
@@ -206,13 +206,16 @@ export default {
       this.typeOptions = rawData.types.map(type => type.name)
       this.groupOptions = rawData.groups.map(group => group.name)
       this.materialOptions = rawData.materials.map(material => material.name)
-      if (this.toolModel.radius) {
-        this.selectedType = 'Радиус'
-      } else if (this.toolModel.diameter) {
-        this.selectedType = 'Диаметр'
+
+
+      if (this.toolModel.diam) {
+        this.selectedType = 'Диаметр';
+      } else if (this.toolModel.radius) {
+        this.selectedType = 'Радиус';
       } else {
-        this.selectedType = '' // Очищаем выбранный тип, если оба поля пусты
+        this.selectedType = ''; // Очищаем выбранный тип, если оба поля пусты
       }
+
     } catch (error) {
       console.error('Ошибка при получении данных:', error)
     }
@@ -234,14 +237,14 @@ export default {
 
     checkDisabledStatus() {
       console.log('Radius:', this.toolModel.radius)
-      console.log('Diameter:', this.toolModel.diameter)
-      return this.toolModel.radius || this.toolModel.diameter
+      console.log('Diameter:', this.toolModel.diam)
+      return this.toolModel.radius || this.toolModel.diam
     },
     onTypeChange() {
       if (this.selectedType === 'Радиус' && !this.toolModel.radius) {
-        this.selectedType = '' // Очищаем выбранный тип, если радиус пуст
-      } else if (this.selectedType === 'Диаметр' && !this.toolModel.diameter) {
-        this.selectedType = '' // Очищаем выбранный тип, если диаметр пуст
+        this.selectedType = ''; // Очищаем выбранный тип, если радиус пуст
+      } else if (this.selectedType === 'Диаметр' && !this.toolModel.diam) {
+        this.toolModel.diam = this.toolModel.radius; // Сохраняем значение радиуса как диаметр, если диаметр пуст
       }
     },
 
@@ -300,12 +303,12 @@ export default {
         group_id: parseInt(groupId),
         mat_id: parseInt(matId),
         type_id: parseInt(typeId),
-        
+
         radius: this.parseToFloat(this.toolModel.radius),
         shag: this.parseToFloat(this.toolModel.shag),
         gabarit: this.parseToFloat(this.toolModel.gabarit),
         width: this.parseToFloat(this.toolModel.width),
-        diameter: this.parseToFloat(this.toolModel.diameter),
+        diam: this.parseToFloat(this.toolModel.diam),
       };
       console.log(toolData)
 
