@@ -71,11 +71,11 @@ async function getTools(req, res) {
          tool_group.name as group_name,
          tool_mat.name   as mat_name,
          tool_type.name  as type_name,
-         tool_nom_spec.radius,
-         tool_nom_spec.shag,
-         tool_nom_spec.gabarit,
-         tool_nom_spec.width,
-         tool_nom_spec.diam
+         tool_nom.radius,
+         tool_nom.shag,
+         tool_nom.gabarit,
+         tool_nom.width,
+         tool_nom.diam
   FROM dbo.tool_nom as tool_nom
          JOIN
        dbo.tool_group as tool_group
@@ -90,7 +90,7 @@ async function getTools(req, res) {
        ON
           tool_nom.type_id = tool_type.id
          LEFT JOIN
-       dbo.tool_nom_spec as tool_nom_spec
+       dbo.tool_nom as tool_nom_spec
        ON
           tool_nom.id = tool_nom_spec.id
           ${searchCondition}
@@ -188,27 +188,34 @@ async function addTool(req, res) {
 
 
 async function editTool(req, res) {
-  // Извлекаем id инструмента из параметров URL
   const { id } = req.params
-  // Извлекаем данные из тела запроса
-  const { name, group_id, mat_id, type_id, kolvo_sklad, norma, zakaz, rad } =
-    req.body
+  const {
+    name,
+    group_id,
+    mat_id,
+    type_id,
+    kolvo_sklad,
+    norma,
+    zakaz,
+    radius,
+    shag,
+    gabarit,
+    width,
+    diam,
+  } = req.body
 
   try {
     const result = await pool.query(
-      'UPDATE dbo.tool_nom SET name=$1, group_id=$2, mat_id=$3, type_id=$4, kolvo_sklad=$5, norma=$6, zakaz=$7, rad=$8 WHERE id=$9 RETURNING *',
-      [name, group_id, mat_id, type_id, kolvo_sklad, norma, zakaz, rad, id],
+      'UPDATE dbo.tool_nom SET name=$1, group_id=$2, mat_id=$3, type_id=$4, kolvo_sklad=$5, norma=$6, zakaz=$7, radius=$8, shag=$9, gabarit=$10, width=$11, diam=$12 WHERE id=$13 RETURNING *',
+      [name, group_id, mat_id, type_id, kolvo_sklad, norma, zakaz, radius, shag, gabarit, width, diam, id],
     )
 
-    // Проверяем, была ли обновлена хотя бы одна строка
     if (result.rowCount > 0) {
-      // Возвращаем обновленный инструмент
       res.json({
         message: 'Инструмент успешно обновлен.',
         tool: result.rows[0],
       })
     } else {
-      // Если строка с таким id не найдена, возвращаем сообщение об ошибке
       res.status(404).send('Инструмент с указанным ID не найден.')
     }
   } catch (err) {
@@ -217,6 +224,7 @@ async function editTool(req, res) {
     res.status(500).send(err.message)
   }
 }
+
 
 async function getLibrary(req, res) {
   try {
