@@ -367,8 +367,48 @@ async function searchTools(req, res) {
   }
 }
 
+async function deleteType(req, res) {
+  const { id } = req.params;
+
+  try {
+    await pool.query('DELETE FROM dbo.tool_type WHERE id = $1', [id]);
+    res.json({ message: 'Тип успешно удален' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send(err.message);
+  }
+}
+
+async function deleteMaterial(req, res) {
+  const { id } = req.params;
+
+  try {
+    await pool.query('DELETE FROM dbo.tool_mat WHERE id = $1', [id]);
+    res.json({ message: 'Материал успешно удален' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send(err.message);
+  }
+}
+
+async function deleteGroup(req, res) {
+  const { id } = req.params;
+
+  try {
+    await pool.query('DELETE FROM dbo.tool_group WHERE id = $1', [id]);
+    res.json({ message: 'Группа успешно удалена' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send(err.message);
+  }
+}
+
+
 // Экспорт контроллеров
 module.exports = {
+  deleteType,
+  deleteMaterial,
+  deleteGroup,
   getTools,
   deleteTool,
   addTool,

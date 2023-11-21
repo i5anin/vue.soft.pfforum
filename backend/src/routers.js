@@ -14,6 +14,10 @@ routers.get('/tool-spec', controllers.getToolNomSpec);
 routers.post('/tool', controllers.addTool);
 
 routers.delete('/tool/:id', controllers.deleteTool);
+routers.delete('/material/:id', controllers.deleteMaterial);
+routers.delete('/type/:id', controllers.deleteType);
+routers.delete('/group/:id', controllers.deleteGroup);
+
 routers.put('/tool/:id', controllers.editTool);
 
 
