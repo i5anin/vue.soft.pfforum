@@ -27,14 +27,15 @@ export default {
   methods: {
     async getData() {
       try {
-        const response = await getLibraries()
-        this.tables['Группы'] = response.groups.map((item, index) => ({ ...item, id: index + 1 }))
-        this.tables['Материалы'] = response.materials.map((item, index) => ({ ...item, id: index + 1 }))
-        this.tables['Типы'] = response.types.map((item, index) => ({ ...item, id: index + 1 }))
+        const response = await getLibraries();
+        this.tables['Группы'] = response.groups.sort((a, b) => a.name.localeCompare(b.name));
+        this.tables['Материалы'] = response.materials.sort((a, b) => a.name.localeCompare(b.name));
+        this.tables['Типы'] = response.types.sort((a, b) => a.name.localeCompare(b.name));
       } catch (error) {
-        console.error('Error fetching data:', error)
+        console.error('Error fetching data:', error);
       }
     },
+
     deleteItem(item, list) {
       if (confirm('Вы уверены, что хотите удалить этот элемент?')) {
         const index = list.indexOf(item)

@@ -28,11 +28,14 @@ export default {
   props: ['items'],
   methods: {
     deleteItem(item) {
-      this.$emit('deleteItem', item, this.items)
+      console.log(item); // Вывод объекта item в консоль
+      this.$emit('deleteItem', item, this.items);
     },
   },
-}
+};
 </script>
+
+
 
 <style scoped>
 .styled-table {

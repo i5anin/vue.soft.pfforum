@@ -91,3 +91,34 @@ export async function login(credentials) {
     throw error // Перебросьте ошибку, чтобы вызывающий код мог ее обработать
   }
 }
+
+export async function deleteMaterial(id) {
+  try {
+    const response = await axios.delete(`${BASE_URL}/material/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('There has been a problem with your fetch operation:', error);
+    return null;
+  }
+}
+
+export async function deleteType(id) {
+  try {
+    const response = await axios.delete(`${BASE_URL}/type/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('There has been a problem with your fetch operation:', error);
+    return null;
+  }
+}
+
+export async function deleteGroup(id) {
+  try {
+    const response = await axios.delete(`${BASE_URL}/group/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('There has been a problem with your fetch operation:', error);
+    return null;
+  }
+}
+
