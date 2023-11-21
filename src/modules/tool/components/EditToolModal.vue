@@ -153,7 +153,7 @@ export default {
         type_name: '',
         mat_name: '',
         name: '',
-        diam: '',
+        diameter: '', // Переименовано из diam
         shag: '',
         typeOptions: ['Radius', 'Diameter', 'Step', 'Dimensions', 'Projection'],
       }),
@@ -168,7 +168,7 @@ export default {
       mat: '',
       name: '',
       radius: '',
-      diameter: '',
+      diameter: '', // Переименовано из diam
     },
     typeOptions: [],
     groupOptions: [],
@@ -177,7 +177,6 @@ export default {
     typeSelected: false,
     selectedType: '',
   }),
-
 
   watch: {
     tool: {
@@ -195,7 +194,7 @@ export default {
           shag: tool.spec?.shag,
           gabarit: tool.spec?.gabarit,
           width: tool.spec?.width,
-          diam: tool.spec?.diam,
+          diameter: tool.spec?.diam, // Переименовано из diam
         }
         console.log('Tool Model:', this.toolModel) // Добавленный console.log
       },
@@ -214,7 +213,6 @@ export default {
       } else {
         this.selectedType = '' // Очищаем выбранный тип, если оба поля пусты
       }
-
     } catch (error) {
       console.error('Ошибка при получении данных:', error)
     }
@@ -227,10 +225,16 @@ export default {
     },
   },
   methods: {
+    parseToFloat(value) {
+      if (value === null) {
+        return 0; // Или другое значение по умолчанию
+      }
+      return parseFloat(value.toString().replace(',', '.'));
+    },
+
     checkDisabledStatus() {
       console.log('Radius:', this.toolModel.radius)
       console.log('Diameter:', this.toolModel.diameter)
-
       return this.toolModel.radius || this.toolModel.diameter
     },
     onTypeChange() {
@@ -293,15 +297,16 @@ export default {
       const toolData = {
         id,
         name: this.toolModel.name,
-        group_id: parseInt(groupId), // Преобразуем id объекта group в число
-        mat_id: parseInt(matId), // Преобразуем id объекта mat в число
-        type_id: parseInt(typeId), // Преобразуем id объекта type в число
-        radius: parseFloat(this.toolModel.radius), // Преобразуем в число
-        shag: parseFloat(this.toolModel.shag), // Преобразуем в число
-        gabarit: parseFloat(this.toolModel.gabarit), // Преобразуем в число
-        width: parseFloat(this.toolModel.width), // Преобразуем в число
-        diam: parseFloat(this.toolModel.diameter), // Преобразуем в число
-      }
+        group_id: parseInt(groupId),
+        mat_id: parseInt(matId),
+        type_id: parseInt(typeId),
+        
+        radius: this.parseToFloat(this.toolModel.radius),
+        shag: this.parseToFloat(this.toolModel.shag),
+        gabarit: this.parseToFloat(this.toolModel.gabarit),
+        width: this.parseToFloat(this.toolModel.width),
+        diameter: this.parseToFloat(this.toolModel.diameter),
+      };
       console.log(toolData)
 
       try {
@@ -321,5 +326,6 @@ export default {
   },
 }
 </script>
+
 
 
