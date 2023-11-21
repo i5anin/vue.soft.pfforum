@@ -167,19 +167,25 @@ async function deleteTool(req, res) {
 }
 
 async function addTool(req, res) {
-  const { name, group_id, mat_id, type_id, kolvo_sklad, norma, zakaz, rad } =
-    req.body
+  const { name, group_id, mat_id, type_id, radius, shag, gabarit, width, diam } = req.body
+
   try {
-    const result = await pool.query(
-      'INSERT INTO dbo.tool_nom (name, group_id, mat_id, type_id, rad, kolvo_sklad, norma, zakaz ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
-      [name, group_id, mat_id, type_id, rad, kolvo_sklad, norma, zakaz],
+    const toolInsertResult = await pool.query(
+      'INSERT INTO dbo.tool_nom (name, group_id, mat_id, type_id, radius, shag, gabarit, width, diam) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id',
+      [name, group_id, mat_id, type_id, radius, shag, gabarit, width, diam],
     )
-    res.json(result.rows[0])
+
+    const toolId = toolInsertResult.rows[0].id
+
+    res.json({
+      toolId,
+    })
   } catch (err) {
     console.error(err)
     res.status(500).send(err.message)
   }
 }
+
 
 async function editTool(req, res) {
   // Извлекаем id инструмента из параметров URL

@@ -1,135 +1,135 @@
 <template>
-  <form @submit.prevent='onSubmit'>
-    <Modal :title='popupTitle'>
-      <template #content>
-        <v-container>
-          <v-row>
-            <v-col class='flex'>
-              <!--            левый столбец -->
-              <div>
-                <v-combobox label='Название (Тип)'
-                            v-model='toolModel.type'
-                            :items='typeOptions'
-                            item-text='text'
-                            item-value='value'
-                            required
-                            :counter='3'
-                            :rules='[
+  <!--  <form @submit.prevent='onSubmit'>-->
+  <Modal :title='popupTitle'>
+    <template #content>
+      <v-container>
+        <v-row>
+          <v-col class='flex'>
+            <!--            левый столбец -->
+            <div>
+              <v-combobox label='Название (Тип)'
+                          v-model='toolModel.type'
+                          :items='typeOptions'
+                          item-text='text'
+                          item-value='value'
+                          required
+                          :counter='3'
+                          :rules='[
                           v => !!v || "Поле обязательно для заполнения",
                           v => v && v.length >= 3 || "Минимальная длина: 3 символа",
                         ]'
-                />
-                <v-combobox label='Группа'
-                            v-model='toolModel.group'
-                            :items='groupOptions'
-                            item-text='text'
-                            item-value='value'
-                            required
-                            :rules='[
+              />
+              <v-combobox label='Группа'
+                          v-model='toolModel.group'
+                          :items='groupOptions'
+                          item-text='text'
+                          item-value='value'
+                          required
+                          :rules='[
                           v => !!v || "Поле обязательно для заполнения",
                           v => v && v.length >= 3 || "Минимальная длина: 3 символа",
                         ]'
-                />
-                <v-combobox label='Применяемость материала'
-                            v-model='toolModel.mat'
-                            :items='materialOptions'
-                            item-text='text'
-                            item-value='value'
-                            required
-                            :rules='[
+              />
+              <v-combobox label='Применяемость материала'
+                          v-model='toolModel.mat'
+                          :items='materialOptions'
+                          item-text='text'
+                          item-value='value'
+                          required
+                          :rules='[
                           v => !!v || "Поле обязательно для заполнения",
                           v => v && v.length >= 3 || "Минимальная длина: 3 символа",
                         ]'
-                />
+              />
 
-                <v-text-field label='Маркировка'
-                              v-model='toolModel.name'
-                              required
-                              :rules=' [
+              <v-text-field label='Маркировка'
+                            v-model='toolModel.name'
+                            required
+                            :rules=' [
                           v=> !!v || "Поле обязательно для заполнения",
               v => v && v.length >= 3 || "Минимальная длина: 3 символа",
               ]'
-                />
-              </div>
-              <h2 class='text-h6'>Размеры:</h2>
-              <!--            правый столбец -->
-              <div>
-                <v-row>
-                  <v-col cols='4'>
-                    <!-- Left side: Select element -->
-                    <v-select
-                      v-model='selectedType'
-                      :items="['Радиус', 'Диаметр']"
-                      label='Выберите тип'
-                      @input='onTypeChange'
-                      :disabled='toolModel.radius || toolModel.diameter'
-                    />
+              />
+            </div>
+            <h2 class='text-h6'>Размеры:</h2>
+            <!--            правый столбец -->
+            <div>
+              <v-row>
+                <v-col cols='4'>
+                  <!-- Left side: Select element -->
+                  <v-select
+                    v-model='selectedType'
+                    :items="['Радиус', 'Диаметр']"
+                    label='Выберите тип'
+                    @input='onTypeChange'
 
-                  </v-col>
+                  />
+                  <!-- :disabled='toolModel.radius || toolModel.diameter'-->
+                </v-col>
 
-                  <v-col cols='8'>
-                    <v-text-field
-                      v-if="selectedType === 'Радиус'"
-                      label='Радиус (Пластины)'
-                      v-model='toolModel.radius'
-                      required
-                    />
-                    <v-text-field
-                      v-else-if="selectedType === 'Диаметр'"
-                      label='Диаметр (Сверла)'
-                      v-model='toolModel.diameter'
-                      required
+                <v-col cols='8'>
+                  <v-text-field
+                    v-if="selectedType === 'Радиус'"
+                    label='Радиус (Пластины)'
+                    v-model='toolModel.radius'
+                    required
+                  />
+                  <v-text-field
+                    v-else-if="selectedType === 'Диаметр'"
+                    label='Диаметр (Сверла)'
+                    v-model='toolModel.diameter'
+                    required
 
-                    />
-                  </v-col>
-                </v-row>
+                  />
+                </v-col>
+              </v-row>
 
-                <v-text-field label='Шаг'
-                              v-model='toolModel.shag'
-                              :items='radiusOptions'
-                              required
-                              :rules='[v => /^\d+$/.test(v) || "Введите корректное количество (только цифры)"]'
-                />
-                <v-text-field label='Габариты'
-                              v-model='toolModel.gabarit'
-                              :items='radiusOptions'
-                              required
-                              :rules='[v => /^\d+$/.test(v) || "Введите корректное количество (только цифры)"]'
-                />
-                <v-text-field label='Вылет (Резцы)'
-                              v-model='toolModel.width'
-                              :items='radiusOptions'
-                              required
-                              :rules='[v => /^\d+$/.test(v) || "Введите корректное количество (только цифры)"]'
-                />
-              </div>
-            </v-col>
-          </v-row>
-        </v-container>
-      </template>
-      <template #action>
-        <v-btn color='red darken-1' variant='text' @click='confirmDelete' class='text-none text-subtitle-1 ml-3'>
-          Удалить
-        </v-btn>
-        <v-spacer />
-        <v-btn
-          color='red darken-1'
-          variant='text'
-          @click='onCancel'
-          class='text-none text-subtitle-1 ml-3'>
-          Закрыть
-        </v-btn>
-        <v-btn prepend-icon='mdi-check-circle'
-               @click='onSave'
-               class='text-none text-subtitle-1 pl-3'
-               color='blue darken-1'
-               size='large'
-               variant='flat'>
-          Сохранить
-        </v-btn>
-      </template>
-    </Modal>
-  </form>
+              <v-text-field label='Шаг'
+                            v-model='toolModel.shag'
+                            :items='radiusOptions'
+                            required
+
+              />
+              <v-text-field label='Габариты'
+                            v-model='toolModel.gabarit'
+                            :items='radiusOptions'
+                            required
+
+              />
+              <v-text-field label='Вылет (Резцы)'
+                            v-model='toolModel.width'
+                            :items='radiusOptions'
+                            required
+
+              />
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </template>
+    <template #action>
+      <v-btn color='red darken-1' variant='text' @click='confirmDelete' class='text-none text-subtitle-1 ml-3'>
+        Удалить
+      </v-btn>
+      <v-spacer />
+      <v-btn
+        color='red darken-1'
+        variant='text'
+        @click='onCancel'
+        class='text-none text-subtitle-1 ml-3'>
+        Закрыть
+      </v-btn>
+      <v-btn prepend-icon='mdi-check-circle'
+             @click='onSave'
+             class='text-none text-subtitle-1 pl-3'
+             color='blue darken-1'
+             size='large'
+             variant='flat'>
+        Сохранить
+      </v-btn>
+    </template>
+  </Modal>
+  <!--  </form>-->
   <DeleteConfirmationDialog
     :confirmDeleteDialog='confirmDeleteDialog'
     :onDelete='onDelete'
@@ -148,7 +148,13 @@ export default {
     tool: {
       type: Object,
       default: () => ({
-        id: null, group_name: '', type_name: '', mat_name: '', name: '', diam: '', shag: '',
+        id: null,
+        group_name: '',
+        type_name: '',
+        mat_name: '',
+        name: '',
+        diam: '',
+        shag: '',
         typeOptions: ['Radius', 'Diameter', 'Step', 'Dimensions', 'Projection'],
       }),
     },
@@ -168,6 +174,7 @@ export default {
     groupOptions: [],
     materialOptions: [],
     confirmDeleteDialog: false,
+    typeSelected: false,
     selectedType: '',
   }),
 
@@ -227,21 +234,13 @@ export default {
       return this.toolModel.radius || this.toolModel.diameter
     },
     onTypeChange() {
-      console.log('Selected Type:', this.selectedType);
-
-      if (this.selectedType === 'Радиус') {
-        if (!this.toolModel.radius) {
-          this.toolModel.diameter = '';
-          console.log('Radius is empty, cleared Diameter:', this.toolModel.diameter);
-        }
-      } else if (this.selectedType === 'Диаметр') {
-        if (!this.toolModel.diameter) {
-          this.toolModel.radius = '';
-          console.log('Diameter is empty, cleared Radius:', this.toolModel.radius);
-        }
+      if (this.selectedType === 'Радиус' && !this.toolModel.radius) {
+        this.selectedType = '' // Очищаем выбранный тип, если радиус пуст
+      } else if (this.selectedType === 'Диаметр' && !this.toolModel.diameter) {
+        this.selectedType = '' // Очищаем выбранный тип, если диаметр пуст
       }
-    }
-,
+    },
+
     confirmDelete() {
       this.confirmDeleteDialog = true
     },
@@ -293,25 +292,30 @@ export default {
 
       const toolData = {
         id,
-        name,
-        group_id: groupId,
-        mat_id: matId,
-        type_id: typeId,
-
-        rad: Number(rad),
+        name: this.toolModel.name,
+        group_id: groupId, // используем id объекта group
+        mat_id: matId, // используем id объекта mat
+        type_id: typeId, // используем id объекта type
+        radius: this.toolModel.radius,
+        shag: this.toolModel.shag,
+        gabarit: this.toolModel.gabarit,
+        width: this.toolModel.width,
+        diam: this.toolModel.diameter,
       }
+      console.log(toolData)
 
       try {
         let result
         if (id == null) {
           result = await addTool(toolData)
+          console.log('Tool added. ID:', result.toolId)
           if (result) this.$emit('changes-saved')
         } else {
           result = await updateTool(id, toolData)
           if (result) this.$emit('changes-saved')
         }
       } catch (error) {
-        console.error('Ошибка:', error.message)
+        console.error('Ошибка при добавлении инструмента:', error.message)
       }
     },
   },
