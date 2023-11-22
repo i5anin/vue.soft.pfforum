@@ -58,7 +58,7 @@ export default {
   border-bottom: 1px solid #dddddd;
 }
 .styled-table tbody tr:nth-of-type(even) {
-  background-color: #f3f3f3;
+  //background-color: #f3f3f3;
 }
 .styled-table tbody tr:last-of-type {
   border-bottom: 2px solid #005b98;

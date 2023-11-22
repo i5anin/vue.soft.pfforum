@@ -83,7 +83,7 @@ export default {
 }
 
 .styled-table tbody tr:nth-of-type(even) {
-  background-color: #f3f3f3;
+  //background-color: #848484;
 }
 
 .styled-table tbody tr:last-of-type {

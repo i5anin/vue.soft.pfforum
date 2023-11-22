@@ -3,6 +3,7 @@
     <v-tabs v-model="tab">
       <v-tab value="one">Инструмент</v-tab>
       <v-tab value="two">Библиотека</v-tab>
+<!--      <v-tab value="two">Склад</v-tab>-->
     </v-tabs>
 
     <v-card-text>
