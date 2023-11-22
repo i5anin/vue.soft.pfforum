@@ -41,7 +41,10 @@
       hover
       fixed-header
       headers
+      width
     >
+      <template class='gray' v-slot:item.index='{ index }'> {{ index + 1 }}</template>
+
       <template v-slot:item.type_name='{ item }'> {{ item.type.name }}</template>
       <template v-slot:item.group_name='{ item }'> {{ item.group.name }}</template>
       <template v-slot:item.mat_name='{ item }'> {{ item.mat.name }}</template>
@@ -72,6 +75,7 @@ export default {
       tools: [],
       editingTool: null,
       headers: [
+        { title: '№', key: 'index', sortable: false },
         { title: 'Название(Тип)', key: 'type_name', sortable: true },
         { title: 'Группа', key: 'group_name', sortable: true },
         { title: 'Применяемость материала', key: 'mat_name', sortable: true },
@@ -140,3 +144,9 @@ export default {
   },
 }
 </script>
+
+<style>
+.v-data-table--dense .gray {
+  color: gray !important;
+}
+</style>
