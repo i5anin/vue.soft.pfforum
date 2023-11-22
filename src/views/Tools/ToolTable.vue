@@ -43,12 +43,26 @@
       headers
       width
     >
-      <template class='gray' v-slot:item.index='{ index }'><span style='color: gray;'>{{ index + 1 }}</span></template>
+      <template class='gray' v-slot:item.index='{ index }'>
+        <span style='color: gray; font-size: 0.7em;'>{{ index + 1 }}</span>
+      </template>
+      <template v-slot:item.type_name='{ item }'>
+  <span :style="item.type.name === '[нет данных]' ? 'color: red;' : ''">
+    {{ item.type.name }}
+  </span>
+      </template>
 
-      <template v-slot:item.type_name='{ item }'> {{ item.type.name }}</template>
-      <template v-slot:item.group_name='{ item }'> {{ item.group.name }}</template>
-      <template v-slot:item.mat_name='{ item }'> {{ item.mat.name }}</template>
+      <template v-slot:item.group_name='{ item }'>
+  <span :style="item.group.name === '[нет данных]' ? 'color: red;' : ''">
+    {{ item.group.name }}
+  </span>
+      </template>
 
+      <template v-slot:item.mat_name='{ item }'>
+  <span :style="item.mat.name === '[нет данных]' ? 'color: red;' : ''">
+    {{ item.mat.name }}
+  </span>
+      </template>
       <template v-slot:item.radius='{ item }'> {{ item.spec.radius !== '0' ? item.spec.radius : '' }}</template>
       <template v-slot:item.diam='{ item }'> {{ item.spec.diam !== '0' ? item.spec.diam : '' }}</template>
       <template v-slot:item.shag='{ item }'> {{ item.spec.shag !== '0' ? item.spec.shag : '' }}</template>
@@ -76,6 +90,7 @@ export default {
       editingTool: null,
       headers: [
         { title: '№', key: 'index', sortable: false },
+
         { title: 'Название(Тип)', key: 'type_name', sortable: true },
         { title: 'Группа', key: 'group_name', sortable: true },
         { title: 'Применяемость материала', key: 'mat_name', sortable: true },

@@ -186,9 +186,9 @@ export default {
         this.toolModel = {
           ...tool,
 
-          mat: mat?.name,
-          group: group?.name,
-          type: type?.name,
+          mat: mat?.name === '[нет данных]' ? null : mat?.name,
+          group: group?.name === '[нет данных]' ? null : group?.name,
+          type: type?.name === '[нет данных]' ? null : type?.name,
 
           radius: tool.spec?.radius,
           shag: tool.spec?.shag,
