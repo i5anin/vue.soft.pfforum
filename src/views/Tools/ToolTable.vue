@@ -46,11 +46,11 @@
       <template v-slot:item.group_name='{ item }'> {{ item.group.name }}</template>
       <template v-slot:item.mat_name='{ item }'> {{ item.mat.name }}</template>
 
-      <template v-slot:item.radius='{ item }'> {{ item.spec.radius || '' }}</template>
-      <template v-slot:item.diam='{ item }'> {{ item.spec.diam }}</template>
-      <template v-slot:item.shag='{ item }'> {{ item.spec.shag }}</template>
-      <template v-slot:item.gabarit='{ item }'> {{ item.spec.gabarit }}</template>
-      <template v-slot:item.width='{ item }'> {{ item.spec.width }}</template>
+      <template v-slot:item.radius='{ item }'> {{ item.spec.radius !== '0' ? item.spec.radius : '' }}</template>
+      <template v-slot:item.diam='{ item }'> {{ item.spec.diam !== '0' ? item.spec.diam : '' }}</template>
+      <template v-slot:item.shag='{ item }'> {{ item.spec.shag !== '0' ? item.spec.shag : '' }}</template>
+      <template v-slot:item.gabarit='{ item }'> {{ item.spec.gabarit !== '0' ? item.spec.gabarit : '' }}</template>
+      <template v-slot:item.width='{ item }'> {{ item.spec.width !== '0' ? item.spec.width : '' }}</template>
 
       <template v-slot:item.name='{ item }'> {{ item.name }}</template>
 
