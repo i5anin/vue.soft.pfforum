@@ -279,10 +279,10 @@ export default {
       let matId = materials.find(m => m.name === mat)?.id
       let typeId = types.find(t => t.name === type)?.id
 
-      if (this.toolModel.name.length < 3 || this.toolModel.group.length < 3 || this.toolModel.mat.length < 3) {
-        console.error('Ошибка валидации: Минимальная длина для полей - 3 символа.')
-        return
-      }
+      // if (this.toolModel.name.length < 3 || this.toolModel.group.length < 3 || this.toolModel.mat.length < 3) {
+      //   console.error('Ошибка валидации: Минимальная длина для полей - 3 символа.')
+      //   return
+      // }
 
       if (!groupId) {
         const newGroup = await addGroup(group)
