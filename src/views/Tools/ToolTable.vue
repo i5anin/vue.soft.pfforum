@@ -47,27 +47,21 @@
         <span style='color: gray; font-size: 0.7em;'>{{ index + 1 }}</span>
       </template>
       <template v-slot:item.type_name='{ item }'>
-  <span :style="item.type.name === '[нет данных]' ? 'color: red;' : ''">
-    {{ item.type.name }}
-  </span>
+        <span :style="item.type.name === '[нет данных]' ? 'color: red;' : ''">{{ item.type.name }}</span>
       </template>
 
       <template v-slot:item.group_name='{ item }'>
-  <span :style="item.group.name === '[нет данных]' ? 'color: red;' : ''">
-    {{ item.group.name }}
-  </span>
+        <span :style="item.group.name === '[нет данных]' ? 'color: red;' : ''">{{ item.group.name }}</span>
       </template>
 
       <template v-slot:item.mat_name='{ item }'>
-  <span :style="item.mat.name === '[нет данных]' ? 'color: red;' : ''">
-    {{ item.mat.name }}
-  </span>
+        <span :style="item.mat.name === '[нет данных]' ? 'color: red;' : ''">{{ item.mat.name }}</span>
       </template>
-      <template v-slot:item.radius='{ item }'> {{ item.spec.radius !== '0' ? item.spec.radius : '' }}</template>
-      <template v-slot:item.diam='{ item }'> {{ item.spec.diam !== '0' ? item.spec.diam : '' }}</template>
-      <template v-slot:item.shag='{ item }'> {{ item.spec.shag !== '0' ? item.spec.shag : '' }}</template>
-      <template v-slot:item.gabarit='{ item }'> {{ item.spec.gabarit !== '0' ? item.spec.gabarit : '' }}</template>
-      <template v-slot:item.width='{ item }'> {{ item.spec.width !== '0' ? item.spec.width : '' }}</template>
+      <template v-slot:item.radius='{ item }'>{{ item.spec.radius !== '0' ? item.spec.radius : '' }}</template>
+      <template v-slot:item.diam='{ item }'>{{ item.spec.diam !== '0' ? item.spec.diam : '' }}</template>
+      <template v-slot:item.shag='{ item }'>{{ item.spec.shag !== '0' ? item.spec.shag : '' }}</template>
+      <template v-slot:item.gabarit='{ item }'>{{ item.spec.gabarit !== '0' ? item.spec.gabarit : '' }}</template>
+      <template v-slot:item.width='{ item }'>{{ item.spec.width !== '0' ? item.spec.width : '' }}</template>
 
       <template v-slot:item.name='{ item }'> {{ item.name }}</template>
 
