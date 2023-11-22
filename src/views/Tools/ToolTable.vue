@@ -43,7 +43,7 @@
       headers
       width
     >
-      <template class='gray' v-slot:item.index='{ index }'> {{ index + 1 }}</template>
+      <template class='gray' v-slot:item.index='{ index }'><span style='color: gray;'>{{ index + 1 }}</span></template>
 
       <template v-slot:item.type_name='{ item }'> {{ item.type.name }}</template>
       <template v-slot:item.group_name='{ item }'> {{ item.group.name }}</template>
@@ -145,8 +145,4 @@ export default {
 }
 </script>
 
-<style>
-.v-data-table--dense .gray {
-  color: gray !important;
-}
-</style>
+
