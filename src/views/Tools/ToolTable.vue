@@ -43,9 +43,9 @@
       headers
       width
     >
-      <template class='gray' v-slot:item.index='{ index }'>
-        <span style='color: gray; font-size: 0.7em;'>{{ index + 1 }}</span>
-      </template>
+<!--      <template class='gray' v-slot:item.index='{ index }'>-->
+<!--        <span style='color: gray; font-size: 0.7em;'>{{ index + 1 }}</span>-->
+<!--      </template>-->
       <template v-slot:item.type_name='{ item }'>
         <span :style="item.type.name === '[нет данных]' ? 'color: red;' : ''">{{ item.type.name }}</span>
       </template>
@@ -63,7 +63,10 @@
       <template v-slot:item.gabarit='{ item }'>{{ item.spec.gabarit !== '0' ? item.spec.gabarit : '' }}</template>
       <template v-slot:item.width='{ item }'>{{ item.spec.width !== '0' ? item.spec.width : '' }}</template>
 
-      <template v-slot:item.name='{ item }'> {{ item.name }}</template>
+      <template v-slot:item.name='{ item }'>
+        <span style="white-space: nowrap;">{{ item.name }}</span>
+      </template>
+
 
     </v-data-table-server>
   </v-container>
@@ -83,7 +86,7 @@ export default {
       tools: [],
       editingTool: null,
       headers: [
-        { title: '№', key: 'index', sortable: false },
+        // { title: '№', key: 'index', sortable: false },
 
         { title: 'Название(Тип)', key: 'type_name', sortable: true },
         { title: 'Группа', key: 'group_name', sortable: true },
