@@ -138,7 +138,7 @@ import {
 import DeleteConfirmationDialog from '@/modules/tool/components/DeleteConfirmationDialog.vue'
 
 export default {
-  name: 'EditToolModal',
+  name: 'EditToolSkladModal',
   props: {
     tool: {
       type: Object,
@@ -246,18 +246,18 @@ export default {
       return parseFloat(value.toString().replace(',', '.'))
     },
 
-    checkDisabledStatus() {
-      console.log('Radius:', this.toolModel.radius)
-      console.log('Diameter:', this.toolModel.diam)
-      return this.toolModel.radius || this.toolModel.diam
-    },
-    onTypeChange() {
-      if (this.selectedType === 'Радиус' && !this.toolModel.radius) {
-        this.selectedType = '' // Очищаем выбранный тип, если радиус пуст
-      } else if (this.selectedType === 'Диаметр' && !this.toolModel.diam) {
-        this.toolModel.diam = this.toolModel.radius // Сохраняем значение радиуса как диаметр, если диаметр пуст
-      }
-    },
+    // checkDisabledStatus() {
+    //   console.log('Radius:', this.toolModel.radius)
+    //   console.log('Diameter:', this.toolModel.diam)
+    //   return this.toolModel.radius || this.toolModel.diam
+    // },
+    // onTypeChange() {
+    //   if (this.selectedType === 'Радиус' && !this.toolModel.radius) {
+    //     this.selectedType = '' // Очищаем выбранный тип, если радиус пуст
+    //   } else if (this.selectedType === 'Диаметр' && !this.toolModel.diam) {
+    //     this.toolModel.diam = this.toolModel.radius // Сохраняем значение радиуса как диаметр, если диаметр пуст
+    //   }
+    // },
 
     confirmDelete() {
       this.confirmDeleteDialog = true
