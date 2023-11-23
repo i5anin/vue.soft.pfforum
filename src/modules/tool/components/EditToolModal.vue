@@ -85,21 +85,9 @@
                 </v-col>
               </v-row>
 
-              <v-combobox label='Шаг'
-                          v-model='toolModel.shag'
-                          :items='shagOptions'
-                          required
-              />
-              <v-combobox label='Габариты'
-                          v-model='toolModel.gabarit'
-                          :items='gabaritOptions'
-                          required
-              />
-              <v-combobox label='Вылет (Резцы)'
-                          v-model='toolModel.width'
-                          :items='widthOptions'
-                          required
-              />
+              <v-combobox label='Шаг' v-model='toolModel.shag' :items='shagOptions' required />
+              <v-combobox label='Габариты' v-model='toolModel.gabarit' :items='gabaritOptions' required />
+              <v-combobox label='Вылет (Резцы)' v-model='toolModel.width' :items='widthOptions' required />
             </div>
           </v-col>
         </v-row>
@@ -214,13 +202,13 @@ export default {
   async mounted() {
 
     try {
-      const uniqueSpecs = await getUniqueToolSpecs();
-      this.shagOptions = uniqueSpecs.shags;
-      this.gabaritOptions = uniqueSpecs.gabarits;
-      this.widthOptions = uniqueSpecs.widths;
-      this.nameOptions = uniqueSpecs.names; // Заполняем опции маркировки
+      const uniqueSpecs = await getUniqueToolSpecs()
+      this.shagOptions = uniqueSpecs.shags
+      this.gabaritOptions = uniqueSpecs.gabarits
+      this.widthOptions = uniqueSpecs.widths
+      this.nameOptions = uniqueSpecs.names // Заполняем опции маркировки
     } catch (error) {
-      console.error('Ошибка при получении уникальных спецификаций:', error);
+      console.error('Ошибка при получении уникальных спецификаций:', error)
     }
 
     try {
@@ -237,7 +225,6 @@ export default {
       } else {
         this.selectedType = '' // Очищаем выбранный тип, если оба поля пусты
       }
-
 
 
     } catch (error) {
