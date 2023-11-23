@@ -280,11 +280,10 @@ export default {
         mat_id: parseInt(matId),
         type_id: parseInt(typeId),
 
-        radius: this.toolModel.radius,
-        shag: this.toolModel.shag,
-        gabarit: this.toolModel.gabarit,
-        width: this.toolModel.width,
-        diam: this.toolModel.diam,
+        norma: this.toolModel.norma,
+        zakaz: this.toolModel.zakaz,
+        kolvo_sklad: this.toolModel.kolvo_sklad,
+
       }
       console.log(toolData)
 

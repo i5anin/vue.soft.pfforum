@@ -31,8 +31,8 @@
       :items-per-page='itemsPerPage'
       :page.sync='currentPage'
       :loading='loading'
-      density='compact'
       :items-per-page-options='[15, 50, 100, 300]'
+      density='compact'
       @update:page='getToolsTab'
       @update:items-per-page='updateItemsPerPage'
       @click:row='onEditRow'
@@ -94,6 +94,7 @@ export default {
         { title: 'Группа', key: 'group_name', sortable: true },
         { title: 'Применяемость материала', key: 'mat_name', sortable: true },
         { title: 'Маркировка', key: 'name', sortable: true },
+
         { title: 'Склад', key: 'kolvo_sklad', sortable: true },
         { title: 'Норма', key: 'norma', sortable: true },
         { title: 'Заказ', key: 'zakaz', sortable: true },
