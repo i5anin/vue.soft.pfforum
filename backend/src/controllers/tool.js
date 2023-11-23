@@ -36,6 +36,39 @@ async function getToolNomSpec(req, res) {
   }
 }
 
+async function getUniqueToolSpecs(req, res) {
+  try {
+    // Запросы для получения уникальных значений каждого поля
+    const widthQuery = 'SELECT DISTINCT width FROM dbo.tool_nom';
+    const gabaritQuery = 'SELECT DISTINCT gabarit FROM dbo.tool_nom';
+    const shagQuery = 'SELECT DISTINCT shag FROM dbo.tool_nom';
+    const diamQuery = 'SELECT DISTINCT diam FROM dbo.tool_nom';
+
+    // Выполнение запросов параллельно
+    const [widths, gabarits, shags, diams] = await Promise.all([
+      pool.query(widthQuery),
+      pool.query(gabaritQuery),
+      pool.query(shagQuery),
+      pool.query(diamQuery)
+    ]);
+
+    // Объединение результатов
+    const result = {
+      widths: widths.rows.map(row => row.width),
+      gabarits: gabarits.rows.map(row => row.gabarit),
+      shags: shags.rows.map(row => row.shag),
+      diams: diams.rows.map(row => row.diam)
+    };
+
+    res.json(result);
+  } catch (err) {
+    console.error('Error:', err.message);
+    console.error('Stack:', err.stack);
+    res.status(500).send(err.message);
+  }
+}
+
+
 
 // Определение контроллеров
 async function getTools(req, res) {
@@ -368,38 +401,38 @@ async function searchTools(req, res) {
 }
 
 async function deleteType(req, res) {
-  const { id } = req.params;
+  const { id } = req.params
 
   try {
-    await pool.query('DELETE FROM dbo.tool_type WHERE id = $1', [id]);
-    res.json({ message: 'Тип успешно удален' });
+    await pool.query('DELETE FROM dbo.tool_type WHERE id = $1', [id])
+    res.json({ message: 'Тип успешно удален' })
   } catch (err) {
-    console.error(err);
-    res.status(500).send(err.message);
+    console.error(err)
+    res.status(500).send(err.message)
   }
 }
 
 async function deleteMaterial(req, res) {
-  const { id } = req.params;
+  const { id } = req.params
 
   try {
-    await pool.query('DELETE FROM dbo.tool_mat WHERE id = $1', [id]);
-    res.json({ message: 'Материал успешно удален' });
+    await pool.query('DELETE FROM dbo.tool_mat WHERE id = $1', [id])
+    res.json({ message: 'Материал успешно удален' })
   } catch (err) {
-    console.error(err);
-    res.status(500).send(err.message);
+    console.error(err)
+    res.status(500).send(err.message)
   }
 }
 
 async function deleteGroup(req, res) {
-  const { id } = req.params;
+  const { id } = req.params
 
   try {
-    await pool.query('DELETE FROM dbo.tool_group WHERE id = $1', [id]);
-    res.json({ message: 'Группа успешно удалена' });
+    await pool.query('DELETE FROM dbo.tool_group WHERE id = $1', [id])
+    res.json({ message: 'Группа успешно удалена' })
   } catch (err) {
-    console.error(err);
-    res.status(500).send(err.message);
+    console.error(err)
+    res.status(500).send(err.message)
   }
 }
 
@@ -418,4 +451,5 @@ module.exports = {
   addGroup,
   getLibrary,
   getToolNomSpec,
+  getUniqueToolSpecs,
 }
