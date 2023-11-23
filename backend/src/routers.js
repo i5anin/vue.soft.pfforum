@@ -4,32 +4,29 @@ const controllers = require('./controllers/tool');
 const login = require('./controllers/login');
 const { validateUser, getDatabaseInfo } = require('./controllers/login');
 
-// --- TOOL ---
-routers.get('/tools', controllers.getTools);
+// Маршруты аутентификации
+routers.post('/validate-user', login.validateUser);
+routers.get('/database-info', getDatabaseInfo);
 
+// Инструментальные маршруты
+// Основные сведения об инструменте
+routers.get('/tools', controllers.getTools);
 routers.get('/tool-library', controllers.getLibrary);
 routers.get('/tool-spec', controllers.getToolNomSpec);
-
 routers.get('/unique-tool-specs', controllers.getUniqueToolSpecs);
 
+// Инвентаризация и управление инструментами
+routers.get('/tools-inventory', controllers.getToolsWithInventoryInfo);
 routers.post('/tool', controllers.addTool);
-
-routers.delete('/tool/:id', controllers.deleteTool);
-routers.delete('/material/:id', controllers.deleteMaterial);
-routers.delete('/type/:id', controllers.deleteType);
-routers.delete('/group/:id', controllers.deleteGroup);
-
 routers.put('/tool/:id', controllers.editTool);
+routers.delete('/tool/:id', controllers.deleteTool);
 
+// Дополнительные ресурсы, связанные с инструментами
 routers.post('/add-material', controllers.addMaterial);
 routers.post('/add-type', controllers.addType);
 routers.post('/add-group', controllers.addGroup);
-
-// --- TOOL ---
-
-routers.post('/validate-user', login.validateUser);
-
-routers.post('/validate-user', validateUser);
-routers.get('/database-info', getDatabaseInfo);
+routers.delete('/material/:id', controllers.deleteMaterial);
+routers.delete('/type/:id', controllers.deleteType);
+routers.delete('/group/:id', controllers.deleteGroup);
 
 module.exports = routers;
