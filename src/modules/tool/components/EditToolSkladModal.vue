@@ -52,42 +52,12 @@
             ]'
               />
             </div>
-            <h2 class='text-h6'>Размеры:</h2>
+            <h2 class='text-h6'>Склад:</h2>
             <!--            правый столбец -->
             <div>
-              <v-row>
-                <v-col cols='4'>
-                  <!-- Left side: Select element -->
-                  <v-select
-                    v-model='selectedType'
-                    :items="['Радиус', 'Диаметр']"
-                    label='Выберите тип'
-                    @input='onTypeChange'
-
-                  />
-                  <!-- :disabled='toolModel.radius || toolModel.diameter'-->
-                </v-col>
-
-                <v-col cols='8'>
-                  <v-text-field
-                    v-if="selectedType === 'Радиус'"
-                    label='Радиус (Пластины)'
-                    v-model='toolModel.radius'
-                    required
-                  />
-                  <v-text-field
-                    v-else-if="selectedType === 'Диаметр'"
-                    label='Диаметр (Сверла)'
-                    v-model='toolModel.diam'
-                    required
-
-                  />
-                </v-col>
-              </v-row>
-
-              <v-combobox label='Шаг' v-model='toolModel.shag' :items='shagOptions' required />
-              <v-combobox label='Габариты' v-model='toolModel.gabarit' :items='gabaritOptions' required />
-              <v-combobox label='Вылет (Резцы)' v-model='toolModel.width' :items='widthOptions' required />
+              <v-text-field label='Склад' v-model='toolModel.shag' :items='shagOptions' required />
+              <v-text-field label='Норма' v-model='toolModel.gabarit' :items='gabaritOptions' required />
+              <v-text-field label='Заказ' v-model='toolModel.width' :items='widthOptions' required />
             </div>
           </v-col>
         </v-row>
