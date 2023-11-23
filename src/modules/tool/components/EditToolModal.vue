@@ -1,125 +1,150 @@
 <template>
   <!--  <form @submit.prevent='onSubmit'>-->
-  <Modal :title='popupTitle'>
+  <Modal :title="popupTitle">
     <template #content>
       <v-container>
         <v-row>
-          <v-col class='flex'>
+          <v-col class="flex">
             <!--            левый столбец -->
             <div>
-              <v-combobox label='Название (Тип)'
-                          v-model='toolModel.type'
-                          :items='typeOptions'
-                          item-text='text'
-                          item-value='value'
-                          required
-                          :counter='3'
-                          :rules='[
-                          v => !!v || "Поле обязательно для заполнения",
-                          v => v && v.length >= 3 || "Минимальная длина: 3 символа",
-                        ]'
+              <v-combobox
+                label="Название (Тип)"
+                v-model="toolModel.type"
+                :items="typeOptions"
+                item-text="text"
+                item-value="value"
+                required
+                :counter="3"
+                :rules="[
+                  (v) => !!v || 'Поле обязательно для заполнения',
+                  (v) => (v && v.length >= 3) || 'Минимальная длина: 3 символа',
+                ]"
               />
-              <v-combobox label='Группа'
-                          v-model='toolModel.group'
-                          :items='groupOptions'
-                          item-text='text'
-                          item-value='value'
-                          required
-                          :rules='[
-                          v => !!v || "Поле обязательно для заполнения",
-                          v => v && v.length >= 3 || "Минимальная длина: 3 символа",
-                        ]'
+              <v-combobox
+                label="Группа"
+                v-model="toolModel.group"
+                :items="groupOptions"
+                item-text="text"
+                item-value="value"
+                required
+                :rules="[
+                  (v) => !!v || 'Поле обязательно для заполнения',
+                  (v) => (v && v.length >= 3) || 'Минимальная длина: 3 символа',
+                ]"
               />
-              <v-combobox label='Применяемость материала'
-                          v-model='toolModel.mat'
-                          :items='materialOptions'
-                          item-text='text'
-                          item-value='value'
-                          required
-                          :rules='[
-                          v => !!v || "Поле обязательно для заполнения",
-                          v => v && v.length >= 3 || "Минимальная длина: 3 символа",
-                        ]'
+              <v-combobox
+                label="Применяемость материала"
+                v-model="toolModel.mat"
+                :items="materialOptions"
+                item-text="text"
+                item-value="value"
+                required
+                :rules="[
+                  (v) => !!v || 'Поле обязательно для заполнения',
+                  (v) => (v && v.length >= 3) || 'Минимальная длина: 3 символа',
+                ]"
               />
 
-              <v-combobox label='Маркировка'
-                          v-model='toolModel.name'
-                          :items='nameOptions'
-                          required
-                          :rules=' [
-              v => !!v || "Поле обязательно для заполнения",
-              v => v && v.length >= 3 || "Минимальная длина: 3 символа",
-            ]'
+              <v-combobox
+                label="Маркировка"
+                v-model="toolModel.name"
+                :items="nameOptions"
+                required
+                :rules="[
+                  (v) => !!v || 'Поле обязательно для заполнения',
+                  (v) => (v && v.length >= 3) || 'Минимальная длина: 3 символа',
+                ]"
               />
             </div>
-            <h2 class='text-h6'>Размеры:</h2>
+            <h2 class="text-h6">Размеры:</h2>
             <!--            правый столбец -->
             <div>
               <v-row>
-                <v-col cols='4'>
+                <v-col cols="4">
                   <!-- Left side: Select element -->
                   <v-select
-                    v-model='selectedType'
+                    v-model="selectedType"
                     :items="['Радиус', 'Диаметр']"
-                    label='Выберите тип'
-                    @input='onTypeChange'
-
+                    label="Выберите тип"
+                    @input="onTypeChange"
                   />
                   <!-- :disabled='toolModel.radius || toolModel.diameter'-->
                 </v-col>
 
-                <v-col cols='8'>
+                <v-col cols="8">
                   <v-text-field
                     v-if="selectedType === 'Радиус'"
-                    label='Радиус (Пластины)'
-                    v-model='toolModel.radius'
+                    label="Радиус (Пластины)"
+                    v-model="toolModel.radius"
                     required
                   />
                   <v-text-field
                     v-else-if="selectedType === 'Диаметр'"
-                    label='Диаметр (Сверла)'
-                    v-model='toolModel.diam'
+                    label="Диаметр (Сверла)"
+                    v-model="toolModel.diam"
                     required
-
                   />
                 </v-col>
               </v-row>
 
-              <v-combobox label='Шаг' v-model='toolModel.shag' :items='shagOptions' required />
-              <v-combobox label='Габариты' v-model='toolModel.gabarit' :items='gabaritOptions' required />
-              <v-combobox label='Вылет (Резцы)' v-model='toolModel.width' :items='widthOptions' required />
+              <v-combobox
+                label="Шаг"
+                v-model="toolModel.shag"
+                :items="shagOptions"
+                required
+              />
+              <v-combobox
+                label="Габариты"
+                v-model="toolModel.gabarit"
+                :items="gabaritOptions"
+                required
+              />
+              <v-combobox
+                label="Вылет (Резцы)"
+                v-model="toolModel.width"
+                :items="widthOptions"
+                required
+              />
             </div>
           </v-col>
         </v-row>
       </v-container>
     </template>
     <template #action>
-      <v-btn color='red darken-1' variant='text' @click='confirmDelete' class='text-none text-subtitle-1 ml-3'>
+      <v-btn
+        color="red darken-1"
+        variant="text"
+        @click="confirmDelete"
+        class="text-none text-subtitle-1 ml-3"
+      >
         Удалить
       </v-btn>
       <v-spacer />
       <v-btn
-        color='red darken-1'
-        variant='text'
-        @click='onCancel'
-        class='text-none text-subtitle-1 ml-3'>
+        color="red darken-1"
+        variant="text"
+        @click="onCancel"
+        class="text-none text-subtitle-1 ml-3"
+      >
         Закрыть
       </v-btn>
-      <v-btn prepend-icon='mdi-check-circle'
-             @click='onSave'
-             class='text-none text-subtitle-1 pl-3'
-             color='blue darken-1'
-             size='large'
-             variant='flat'>
+      <v-btn
+        prepend-icon="mdi-check-circle"
+        @click="onSave"
+        class="text-none text-subtitle-1 pl-3"
+        color="blue darken-1"
+        size="large"
+        variant="flat"
+      >
         Сохранить
       </v-btn>
     </template>
   </Modal>
   <!--  </form> -->
   <DeleteConfirmationDialog
-    :confirmDeleteDialog='confirmDeleteDialog'
-    :onDelete='onDelete'
-    @update:confirmDeleteDialog='updateConfirmDeleteDialog'
+    :confirmDeleteDialog="confirmDeleteDialog"
+    :onDelete="onDelete"
+    @update:confirmDeleteDialog="updateConfirmDeleteDialog"
   />
 </template>
 
@@ -139,6 +164,7 @@ import DeleteConfirmationDialog from '@/modules/tool/components/DeleteConfirmati
 
 export default {
   name: 'EditToolModal',
+  emits: ['canceled', 'changes-saved'],
   props: {
     tool: {
       type: Object,
@@ -200,7 +226,6 @@ export default {
     },
   },
   async mounted() {
-
     try {
       const uniqueSpecs = await getUniqueToolSpecs()
       this.shagOptions = uniqueSpecs.shags
@@ -213,10 +238,9 @@ export default {
 
     try {
       const rawData = await getLibraries()
-      this.typeOptions = rawData.types.map(type => type.name)
-      this.groupOptions = rawData.groups.map(group => group.name)
-      this.materialOptions = rawData.materials.map(material => material.name)
-
+      this.typeOptions = rawData.types.map((type) => type.name)
+      this.groupOptions = rawData.groups.map((group) => group.name)
+      this.materialOptions = rawData.materials.map((material) => material.name)
 
       if (this.toolModel.diam) {
         this.selectedType = 'Диаметр'
@@ -225,8 +249,6 @@ export default {
       } else {
         this.selectedType = '' // Очищаем выбранный тип, если оба поля пусты
       }
-
-
     } catch (error) {
       console.error('Ошибка при получении данных:', error)
     }
@@ -277,18 +299,13 @@ export default {
       this.$emit('canceled')
     },
     async onSave() {
-      const {
-        id, group, type, mat, name,
-      } = this.toolModel
+      const { id, group, type, mat, name } = this.toolModel
 
-      const rawData = await getLibraries()
-      const groups = rawData.groups
-      const materials = rawData.materials
-      const types = rawData.types
+      const { groups, materials, types } = await getLibraries()
 
-      let groupId = groups.find(g => g.name === group)?.id
-      let matId = materials.find(m => m.name === mat)?.id
-      let typeId = types.find(t => t.name === type)?.id
+      let groupId = groups.find((g) => g.name === group)?.id
+      let matId = materials.find((m) => m.name === mat)?.id
+      let typeId = types.find((t) => t.name === type)?.id
 
       if (!groupId) {
         const newGroup = await addGroup(group)
@@ -305,7 +322,7 @@ export default {
 
       const toolData = {
         id,
-        name: this.toolModel.name,
+        name,
         group_id: parseInt(groupId),
         mat_id: parseInt(matId),
         type_id: parseInt(typeId),
@@ -335,6 +352,3 @@ export default {
   },
 }
 </script>
-
-
-

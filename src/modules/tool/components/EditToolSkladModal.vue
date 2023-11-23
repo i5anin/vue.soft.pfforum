@@ -70,6 +70,7 @@ import DeleteConfirmationDialog from '@/modules/tool/components/DeleteConfirmati
 
 export default {
   name: 'EditToolSkladModal',
+  emits: ['canceled','changes-saved'],
   props: {
     tool: {
       type: Object,
@@ -170,6 +171,7 @@ export default {
     },
   },
   methods: {
+    updateConfirmDeleteDialog() {},
     parseToFloat(value) {
       if (value === null) {
         return 0 // Или другое значение по умолчанию

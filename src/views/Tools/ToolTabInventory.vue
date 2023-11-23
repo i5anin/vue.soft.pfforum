@@ -17,7 +17,6 @@
     <edit-tool-sklad-modal
       v-if='openDialog'
       :tool='editingTool'
-      :persistent='true'
       @canceled='onClosePopup'
       @changes-saved='onSaveChanges'
     />

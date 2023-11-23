@@ -11,9 +11,22 @@
 <script>
 import { Header, Content, Footer } from '@/components'
 import Modal from '@/components/shared/Modal.vue'
+import { Routes } from '@/router'
+
 
 export default {
   components: { Header, Content, Footer, Modal },
+  created() {
+    this.checkAuth()
+  },
+  methods: {
+    checkAuth() {
+      const authUser = localStorage.getItem('user')
+      if (authUser == null) {
+        this.$router.push(Routes.LOGIN)
+      }
+    }
+  }
 }
 </script>
 

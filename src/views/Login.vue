@@ -7,8 +7,9 @@
             <v-toolbar-title>Вход в систему</v-toolbar-title>
           </v-toolbar>
           <v-card-text>
-            <v-form ref="form">
+            <v-form ref="form" >
               <v-text-field
+                v-model='login'
                 label="Логин"
                 name="login"
                 prepend-icon="mdi-account"
@@ -16,18 +17,19 @@
                 required
               ></v-text-field>
               <v-text-field
+                v-model='password'
                 label="Пароль"
                 name="password"
                 prepend-icon="mdi-lock"
                 type="password"
                 required
               ></v-text-field>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn type='submit' color="primary" @click.prevent="submit">Войти</v-btn>
+              </v-card-actions>
             </v-form>
           </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="primary" @click="submit">Войти</v-btn>
-          </v-card-actions>
         </v-card>
       </v-col>
     </v-row>
@@ -36,13 +38,17 @@
 
 <script>
 export default {
+  data: () => ({
+    login: '',
+    password: ''
+  }),
   methods: {
     submit() {
       // Здесь должен быть ваш код для проверки данных формы и отправки их на сервер
       // Например, используя axios для отправки запроса на ваш API
       const formData = {
-        login: this.$refs.form.login,
-        password: this.$refs.form.password,
+        login: this.login,
+        password: this.password,
       };
       console.log(formData); // Замените эту часть на реальный запрос к серверу
       // Пример с axios (не забудьте установить axios через npm и импортировать его):
