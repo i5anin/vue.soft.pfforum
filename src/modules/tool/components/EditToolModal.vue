@@ -42,13 +42,14 @@
                         ]'
               />
 
-              <v-text-field label='Маркировка'
-                            v-model='toolModel.name'
-                            required
-                            :rules=' [
-                          v=> !!v || "Поле обязательно для заполнения",
+              <v-combobox label='Маркировка'
+                          v-model='toolModel.name'
+                          :items='nameOptions'
+                          required
+                          :rules=' [
+              v => !!v || "Поле обязательно для заполнения",
               v => v && v.length >= 3 || "Минимальная длина: 3 символа",
-              ]'
+            ]'
               />
             </div>
             <h2 class='text-h6'>Размеры:</h2>
@@ -84,23 +85,20 @@
                 </v-col>
               </v-row>
 
-              <v-text-field label='Шаг'
-                            v-model='toolModel.shag'
-                            :items='radiusOptions'
-                            required
-
+              <v-combobox label='Шаг'
+                          v-model='toolModel.shag'
+                          :items='shagOptions'
+                          required
               />
-              <v-text-field label='Габариты'
-                            v-model='toolModel.gabarit'
-                            :items='radiusOptions'
-                            required
-
+              <v-combobox label='Габариты'
+                          v-model='toolModel.gabarit'
+                          :items='gabaritOptions'
+                          required
               />
-              <v-text-field label='Вылет (Резцы)'
-                            v-model='toolModel.width'
-                            :items='radiusOptions'
-                            required
-
+              <v-combobox label='Вылет (Резцы)'
+                          v-model='toolModel.width'
+                          :items='widthOptions'
+                          required
               />
             </div>
           </v-col>
@@ -139,7 +137,16 @@
 
 <script>
 import Modal from '@/components/shared/Modal.vue'
-import { addTool, deleteTool, updateTool, getLibraries, addMaterial, addType, addGroup } from '@/api'
+import {
+  addTool,
+  deleteTool,
+  updateTool,
+  getLibraries,
+  addMaterial,
+  addType,
+  addGroup,
+  getUniqueToolSpecs,
+} from '@/api'
 import DeleteConfirmationDialog from '@/modules/tool/components/DeleteConfirmationDialog.vue'
 
 export default {
@@ -162,17 +169,21 @@ export default {
   },
   components: { DeleteConfirmationDialog, Modal },
   data: () => ({
+    shagOptions: [],
+    gabaritOptions: [],
+    widthOptions: [],
     toolModel: {
       type: '',
       group: '',
       mat: '',
       name: '',
       radius: '',
-      diam: '', // Переименовано из diam
+      diam: '',
     },
     typeOptions: [],
     groupOptions: [],
     materialOptions: [],
+    nameOptions: [], 
     confirmDeleteDialog: false,
     typeSelected: false,
     selectedType: '',
@@ -201,6 +212,17 @@ export default {
     },
   },
   async mounted() {
+
+    try {
+      const uniqueSpecs = await getUniqueToolSpecs();
+      this.shagOptions = uniqueSpecs.shags;
+      this.gabaritOptions = uniqueSpecs.gabarits;
+      this.widthOptions = uniqueSpecs.widths;
+      this.nameOptions = uniqueSpecs.names; // Заполняем опции маркировки
+    } catch (error) {
+      console.error('Ошибка при получении уникальных спецификаций:', error);
+    }
+
     try {
       const rawData = await getLibraries()
       this.typeOptions = rawData.types.map(type => type.name)
@@ -215,6 +237,8 @@ export default {
       } else {
         this.selectedType = '' // Очищаем выбранный тип, если оба поля пусты
       }
+
+
 
     } catch (error) {
       console.error('Ошибка при получении данных:', error)

@@ -92,6 +92,17 @@ export async function login(credentials) {
   }
 }
 
+export async function getUniqueToolSpecs() {
+  try {
+    const response = await axios.get(`${BASE_URL}/unique-tool-specs`);
+    return response.data;
+  } catch (error) {
+    console.error('There has been a problem with your fetch operation:', error);
+    throw error;
+  }
+}
+
+
 export async function deleteMaterial(id) {
   try {
     const response = await axios.delete(`${BASE_URL}/material/${id}`);
