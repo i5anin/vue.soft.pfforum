@@ -38,14 +38,16 @@ async function getToolNomSpec(req, res) {
 
 async function getUniqueToolSpecs(req, res) {
   try {
-    // Запросы для получения уникальных значений каждого поля
-    const widthQuery = 'SELECT DISTINCT width FROM dbo.tool_nom';
-    const gabaritQuery = 'SELECT DISTINCT gabarit FROM dbo.tool_nom';
-    const shagQuery = 'SELECT DISTINCT shag FROM dbo.tool_nom';
-    const diamQuery = 'SELECT DISTINCT diam FROM dbo.tool_nom';
+    // Отдельные запросы для каждого поля с исключением пустых строк
+    const nameQuery = 'SELECT DISTINCT name FROM dbo.tool_nom WHERE name <> \'\'';
+    const widthQuery = 'SELECT DISTINCT width FROM dbo.tool_nom WHERE width <> \'\'';
+    const gabaritQuery = 'SELECT DISTINCT gabarit FROM dbo.tool_nom WHERE gabarit <> \'\'';
+    const shagQuery = 'SELECT DISTINCT shag FROM dbo.tool_nom WHERE shag <> \'\'';
+    const diamQuery = 'SELECT DISTINCT diam FROM dbo.tool_nom WHERE diam <> \'\'';
 
     // Выполнение запросов параллельно
-    const [widths, gabarits, shags, diams] = await Promise.all([
+    const [names, widths, gabarits, shags, diams] = await Promise.all([
+      pool.query(nameQuery),
       pool.query(widthQuery),
       pool.query(gabaritQuery),
       pool.query(shagQuery),
@@ -54,6 +56,7 @@ async function getUniqueToolSpecs(req, res) {
 
     // Объединение результатов
     const result = {
+      names: names.rows.map(row => row.name),
       widths: widths.rows.map(row => row.width),
       gabarits: gabarits.rows.map(row => row.gabarit),
       shags: shags.rows.map(row => row.shag),
@@ -67,8 +70,6 @@ async function getUniqueToolSpecs(req, res) {
     res.status(500).send(err.message);
   }
 }
-
-
 
 // Определение контроллеров
 async function getTools(req, res) {
