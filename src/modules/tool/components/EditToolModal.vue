@@ -183,7 +183,7 @@ export default {
     typeOptions: [],
     groupOptions: [],
     materialOptions: [],
-    nameOptions: [], 
+    nameOptions: [],
     confirmDeleteDialog: false,
     typeSelected: false,
     selectedType: '',
