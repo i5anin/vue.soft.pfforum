@@ -43,9 +43,9 @@
       headers
       width
     >
-<!--      <template class='gray' v-slot:item.index='{ index }'>-->
-<!--        <span style='color: gray; font-size: 0.7em;'>{{ index + 1 }}</span>-->
-<!--      </template>-->
+      <!--      <template class='gray' v-slot:item.index='{ index }'>-->
+      <!--        <span style='color: gray; font-size: 0.7em;'>{{ index + 1 }}</span>-->
+      <!--      </template>-->
       <template v-slot:item.type_name='{ item }'>
         <span :style="item.type.name === '[нет данных]' ? 'color: red;' : ''">{{ item.type.name }}</span>
       </template>
@@ -57,14 +57,24 @@
       <template v-slot:item.mat_name='{ item }'>
         <span :style="item.mat.name === '[нет данных]' ? 'color: red;' : ''">{{ item.mat.name }}</span>
       </template>
-      <template v-slot:item.radius='{ item }'>{{ item.spec.radius !== '0' ? item.spec.radius : '' }}</template>
-      <template v-slot:item.diam='{ item }'>{{ item.spec.diam !== '0' ? item.spec.diam : '' }}</template>
-      <template v-slot:item.shag='{ item }'>{{ item.spec.shag !== '0' ? item.spec.shag : '' }}</template>
-      <template v-slot:item.gabarit='{ item }'>{{ item.spec.gabarit !== '0' ? item.spec.gabarit : '' }}</template>
-      <template v-slot:item.width='{ item }'>{{ item.spec.width !== '0' ? item.spec.width : '' }}</template>
+      <template v-slot:item.radius='{ item }'>
+        <td class='narrow-column'>{{ item.spec.radius }}</td>
+      </template>
+      <template v-slot:item.diam='{ item }'>
+        <td class='narrow-column'>{{ item.spec.diam }}</td>
+      </template>
+      <template v-slot:item.shag='{ item }'>
+        <td class='narrow-column'>{{ item.spec.shag !== '0' ? item.spec.shag : '' }}</td>
+      </template>
+      <template v-slot:item.gabarit='{ item }'>
+        <td class='narrow-column'>{{ item.spec.gabarit !== '0' ? item.spec.gabarit : '' }}</td>
+      </template>
+      <template v-slot:item.width='{ item }'>
+        <td class='narrow-column'>{{ item.spec.width !== '0' ? item.spec.width : '' }}</td>
+      </template>
 
       <template v-slot:item.name='{ item }'>
-        <span style="white-space: nowrap;">{{ item.name }}</span>
+        <span style='white-space: nowrap;'>{{ item.name }}</span>
       </template>
 
 
@@ -156,5 +166,12 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+.narrow-column {
+  max-width: 100px !important;
+  font-size: 0.9em;
+}
+</style>
 
 
