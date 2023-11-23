@@ -7,51 +7,12 @@
           <v-col class='flex'>
             <!--            левый столбец -->
             <div>
-              <v-combobox label='Название (Тип)'
-                          v-model='toolModel.type'
-                          :items='typeOptions'
-                          item-text='text'
-                          item-value='value'
-                          required
-                          :counter='3'
-                          :rules='[
-                          v => !!v || "Поле обязательно для заполнения",
-                          v => v && v.length >= 3 || "Минимальная длина: 3 символа",
-                        ]'
-              />
-              <v-combobox label='Группа'
-                          v-model='toolModel.group'
-                          :items='groupOptions'
-                          item-text='text'
-                          item-value='value'
-                          required
-                          :rules='[
-                          v => !!v || "Поле обязательно для заполнения",
-                          v => v && v.length >= 3 || "Минимальная длина: 3 символа",
-                        ]'
-              />
-              <v-combobox label='Применяемость материала'
-                          v-model='toolModel.mat'
-                          :items='materialOptions'
-                          item-text='text'
-                          item-value='value'
-                          required
-                          :rules='[
-                          v => !!v || "Поле обязательно для заполнения",
-                          v => v && v.length >= 3 || "Минимальная длина: 3 символа",
-                        ]'
-              />
-
-              <v-combobox label='Маркировка'
-                          v-model='toolModel.name'
-                          :items='nameOptions'
-                          required
-                          :rules=' [
-              v => !!v || "Поле обязательно для заполнения",
-              v => v && v.length >= 3 || "Минимальная длина: 3 символа",
-            ]'
-              />
+              <h2 class='text-h6 my-2'>Название (Тип): {{ toolModel.type }}</h2>
+              <h2 class='text-h6 my-2'>Группа: {{ toolModel.group }}</h2>
+              <h2 class='text-h6 my-2'>Применяемость материала: {{ toolModel.mat }}</h2>
+              <h2 class='text-h6 my-2'>Маркировка: {{ toolModel.name }}</h2>
             </div>
+
             <h2 class='text-h6'>Склад:</h2>
             <!--            правый столбец -->
             <div>
