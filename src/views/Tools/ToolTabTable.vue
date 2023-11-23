@@ -18,7 +18,6 @@
       v-if='openDialog'
       :tool='editingTool'
       :persistent='true'
-      :radiusOptions='radiusOptions'
       @canceled='onClosePopup'
       @changes-saved='onSaveChanges'
     />
