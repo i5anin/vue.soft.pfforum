@@ -1,23 +1,23 @@
 <template>
   <v-card>
     <v-tabs v-model='tab'>
-      <v-tab value='one'>Инструмент</v-tab>
-      <v-tab value='two'>Библиотека</v-tab>
-      <v-tab value='three'>Склад</v-tab>
+      <v-tab value='ToolTable'>Инструмент</v-tab>
+      <v-tab value='Library'>Библиотека</v-tab>
+      <v-tab value='Inventory'>Склад</v-tab>
     </v-tabs>
 
     <v-card-text>
       <v-window v-model='tab'>
-        <v-window-item value='one'>
-          <ToolTable />
+        <v-window-item value='ToolTable'>
+          <ToolTabTable />
         </v-window-item>
 
-        <v-window-item value='two'>
-          <ToolLibraryTable />
+        <v-window-item value='Library'>
+          <ToolTabLibrary />
         </v-window-item>
 
-        <v-window-item value='three'>
-          <ToolInventory />
+        <v-window-item value='Inventory'>
+          <ToolTabInventory />
         </v-window-item>
 
       </v-window>
@@ -28,9 +28,9 @@
 <script setup>
 import { ref } from 'vue'
 
-import ToolTable from '@/views/Tools/ToolTabTable.vue'
-import ToolLibraryTable from '@/views/Tools/ToolTabLibrary.vue'
-import ToolInventory from '@/views/Tools/ToolTabInventory.vue'
+import ToolTabTable from '@/views/Tools/ToolTabTable.vue'
+import ToolTabLibrary from '@/views/Tools/ToolTabLibrary.vue'
+import ToolTabInventory from '@/views/Tools/ToolTabInventory.vue'
 
 const tab = ref('one') // Initialize the 'tab' variable with a default value
 </script>
