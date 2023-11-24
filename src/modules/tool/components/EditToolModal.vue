@@ -48,14 +48,26 @@
             <!-- правый столбец -->
             <div>
               <v-row>
-                <v-col cols='4'/>
+                <v-col cols='4'>
+                  <!-- Left side: Select element -->
+                  <v-select
+                    v-model='selectedType'
+                    :items="['Радиус', 'Диаметр']"
+                    label='Выберите тип'
+                    @input='onTypeChange'
+                  />
+                  <!-- :disabled='toolModel.radius || toolModel.diameter'-->
+                </v-col>
+
                 <v-col cols='8'>
                   <v-text-field
+                    v-if="selectedType === 'Радиус'"
                     label='Радиус (Пластины)'
                     v-model='toolModel.radius'
                     required
                   />
                   <v-text-field
+                    v-else-if="selectedType === 'Диаметр'"
                     label='Диаметр (Сверла)'
                     v-model='toolModel.diam'
                     required
@@ -224,12 +236,18 @@ export default {
 
     try {
       const rawData = await getLibraries()
-      this.nameOptions = rawData.names.map((name) => ({ text: name, value: name }))
-
       this.typeOptions = rawData.types.map((type) => type.name)
+      this.nameOptions = rawData.names.map((name) => ({ text: name, value: name }))
       this.groupOptions = rawData.groups.map((group) => group.name)
       this.materialOptions = rawData.materials.map((material) => material.name)
 
+      if (this.toolModel.diam) {
+        this.selectedType = 'Диаметр'
+      } else if (this.toolModel.radius) {
+        this.selectedType = 'Радиус'
+      } else {
+        this.selectedType = '' // Очищаем выбранный тип, если оба поля пусты
+      }
     } catch (error) {
       console.error('Ошибка при получении данных:', error)
     }
@@ -277,11 +295,18 @@ export default {
       return parseFloat(value.toString().replace(',', '.'))
     },
 
-    // checkDisabledStatus() {
-    //   // console.log('Radius:', this.toolModel.radius)
-    //   // console.log('Diameter:', this.toolModel.diam)
-    //   return this.toolModel.radius || this.toolModel.diam
-    // },
+    checkDisabledStatus() {
+      // console.log('Radius:', this.toolModel.radius)
+      // console.log('Diameter:', this.toolModel.diam)
+      return this.toolModel.radius || this.toolModel.diam
+    },
+    onTypeChange() {
+      if (this.selectedType === 'Радиус' && !this.toolModel.radius) {
+        this.selectedType = '' // Очищаем выбранный тип, если радиус пуст
+      } else if (this.selectedType === 'Диаметр' && !this.toolModel.diam) {
+        this.toolModel.diam = this.toolModel.radius // Сохраняем значение радиуса как диаметр, если диаметр пуст
+      }
+    },
 
     confirmDelete() {
       this.confirmDeleteDialog = true
