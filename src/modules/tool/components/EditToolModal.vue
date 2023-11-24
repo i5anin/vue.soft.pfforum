@@ -16,7 +16,7 @@
                 required
                 :counter="3"
                 :rules="[
-                  (v) => !!v || 'Поле обязательно для заполнения',
+                  (v) => !!v || 'Полролдполе обязательно для заполнения',
                   (v) => (v && v.length >= 3) || 'Минимальная длина: 3 символа',
                 ]"
               />
@@ -144,7 +144,6 @@
   <DeleteConfirmationDialog
     :confirmDeleteDialog="confirmDeleteDialog"
     :onDelete="onDelete"
-    @update:confirmDeleteDialog="updateConfirmDeleteDialog"
   />
 </template>
 
@@ -166,6 +165,10 @@ export default {
   name: 'EditToolModal',
   emits: ['canceled', 'changes-saved'],
   props: {
+    persistent: {
+      type: Boolean,
+      default: false,
+    },
     tool: {
       type: Object,
       default: () => ({
@@ -221,7 +224,7 @@ export default {
           width: tool.spec?.width,
           diam: tool.spec?.diam, // Переименовано из diam
         }
-        console.log('Загрузка модели Tool Model:', this.toolModel) // Добавленный console.log
+        // console.log('Загрузка модели Tool Model:', this.toolModel) // Добавленный console.log
       },
     },
   },
@@ -269,8 +272,8 @@ export default {
     },
 
     checkDisabledStatus() {
-      console.log('Radius:', this.toolModel.radius)
-      console.log('Diameter:', this.toolModel.diam)
+      // console.log('Radius:', this.toolModel.radius)
+      // console.log('Diameter:', this.toolModel.diam)
       return this.toolModel.radius || this.toolModel.diam
     },
     onTypeChange() {
@@ -333,13 +336,13 @@ export default {
         width: this.toolModel.width,
         diam: this.toolModel.diam,
       }
-      console.log(toolData)
+      // console.log(toolData)
 
       try {
         let result
         if (id == null) {
           result = await addTool(toolData)
-          console.log('Tool added. ID:', result.toolId)
+          // console.log('Tool added. ID:', result.toolId)
           if (result) this.$emit('changes-saved')
         } else {
           result = await updateTool(id, toolData)

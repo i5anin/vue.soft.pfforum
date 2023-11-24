@@ -7,14 +7,15 @@
           <v-col class='flex'>
             <!--            левый столбец -->
             <div>
-              <h2 class='text-h6 my-2'>Название (Тип): {{ toolModel.type }}</h2>
-              <h2 class='text-h6 my-2'>Группа: {{ toolModel.group }}</h2>
-              <h2 class='text-h6 my-2'>Применяемость материала: {{ toolModel.mat }}</h2>
-              <h2 class='text-h6 my-2'>Маркировка: {{ toolModel.name }}</h2>
+              <h2 class='text-h4 my-3'>Название: {{ toolModel.type }}</h2>
+              <h2 class='text-h4 my-3'>Группа: {{ toolModel.group }}</h2>
+              <h2 class='text-h4 my-3'>Применяемость материала: {{ toolModel.mat }}</h2>
+              <h2 class='text-h4 my-3'>Маркировка: {{ toolModel.name }}</h2>
             </div>
 
+
             <h2 class='text-h6'>Склад:</h2>
-            <!--            правый столбец -->
+
             <div>
               <v-text-field label='Склад' v-model='toolModel.shag' :items='shagOptions' required />
               <v-text-field label='Норма' v-model='toolModel.gabarit' :items='gabaritOptions' required />
@@ -25,9 +26,6 @@
       </v-container>
     </template>
     <template #action>
-      <v-btn color='red darken-1' variant='text' @click='confirmDelete' class='text-none text-subtitle-1 ml-3'>
-        Удалить
-      </v-btn>
       <v-spacer />
       <v-btn
         color='red darken-1'
@@ -70,7 +68,7 @@ import DeleteConfirmationDialog from '@/modules/tool/components/DeleteConfirmati
 
 export default {
   name: 'EditToolSkladModal',
-  emits: ['canceled','changes-saved'],
+  emits: ['canceled', 'changes-saved'],
   props: {
     tool: {
       type: Object,
@@ -92,14 +90,7 @@ export default {
     shagOptions: [],
     gabaritOptions: [],
     widthOptions: [],
-    toolModel: {
-      type: '',
-      group: '',
-      mat: '',
-      name: '',
-      radius: '',
-      diam: '',
-    },
+    toolModel: { type: '', group: '', mat: '', name: '', radius: '', diam: '' },
     typeOptions: [],
     groupOptions: [],
     materialOptions: [],
@@ -171,7 +162,8 @@ export default {
     },
   },
   methods: {
-    updateConfirmDeleteDialog() {},
+    updateConfirmDeleteDialog() {
+    },
     parseToFloat(value) {
       if (value === null) {
         return 0 // Или другое значение по умолчанию
@@ -179,18 +171,6 @@ export default {
       return parseFloat(value.toString().replace(',', '.'))
     },
 
-    // checkDisabledStatus() {
-    //   console.log('Radius:', this.toolModel.radius)
-    //   console.log('Diameter:', this.toolModel.diam)
-    //   return this.toolModel.radius || this.toolModel.diam
-    // },
-    // onTypeChange() {
-    //   if (this.selectedType === 'Радиус' && !this.toolModel.radius) {
-    //     this.selectedType = '' // Очищаем выбранный тип, если радиус пуст
-    //   } else if (this.selectedType === 'Диаметр' && !this.toolModel.diam) {
-    //     this.toolModel.diam = this.toolModel.radius // Сохраняем значение радиуса как диаметр, если диаметр пуст
-    //   }
-    // },
 
     confirmDelete() {
       this.confirmDeleteDialog = true

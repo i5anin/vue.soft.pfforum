@@ -10,9 +10,6 @@
           @input='onSearch'
         ></v-text-field>
       </v-col>
-      <v-col class='pa-3 text-right'>
-        <v-btn color='blue' @click='onAddTool'>Новый инструмент</v-btn>
-      </v-col>
     </v-row>
     <edit-tool-sklad-modal
       v-if='openDialog'
