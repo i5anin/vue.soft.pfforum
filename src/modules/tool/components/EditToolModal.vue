@@ -221,7 +221,7 @@ export default {
     },
   },
   async mounted() {
-    this.loadDataFromDatabase();
+    // this.loadInitialData();
     this.loadLastSavedData();
     try {
       const uniqueSpecs = await getUniqueToolSpecs()
@@ -236,24 +236,10 @@ export default {
 
     try {
       const rawData = await getLibraries()
-
-      if (rawData && rawData.types && rawData.groups && rawData.materials) {
-        this.typeOptions = rawData.types.map((type) => type.name)
-        this.groupOptions = rawData.groups.map((group) => group.name)
-        this.materialOptions = rawData.materials.map((material) => material.name)
-      } else {
-        // В случае, если локальные данные не содержат необходимых переменных,
-        // вы можете установить значения по умолчанию или пустые массивы, чтобы избежать ошибки
-        this.typeOptions = []
-        this.groupOptions = []
-        this.materialOptions = []
-      }
-
+      this.typeOptions = rawData.types.map((type) => type.name)
+      this.nameOptions = rawData.names.map((name) => ({ text: name, value: name }))
+      this.groupOptions = rawData.groups.map((group) => group.name)
       this.materialOptions = rawData.materials.map((material) => material.name)
-
-      if (this.nameOptions.length > 10) {
-        this.nameOptions = this.nameOptions.slice(0, 10); // Ограничиваем до 10 элементов
-      }
 
       if (this.toolModel.diam) {
         this.selectedType = 'Диаметр'
@@ -274,19 +260,6 @@ export default {
     },
   },
   methods: {
-    async loadDataFromDatabase() {
-      try {
-        // Загрузка данных из базы
-        const data = await fetchDataFromDatabase();
-        this.allItems = data;
-
-        // Отображаем только первые 10 элементов
-        this.displayedItems = this.allItems.slice(0, 10);
-      } catch (error) {
-        console.error("Ошибка при загрузке данных из базы:", error);
-      }
-    },
-
     loadLastSavedData() {
       const lastSavedData = localStorage.getItem('lastSavedToolModel');
       if (lastSavedData) {
