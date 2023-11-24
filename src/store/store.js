@@ -1,26 +1,17 @@
 // src/store.js или src/store/index.js
-import { createStore } from 'vuex'
+import { createStore } from 'vuex';
 
 export default createStore({
   state: {
-    tools: [],
-    totalTools: 0,
-    currentPage: 1,
-    itemsPerPage: 15,
-    loading: false,
-    searchQuery: '',
-    // Другие переменные состояния
+    // ваше состояние здесь
   },
   mutations: {
-    // Мутации для обновления состояния
+    // ваши мутации здесь
   },
   actions: {
-    async getToolsTab({ commit, state }) {
-      // Логика запроса к API и коммит изменений в state
-    },
-    // Другие actions
+    // ваши действия здесь
   },
   getters: {
-    // Геттеры для доступа к состоянию
-  },
-})
+    // ваши геттеры здесь
+  }
+});
