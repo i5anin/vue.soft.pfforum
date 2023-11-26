@@ -143,14 +143,13 @@ import DeleteConfirmationDialog from '@/modules/tool/components/DeleteConfirmati
 
 export default {
   name: 'EditToolModal',
-  emits: ['canceled', 'changes-saved'],
+  emits: ['canceled', 'changes-saved'], //объявления пользовательских событий
+  //контракт обещаение что использщовать и что передавать от родительского компонента к дочернему
   props: {
-    persistent: {
-      type: Boolean,
-      default: false,
-    },
+    persistent: { type: Boolean, default: false },
     tool: {
       type: Object,
+      //устанавливает начальные значения для tool
       default: () => ({
         id: null,
         group_name: '',
@@ -165,6 +164,7 @@ export default {
     radiusOptions: { type: Array },
   },
   components: { DeleteConfirmationDialog, Modal },
+  //реактивные данные
   data: () => ({
     shagOptions: [],
     gabaritOptions: [],
@@ -189,7 +189,7 @@ export default {
       (v) => (v && v.length >= 3) || 'Минимальная длина: 3 символа',
     ],
   }),
-
+  //Наблюдатель вызывает определенную функцию при изменении
   watch: {
     tool: {
       immediate: true,
@@ -197,21 +197,21 @@ export default {
         const { mat, group, type } = tool
         this.toolModel = {
           ...tool,
-
           mat: mat?.name === '[нет данных]' ? null : mat?.name,
           group: group?.name === '[нет данных]' ? null : group?.name,
           type: type?.name === '[нет данных]' ? null : type?.name,
-
           radius: tool.spec?.radius,
           shag: tool.spec?.shag,
           gabarit: tool.spec?.gabarit,
           width: tool.spec?.width,
-          diam: tool.spec?.diam, // Переименовано из diam
+          diam: tool.spec?.diam,
         }
         // console.log('Загрузка модели Tool Model:', this.toolModel) // Добавленный console.log
       },
     },
   },
+  //data - используется для определения реактивных данных компонента, которые непосредственно управляют состоянием и поведением этого компонента.
+  //watch - используется для отслеживания изменений в этих данных (или в других реактивных источниках) и выполнения дополнительных действий или логики в ответ на эти изменения.
   async mounted() {
     // this.loadInitialData()
     try {
