@@ -5,9 +5,8 @@
       <v-container>
         <v-row>
           <v-col class="flex">
-            <!--            левый столбец -->
+            <!--левый столбец -->
             <div>
-              <!--https://vuetifyjs.com/en/components/combobox/#usage-->
               <v-combobox
                 clearable
                 label="Название (Тип)"
