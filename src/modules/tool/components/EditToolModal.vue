@@ -7,19 +7,21 @@
           <v-col class="flex">
             <!--левый столбец -->
             <div>
+              <!--https://vuetifyjs.com/en/components/combobox/#usage-->
+              <!--https://vuetifyjs.com/en/api/v-combobox/#links-->
               <v-combobox
-                clearable
                 label="Название (Тип)"
                 v-model="toolModel.type"
                 :items="typeOptions"
                 item-text="text"
                 item-value="value"
                 required
+                :clearable="true"
                 :counter="3"
                 :rules="typeRules"
               />
               <v-combobox
-                clearable
+                :clearable="true"
                 label="Группа"
                 v-model="toolModel.group"
                 :items="groupOptions"
@@ -29,7 +31,7 @@
                 :rules="typeRules"
               />
               <v-combobox
-                clearable
+                :clearable="true"
                 label="Применяемость материала"
                 v-model="toolModel.mat"
                 :items="materialOptions"
@@ -50,33 +52,18 @@
             <h2 class="text-h6">Размеры:</h2>
             <!-- правый столбец -->
             <div>
-              <v-row>
-                <v-col cols="4">
-                  <!-- Left side: Select element -->
-                  <v-select
-                    v-model="selectedType"
-                    :items="['Радиус', 'Диаметр']"
-                    label="Выберите тип"
-                    @input="onTypeChange"
-                  />
-                  <!-- :disabled='toolModel.radius || toolModel.diameter'-->
-                </v-col>
-
-                <v-col cols="8">
-                  <v-text-field
-                    v-if="selectedType === 'Радиус'"
-                    label="Радиус (Пластины)"
-                    v-model="toolModel.radius"
-                    required
-                  />
-                  <v-text-field
-                    v-else-if="selectedType === 'Диаметр'"
-                    label="Диаметр (Сверла)"
-                    v-model="toolModel.diam"
-                    required
-                  />
-                </v-col>
-              </v-row>
+              <v-col cols="8">
+                <v-text-field
+                  label="Радиус (Пластины)"
+                  v-model="toolModel.radius"
+                  required
+                />
+                <v-text-field
+                  label="Диаметр (Сверла)"
+                  v-model="toolModel.diam"
+                  required
+                />
+              </v-col>
 
               <v-combobox
                 label="Шаг"
@@ -148,7 +135,6 @@ import {
   addMaterial,
   addType,
   addGroup,
-  getUniqueToolSpecs,
 } from '@/api'
 import DeleteConfirmationDialog from '@/modules/tool/components/DeleteConfirmationDialog.vue'
 
@@ -168,7 +154,7 @@ export default {
         type_name: '',
         mat_name: '',
         name: '',
-        diam: '', // Переименовано из diam
+        diam: '',
         shag: '',
         typeOptions: ['Radius', 'Diam', 'Step', 'Dimensions', 'Projection'],
       }),
@@ -224,17 +210,17 @@ export default {
     },
   },
   async mounted() {
-    this.loadInitialData()
+    // this.loadInitialData()
     this.loadLastSavedData()
-    try {
-      const uniqueSpecs = await getUniqueToolSpecs()
-      this.shagOptions = uniqueSpecs.shags
-      this.gabaritOptions = uniqueSpecs.gabarits
-      this.widthOptions = uniqueSpecs.widths
-      this.nameOptions = uniqueSpecs.names // Заполняем опции маркировки
-    } catch (error) {
-      console.error('Ошибка при получении уникальных спецификаций:', error)
-    }
+    // try {
+    //   const uniqueSpecs = await getUniqueToolSpecs()
+    //   this.shagOptions = uniqueSpecs.shags
+    //   this.gabaritOptions = uniqueSpecs.gabarits
+    //   this.widthOptions = uniqueSpecs.widths
+    //   this.nameOptions = uniqueSpecs.names // Заполняем опции маркировки
+    // } catch (error) {
+    //   console.error('Ошибка при получении уникальных спецификаций:', error)
+    // }
 
     try {
       const rawData = await getLibraries()
