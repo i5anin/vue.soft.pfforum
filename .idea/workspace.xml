@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6041db0f-271c-4318-809b-341f66a47e0c" name="Changes" comment="" />
+    <list default="true" id="6041db0f-271c-4318-809b-341f66a47e0c" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/note.ps1" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -72,7 +75,11 @@
       <recent name="S:\development\soft.vue.pf-forum\backend\src\tool" />
     </key>
   </component>
-  <component name="RunManager" selected="npm.frontend">
+  <component name="RunManager" selected="PowerShell.note.ps1">
+    <configuration name="note.ps1" type="PowerShellRunType" factoryName="PowerShell" temporary="true" scriptUrl="$PROJECT_DIR$/note.ps1" workingDirectory="C:\Users\PizZzA" executablePath="C:/WINDOWS/System32/WindowsPowerShell/v1.0/powershell.exe">
+      <envs />
+      <method v="2" />
+    </configuration>
     <configuration name="backend" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/package.json" />
       <command value="run" />
@@ -95,6 +102,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="PowerShell.note.ps1" />
+        <item itemvalue="PowerShell.note.ps1" />
+        <item itemvalue="PowerShell.note.ps1" />
         <item itemvalue="npm.frontend" />
         <item itemvalue="npm.backend" />
       </list>
@@ -148,7 +158,8 @@
       <workItem from="1700998620325" duration="107000" />
       <workItem from="1700998735378" duration="108000" />
       <workItem from="1700998851240" duration="264000" />
-      <workItem from="1700999125480" duration="1241000" />
+      <workItem from="1700999125480" duration="2688000" />
+      <workItem from="1701001905379" duration="250000" />
     </task>
     <servers />
   </component>
