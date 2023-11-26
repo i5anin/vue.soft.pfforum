@@ -45,6 +45,8 @@
                 label="Маркировка"
                 v-model="toolModel.name"
                 :items="nameOptions"
+                item-text="text"
+                item-value="value"
                 required
                 :rules="typeRules"
               />
@@ -135,6 +137,7 @@ import {
   addMaterial,
   addType,
   addGroup,
+  getUniqueToolSpecs,
 } from '@/api'
 import DeleteConfirmationDialog from '@/modules/tool/components/DeleteConfirmationDialog.vue'
 
@@ -211,16 +214,16 @@ export default {
   },
   async mounted() {
     // this.loadInitialData()
+    try {
+      const uniqueSpecs = await getUniqueToolSpecs()
+      this.shagOptions = uniqueSpecs.shags
+      this.gabaritOptions = uniqueSpecs.gabarits
+      this.widthOptions = uniqueSpecs.widths
+      this.nameOptions = uniqueSpecs.names // Заполняем опции маркировки
+    } catch (error) {
+      console.error('Ошибка при получении уникальных спецификаций:', error)
+    }
     this.loadLastSavedData()
-    // try {
-    //   const uniqueSpecs = await getUniqueToolSpecs()
-    //   this.shagOptions = uniqueSpecs.shags
-    //   this.gabaritOptions = uniqueSpecs.gabarits
-    //   this.widthOptions = uniqueSpecs.widths
-    //   this.nameOptions = uniqueSpecs.names // Заполняем опции маркировки
-    // } catch (error) {
-    //   console.error('Ошибка при получении уникальных спецификаций:', error)
-    // }
 
     try {
       const rawData = await getLibraries()
