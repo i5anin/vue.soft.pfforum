@@ -18,7 +18,7 @@
             <div>
               <v-text-field label='Склад' v-model='toolModel.kolvo_sklad' required />
               <v-text-field label='Норма' v-model='toolModel.norma' required />
-              <v-text-field label='Заказ' v-model='toolModel.zakaz' required />
+              <p class='my-2'>Заказ: {{ calculatedZakaz }}</p>
             </div>
           </v-col>
         </v-row>
@@ -153,13 +153,24 @@ export default {
     }
   },
   computed: {
+    calculatedZakaz() {
+      // Убедитесь, что значения kolvo_sklad и norma являются числами
+      const kolvoSklad = parseFloat(this.toolModel.kolvo_sklad) || 0;
+      const norma = parseFloat(this.toolModel.norma) || 0;
+
+      // Рассчитайте значение заказа
+      return   norma - kolvoSklad;
+    },
     popupTitle() {
       return this.tool?.id != null
-        ? `Редактировать инструмент ID: ${this.tool.id}`
+        ? `Редактировать склад инструмента ID: ${this.tool.id}`
         : 'Добавить инструмент'
     },
   },
+
   methods: {
+
+
     async onAddToWarehouse() {
       const { id, norma, kolvo_sklad, zakaz } = this.toolModel
 
