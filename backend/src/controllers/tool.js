@@ -109,7 +109,8 @@ async function getTools(req, res) {
          tool_nom.shag,
          tool_nom.gabarit,
          tool_nom.width,
-         tool_nom.diam
+         tool_nom.diam,
+         tool_nom.geometry
   FROM dbo.tool_nom as tool_nom
          LEFT JOIN
        dbo.tool_group as tool_group
@@ -150,6 +151,7 @@ async function getTools(req, res) {
         norma: tool.norma,
         rad: tool.rad,
         zakaz: tool.zakaz,
+        geometry: tool.geometry,
         mat: {
           name: tool.mat_name,
           id: tool.mat_id,
