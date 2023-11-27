@@ -35,7 +35,7 @@
         Закрыть
       </v-btn>
       <v-btn prepend-icon='mdi-check-circle'
-             @click='onSave'
+             @click='onAddToWarehouse'
              class='text-none text-subtitle-1 pl-3'
              color='blue darken-1'
              size='large'
@@ -62,7 +62,7 @@ import {
   addMaterial,
   addType,
   addGroup,
-  getUniqueToolSpecs,
+  getUniqueToolSpecs, addToWarehouse,
 } from '@/api'
 import DeleteConfirmationDialog from '@/modules/tool/components/DeleteConfirmationDialog.vue'
 
@@ -162,6 +162,20 @@ export default {
     },
   },
   methods: {
+    async onAddToWarehouse() {
+      const { id, shag, gabarit, width } = this.toolModel
+
+      try {
+        // Call the addToWarehouse function with the tool's id and specs
+        const result = await addToWarehouse(id, shag, gabarit, width)
+        if (result) {
+          this.$emit('changes-saved')
+        }
+      } catch (error) {
+        console.error('Ошибка при добавлении на склад:', error.message)
+      }
+    },
+
     updateConfirmDeleteDialog() {
     },
     parseToFloat(value) {
