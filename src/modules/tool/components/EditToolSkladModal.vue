@@ -116,7 +116,7 @@ export default {
           norma: tool.norma || '',
           zakaz: tool.zakaz || '',
         }
-        console.log('Загрузка модели Tool Model:', this.toolModel) // Добавленный console.log
+        // console.log('Загрузка модели Tool Model:', this.toolModel) // Добавленный console.log
       },
     },
   },
@@ -240,13 +240,13 @@ export default {
         kolvo_sklad: this.toolModel.kolvo_sklad,
 
       }
-      console.log(toolData)
+      // console.log(toolData)
 
       try {
         let result
         if (id == null) {
           result = await addTool(toolData)
-          console.log('Tool added. ID:', result.toolId)
+          // console.log('Tool added. ID:', result.toolId)
           if (result) this.$emit('changes-saved')
         } else {
           result = await updateTool(id, toolData)
