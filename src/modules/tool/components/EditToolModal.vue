@@ -21,8 +21,8 @@
                 :rules="typeRules"
               />
               <v-combobox
-                :clearable="true"
                 label="Группа"
+                :clearable="true"
                 v-model="toolModel.group"
                 :items="groupOptions"
                 item-text="text"
@@ -31,8 +31,8 @@
                 :rules="typeRules"
               />
               <v-combobox
-                :clearable="true"
                 label="Применяемость материала"
+                :clearable="true"
                 v-model="toolModel.mat"
                 :items="materialOptions"
                 item-text="text"
