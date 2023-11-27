@@ -30,6 +30,9 @@ routers.post('/tool', controllers.addTool);
 routers.put('/tool/:id', controllers.editTool);
 routers.delete('/tool/:id', controllers.deleteTool);
 
+// Добавление инструмента на склад с параметрами zakaz, norma, kolvo_sklad
+routers.post('/add-to-warehouse/:id', controllers.addToWarehouse);
+
 // Дополнительные ресурсы, связанные с инструментами
 routers.post('/add-material', controllers.addMaterial);
 routers.post('/add-type', controllers.addType);

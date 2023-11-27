@@ -516,6 +516,32 @@ async function getToolsWithInventoryInfo(req, res) {
   }
 }
 
+async function addToWarehouse(req, res) {
+  const { id } = req.params; // The ID of the tool to add to the warehouse
+  const { zakaz, norma, kolvo_sklad } = req.body;
+
+  try {
+    const result = await pool.query(
+      'UPDATE dbo.tool_nom SET zakaz=$1, norma=$2, kolvo_sklad=$3 WHERE id=$4 RETURNING *',
+      [zakaz, norma, kolvo_sklad, id],
+    );
+
+    if (result.rowCount > 0) {
+      res.json({
+        message: 'Инструмент успешно добавлен на склад.',
+        tool: result.rows[0],
+      });
+    } else {
+      res.status(404).send('Инструмент с указанным ID не найден.');
+    }
+  } catch (err) {
+    console.error('Error:', err.message);
+    console.error('Stack:', err.stack);
+    res.status(500).send(err.message);
+  }
+}
+
+
 
 
 // Экспорт контроллеров
@@ -530,6 +556,7 @@ module.exports = {
   addMaterial,
   addType,
   addGroup,
+  addToWarehouse,
   getLibrary,
   getToolNomSpec,
   getUniqueToolSpecs,
