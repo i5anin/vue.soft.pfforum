@@ -145,3 +145,14 @@ export async function deleteGroup(id) {
   }
 }
 
+export async function addToWarehouse(toolId, zakaz, norma, kolvo_sklad) {
+  try {
+    const response = await axios.post(`${BASE_URL}/add-to-warehouse/${toolId}`, { zakaz, norma, kolvo_sklad });
+    return response.data;
+  } catch (error) {
+    console.error('There has been a problem with your fetch operation:', error);
+    return null;
+  }
+}
+
+
