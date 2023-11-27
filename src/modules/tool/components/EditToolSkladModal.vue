@@ -5,21 +5,20 @@
       <v-container>
         <v-row>
           <v-col class='flex'>
-            <!--            левый столбец -->
+            <!-- левый столбец -->
             <div>
-              <h2 class='text-h4 my-3'>Название: {{ toolModel.type }}</h2>
-              <h2 class='text-h4 my-3'>Группа: {{ toolModel.group }}</h2>
-              <h2 class='text-h4 my-3'>Применяемость материала: {{ toolModel.mat }}</h2>
-              <h2 class='text-h4 my-3'>Маркировка: {{ toolModel.name }}</h2>
+              <p class='my-2'>Название: {{ toolModel.type }}</p>
+              <p class='my-2'>Группа: {{ toolModel.group }}</p>
+              <p class='my-2'>Применяемость материала: {{ toolModel.mat }}</p>
+              <p class='my-2'>Маркировка: {{ toolModel.name }}</p>
             </div>
 
-
-            <h2 class='text-h6'>Склад:</h2>
+            <h2 class='my-3'>Склад:</h2>
 
             <div>
-              <v-text-field label='Склад' v-model='toolModel.shag' :items='shagOptions' required />
-              <v-text-field label='Норма' v-model='toolModel.gabarit' :items='gabaritOptions' required />
-              <v-text-field label='Заказ' v-model='toolModel.width' :items='widthOptions' required />
+              <v-text-field label='Склад' v-model='toolModel.kolvo_sklad' required />
+              <v-text-field label='Норма' v-model='toolModel.norma' required />
+              <v-text-field label='Заказ' v-model='toolModel.zakaz' required />
             </div>
           </v-col>
         </v-row>
@@ -90,7 +89,7 @@ export default {
     shagOptions: [],
     gabaritOptions: [],
     widthOptions: [],
-    toolModel: { type: '', group: '', mat: '', name: '', radius: '', diam: '' },
+    toolModel: { shag: '', gabarit: '', width: '', group: '', type: '', mat: '', name: '' },
     typeOptions: [],
     groupOptions: [],
     materialOptions: [],
@@ -103,20 +102,19 @@ export default {
   watch: {
     tool: {
       immediate: true,
+
       handler(tool) {
         const { mat, group, type } = tool
         this.toolModel = {
-          ...tool,
-
-          mat: mat?.name === '[нет данных]' ? null : mat?.name,
-          group: group?.name === '[нет данных]' ? null : group?.name,
-          type: type?.name === '[нет данных]' ? null : type?.name,
-
-          radius: tool.spec?.radius,
-          shag: tool.spec?.shag,
-          gabarit: tool.spec?.gabarit,
-          width: tool.spec?.width,
-          diam: tool.spec?.diam, // Переименовано из diam
+          ...this.toolModel,
+          id: tool.id,
+          mat: mat?.name,
+          group: group?.name,
+          type: type?.name,
+          name: tool.name,
+          kolvo_sklad: tool.kolvo_sklad || '',
+          norma: tool.norma || '',
+          zakaz: tool.zakaz || '',
         }
         console.log('Загрузка модели Tool Model:', this.toolModel) // Добавленный console.log
       },
@@ -163,11 +161,11 @@ export default {
   },
   methods: {
     async onAddToWarehouse() {
-      const { id, shag, gabarit, width } = this.toolModel
+      const { id, norma, kolvo_sklad, zakaz } = this.toolModel
 
       try {
-        // Call the addToWarehouse function with the tool's id and specs
-        const result = await addToWarehouse(id, shag, gabarit, width)
+        // Вызываем функцию addToWarehouse, передавая необходимые данные
+        const result = await addToWarehouse(id, kolvo_sklad, norma, zakaz)
         if (result) {
           this.$emit('changes-saved')
         }

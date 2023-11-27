@@ -12,10 +12,10 @@
       </v-col>
     </v-row>
     <edit-tool-sklad-modal
-      v-if='openDialog'
-      :tool='editingTool'
-      @canceled='onClosePopup'
-      @changes-saved='onSaveChanges'
+      v-if="openDialog"
+      :tool="editingTool"
+      @canceled="onClosePopup"
+      @changes-saved="onSaveChanges"
     />
     <v-data-table-server
       noDataText='Нет данных'
@@ -81,8 +81,8 @@ export default {
   data() {
     return {
       openDialog: false,
-      tools: [],
       editingTool: null,
+      tools: [],
       headers: [
         // { title: '№', key: 'index', sortable: false },
 
@@ -108,6 +108,7 @@ export default {
     await this.getToolsTab()
   },
   methods: {
+
     async getToolsTab(page = this.currentPage, itemsPerPage = this.itemsPerPage, search = this.searchQuery) {
       this.loading = true
       try {
@@ -145,8 +146,8 @@ export default {
       this.openDialog = true
     },
     onEditRow(event, { item: tool }) {
-      this.editingTool = tool
-      this.openDialog = true
+      this.editingTool = { ...tool }; // Копируйте объект tool в editingTool
+      this.openDialog = true;
     },
   },
 }

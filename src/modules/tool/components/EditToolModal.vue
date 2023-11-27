@@ -144,7 +144,7 @@ import DeleteConfirmationDialog from '@/modules/tool/components/DeleteConfirmati
 export default {
   name: 'EditToolModal',
   emits: ['canceled', 'changes-saved'], //объявления пользовательских событий
-  //контракт обещаение что использщовать и что передавать от родительского компонента к дочернему
+  //props контракт обещаение что использщовать и что передавать от родительского компонента к дочернему
   props: {
     persistent: { type: Boolean, default: false },
     tool: {
