@@ -151,7 +151,7 @@ async function getTools(req, res) {
         norma: tool.norma,
         rad: tool.rad,
         zakaz: tool.zakaz,
-        geometry: tool.geometry,
+
         mat: {
           name: tool.mat_name,
           id: tool.mat_id,
@@ -165,6 +165,7 @@ async function getTools(req, res) {
           id: tool.group_id,
         },
         spec: {
+          geometry: tool.geometry,
           radius: tool.radius,
           shag: tool.shag,
           gabarit: tool.gabarit,
@@ -238,13 +239,14 @@ async function editTool(req, res) {
     gabarit,
     width,
     diam,
+    geometry,
   } = req.body
 
   try {
     const result = await pool.query(
-      'UPDATE dbo.tool_nom SET name=$1, group_id=$2, mat_id=$3, type_id=$4, kolvo_sklad=$5, norma=$6, zakaz=$7, radius=$8, shag=$9, gabarit=$10, width=$11, diam=$12 WHERE id=$13 RETURNING *',
-      [name, group_id, mat_id, type_id, kolvo_sklad, norma, zakaz, radius, shag, gabarit, width, diam, id],
-    )
+      'UPDATE dbo.tool_nom SET name=$1, group_id=$2, mat_id=$3, type_id=$4, kolvo_sklad=$5, norma=$6, zakaz=$7, radius=$8, shag=$9, gabarit=$10, width=$11, diam=$12, geometry=$13 WHERE id=$14 RETURNING *',
+      [name, group_id, mat_id, type_id, kolvo_sklad, norma, zakaz, radius, shag, gabarit, width, diam, geometry, id], // Add geometry here
+    );
 
     if (result.rowCount > 0) {
       res.json({

@@ -6,16 +6,16 @@
           v-model='searchQuery'
           label='Поиск'
           outlined
-          clearable
+          :clearable='true'
           @input='onSearch'
         ></v-text-field>
       </v-col>
     </v-row>
     <edit-tool-sklad-modal
-      v-if="openDialog"
-      :tool="editingTool"
-      @canceled="onClosePopup"
-      @changes-saved="onSaveChanges"
+      v-if='openDialog'
+      :tool='editingTool'
+      @canceled='onClosePopup'
+      @changes-saved='onSaveChanges'
     />
     <v-data-table-server
       noDataText='Нет данных'
@@ -73,7 +73,7 @@
 <script>
 import EditToolSkladModal from '@/modules/tool/components/EditToolSkladModal.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
-import { getToolsWithInventoryInfo  } from '@/api'
+import { getToolsWithInventoryInfo } from '@/api'
 
 export default {
   emits: ['changes-saved', 'canceled'],
@@ -146,8 +146,8 @@ export default {
       this.openDialog = true
     },
     onEditRow(event, { item: tool }) {
-      this.editingTool = { ...tool }; // Копируйте объект tool в editingTool
-      this.openDialog = true;
+      this.editingTool = { ...tool } // Копируйте объект tool в editingTool
+      this.openDialog = true
     },
   },
 }

@@ -56,6 +56,9 @@
       <template v-slot:item.mat_name='{ item }'>
         <span :style="item.mat.name === '[нет данных]' ? 'color: red;' : ''">{{ item.mat.name }}</span>
       </template>
+      <template v-slot:item.geometry='{ item }'>
+        <td>{{ item.spec.geometry }}</td>
+      </template>
       <template v-slot:item.radius='{ item }'>
         <td class='narrow-column'>{{ item.spec.radius }}</td>
       </template>
@@ -106,7 +109,7 @@ export default {
         { title: 'Шаг', key: 'shag', sortable: true },
         { title: 'Габариты', key: 'gabarit', sortable: true },
         { title: 'Вылет', key: 'width', sortable: true },
-
+        { title: 'Геометрия', key: 'geometry', sortable: true },
         { title: 'Маркировка', key: 'name', sortable: true },
       ],
       totalTools: 0,
@@ -153,7 +156,7 @@ export default {
     },
     onAddTool() {
       this.editingTool = {
-        id: null, group_name: '', type_name: '', mat_name: '', name: '',
+        id: null, group_name: '', type_name: '', mat_name: '', name: '', geometry: '',
         radius: 0, shag: 0, gabarit: 0, width: 0, diam: 0,
       }
       this.openDialog = true
