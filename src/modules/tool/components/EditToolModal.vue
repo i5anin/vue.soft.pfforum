@@ -1,94 +1,94 @@
 <template>
   <!--  <form @submit.prevent='onSubmit'>-->
-  <Modal :title='popupTitle'>
+  <Modal :title="popupTitle">
     <template #content>
       <v-container>
         <v-row>
-          <v-col class='flex'>
+          <v-col class="flex">
             <!--левый столбец -->
             <div>
               <!--https://vuetifyjs.com/en/components/combobox/#usage-->
               <!--https://vuetifyjs.com/en/api/v-combobox/#links-->
               <v-combobox
-                label='Название (Тип)'
-                v-model='toolModel.type'
-                :items='typeOptions'
-                item-text='text'
-                item-value='value'
+                label="Название (Тип)"
+                v-model="toolModel.type"
+                :items="typeOptions"
+                item-text="text"
+                item-value="value"
                 required
-                :clearable='true'
-                :counter='3'
-                :rules='typeRules'
+                :clearable="true"
+                :counter="3"
+                :rules="typeRules"
               />
               <v-combobox
-                label='Группа'
-                :clearable='true'
-                v-model='toolModel.group'
-                :items='groupOptions'
-                item-text='text'
-                item-value='value'
+                label="Группа"
+                :clearable="true"
+                v-model="toolModel.group"
+                :items="groupOptions"
+                item-text="text"
+                item-value="value"
                 required
-                :rules='typeRules'
+                :rules="typeRules"
               />
               <v-combobox
-                label='Применяемость материала'
-                :clearable='true'
-                v-model='toolModel.mat'
-                :items='materialOptions'
-                item-text='text'
-                item-value='value'
+                label="Применяемость материала"
+                :clearable="true"
+                v-model="toolModel.mat"
+                :items="materialOptions"
+                item-text="text"
+                item-value="value"
                 required
-                :rules='typeRules'
+                :rules="typeRules"
               />
 
               <v-combobox
-                label='Маркировка'
-                v-model='toolModel.name'
-                :items='nameOptions'
-                item-text='text'
-                item-value='value'
+                label="Маркировка"
+                v-model="toolModel.name"
+                :items="nameOptions"
+                item-text="text"
+                item-value="value"
                 required
-                :rules='typeRules'
+                :rules="typeRules"
               />
             </div>
-            <h2 class='text-h6'>Размеры:</h2>
+            <h2 class="text-h6">Размеры:</h2>
             <!-- правый столбец -->
             <div>
-              <v-col cols='8'>
+              <v-col cols="8">
                 <v-text-field
-                  label='Радиус (Пластины)'
-                  v-model='toolModel.radius'
+                  label="Радиус (Пластины)"
+                  v-model="toolModel.radius"
                   required
                 />
                 <v-text-field
-                  label='Диаметр (Сверла)'
-                  v-model='toolModel.diam'
+                  label="Диаметр (Сверла)"
+                  v-model="toolModel.diam"
                   required
                 />
               </v-col>
 
               <v-combobox
-                label='Геометрия'
-                v-model='toolModel.geometry'
-                :items='geometryOptions'
+                label="Геометрия"
+                v-model="toolModel.geometry"
+                :items="geometryOptions"
                 required
               />
               <v-combobox
-                label='Шаг'
-                v-model='toolModel.shag'
-                :items='shagOptions'
+                label="Шаг"
+                v-model="toolModel.shag"
+                :items="shagOptions"
                 required
               />
               <v-combobox
-                label='Габариты'
-                v-model='toolModel.gabarit'
-                :items='gabaritOptions'
+                label="Габариты"
+                v-model="toolModel.gabarit"
+                :items="gabaritOptions"
                 required
               />
               <v-combobox
-                label='Вылет (Резцы)'
-                v-model='toolModel.width'
-                :items='widthOptions'
+                label="Вылет (Резцы)"
+                v-model="toolModel.width"
+                :items="widthOptions"
                 required
               />
             </div>
@@ -98,29 +98,29 @@
     </template>
     <template #action>
       <v-btn
-        color='red darken-1'
-        variant='text'
-        @click='confirmDelete'
-        class='text-none text-subtitle-1 ml-3'
+        color="red darken-1"
+        variant="text"
+        @click="confirmDelete"
+        class="text-none text-subtitle-1 ml-3"
       >
         Удалить
       </v-btn>
       <v-spacer />
       <v-btn
-        color='red darken-1'
-        variant='text'
-        @click='onCancel'
-        class='text-none text-subtitle-1 ml-3'
+        color="red darken-1"
+        variant="text"
+        @click="onCancel"
+        class="text-none text-subtitle-1 ml-3"
       >
         Закрыть
       </v-btn>
       <v-btn
-        prepend-icon='mdi-check-circle'
-        @click='onSave'
-        class='text-none text-subtitle-1 pl-3'
-        color='blue darken-1'
-        size='large'
-        variant='flat'
+        prepend-icon="mdi-check-circle"
+        @click="onSave"
+        class="text-none text-subtitle-1 pl-3"
+        color="blue darken-1"
+        size="large"
+        variant="flat"
       >
         Сохранить
       </v-btn>
@@ -128,29 +128,21 @@
   </Modal>
   <!--  </form> -->
   <DeleteConfirmationDialog
-    :confirmDeleteDialog='confirmDeleteDialog'
-    :onDelete='onDelete'
+    :confirmDeleteDialog="confirmDeleteDialog"
+    :onDelete="onDelete"
   />
 </template>
 
 <script>
 import Modal from '@/components/shared/Modal.vue'
-import {
-  addTool,
-  deleteTool,
-  updateTool,
-  getLibraries,
-  addMaterial,
-  addType,
-  addGroup,
-  getUniqueToolSpecs,
-} from '@/api'
+import { deleteTool, getLibraries } from '@/api'
 import DeleteConfirmationDialog from '@/modules/tool/components/DeleteConfirmationDialog.vue'
+import { mapActions, mapGetters } from 'vuex'
 
 export default {
   name: 'EditToolModal',
-  emits: ['canceled', 'changes-saved'], //объявления пользовательских событий
-  //props контракт обещаение что использщовать и что передавать от родительского компонента к дочернему
+  emits: ['canceled', 'changes-saved'], // объявления пользовательских событий
+  //props контракт общение что использовать и что передавать от родительского компонента к дочернему
   props: {
     persistent: { type: Boolean, default: false },
     tool: {
@@ -173,10 +165,7 @@ export default {
   components: { DeleteConfirmationDialog, Modal },
   //реактивные данные
   data: () => ({
-    shagOptions: [],
-    gabaritOptions: [],
     geometryOptions: [],
-    widthOptions: [],
     toolModel: {
       type: '',
       group: '',
@@ -189,7 +178,6 @@ export default {
     typeOptions: [],
     groupOptions: [],
     materialOptions: [],
-    nameOptions: [],
     confirmDeleteDialog: false,
     typeSelected: false,
     selectedType: '',
@@ -203,7 +191,6 @@ export default {
     tool: {
       immediate: true,
       handler(tool) {
-
         const { mat, group, type } = tool
         this.toolModel = {
           ...tool,
@@ -225,13 +212,9 @@ export default {
   //data - используется для определения реактивных данных компонента, которые непосредственно управляют состоянием и поведением этого компонента.
   //watch - используется для отслеживания изменений в этих данных (или в других реактивных источниках) и выполнения дополнительных действий или логики в ответ на эти изменения.
   async mounted() {
+    this.fetchUniqueToolSpecs()
     // this.loadInitialData()
     try {
-      const uniqueSpecs = await getUniqueToolSpecs()
-      this.shagOptions = uniqueSpecs.shags
-      this.gabaritOptions = uniqueSpecs.gabarits
-      this.widthOptions = uniqueSpecs.widths
-      this.nameOptions = uniqueSpecs.names // Заполняем опции маркировки
     } catch (error) {
       console.error('Ошибка при получении уникальных спецификаций:', error)
     }
@@ -239,6 +222,7 @@ export default {
 
     try {
       const rawData = await getLibraries()
+      console.log(rawData)
       this.typeOptions = rawData.types.map((type) => type.name)
       this.groupOptions = rawData.groups.map((group) => group.name)
       this.materialOptions = rawData.materials.map((material) => material.name)
@@ -255,6 +239,12 @@ export default {
     }
   },
   computed: {
+    ...mapGetters('tool', [
+      'widthOptions',
+      'shagOptions',
+      'gabaritOptions',
+      'nameOptions',
+    ]),
     popupTitle() {
       return this.tool?.id != null
         ? `Редактировать инструмент ID: ${this.tool.id}`
@@ -262,9 +252,10 @@ export default {
     },
   },
   methods: {
+    ...mapActions('tool', ['fetchUniqueToolSpecs']),
     loadLastSavedData() {
       const lastSavedData = localStorage.getItem('lastSavedToolModel')
-      if (lastSavedData) {
+      if (lastSavedData == null) {
         const lastSavedToolModel = JSON.parse(lastSavedData)
         this.prependLastSavedData(lastSavedToolModel)
       }
@@ -280,8 +271,7 @@ export default {
 
     prependOptionIfNeeded(value, optionsList, propName) {
       if (value && !optionsList.some((option) => option.value === value)) {
-        const newOption = { text: value, value: value }
-        optionsList.unshift(newOption)
+        optionsList.unshift(value)
       }
     },
 
@@ -323,62 +313,8 @@ export default {
       this.$emit('canceled')
     },
     async onSave() {
-      const { id, group, type, mat, name } = this.toolModel
-
-      const { groups, materials, types } = await getLibraries()
-      let groupId = groups.find((g) => g.name === group)?.id
-      let matId = materials.find((m) => m.name === mat)?.id
-      let typeId = types.find((t) => t.name === type)?.id
-
-      if (!groupId) {
-        const newGroup = await addGroup(group)
-        groupId = newGroup.id
-      }
-      if (!matId) {
-        const newMaterial = await addMaterial(mat)
-        matId = newMaterial.id
-      }
-      if (!typeId) {
-        const newType = await addType(type)
-        typeId = newType.id
-      }
-
-      const toolData = {
-        id,
-        name,
-        group_id: parseInt(groupId),
-        mat_id: parseInt(matId),
-        type_id: parseInt(typeId),
-        radius: this.toolModel.radius,
-        shag: this.toolModel.shag,
-        gabarit: this.toolModel.gabarit,
-        width: this.toolModel.width,
-        diam: this.toolModel.diam,
-        geometry: this.toolModel.geometry,
-      }
-
-      try {
-        let result
-        if (id == null) {
-          result = await addTool(toolData)
-        } else {
-          result = await updateTool(id, toolData)
-        }
-
-        if (result) {
-          this.$emit('changes-saved')
-          localStorage.setItem(
-            'lastSavedToolModel',
-            JSON.stringify(this.toolModel),
-          )
-          console.log('Инструмент сохранен в localStorage')
-        }
-      } catch (error) {
-        console.error(
-          'Ошибка при добавлении/обновлении инструмента:',
-          error.message,
-        )
-      }
+      this.$store.dispatch('tool/onSaveToolModel', this.toolModel)
+      this.$emit('changes-saved')
     },
   },
 }

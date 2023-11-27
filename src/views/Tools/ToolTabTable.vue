@@ -1,42 +1,42 @@
 <template>
   <v-container>
     <v-row>
-      <v-col class='pa-3'>
+      <v-col class="pa-3">
         <v-text-field
-          v-model='searchQuery'
-          label='Поиск'
+          v-model="filters.search"
+          label="Поиск"
           outlined
           clearable
-          @input='onSearch'
+          @input="onSearch"
         ></v-text-field>
       </v-col>
-      <v-col class='pa-3 text-right'>
-        <v-btn color='blue' @click='onAddTool'>Новый инструмент</v-btn>
+      <v-col class="pa-3 text-right">
+        <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>
       </v-col>
     </v-row>
     <edit-tool-modal
-      v-if='openDialog'
-      :tool='editingTool'
-      :persistent='true'
-      @canceled='onClosePopup'
-      @changes-saved='onSaveChanges'
+      v-if="openDialog"
+      :tool="editingTool"
+      :persistent="true"
+      @canceled="onClosePopup"
+      @changes-saved="onSaveChanges"
     />
     <v-data-table-server
-      noDataText='Нет данных'
-      itemsPerPageText='Пункты на странице:'
-      loadingText='Загрузка данных'
-      :headers='headers'
-      :items='tools'
-      :itemsLength='totalTools'
-      :items-per-page='itemsPerPage'
-      :page.sync='currentPage'
-      :loading='loading'
-      density='compact'
-      :items-per-page-options='[15, 50, 100, 300]'
-      @update:page='getToolsTab'
-      @update:items-per-page='updateItemsPerPage'
-      @click:row='onEditRow'
-      class='elevation-1'
+      noDataText="Нет данных"
+      itemsPerPageText="Пункты на странице:"
+      loadingText="Загрузка данных"
+      :headers="ToolTableHeaders"
+      :items="tools"
+      :itemsLength="toolsTotalCount"
+      :items-per-page="filters.itemsPerPage"
+      :page.sync="filters.currentPage"
+      :loading="isLoading"
+      density="compact"
+      :items-per-page-options="[15, 50, 100, 300]"
+      @update:page="onChangePage"
+      @update:items-per-page="onUpdateItemsPerPage"
+      @click:row="onEditRow"
+      class="elevation-1"
       hover
       fixed-header
       headers
@@ -45,41 +45,52 @@
       <!--      <template class='gray' v-slot:item.index='{ index }'>-->
       <!--        <span style='color: gray; font-size: 0.7em;'>{{ index + 1 }}</span>-->
       <!--      </template>-->
-      <template v-slot:item.type_name='{ item }'>
-        <span :style="item.type.name === '[нет данных]' ? 'color: red;' : ''">{{ item.type.name }}</span>
+      <template v-slot:item.type_name="{ item }">
+        <span :style="item.type.name === '[нет данных]' ? 'color: red;' : ''">{{
+          item.type.name
+        }}</span>
       </template>
 
-      <template v-slot:item.group_name='{ item }'>
-        <span :style="item.group.name === '[нет данных]' ? 'color: red;' : ''">{{ item.group.name }}</span>
+      <template v-slot:item.group_name="{ item }">
+        <span
+          :style="item.group.name === '[нет данных]' ? 'color: red;' : ''"
+          >{{ item.group.name }}</span
+        >
       </template>
 
-      <template v-slot:item.mat_name='{ item }'>
-        <span :style="item.mat.name === '[нет данных]' ? 'color: red;' : ''">{{ item.mat.name }}</span>
+      <template v-slot:item.mat_name="{ item }">
+        <span :style="item.mat.name === '[нет данных]' ? 'color: red;' : ''">{{
+          item.mat.name
+        }}</span>
       </template>
-      <template v-slot:item.geometry='{ item }'>
+      <template v-slot:item.geometry="{ item }">
         <td>{{ item.spec.geometry }}</td>
       </template>
-      <template v-slot:item.radius='{ item }'>
-        <td class='narrow-column'>{{ item.spec.radius }}</td>
+      <template v-slot:item.radius="{ item }">
+        <td class="narrow-column">{{ item.spec.radius }}</td>
       </template>
-      <template v-slot:item.diam='{ item }'>
-        <td class='narrow-column'>{{ item.spec.diam }}</td>
+      <template v-slot:item.diam="{ item }">
+        <td class="narrow-column">{{ item.spec.diam }}</td>
       </template>
-      <template v-slot:item.shag='{ item }'>
-        <td class='narrow-column'>{{ item.spec.shag !== '0' ? item.spec.shag : '' }}</td>
+      <template v-slot:item.shag="{ item }">
+        <td class="narrow-column">
+          {{ item.spec.shag !== '0' ? item.spec.shag : '' }}
+        </td>
       </template>
-      <template v-slot:item.gabarit='{ item }'>
-        <td class='narrow-column'>{{ item.spec.gabarit !== '0' ? item.spec.gabarit : '' }}</td>
+      <template v-slot:item.gabarit="{ item }">
+        <td class="narrow-column">
+          {{ item.spec.gabarit !== '0' ? item.spec.gabarit : '' }}
+        </td>
       </template>
-      <template v-slot:item.width='{ item }'>
-        <td class='narrow-column'>{{ item.spec.width !== '0' ? item.spec.width : '' }}</td>
+      <template v-slot:item.width="{ item }">
+        <td class="narrow-column">
+          {{ item.spec.width !== '0' ? item.spec.width : '' }}
+        </td>
       </template>
 
-      <template v-slot:item.name='{ item }'>
-        <span style='white-space: nowrap;'>{{ item.name }}</span>
+      <template v-slot:item.name="{ item }">
+        <span style="white-space: nowrap">{{ item.name }}</span>
       </template>
-
-
     </v-data-table-server>
   </v-container>
 </template>
@@ -87,7 +98,8 @@
 <script>
 import EditToolModal from '@/modules/tool/components/EditToolModal.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
-import { getTools } from '@/api'
+import { mapActions, mapMutations, mapGetters } from 'vuex'
+import { ToolTableHeaders } from '@/views/Tools/config'
 
 export default {
   emits: ['changes-saved', 'canceled'],
@@ -95,69 +107,50 @@ export default {
   data() {
     return {
       openDialog: false,
-      tools: [],
       editingTool: null,
-      headers: [
-        // { title: '№', key: 'index', sortable: false },
-
-        { title: 'Название(Тип)', key: 'type_name', sortable: true },
-        { title: 'Группа', key: 'group_name', sortable: true },
-        { title: 'Применяемость материала', key: 'mat_name', sortable: true },
-
-        { title: 'Радиус', key: 'radius', sortable: true },
-        { title: 'Диаметр', key: 'diam', sortable: true },
-        { title: 'Шаг', key: 'shag', sortable: true },
-        { title: 'Габариты', key: 'gabarit', sortable: true },
-        { title: 'Вылет', key: 'width', sortable: true },
-        { title: 'Геометрия', key: 'geometry', sortable: true },
-        { title: 'Маркировка', key: 'name', sortable: true },
-      ],
-      totalTools: 0,
-      spec: 0,
-      itemsPerPage: 15,
-      currentPage: 1,
-      loading: false,
-      searchQuery: '',
+      ToolTableHeaders,
     }
   },
+  computed: {
+    ...mapGetters('tool', ['toolsTotalCount', 'tools', 'filters', 'isLoading']),
+  },
   async mounted() {
-    await this.getToolsTab()
+    await this.fetchToolsByFilter()
   },
   methods: {
-    async getToolsTab(page = this.currentPage, itemsPerPage = this.itemsPerPage, search = this.searchQuery) {
-      this.loading = true
-      try {
-        const response = await getTools(search, page, itemsPerPage)
-        this.currentPage = page
-        this.tools = response.tools
-        this.totalTools = response.totalCount
-        this.spec = response.tools.spec
-
-        console.log(response)
-      } catch (error) {
-        console.error('There has been a problem with your fetch operation:', error)
-      } finally {
-        this.loading = false
-      }
+    ...mapActions('tool', ['fetchToolsByFilter']),
+    ...mapMutations('tool', ['setCurrentPage', 'setItemsPerPage', 'setSearch']),
+    async onChangePage(page) {
+      this.setCurrentPage(page)
+      await this.fetchToolsByFilter()
     },
-    onSearch() {
-      this.getToolsTab()
+    async onSearch(event) {
+      this.setSearch(event.target.value)
+      await this.fetchToolsByFilter()
     },
-    updateItemsPerPage(itemsPerPage) {
-      this.itemsPerPage = itemsPerPage
-      this.getToolsTab()
+    async onUpdateItemsPerPage(itemsPerPage) {
+      this.setItemsPerPage(itemsPerPage)
+      await this.fetchToolsByFilter()
     },
     onClosePopup() {
       this.openDialog = false
     },
-    async onSaveChanges() {
+    onSaveChanges() {
       this.openDialog = false
-      await this.getToolsTab()
     },
     onAddTool() {
       this.editingTool = {
-        id: null, group_name: '', type_name: '', mat_name: '', name: '', geometry: '',
-        radius: 0, shag: 0, gabarit: 0, width: 0, diam: 0,
+        id: null,
+        group_name: '',
+        type_name: '',
+        mat_name: '',
+        name: '',
+        geometry: '',
+        radius: 0,
+        shag: 0,
+        gabarit: 0,
+        width: 0,
+        diam: 0,
       }
       this.openDialog = true
     },
@@ -175,5 +168,3 @@ export default {
   font-size: 0.9em;
 }
 </style>
-
-
