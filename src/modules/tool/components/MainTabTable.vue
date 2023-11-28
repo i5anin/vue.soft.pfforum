@@ -1,7 +1,6 @@
 <template>
   <v-container>
     <v-row>
-      <!-- Комбобокс для выбора типа инструмента -->
       <v-col cols="12" md="4">
         <v-combobox
           v-model="selectedType"
@@ -10,10 +9,9 @@
           item-value="id"
           label="Тип"
           return-object
+          @change="applyFilters"
         />
       </v-col>
-
-      <!-- Комбобокс для выбора группы инструмента -->
       <v-col cols="12" md="4">
         <v-combobox
           v-model="selectedGroup"
@@ -22,10 +20,9 @@
           item-value="id"
           label="Группа"
           return-object
+          @change="applyFilters"
         />
       </v-col>
-
-      <!-- Комбобокс для выбора материала инструмента -->
       <v-col cols="12" md="4">
         <v-combobox
           v-model="selectedMaterial"
@@ -34,10 +31,10 @@
           item-value="id"
           label="Материал"
           return-object
+          @change="applyFilters"
         />
       </v-col>
     </v-row>
-
     <v-row>
       <v-col class="pa-3">
         <v-text-field
@@ -174,9 +171,30 @@ export default {
       console.error('Ошибка при получении данных:', error)
     }
   },
+  watch: {
+    selectedType: 'onFilterChange',
+    selectedGroup: 'onFilterChange',
+    selectedMaterial: 'onFilterChange',
+    'filters.search': 'onFilterChange',
+    'filters.currentPage': 'onFilterChange',
+    'filters.itemsPerPage': 'onFilterChange',
+  },
   methods: {
     ...mapActions('tool', ['fetchToolsByFilter', 'fetchUniqueToolSpecs']),
     ...mapMutations('tool', ['setCurrentPage', 'setItemsPerPage', 'setSearch']),
+
+    async applyFilters() {
+      const filters = {
+        type: this.selectedType?.id,
+        group: this.selectedGroup?.id,
+        material: this.selectedMaterial?.id,
+        search: this.filters.search,
+        page: this.filters.currentPage,
+        limit: this.filters.itemsPerPage,
+      }
+      // Обновление списка инструментов с применением фильтров
+      await this.fetchToolsByFilter(filters)
+    },
     async onChangePage(page) {
       this.setCurrentPage(page)
       await this.fetchToolsByFilter()
