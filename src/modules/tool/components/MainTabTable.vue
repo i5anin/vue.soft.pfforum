@@ -3,6 +3,7 @@
     <v-row>
       <v-col cols="12" md="4">
         <v-combobox
+          :chips="true"
           v-model="selectedType"
           :items="typeOptions"
           item-text="name"
@@ -14,6 +15,7 @@
       </v-col>
       <v-col cols="12" md="4">
         <v-combobox
+          :chips="true"
           v-model="selectedGroup"
           :items="groupOptions"
           item-text="name"
@@ -25,6 +27,7 @@
       </v-col>
       <v-col cols="12" md="4">
         <v-combobox
+          :chips="true"
           v-model="selectedMaterial"
           :items="materialOptions"
           item-text="name"
