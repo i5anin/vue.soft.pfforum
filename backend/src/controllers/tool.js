@@ -39,11 +39,13 @@ async function getToolNomSpec(req, res) {
 async function getUniqueToolSpecs(req, res) {
   try {
     // Отдельные запросы для каждого поля с исключением пустых строк
-    const nameQuery = 'SELECT DISTINCT name FROM dbo.tool_nom WHERE name <> \'\'';
-    const widthQuery = 'SELECT DISTINCT width FROM dbo.tool_nom WHERE width <> \'\'';
-    const gabaritQuery = 'SELECT DISTINCT gabarit FROM dbo.tool_nom WHERE gabarit <> \'\'';
-    const shagQuery = 'SELECT DISTINCT shag FROM dbo.tool_nom WHERE shag <> \'\'';
-    const diamQuery = 'SELECT DISTINCT diam FROM dbo.tool_nom WHERE diam <> \'\'';
+    const nameQuery = "SELECT DISTINCT name FROM dbo.tool_nom WHERE name <> ''"
+    const widthQuery =
+      "SELECT DISTINCT width FROM dbo.tool_nom WHERE width <> ''"
+    const gabaritQuery =
+      "SELECT DISTINCT gabarit FROM dbo.tool_nom WHERE gabarit <> ''"
+    const shagQuery = "SELECT DISTINCT shag FROM dbo.tool_nom WHERE shag <> ''"
+    const diamQuery = "SELECT DISTINCT diam FROM dbo.tool_nom WHERE diam <> ''"
 
     // Выполнение запросов параллельно
     const [names, widths, gabarits, shags, diams] = await Promise.all([
@@ -51,23 +53,23 @@ async function getUniqueToolSpecs(req, res) {
       pool.query(widthQuery),
       pool.query(gabaritQuery),
       pool.query(shagQuery),
-      pool.query(diamQuery)
-    ]);
+      pool.query(diamQuery),
+    ])
 
     // Объединение результатов
     const result = {
-      names: names.rows.map(row => row.name),
-      widths: widths.rows.map(row => row.width),
-      gabarits: gabarits.rows.map(row => row.gabarit),
-      shags: shags.rows.map(row => row.shag),
-      diams: diams.rows.map(row => row.diam)
-    };
+      names: names.rows.map((row) => row.name),
+      widths: widths.rows.map((row) => row.width),
+      gabarits: gabarits.rows.map((row) => row.gabarit),
+      shags: shags.rows.map((row) => row.shag),
+      diams: diams.rows.map((row) => row.diam),
+    }
 
-    res.json(result);
+    res.json(result)
   } catch (err) {
-    console.error('Error:', err.message);
-    console.error('Stack:', err.stack);
-    res.status(500).send(err.message);
+    console.error('Error:', err.message)
+    console.error('Stack:', err.stack)
+    res.status(500).send(err.message)
   }
 }
 
@@ -133,7 +135,6 @@ async function getTools(req, res) {
     ${limitOffsetCondition}
 `
 
-
     // Выполнение запросов
     const [countResult, tools] = await Promise.all([
       pool.query(countQuery, search ? [`%${search}%`] : []),
@@ -194,7 +195,7 @@ async function deleteTool(req, res) {
       `DELETE
        FROM dbo.tool_nom
        WHERE id = $1`,
-      [id],
+      [id]
     )
     res.json({ result: true })
   } catch (error) {
@@ -204,12 +205,22 @@ async function deleteTool(req, res) {
 }
 
 async function addTool(req, res) {
-  const { name, group_id, mat_id, type_id, radius, shag, gabarit, width, diam } = req.body
+  const {
+    name,
+    group_id,
+    mat_id,
+    type_id,
+    radius,
+    shag,
+    gabarit,
+    width,
+    diam,
+  } = req.body
 
   try {
     const toolInsertResult = await pool.query(
       'INSERT INTO dbo.tool_nom (name, group_id, mat_id, type_id, radius, shag, gabarit, width, diam) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id',
-      [name, group_id, mat_id, type_id, radius, shag, gabarit, width, diam],
+      [name, group_id, mat_id, type_id, radius, shag, gabarit, width, diam]
     )
 
     const toolId = toolInsertResult.rows[0].id
@@ -222,7 +233,6 @@ async function addTool(req, res) {
     res.status(500).send(err.message)
   }
 }
-
 
 async function editTool(req, res) {
   const { id } = req.params
@@ -245,8 +255,23 @@ async function editTool(req, res) {
   try {
     const result = await pool.query(
       'UPDATE dbo.tool_nom SET name=$1, group_id=$2, mat_id=$3, type_id=$4, kolvo_sklad=$5, norma=$6, zakaz=$7, radius=$8, shag=$9, gabarit=$10, width=$11, diam=$12, geometry=$13 WHERE id=$14 RETURNING *',
-      [name, group_id, mat_id, type_id, kolvo_sklad, norma, zakaz, radius, shag, gabarit, width, diam, geometry, id], // Add geometry here
-    );
+      [
+        name,
+        group_id,
+        mat_id,
+        type_id,
+        kolvo_sklad,
+        norma,
+        zakaz,
+        radius,
+        shag,
+        gabarit,
+        width,
+        diam,
+        geometry,
+        id,
+      ] // Add geometry here
+    )
 
     if (result.rowCount > 0) {
       res.json({
@@ -262,7 +287,6 @@ async function editTool(req, res) {
     res.status(500).send(err.message)
   }
 }
-
 
 async function getLibrary(req, res) {
   try {
@@ -327,7 +351,7 @@ async function addMaterial(req, res) {
   try {
     const result = await pool.query(
       'INSERT INTO dbo.tool_mat (name) VALUES ($1) RETURNING *',
-      [name],
+      [name]
     )
     res.json(result.rows[0])
   } catch (err) {
@@ -341,7 +365,7 @@ async function addType(req, res) {
   try {
     const result = await pool.query(
       'INSERT INTO dbo.tool_type (name) VALUES ($1) RETURNING *',
-      [name],
+      [name]
     )
     res.json(result.rows[0])
   } catch (err) {
@@ -355,7 +379,7 @@ async function addGroup(req, res) {
   try {
     const result = await pool.query(
       'INSERT INTO dbo.tool_group (name) VALUES ($1) RETURNING *',
-      [name],
+      [name]
     )
     res.json(result.rows[0])
   } catch (err) {
@@ -504,7 +528,7 @@ async function getToolsWithInventoryInfo(req, res) {
         zakaz: tool.zakaz,
         mat: { name: tool.mat_name, id: tool.mat_id },
         type: { name: tool.type_name, id: tool.type_id },
-        group: { name: tool.group_name, id: tool.group_id }
+        group: { name: tool.group_name, id: tool.group_id },
       }
     })
 
@@ -521,32 +545,30 @@ async function getToolsWithInventoryInfo(req, res) {
 }
 
 async function addToWarehouse(req, res) {
-  const { id } = req.params; // The ID of the tool to add to the warehouse
-  const { zakaz, norma, kolvo_sklad } = req.body;
+  const { id } = req.params // ID инструмента
+  const { zakaz, norma, kolvo_sklad } = req.body // Полученные значения
 
   try {
     const result = await pool.query(
       'UPDATE dbo.tool_nom SET zakaz=$1, norma=$2, kolvo_sklad=$3 WHERE id=$4 RETURNING *',
-      [zakaz, norma, kolvo_sklad, id],
-    );
+      [zakaz, norma, kolvo_sklad, id] // Порядок параметров в соответствии с SQL-запросом
+    )
 
+    console.log(result)
     if (result.rowCount > 0) {
       res.json({
         message: 'Инструмент успешно добавлен на склад.',
         tool: result.rows[0],
-      });
+      })
     } else {
-      res.status(404).send('Инструмент с указанным ID не найден.');
+      res.status(404).send('Инструмент с указанным ID не найден.')
     }
   } catch (err) {
-    console.error('Error:', err.message);
-    console.error('Stack:', err.stack);
-    res.status(500).send(err.message);
+    console.error('Error:', err.message)
+    console.error('Stack:', err.stack)
+    res.status(500).send(err.message)
   }
 }
-
-
-
 
 // Экспорт контроллеров
 module.exports = {
@@ -564,5 +586,5 @@ module.exports = {
   getLibrary,
   getToolNomSpec,
   getUniqueToolSpecs,
-  getToolsWithInventoryInfo
+  getToolsWithInventoryInfo,
 }

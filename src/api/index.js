@@ -12,9 +12,15 @@ export async function getDatabaseInfo() {
   }
 }
 
-export async function getToolsWithInventoryInfo(search = '', page = 1, limit = 10) {
+export async function getToolsWithInventoryInfo(
+  search = '',
+  page = 1,
+  limit = 10
+) {
   try {
-    const response = await axios.get(`${BASE_URL}/tools-inventory`, { params: { search, page, limit } })
+    const response = await axios.get(`${BASE_URL}/tools-inventory`, {
+      params: { search, page, limit },
+    })
     response.data.totalCount = parseInt(response.data.totalCount, 10)
     return response.data
   } catch (error) {
@@ -23,10 +29,11 @@ export async function getToolsWithInventoryInfo(search = '', page = 1, limit = 1
   }
 }
 
-
 export async function getTools(search = '', page = 1, limit = 10) {
   try {
-    const response = await axios.get(`${BASE_URL}/tools`, { params: { search, page, limit } })
+    const response = await axios.get(`${BASE_URL}/tools`, {
+      params: { search, page, limit },
+    })
     response.data.totalCount = parseInt(response.data.totalCount, 10)
     return response.data
   } catch (error) {
@@ -50,7 +57,10 @@ export async function addTool(toolData) {
     const response = await axios.post(`${BASE_URL}/tool`, toolData)
     return response.data
   } catch (error) {
-    console.error('There has been a problem with your fetch operation:', error.response ? error.response.data : error.message)
+    console.error(
+      'There has been a problem with your fetch operation:',
+      error.response ? error.response.data : error.message
+    )
     return null
   }
 }
@@ -99,60 +109,65 @@ export async function login(credentials) {
     localStorage.setItem('token', response.data.token) // Возвращаем данные пользователя, если вам это необходимо
     return response.data
   } catch (error) {
-    console.error('There has been a problem with your login operation:', error.response ? error.response.data : error.message)
+    console.error(
+      'There has been a problem with your login operation:',
+      error.response ? error.response.data : error.message
+    )
     throw error // Перебросьте ошибку, чтобы вызывающий код мог ее обработать
   }
 }
 
 export async function getUniqueToolSpecs() {
   try {
-    const response = await axios.get(`${BASE_URL}/unique-tool-specs`);
-    return response.data;
+    const response = await axios.get(`${BASE_URL}/unique-tool-specs`)
+    return response.data
   } catch (error) {
-    console.error('There has been a problem with your fetch operation:', error);
-    throw error;
+    console.error('There has been a problem with your fetch operation:', error)
+    throw error
   }
 }
 
-
 export async function deleteMaterial(id) {
   try {
-    const response = await axios.delete(`${BASE_URL}/material/${id}`);
-    return response.data;
+    const response = await axios.delete(`${BASE_URL}/material/${id}`)
+    return response.data
   } catch (error) {
-    console.error('There has been a problem with your fetch operation:', error);
-    return null;
+    console.error('There has been a problem with your fetch operation:', error)
+    return null
   }
 }
 
 export async function deleteType(id) {
   try {
-    const response = await axios.delete(`${BASE_URL}/type/${id}`);
-    return response.data;
+    const response = await axios.delete(`${BASE_URL}/type/${id}`)
+    return response.data
   } catch (error) {
-    console.error('There has been a problem with your fetch operation:', error);
-    return null;
+    console.error('There has been a problem with your fetch operation:', error)
+    return null
   }
 }
 
 export async function deleteGroup(id) {
   try {
-    const response = await axios.delete(`${BASE_URL}/group/${id}`);
-    return response.data;
+    const response = await axios.delete(`${BASE_URL}/group/${id}`)
+    return response.data
   } catch (error) {
-    console.error('There has been a problem with your fetch operation:', error);
-    return null;
+    console.error('There has been a problem with your fetch operation:', error)
+    return null
   }
 }
 
-export async function addToWarehouse(toolId, zakaz, norma, kolvo_sklad) {
+export async function addToWarehouse(toolId, kolvo_sklad, norma, zakaz) {
   try {
-    const response = await axios.post(`${BASE_URL}/add-to-warehouse/${toolId}`, { zakaz, norma, kolvo_sklad });
-    return response.data;
+    const response = await axios.post(
+      `${BASE_URL}/add-to-warehouse/${toolId}`,
+      { kolvo_sklad, norma, zakaz }
+    )
+    console.log('Ответ сервера:', response)
+    return response.data
   } catch (error) {
-    console.error('There has been a problem with your fetch operation:', error);
-    return null;
+    console.error('Проблема с запросом на сервер:', error)
+    console.log(error.response) // Добавьте это для вывода ответа сервера
+    return null
   }
 }
-
-

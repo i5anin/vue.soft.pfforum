@@ -182,12 +182,12 @@ export default {
 
   methods: {
     async onAddToWarehouse() {
-      const { id, norma, kolvo_sklad, zakaz } = this.toolModel
+      const { id, norma, kolvo_sklad } = this.toolModel
       try {
+        let zakaz = norma - kolvo_sklad
         const result = await addToWarehouse(id, kolvo_sklad, norma, zakaz)
-        if (result) {
-          this.$emit('changes-saved')
-        }
+        // console.log('Результат:', result)
+        if (result) this.$emit('changes-saved')
       } catch (error) {
         console.error('Ошибка при добавлении на склад:', error.message)
       }
