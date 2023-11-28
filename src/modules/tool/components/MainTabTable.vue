@@ -22,7 +22,7 @@
           item-value="id"
           label="Группа"
           return-object
-        ></v-combobox>
+        />
       </v-col>
 
       <!-- Комбобокс для выбора материала инструмента -->
@@ -34,7 +34,7 @@
           item-value="id"
           label="Материал"
           return-object
-        ></v-combobox>
+        />
       </v-col>
     </v-row>
 
@@ -46,7 +46,7 @@
           outlined
           :clearable="true"
           @input="onSearch"
-        ></v-text-field>
+        />
       </v-col>
       <v-col class="pa-3 text-right">
         <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>
