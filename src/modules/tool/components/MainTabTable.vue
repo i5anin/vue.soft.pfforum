@@ -1,12 +1,50 @@
 <template>
   <v-container>
     <v-row>
+      <!-- Комбобокс для выбора типа инструмента -->
+      <v-col cols="12" md="4">
+        <v-combobox
+          v-model="selectedType"
+          :items="types"
+          item-text="name"
+          item-value="id"
+          label="Тип"
+          return-object
+        ></v-combobox>
+      </v-col>
+
+      <!-- Комбобокс для выбора группы инструмента -->
+      <v-col cols="12" md="4">
+        <v-combobox
+          v-model="selectedGroup"
+          :items="groups"
+          item-text="name"
+          item-value="id"
+          label="Группа"
+          return-object
+        ></v-combobox>
+      </v-col>
+
+      <!-- Комбобокс для выбора материала инструмента -->
+      <v-col cols="12" md="4">
+        <v-combobox
+          v-model="selectedMaterial"
+          :items="materials"
+          item-text="name"
+          item-value="id"
+          label="Материал"
+          return-object
+        ></v-combobox>
+      </v-col>
+    </v-row>
+
+    <v-row>
       <v-col class="pa-3">
         <v-text-field
           v-model="filters.search"
           label="Поиск"
           outlined
-          clearable
+          :clearable="true"
           @input="onSearch"
         ></v-text-field>
       </v-col>
@@ -42,9 +80,9 @@
       headers
       width
     >
-      <!--      <template class='gray' v-slot:item.index='{ index }'>-->
-      <!--        <span style='color: gray; font-size: 0.7em;'>{{ index + 1 }}</span>-->
-      <!--      </template>-->
+      <template class="gray" v-slot:item.index="{ index }">
+        <span style="color: gray; font-size: 0.7em">{{ index + 1 }}</span>
+      </template>
       <template v-slot:item.type_name="{ item }">
         <span :style="item.type.name === '[нет данных]' ? 'color: red;' : ''">{{
           item.type.name
