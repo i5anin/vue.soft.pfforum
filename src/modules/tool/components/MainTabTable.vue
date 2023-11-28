@@ -5,19 +5,19 @@
       <v-col cols="12" md="4">
         <v-combobox
           v-model="selectedType"
-          :items="types"
+          :items="typeOptions"
           item-text="name"
           item-value="id"
           label="Тип"
           return-object
-        ></v-combobox>
+        />
       </v-col>
 
       <!-- Комбобокс для выбора группы инструмента -->
       <v-col cols="12" md="4">
         <v-combobox
           v-model="selectedGroup"
-          :items="groups"
+          :items="groupOptions"
           item-text="name"
           item-value="id"
           label="Группа"
@@ -29,7 +29,7 @@
       <v-col cols="12" md="4">
         <v-combobox
           v-model="selectedMaterial"
-          :items="materials"
+          :items="materialOptions"
           item-text="name"
           item-value="id"
           label="Материал"
@@ -138,6 +138,7 @@ import EditToolModal from '@/modules/tool/components/EditToolModal.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
 import { ToolTableHeaders } from '@/modules/tool/components/config'
+import { getLibraries } from '@/api'
 
 export default {
   emits: ['changes-saved', 'canceled'],
@@ -147,6 +148,14 @@ export default {
       openDialog: false,
       editingTool: null,
       ToolTableHeaders,
+
+      selectedType: null,
+      selectedGroup: null,
+      selectedMaterial: null,
+
+      typeOptions: [],
+      groupOptions: [],
+      materialOptions: [],
     }
   },
   computed: {
@@ -154,9 +163,19 @@ export default {
   },
   async mounted() {
     await this.fetchToolsByFilter()
+    await this.fetchUniqueToolSpecs()
+
+    try {
+      const rawData = await getLibraries()
+      this.typeOptions = rawData.types.map((type) => type.name)
+      this.groupOptions = rawData.groups.map((group) => group.name)
+      this.materialOptions = rawData.materials.map((material) => material.name)
+    } catch (error) {
+      console.error('Ошибка при получении данных:', error)
+    }
   },
   methods: {
-    ...mapActions('tool', ['fetchToolsByFilter']),
+    ...mapActions('tool', ['fetchToolsByFilter', 'fetchUniqueToolSpecs']),
     ...mapMutations('tool', ['setCurrentPage', 'setItemsPerPage', 'setSearch']),
     async onChangePage(page) {
       this.setCurrentPage(page)

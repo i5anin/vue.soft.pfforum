@@ -226,14 +226,6 @@ export default {
       this.typeOptions = rawData.types.map((type) => type.name)
       this.groupOptions = rawData.groups.map((group) => group.name)
       this.materialOptions = rawData.materials.map((material) => material.name)
-
-      if (this.toolModel.diam) {
-        this.selectedType = 'Диаметр'
-      } else if (this.toolModel.radius) {
-        this.selectedType = 'Радиус'
-      } else {
-        this.selectedType = '' // Очищаем выбранный тип, если оба поля пусты
-      }
     } catch (error) {
       console.error('Ошибка при получении данных:', error)
     }
