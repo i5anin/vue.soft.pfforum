@@ -153,18 +153,9 @@ async function getTools(req, res) {
         rad: tool.rad,
         zakaz: tool.zakaz,
 
-        mat: {
-          name: tool.mat_name,
-          id: tool.mat_id,
-        },
-        type: {
-          name: tool.type_name,
-          id: tool.type_id,
-        },
-        group: {
-          name: tool.group_name,
-          id: tool.group_id,
-        },
+        mat: { name: tool.mat_name, id: tool.mat_id },
+        type: { name: tool.type_name, id: tool.type_id },
+        group: { name: tool.group_name, id: tool.group_id },
         spec: {
           geometry: tool.geometry,
           radius: tool.radius,
@@ -465,6 +456,7 @@ async function deleteGroup(req, res) {
   }
 }
 
+//sklad
 async function getToolsWithInventoryInfo(req, res) {
   try {
     // Получение параметров запроса
