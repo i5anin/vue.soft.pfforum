@@ -77,74 +77,94 @@ async function getUniqueToolSpecs(req, res) {
 async function getTools(req, res) {
   try {
     // Получение параметров запроса
-    const { search, type, group, material, page = 1, limit = 15 } = req.query
+    const { search } = req.query
+    const page = parseInt(req.query.page || 1, 10)
+    const limit = parseInt(req.query.limit || 15, 10)
     const offset = (page - 1) * limit
 
-    // Подготовка условий фильтрации и параметров запроса
-    let queryParts = []
-    let queryParams = []
+    // Подготовка параметров для запросов
+    const searchCondition = search ? `WHERE tool_nom.name ILIKE $1` : ''
+    const limitOffsetCondition = search
+      ? `LIMIT $2::bigint OFFSET $3::bigint`
+      : `LIMIT $1::bigint OFFSET $2::bigint`
+    const queryParams = search
+      ? [`%${search}%`, limit, offset]
+      : [limit, offset]
 
-    if (search) {
-      queryParams.push(`%${search}%`)
-      queryParts.push(`tool_nom.name ILIKE $${queryParams.length}`)
-    }
-    if (type) {
-      queryParams.push(type)
-      queryParts.push(`tool_nom.type_id = $${queryParams.length}`)
-    }
-    if (group) {
-      queryParams.push(group)
-      queryParts.push(`tool_nom.group_id = $${queryParams.length}`)
-    }
-    if (material) {
-      queryParams.push(material)
-      queryParts.push(`tool_nom.mat_id = $${queryParams.length}`)
-    }
-
-    const whereClause = queryParts.length
-      ? `WHERE ${queryParts.join(' AND ')}`
-      : ''
-    queryParams.push(limit, offset)
-
-    // Формирование SQL-запроса
-    const toolQuery = `
-      SELECT tool_nom.id,
-             tool_nom.name,
-             tool_nom.group_id,
-             tool_nom.mat_id,
-             tool_nom.type_id,
-             COALESCE(tool_group.name, '[нет данных]') as group_name,
-             COALESCE(tool_mat.name, '[нет данных]') as mat_name,
-             COALESCE(tool_type.name, '[нет данных]') as type_name,
-             tool_nom.radius,
-             tool_nom.shag,
-             tool_nom.gabarit,
-             tool_nom.width,
-             tool_nom.diam,
-             tool_nom.geometry
-      FROM dbo.tool_nom
-      LEFT JOIN dbo.tool_group ON tool_nom.group_id = tool_group.id
-      LEFT JOIN dbo.tool_mat ON tool_nom.mat_id = tool_mat.id
-      LEFT JOIN dbo.tool_type ON tool_nom.type_id = tool_type.id
-      ${whereClause}
-      ORDER BY tool_nom.id DESC
-      LIMIT $${queryParams.length - 1} OFFSET $${queryParams.length}
+    // Запрос на получение общего количества инструментов
+    const countQuery = `
+      SELECT COUNT(*)::INTEGER
+      FROM dbo.tool_nom ${searchCondition}
     `
 
-    // Запрос на подсчет общего количества инструментов
-    const countQuery = `SELECT COUNT(*) FROM dbo.tool_nom ${whereClause}`
-    const countResult = await pool.query(countQuery, queryParams.slice(0, -2))
-    const totalCount = parseInt(countResult.rows[0].count, 10)
+    // Запрос на получение инструментов
+    const toolQuery = `
+  SELECT tool_nom.id,
+         tool_nom.name,
+         tool_nom.group_id,
+         tool_nom.mat_id,
+         tool_nom.type_id,
+         COALESCE (tool_group.name, '[нет данных]') as group_name,
+         COALESCE (tool_mat.name, '[нет данных]')   as mat_name,
+         COALESCE (tool_type.name, '[нет данных]')  as type_name,
+         tool_nom.radius,
+         tool_nom.shag,
+         tool_nom.gabarit,
+         tool_nom.width,
+         tool_nom.diam,
+         tool_nom.geometry
+  FROM dbo.tool_nom as tool_nom
+         LEFT JOIN
+       dbo.tool_group as tool_group
+       ON
+         tool_nom.group_id = tool_group.id
+         LEFT JOIN
+       dbo.tool_mat as tool_mat
+       ON
+         tool_nom.mat_id = tool_mat.id
+         LEFT JOIN
+       dbo.tool_type as tool_type
+       ON
+          tool_nom.type_id = tool_type.id
+         LEFT JOIN
+       dbo.tool_nom as tool_nom_spec
+       ON
+          tool_nom.id = tool_nom_spec.id
+          ${searchCondition}
+  ORDER BY tool_nom.id DESC
+    ${limitOffsetCondition}
+`
 
-    // Выполнение запроса к базе данных
-    const toolsResult = await pool.query(toolQuery, queryParams)
-    const formattedTools = toolsResult.rows.map((tool) => {
+    // Выполнение запросов
+    const [countResult, tools] = await Promise.all([
+      pool.query(countQuery, search ? [`%${search}%`] : []),
+      pool.query(toolQuery, queryParams),
+    ])
+
+    const totalCount = countResult.rows[0].count
+
+    // Форматирование данных инструментов
+    const formattedTools = tools.rows.map((tool) => {
       return {
         id: tool.id,
         name: tool.name,
-        group: { name: tool.group_name, id: tool.group_id },
-        material: { name: tool.mat_name, id: tool.mat_id },
-        type: { name: tool.type_name, id: tool.type_id },
+        kolvo_sklad: tool.kolvo_sklad,
+        norma: tool.norma,
+        rad: tool.rad,
+        zakaz: tool.zakaz,
+
+        mat: {
+          name: tool.mat_name,
+          id: tool.mat_id,
+        },
+        type: {
+          name: tool.type_name,
+          id: tool.type_id,
+        },
+        group: {
+          name: tool.group_name,
+          id: tool.group_id,
+        },
         spec: {
           geometry: tool.geometry,
           radius: tool.radius,
