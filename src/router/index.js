@@ -1,22 +1,22 @@
 // src/index.js
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '@/views/Home.vue'
-import Tool from '@/views/Tools/ToolTab.vue'
+import Tool from '@/modules/tool/components/Tabs.vue'
 import Login from '@/views/Login.vue'
 import Error404 from '@/views/404.vue'
 
 export const Routes = {
-  LOGIN: '/Login'
+  LOGIN: '/Login',
 }
 
 const authGuard = {
-  Home (to, from, next) {
+  Home(to, from, next) {
     if (localStorage.getItem('user')) {
       next()
     } else {
       next('/Login')
     }
-  }
+  },
 }
 
 const routes = [

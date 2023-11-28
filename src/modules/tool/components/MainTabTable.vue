@@ -99,7 +99,7 @@
 import EditToolModal from '@/modules/tool/components/EditToolModal.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
-import { ToolTableHeaders } from '@/views/Tools/config'
+import { ToolTableHeaders } from '@/modules/tool/components/config'
 
 export default {
   emits: ['changes-saved', 'canceled'],
