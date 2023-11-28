@@ -1,24 +1,28 @@
 <template>
   <!--  <form @submit.prevent='onSubmit'>-->
-  <Modal :title='popupTitle'>
+  <Modal :title="popupTitle">
     <template #content>
       <v-container>
         <v-row>
-          <v-col class='flex'>
+          <v-col class="flex">
             <!-- левый столбец -->
             <div>
-              <p class='my-2'>Название: {{ toolModel.type }}</p>
-              <p class='my-2'>Группа: {{ toolModel.group }}</p>
-              <p class='my-2'>Применяемость материала: {{ toolModel.mat }}</p>
-              <p class='my-2'>Маркировка: {{ toolModel.name }}</p>
+              <p class="my-2">Название: {{ toolModel.type }}</p>
+              <p class="my-2">Группа: {{ toolModel.group }}</p>
+              <p class="my-2">Применяемость материала: {{ toolModel.mat }}</p>
+              <p class="my-2">Маркировка: {{ toolModel.name }}</p>
             </div>
 
-            <h2 class='my-3'>Склад:</h2>
+            <h2 class="my-3">Склад:</h2>
 
             <div>
-              <v-text-field label='Склад' v-model='toolModel.kolvo_sklad' required />
-              <v-text-field label='Норма' v-model='toolModel.norma' required />
-              <p class='my-2'>Заказ: {{ calculatedZakaz }}</p>
+              <v-text-field
+                label="Склад"
+                v-model="toolModel.kolvo_sklad"
+                required
+              />
+              <v-text-field label="Норма" v-model="toolModel.norma" required />
+              <p class="my-2">Заказ: {{ calculatedZakaz }}</p>
             </div>
           </v-col>
         </v-row>
@@ -27,27 +31,30 @@
     <template #action>
       <v-spacer />
       <v-btn
-        color='red darken-1'
-        variant='text'
-        @click='onCancel'
-        class='text-none text-subtitle-1 ml-3'>
+        color="red darken-1"
+        variant="text"
+        @click="onCancel"
+        class="text-none text-subtitle-1 ml-3"
+      >
         Закрыть
       </v-btn>
-      <v-btn prepend-icon='mdi-check-circle'
-             @click='onAddToWarehouse'
-             class='text-none text-subtitle-1 pl-3'
-             color='blue darken-1'
-             size='large'
-             variant='flat'>
+      <v-btn
+        prepend-icon="mdi-check-circle"
+        @click="onAddToWarehouse"
+        class="text-none text-subtitle-1 pl-3"
+        color="blue darken-1"
+        size="large"
+        variant="flat"
+      >
         Сохранить
       </v-btn>
     </template>
   </Modal>
   <!--  </form> -->
   <DeleteConfirmationDialog
-    :confirmDeleteDialog='confirmDeleteDialog'
-    :onDelete='onDelete'
-    @update:confirmDeleteDialog='updateConfirmDeleteDialog'
+    :confirmDeleteDialog="confirmDeleteDialog"
+    :onDelete="onDelete"
+    @update:confirmDeleteDialog="updateConfirmDeleteDialog"
   />
 </template>
 
@@ -61,7 +68,8 @@ import {
   addMaterial,
   addType,
   addGroup,
-  getUniqueToolSpecs, addToWarehouse,
+  getUniqueToolSpecs,
+  addToWarehouse,
 } from '@/api'
 import DeleteConfirmationDialog from '@/modules/tool/components/DeleteConfirmationDialog.vue'
 
@@ -89,7 +97,15 @@ export default {
     shagOptions: [],
     gabaritOptions: [],
     widthOptions: [],
-    toolModel: { shag: '', gabarit: '', width: '', group: '', type: '', mat: '', name: '' },
+    toolModel: {
+      shag: '',
+      gabarit: '',
+      width: '',
+      group: '',
+      type: '',
+      mat: '',
+      name: '',
+    },
     typeOptions: [],
     groupOptions: [],
     materialOptions: [],
@@ -121,7 +137,6 @@ export default {
     },
   },
   async mounted() {
-
     try {
       const uniqueSpecs = await getUniqueToolSpecs()
       this.shagOptions = uniqueSpecs.shags
@@ -134,10 +149,9 @@ export default {
 
     try {
       const rawData = await getLibraries()
-      this.typeOptions = rawData.types.map(type => type.name)
-      this.groupOptions = rawData.groups.map(group => group.name)
-      this.materialOptions = rawData.materials.map(material => material.name)
-
+      this.typeOptions = rawData.types.map((type) => type.name)
+      this.groupOptions = rawData.groups.map((group) => group.name)
+      this.materialOptions = rawData.materials.map((material) => material.name)
 
       if (this.toolModel.diam) {
         this.selectedType = 'Диаметр'
@@ -146,8 +160,6 @@ export default {
       } else {
         this.selectedType = '' // Очищаем выбранный тип, если оба поля пусты
       }
-
-
     } catch (error) {
       console.error('Ошибка при получении данных:', error)
     }
@@ -155,11 +167,11 @@ export default {
   computed: {
     calculatedZakaz() {
       // Убедитесь, что значения kolvo_sklad и norma являются числами
-      const kolvoSklad = parseFloat(this.toolModel.kolvo_sklad) || 0;
-      const norma = parseFloat(this.toolModel.norma) || 0;
+      const kolvoSklad = parseFloat(this.toolModel.kolvo_sklad) || 0
+      const norma = parseFloat(this.toolModel.norma) || 0
 
       // Рассчитайте значение заказа
-      return   norma - kolvoSklad;
+      return norma - kolvoSklad
     },
     popupTitle() {
       return this.tool?.id != null
@@ -169,13 +181,9 @@ export default {
   },
 
   methods: {
-
-
     async onAddToWarehouse() {
       const { id, norma, kolvo_sklad, zakaz } = this.toolModel
-
       try {
-        // Вызываем функцию addToWarehouse, передавая необходимые данные
         const result = await addToWarehouse(id, kolvo_sklad, norma, zakaz)
         if (result) {
           this.$emit('changes-saved')
@@ -185,15 +193,13 @@ export default {
       }
     },
 
-    updateConfirmDeleteDialog() {
-    },
+    updateConfirmDeleteDialog() {},
     parseToFloat(value) {
       if (value === null) {
         return 0 // Или другое значение по умолчанию
       }
       return parseFloat(value.toString().replace(',', '.'))
     },
-
 
     confirmDelete() {
       this.confirmDeleteDialog = true
@@ -213,18 +219,16 @@ export default {
       this.$emit('canceled')
     },
     async onSave() {
-      const {
-        id, group, type, mat, name,
-      } = this.toolModel
+      const { id, group, type, mat, name } = this.toolModel
 
       const rawData = await getLibraries()
       const groups = rawData.groups
       const materials = rawData.materials
       const types = rawData.types
 
-      let groupId = groups.find(g => g.name === group)?.id
-      let matId = materials.find(m => m.name === mat)?.id
-      let typeId = types.find(t => t.name === type)?.id
+      let groupId = groups.find((g) => g.name === group)?.id
+      let matId = materials.find((m) => m.name === mat)?.id
+      let typeId = types.find((t) => t.name === type)?.id
 
       if (!groupId) {
         const newGroup = await addGroup(group)
@@ -249,7 +253,6 @@ export default {
         norma: this.toolModel.norma,
         zakaz: this.toolModel.zakaz,
         kolvo_sklad: this.toolModel.kolvo_sklad,
-
       }
       // console.log(toolData)
 
@@ -270,6 +273,3 @@ export default {
   },
 }
 </script>
-
-
-
