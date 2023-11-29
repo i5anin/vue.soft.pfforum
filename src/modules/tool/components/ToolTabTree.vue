@@ -1,7 +1,7 @@
 <template>
   <div>
     <button @click="addNewNode">Add New Node</button>
-    <vue3-jstree v-if="treeData.length > 0" :data="treeData" />
+    <vue3-jstree v-if="treeData.nodes.length > 0" :data="treeData.nodes" />
     <p v-else>No tree data available</p>
   </div>
 </template>
@@ -12,18 +12,17 @@ import Vue3Jstree from '@ventralnet/vue3-jstree'
 import { getToolsTree } from '@/api'
 
 export default {
-  components: {
-    Vue3Jstree,
-  },
+  components: { Vue3Jstree },
   setup() {
-    const treeData = ref([])
+    const treeData = ref({ label: 'root', nodes: [] })
 
     // Method to fetch the initial tree data
     const fetchTreeData = async () => {
       try {
         const data = await getToolsTree()
+        console.log('Fetched data:', data) // Add this line to log the fetched data
         if (Array.isArray(data)) {
-          treeData.value = data
+          treeData.value.nodes = data
         } else {
           console.error('Fetched data is not an array:', data)
         }
@@ -36,16 +35,18 @@ export default {
     const addNewNode = () => {
       console.log('Adding new node')
       const newNode = {
-        id: new Date().getTime(), // Generating a unique ID
-        name: 'New Node', // Name of the new node
-        children: [], // Empty children array
+        label: 'New Node', // Label of the new node
+        nodes: [], // Empty nodes array
       }
 
-      // Ensure treeData is an array before pushing
-      if (Array.isArray(treeData.value)) {
-        treeData.value.push(newNode) // Adding the new node at the root level
+      console.log('newNode init')
+
+      // Ensure treeData.nodes is an array before pushing
+      if (Array.isArray(treeData.value.nodes)) {
+        console.log(treeData)
+        treeData.value.nodes.push(newNode) // Adding the new node at the root level
       } else {
-        console.error('treeData is not an array:', treeData.value)
+        console.error('treeData.nodes is not an array:', treeData.value.nodes)
       }
     }
 
@@ -55,7 +56,3 @@ export default {
   },
 }
 </script>
-
-<style>
-/* Your custom styles go here */
-</style>

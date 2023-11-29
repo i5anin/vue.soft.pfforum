@@ -22,9 +22,9 @@ async function buildTreeData(parentId = 0) {
     for (const row of rows) {
       const children = await buildTreeData(row.id)
       treeData.push({
-        id: row.id,
-        name: row.name,
-        children: children,
+        // id: row.id,
+        label: row.name,
+        nodes: children,
       })
     }
 
