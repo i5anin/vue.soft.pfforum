@@ -1,37 +1,51 @@
 <template>
-  <vue-jstree :data="treeData" :multiple="true" :checkbox="true"></vue-jstree>
+  <div>
+    <button @click="addNewNode">Add New Node</button>
+    <vue3-jstree :data="treeData" />
+  </div>
 </template>
 
 <script>
-import VueJstree from 'vue-jstree'
+import { ref, onMounted } from 'vue'
+import Vue3Jstree from '@ventralnet/vue3-jstree'
 import { getToolsTree } from '@/api'
 
 export default {
-  components: { VueJstree },
-  data() {
-    return {
-      treeData: [],
-    }
+  components: {
+    Vue3Jstree,
   },
-  async created() {
-    try {
-      let tree = await getToolsTree()
-      tree = this.formatTreeData(tree)
-      console.log(tree)
-      this.treeData = tree
-    } catch (error) {
-      console.error('Error loading tree data:', error)
+  setup() {
+    const treeData = ref([])
+
+    // Method to fetch the initial tree data
+    const fetchTreeData = async () => {
+      try {
+        const data = await getToolsTree()
+        treeData.value = data
+      } catch (error) {
+        console.error('Error fetching tree data:', error)
+      }
     }
-  },
-  methods: {
-    formatTreeData(nodes) {
-      return nodes.map((node) => ({
-        id: node.id,
-        text: node.name,
-        children:
-          node.children.length > 0 ? this.formatTreeData(node.children) : [],
-      }))
-    },
+
+    // Method to add a new node
+    const addNewNode = () => {
+      console.log('addNewNode')
+      const newNode = {
+        id: new Date().getTime(), // Generating a unique ID
+        name: 'New Node', // Name of the new node
+        children: [], // Empty children array
+      }
+
+      treeData.value.push(newNode) // Adding the new node at the root level
+    }
+
+    onMounted(fetchTreeData)
+
+    return { treeData, addNewNode }
   },
 }
 </script>
+
+<style>
+/* Your custom styles go here */
+</style>
