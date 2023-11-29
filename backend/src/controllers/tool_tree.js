@@ -8,28 +8,35 @@ const dbConfig =
   networkDetails.databaseType === 'build'
     ? config.dbConfig
     : config.dbConfigTest
-// Создание пула подключений к БД
+// Create a connection pool to the database
 const pool = new Pool(dbConfig)
 
-function buildTree(nodes, parentId = 0) {
-  // console.log(`Building tree for parent ID: ${parentId}`) // Добавление логирования
-  return nodes
-    .filter((node) => node.id_parent === parentId)
-    .map((node) => ({
-      id: node.id,
-      name: node.name,
-      children: buildTree(nodes, node.id),
-    }))
+async function buildTreeData(parentId = 0) {
+  try {
+    const { rows } = await pool.query(
+      'SELECT id, id_parent, name FROM dbo.tool_tree WHERE id_parent = $1',
+      [parentId]
+    )
+
+    const treeData = []
+    for (const row of rows) {
+      const children = await buildTreeData(row.id)
+      treeData.push({
+        id: row.id,
+        name: row.name,
+        children: children,
+      })
+    }
+
+    return treeData
+  } catch (error) {
+    throw error
+  }
 }
 
 async function getToolsTree(req, res) {
   try {
-    const { rows } = await pool.query(
-      'SELECT id, id_parent, name FROM dbo.tool_tree'
-    )
-    // console.log('Data from DB:', rows) // Логирование данных из БД
-    const tree = buildTree(rows)
-    // console.log('Generated Tree:', tree) // Логирование сгенерированного дерева
+    const tree = await buildTreeData()
     res.json(tree)
   } catch (error) {
     console.error(error)
