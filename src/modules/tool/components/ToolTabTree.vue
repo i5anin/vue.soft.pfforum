@@ -1,7 +1,8 @@
 <template>
   <div>
     <button @click="addNewNode">Add New Node</button>
-    <vue3-jstree :data="treeData" />
+    <vue3-jstree v-if="treeData.length > 0" :data="treeData" />
+    <p v-else>No tree data available</p>
   </div>
 </template>
 
@@ -21,7 +22,11 @@ export default {
     const fetchTreeData = async () => {
       try {
         const data = await getToolsTree()
-        treeData.value = data
+        if (Array.isArray(data)) {
+          treeData.value = data
+        } else {
+          console.error('Fetched data is not an array:', data)
+        }
       } catch (error) {
         console.error('Error fetching tree data:', error)
       }
@@ -29,14 +34,19 @@ export default {
 
     // Method to add a new node
     const addNewNode = () => {
-      console.log('addNewNode')
+      console.log('Adding new node')
       const newNode = {
         id: new Date().getTime(), // Generating a unique ID
         name: 'New Node', // Name of the new node
         children: [], // Empty children array
       }
 
-      treeData.value.push(newNode) // Adding the new node at the root level
+      // Ensure treeData is an array before pushing
+      if (Array.isArray(treeData.value)) {
+        treeData.value.push(newNode) // Adding the new node at the root level
+      } else {
+        console.error('treeData is not an array:', treeData.value)
+      }
     }
 
     onMounted(fetchTreeData)
