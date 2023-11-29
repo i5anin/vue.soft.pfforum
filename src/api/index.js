@@ -171,3 +171,14 @@ export async function addToWarehouse(toolId, kolvo_sklad, norma, zakaz) {
     return null
   }
 }
+
+// Добавляем функцию для получения дерева инструментов
+export async function getToolsTree() {
+  try {
+    const response = await axios.get(`${BASE_URL}/tools-tree`)
+    return response.data // Возвращаем полученное дерево
+  } catch (error) {
+    console.error('There has been a problem with fetching tools tree:', error)
+    return null // Возвращаем null в случае ошибки
+  }
+}
