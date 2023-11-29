@@ -82,9 +82,6 @@ async function getTools(req, res) {
     const limit = parseInt(req.query.limit || 15, 10)
     const offset = (page - 1) * limit
 
-    // Получение новых параметров из тела запроса
-    const { group_id, mat_id, type_id } = req.body
-
     // Подготовка параметров для запросов
     const searchCondition = search ? `WHERE tool_nom.name ILIKE $1` : ''
     const limitOffsetCondition = search
@@ -94,45 +91,49 @@ async function getTools(req, res) {
       ? [`%${search}%`, limit, offset]
       : [limit, offset]
 
-    // Дополнительные условия для новых фильтров
-    const groupCondition = group_id
-      ? `AND tool_nom.group_id = ANY($${queryParams.length + 1}::bigint[])`
-      : ''
-    const matCondition = mat_id
-      ? `AND tool_nom.mat_id = ANY($${queryParams.length + 1}::bigint[])`
-      : ''
-    const typeCondition = type_id
-      ? `AND tool_nom.type_id = ANY($${queryParams.length + 1}::bigint[])`
-      : ''
-
-    if (group_id) queryParams.push(group_id)
-    if (mat_id) queryParams.push(mat_id)
-    if (type_id) queryParams.push(type_id)
-
-    // Изменение основного запроса для включения новых условий
-    const toolQuery = `
-    SELECT tool_nom.id,
-           tool_nom.name,
-           tool_nom.group_id,
-           tool_nom.mat_id,
-           tool_nom.type_id,
-           tool_nom.radius,
-           tool_nom.shag,
-           tool_nom.gabarit,
-           tool_nom.width,
-           tool_nom.diam
-    FROM dbo.tool_nom as tool_nom
-           LEFT JOIN dbo.tool_group as tool_group ON tool_nom.group_id = tool_group.id
-           LEFT JOIN dbo.tool_mat as tool_mat ON tool_nom.mat_id = tool_mat.id
-           LEFT JOIN dbo.tool_type as tool_type ON tool_nom.type_id = tool_type.id
-           LEFT JOIN dbo.tool_nom as tool_nom_spec ON tool_nom.id = tool_nom_spec.id
-           ${searchCondition}
-           ${groupCondition}
-           ${matCondition}
-           ${typeCondition}
-    ORDER BY tool_nom.id DESC
-    ${limitOffsetCondition}
+    // Запрос на получение общего количества инструментов
+    const countQuery = `
+      SELECT COUNT(*)::INTEGER
+      FROM dbo.tool_nom ${searchCondition}
     `
+
+    // Запрос на получение инструментов
+    const toolQuery = `
+  SELECT tool_nom.id,
+         tool_nom.name,
+         tool_nom.group_id,
+         tool_nom.mat_id,
+         tool_nom.type_id,
+         COALESCE (tool_group.name, '[нет данных]') as group_name,
+         COALESCE (tool_mat.name, '[нет данных]')   as mat_name,
+         COALESCE (tool_type.name, '[нет данных]')  as type_name,
+         tool_nom.radius,
+         tool_nom.shag,
+         tool_nom.gabarit,
+         tool_nom.width,
+         tool_nom.diam,
+         tool_nom.geometry
+  FROM dbo.tool_nom as tool_nom
+         LEFT JOIN
+       dbo.tool_group as tool_group
+       ON
+         tool_nom.group_id = tool_group.id
+         LEFT JOIN
+       dbo.tool_mat as tool_mat
+       ON
+         tool_nom.mat_id = tool_mat.id
+         LEFT JOIN
+       dbo.tool_type as tool_type
+       ON
+          tool_nom.type_id = tool_type.id
+         LEFT JOIN
+       dbo.tool_nom as tool_nom_spec
+       ON
+          tool_nom.id = tool_nom_spec.id
+          ${searchCondition}
+  ORDER BY tool_nom.id DESC
+    ${limitOffsetCondition}
+`
 
     // Выполнение запросов
     const [countResult, tools] = await Promise.all([
@@ -151,6 +152,7 @@ async function getTools(req, res) {
         norma: tool.norma,
         rad: tool.rad,
         zakaz: tool.zakaz,
+
         mat: { name: tool.mat_name, id: tool.mat_id },
         type: { name: tool.type_name, id: tool.type_id },
         group: { name: tool.group_name, id: tool.group_id },
