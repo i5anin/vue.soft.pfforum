@@ -3,7 +3,17 @@
     <v-btn @click="addNewNode">Add New Node</v-btn>
     <v-list dense>
       <template v-for="(item, index) in treeData" :key="index">
-        <tree-node :node="item"></tree-node>
+        <v-list-item>
+          {{ item.label }}
+        </v-list-item>
+        <!-- Рекурсивно отображаем дочерние элементы, если они есть -->
+        <v-list v-if="item.nodes && item.nodes.length" dense>
+          <template v-for="(child, childIndex) in item.nodes" :key="childIndex">
+            <v-list-item>
+              {{ child.label }}
+            </v-list-item>
+          </template>
+        </v-list>
       </template>
     </v-list>
     <p v-if="!treeData.length">No tree data available</p>
@@ -13,10 +23,8 @@
 <script>
 import { ref, onMounted } from 'vue'
 import { getToolsTree } from '@/api'
-import TreeNode from '@/components/shared/TreeNode.vue'
 
 export default {
-  components: { TreeNode },
   setup() {
     const treeData = ref([])
 

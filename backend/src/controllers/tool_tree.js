@@ -24,7 +24,7 @@ async function buildTreeData(parentId = 0) {
       treeData.push({
         // id: row.id,
         label: row.name,
-        nodes: children,
+        child: children,
       })
     }
 
