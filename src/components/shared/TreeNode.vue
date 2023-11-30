@@ -1,4 +1,8 @@
+<!--Vuetify TreeNode.vue-->
 <template>
+  <!-- Группа списка для отображения узлов дерева -->
+  <!-- Если у узла есть дочерние узлы, отобразить группу списка -->
+  <!-- Открыть или закрыть группу списка -->
   <v-list-group
     v-if="node.nodes && node.nodes.length"
     :value="isOpen"
@@ -17,6 +21,7 @@
     <TreeNode v-for="(child, index) in node.nodes" :key="index" :node="child" />
   </v-list-group>
 
+  <!-- Если у узла нет дочерних узлов, просто отобразить элемент списка -->
   <v-list-item v-else @click.stop>
     <v-list-item-title>
       {{ node.label }}
@@ -29,9 +34,7 @@ import { ref } from 'vue'
 
 export default {
   name: 'TreeNode',
-  props: {
-    node: Object,
-  },
+  props: { node: Object },
   setup() {
     const isOpen = ref(true)
 
