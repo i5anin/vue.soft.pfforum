@@ -4,23 +4,23 @@
     :value="isOpen"
     no-action
     sub-group
-    @click.stop="toggle"
+    @click:stop="toggle"
   >
     <template v-slot:activator>
-      <v-list-item>
-        <v-list-item-content>
+      <v-list-item @click.stop>
+        <v-list-item-title>
           {{ node.label }}
-        </v-list-item-content>
+        </v-list-item-title>
       </v-list-item>
     </template>
 
     <TreeNode v-for="(child, index) in node.nodes" :key="index" :node="child" />
   </v-list-group>
 
-  <v-list-item v-else>
-    <v-list-item-content>
+  <v-list-item v-else @click.stop>
+    <v-list-item-title>
       {{ node.label }}
-    </v-list-item-content>
+    </v-list-item-title>
   </v-list-item>
 </template>
 
@@ -32,13 +32,21 @@ export default {
   props: {
     node: Object,
   },
-  setup(props) {
-    const isOpen = ref(false)
+  setup() {
+    const isOpen = ref(true)
+
     const toggle = () => {
       isOpen.value = !isOpen.value
+      console.log(`Toggled node: ${this.node.label}, new state: ${this.isOpen}`)
     }
 
     return { isOpen, toggle }
+  },
+  created() {
+    console.log(`Created node: ${this.node.label}`)
+  },
+  mounted() {
+    console.log(`Mounted node: ${this.node.label}`)
   },
 }
 </script>
