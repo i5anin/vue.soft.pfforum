@@ -28,8 +28,6 @@ import { getToolsTree } from '@/api'
 export default {
   name: 'MyComponent',
   setup() {
-    const open = ref([]) // Добавьте это
-
     const treeData = ref([]) // Ваша структура данных
 
     const fetchTreeData = async () => {
@@ -47,7 +45,7 @@ export default {
 
     onMounted(fetchTreeData)
 
-    return { treeData, open }
+    return { treeData }
   },
 }
 </script>
