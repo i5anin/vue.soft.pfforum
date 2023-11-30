@@ -1,21 +1,9 @@
+<!-- MyComponent.vue -->
 <template>
   <div>
     <v-list dense>
       <template v-for="(item, index) in treeData" :key="index">
-        <v-list-group :value="true">
-          <template v-slot:activator="{ props }">
-            <v-list-item v-bind="props" prepend-icon="mdi mdi-square-root">
-              <v-list-item-content>
-                <v-list-item-title v-text="item.label" />
-              </v-list-item-content>
-            </v-list-item>
-          </template>
-          <v-list-item v-for="(child, index) in item.nodes" :key="index">
-            <v-list-item-content>
-              <v-list-item-title v-text="child.label" />
-            </v-list-item-content>
-          </v-list-item>
-        </v-list-group>
+        <tree-node :node="item" :open.sync="open"></tree-node>
       </template>
     </v-list>
   </div>
@@ -24,10 +12,13 @@
 <script>
 import { ref, onMounted } from 'vue'
 import { getToolsTree } from '@/api'
+import TreeNode from './TreeNode.vue'
 
 export default {
   name: 'MyComponent',
+  components: { TreeNode },
   setup() {
+    const open = ref([]) // Состояние открытых узлов
     const treeData = ref([]) // Ваша структура данных
 
     const fetchTreeData = async () => {
@@ -45,7 +36,7 @@ export default {
 
     onMounted(fetchTreeData)
 
-    return { treeData }
+    return { treeData, open }
   },
 }
 </script>

@@ -22,7 +22,7 @@ async function buildTreeData(parentId = 0) {
     for (const row of rows) {
       const children = await buildTreeData(row.id)
       treeData.push({
-        // id: row.id,
+        id: row.id, // Раскомментируйте эту строку
         label: row.name,
         nodes: children,
       })
