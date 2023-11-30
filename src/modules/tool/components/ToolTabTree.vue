@@ -1,42 +1,62 @@
-<!-- MyComponent.vue -->
 <template>
-  <div>
-    <v-list dense>
-      <template v-for="(item, index) in treeData" :key="index">
-        <tree-node :node="item" :open.sync="open"></tree-node>
-      </template>
-    </v-list>
-  </div>
+  <v-app>
+    <v-app-bar app color="indigo" dark>
+      <v-toolbar-title>Проводник</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-btn icon @click="goBack">
+        <v-icon>mdi-arrow-left</v-icon>
+      </v-btn>
+    </v-app-bar>
+    <v-main>
+      <v-container fluid>
+        <v-row>
+          <v-col cols="12">
+            <h1>{{ currentItem ? currentItem.label : '' }}</h1>
+            <v-list-item-group
+              v-model="selectedItem"
+              active-class="deep-purple--text text--accent-4"
+            >
+              <v-list-item
+                v-for="item in items"
+                :key="item.id"
+                @click="selectItem(item)"
+              >
+                <v-list-item-content>
+                  <v-list-item-title v-text="item.label"></v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list-item-group>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
 import { getToolsTree } from '@/api'
-import TreeNode from './TreeNode.vue'
 
 export default {
-  name: 'MyComponent',
-  components: { TreeNode },
-  setup() {
-    const open = ref([]) // Состояние открытых узлов
-    const treeData = ref([]) // Ваша структура данных
-
-    const fetchTreeData = async () => {
-      try {
-        const data = await getToolsTree()
-        if (Array.isArray(data)) {
-          treeData.value = data
-        } else {
-          console.error('Fetched data is not an array:', data)
-        }
-      } catch (error) {
-        console.error('Error fetching tree data:', error)
+  data: () => ({
+    items: [],
+    selectedItem: null,
+    currentItem: null,
+    history: [],
+  }),
+  methods: {
+    selectItem(item) {
+      this.history.push(this.items)
+      this.items = item.nodes
+      this.currentItem = item
+    },
+    goBack() {
+      if (this.history.length > 0) {
+        this.items = this.history.pop()
       }
-    }
-
-    onMounted(fetchTreeData)
-
-    return { treeData, open }
+    },
+  },
+  async created() {
+    this.items = await getToolsTree()
   },
 }
 </script>
