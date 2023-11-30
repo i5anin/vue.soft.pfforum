@@ -37,5 +37,5 @@ import ToolTabLibrary from '@/modules/tool/components/TabLibrary.vue'
 import ToolTabInventory from '@/modules/tool/components/TabInventory.vue'
 import ToolTabTree from '@/modules/tool/components/ToolTabTree.vue'
 
-const tab = ref('one') // Initialize the 'tab' variable with a default value
+const tab = ref('Tree') // Установите начальное значение
 </script>
