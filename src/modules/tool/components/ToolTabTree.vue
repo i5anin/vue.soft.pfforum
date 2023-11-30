@@ -1,25 +1,36 @@
-<!--Vuetify ToolTabTree.vue-->
 <template>
   <div>
-    <v-btn @click="addNewNode">Add New Node</v-btn>
     <v-list dense>
       <template v-for="(item, index) in treeData" :key="index">
-        <tree-node :node="item"></tree-node>
+        <v-list-group :value="true">
+          <template v-slot:activator="{ props }">
+            <v-list-item v-bind="props" prepend-icon="mdi mdi-square-root">
+              <v-list-item-content>
+                <v-list-item-title v-text="item.label" />
+              </v-list-item-content>
+            </v-list-item>
+          </template>
+          <v-list-item v-for="(child, index) in item.nodes" :key="index">
+            <v-list-item-content>
+              <v-list-item-title v-text="child.label" />
+            </v-list-item-content>
+          </v-list-item>
+        </v-list-group>
       </template>
     </v-list>
-    <p v-if="!treeData.length">No tree data available</p>
   </div>
 </template>
 
 <script>
 import { ref, onMounted } from 'vue'
 import { getToolsTree } from '@/api'
-import TreeNode from '@/components/shared/TreeNode.vue'
 
 export default {
-  components: { TreeNode },
+  name: 'MyComponent',
   setup() {
-    const treeData = ref([])
+    const open = ref([]) // Добавьте это
+
+    const treeData = ref([]) // Ваша структура данных
 
     const fetchTreeData = async () => {
       try {
@@ -34,14 +45,9 @@ export default {
       }
     }
 
-    const addNewNode = () => {
-      const newNode = { label: 'New Node', nodes: [] }
-      treeData.value.push(newNode)
-    }
-
     onMounted(fetchTreeData)
 
-    return { treeData, addNewNode }
+    return { treeData, open }
   },
 }
 </script>
