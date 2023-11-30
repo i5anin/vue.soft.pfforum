@@ -1,30 +1,44 @@
 <template>
   <v-list-group
     v-if="node.nodes && node.nodes.length"
-    :value="true"
+    :value="isOpen"
     no-action
     sub-group
+    @click.stop="toggle"
   >
     <template v-slot:activator>
-      <v-list-item-content>
-        <v-list-item-title>{{ node.label }}</v-list-item-title>
-      </v-list-item-content>
+      <v-list-item>
+        <v-list-item-content>
+          {{ node.label }}
+        </v-list-item-content>
+      </v-list-item>
     </template>
-    <v-list-item v-for="(child, index) in node.nodes" :key="index">
-      <tree-node :node="child"></tree-node>
-    </v-list-item>
+
+    <TreeNode v-for="(child, index) in node.nodes" :key="index" :node="child" />
   </v-list-group>
+
   <v-list-item v-else>
     <v-list-item-content>
-      <v-list-item-title>{{ node.label }}</v-list-item-title>
+      {{ node.label }}
     </v-list-item-content>
   </v-list-item>
 </template>
 
 <script>
+import { ref } from 'vue'
+
 export default {
+  name: 'TreeNode',
   props: {
     node: Object,
+  },
+  setup(props) {
+    const isOpen = ref(false)
+    const toggle = () => {
+      isOpen.value = !isOpen.value
+    }
+
+    return { isOpen, toggle }
   },
 }
 </script>

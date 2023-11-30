@@ -2,43 +2,26 @@
   <div>
     <v-btn @click="addNewNode">Add New Node</v-btn>
     <v-list dense>
-      <template v-for="(item, index) in treeData" :key="index">
-        <tree-node :node="item"></tree-node>
-      </template>
+      <TreeNode v-for="(item, index) in treeData" :key="index" :node="item" />
     </v-list>
-    <p v-if="!treeData.length">No tree data available</p>
   </div>
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
-import { getToolsTree } from '@/api'
+import { ref } from 'vue'
 import TreeNode from '@/components/shared/TreeNode.vue'
 
 export default {
   components: { TreeNode },
   setup() {
-    const treeData = ref([])
-
-    const fetchTreeData = async () => {
-      try {
-        const data = await getToolsTree()
-        if (Array.isArray(data)) {
-          treeData.value = data
-        } else {
-          console.error('Fetched data is not an array:', data)
-        }
-      } catch (error) {
-        console.error('Error fetching tree data:', error)
-      }
-    }
+    const treeData = ref([
+      { label: 'Root', nodes: [{ label: 'Child 1', nodes: [] }] },
+    ])
 
     const addNewNode = () => {
       const newNode = { label: 'New Node', nodes: [] }
       treeData.value.push(newNode)
     }
-
-    onMounted(fetchTreeData)
 
     return { treeData, addNewNode }
   },
