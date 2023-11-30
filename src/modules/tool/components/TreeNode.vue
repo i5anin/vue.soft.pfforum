@@ -2,7 +2,7 @@
 <template>
   <v-list-group :value="open.includes(node.id)" @input="toggle">
     <template v-slot:activator="{ props }">
-      <v-list-item v-bind="props">
+      <v-list-item v-bind="props" prepend-icon="mdi mdi-square-root">
         <v-list-item-content>
           <v-list-item-title v-text="node.label" />
         </v-list-item-content>
@@ -30,11 +30,13 @@ export default {
     toggle(value) {
       if (value) {
         this.open.push(this.node.id)
+        console.log(`Opened node: ${this.node.id}`)
       } else {
         const index = this.open.indexOf(this.node.id)
         if (index > -1) {
           this.open.splice(index, 1)
         }
+        console.log(`Closed node: ${this.node.id}`)
       }
     },
   },
