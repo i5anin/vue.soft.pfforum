@@ -83,8 +83,10 @@
       headers
       width
     >
-      <template class="gray" v-slot:item.index="{ index }">
-        <span style="color: gray; font-size: 0.7em">{{ index + 1 }}</span>
+      <template v-slot:item.index="{ index }">
+        <td class="index">
+          {{ index + 1 }}
+        </td>
       </template>
       <template v-slot:item.type_name="{ item }">
         <span :style="item.type.name === '[нет данных]' ? 'color: red;' : ''">{{
@@ -247,5 +249,11 @@ export default {
 .narrow-column {
   max-width: 100px !important;
   font-size: 0.9em;
+}
+
+.index {
+  max-width: 40px !important;
+  font-size: 0.9em;
+  color: grey;
 }
 </style>
