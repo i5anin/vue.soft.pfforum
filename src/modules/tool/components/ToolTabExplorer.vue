@@ -160,9 +160,13 @@ export default {
   cursor: pointer;
 }
 
+.breadcrumbs-item-final {
+  color: gray;
+}
+
 .custom-container {
   max-height: 500px; /* Пример максимальной высоты */
-  //overflow-y: auto; /* Добавляет вертикальную прокрутку при необходимости */
+  /
 }
 
 .flex {
@@ -171,8 +175,5 @@ export default {
 
 .icon {
   margin-right: 10px;
-  //color: rgb(var(--v-theme-surface));
-  //color: gray;
-  //color: info;
 }
 </style>
