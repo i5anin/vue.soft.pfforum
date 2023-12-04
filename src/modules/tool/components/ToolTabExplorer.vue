@@ -110,6 +110,11 @@ export default {
       editableLabel: '',
     }
   },
+  // computed: {
+  //   breadcrumbItems() {
+  //     return this.history.map((item, index) => item.label)
+  //   },
+  // },
   methods: {
     handleKeydown(event) {
       // Проверяем, что нажата клавиша Backspace
