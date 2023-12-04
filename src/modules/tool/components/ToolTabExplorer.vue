@@ -60,7 +60,7 @@
                 class="d-flex align-center"
               >
                 <v-list-item-content class="flex">
-                  <v-icon icon="mdi-folder" class="icon" />
+                  <v-icon color="info" icon="mdi-folder" class="icon" />
                   <v-list-item-title v-text="item.label" />
                 </v-list-item-content>
               </v-list-item>
@@ -112,8 +112,7 @@ export default {
     },
     addItem() {
       if (!this.currentItem || !this.currentItem.nodes) {
-        alert('Выберите категорию для добавления нового элемента.')
-        return
+        return alert('Выберите категорию для добавления нового элемента.')
       }
     },
     selectItem(item) {
@@ -159,6 +158,7 @@ export default {
 /* Стили для хлебных крошек, если нужно */
 .breadcrumbs-item {
   cursor: pointer;
+  color: gray;
 }
 
 .custom-container {
@@ -172,10 +172,8 @@ export default {
 
 .icon {
   margin-right: 10px;
-  color: rgb(var(--v-theme-surface));
-}
-
-.breadcrumbs-item-final {
-  color: gray;
+  //color: rgb(var(--v-theme-surface));
+  //color: gray;
+  //color: info;
 }
 </style>
