@@ -24,8 +24,8 @@
               <v-icon>mdi-plus</v-icon>
             </v-btn>
           </span>
-        </div></v-toolbar-title
-      >
+        </div>
+      </v-toolbar-title>
       <v-spacer />
       <v-btn icon @click="goBack">
         <v-icon>mdi-arrow-left</v-icon>
@@ -36,16 +36,32 @@
         <v-row>
           <v-col cols="12">
             <!-- Интеграция хлебных крошек -->
-            <v-breadcrumbs :items="breadcrumbItems" divider="/">
-              <template v-slot:item="{ item }">
-                <v-breadcrumbs-item
-                  :disabled="item.disabled"
-                  @click="item.clickable ? goTo(item.index) : null"
+            <div class="breadcrumbs">
+              <span v-for="(item, index) in history" :key="index">
+                <span
+                  :class="{
+                    'breadcrumbs-item': index < history.length - 1,
+                    'breadcrumbs-item-final': index === history.length - 1,
+                  }"
+                  @click="goTo(index)"
                 >
-                  {{ item.text }}
-                </v-breadcrumbs-item>
-              </template>
-            </v-breadcrumbs>
+                  {{ item.label }}
+                </span>
+                <span v-if="index < history.length - 1">
+                  &nbsp;&nbsp;/&nbsp;&nbsp;
+                </span>
+              </span>
+            </div>
+            <!-- FIXME: у стандартного не работает роут -->
+            <!--            <v-breadcrumbs :items="breadcrumbItems" divider="/">-->
+            <!--              <template v-slot:item="{ item }">-->
+            <!--                <v-breadcrumbs-item-->
+            <!--                  :disabled="item.disabled"-->
+            <!--                  @click="goTo(item.index)"-->
+            <!--                  {{ item.text }}-->
+            <!--                </v-breadcrumbs-item>-->
+            <!--              </template>-->
+            <!--            </v-breadcrumbs>-->
             <!-- Отображение списка элементов -->
             <v-list-item-group
               v-if="currentItem && currentItem.nodes"
@@ -90,15 +106,9 @@ export default {
       history: [],
       currentItem: null,
       selectedItem: null,
-      isEditing: false, // Добавляем состояние редактирования
-      editableLabel: '', // Добавляем модель для текстового поля
+      isEditing: false,
+      editableLabel: '',
     }
-  },
-  computed: {
-    breadcrumbItems() {
-      console.log(this.history)
-      return this.history.map((item, index) => item.label)
-    },
   },
   methods: {
     handleKeydown(event) {
@@ -157,12 +167,13 @@ export default {
 /* Стили для хлебных крошек, если нужно */
 .breadcrumbs-item {
   cursor: pointer;
-  color: blue;
 }
+
 .custom-container {
   max-height: 500px; /* Пример максимальной высоты */
   //overflow-y: auto; /* Добавляет вертикальную прокрутку при необходимости */
 }
+
 .flex {
   display: flex;
 }
@@ -170,5 +181,9 @@ export default {
 .icon {
   margin-right: 10px;
   color: rgb(var(--v-theme-surface));
+}
+
+.breadcrumbs-item-final {
+  color: gray;
 }
 </style>
