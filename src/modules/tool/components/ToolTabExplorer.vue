@@ -38,13 +38,7 @@
             <!-- Интеграция хлебных крошек -->
             <div class="breadcrumbs">
               <span v-for="(item, index) in history" :key="index">
-                <span
-                  :class="{
-                    'breadcrumbs-item': index < history.length - 1,
-                    'breadcrumbs-item-final': index === history.length - 1,
-                  }"
-                  @click="goTo(index)"
-                >
+                <span :class="getBreadcrumbClass(index)" @click="goTo(index)">
                   {{ item.label }}
                 </span>
                 <span v-if="index < history.length - 1">
@@ -52,6 +46,7 @@
                 </span>
               </span>
             </div>
+
             <!-- Отображение списка элементов -->
             <v-list-item-group
               v-if="currentItem && currentItem.nodes"
@@ -101,6 +96,13 @@ export default {
     }
   },
   methods: {
+    getBreadcrumbClass(index) {
+      return {
+        'breadcrumbs-item': index < this.history.length - 1,
+        'breadcrumbs-item-final': index === this.history.length - 1,
+      }
+    },
+
     handleKeydown(event) {
       // Проверяем, что нажата клавиша Backspace
       if (event.key === 'Backspace') {
