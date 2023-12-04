@@ -73,7 +73,6 @@
 
 <script>
 import { getToolsTree } from '@/api'
-import { useRouter } from 'vue-router'
 
 export default {
   // Добавляем глобальный обработчик событий клавиатуры
@@ -120,11 +119,6 @@ export default {
       if (!this.history.includes(item)) {
         this.history.push(item)
       }
-      if (item.nodes) {
-        this.currentItem = item
-      }
-      // Update the URL to reflect the current item
-      this.$router.push('/item/' + item.id)
     },
     startEditing() {
       this.isEditing = true
@@ -145,15 +139,9 @@ export default {
       }
     },
     goTo(index) {
-      this.currentItem = this.history[index]
       this.history = this.history.slice(0, index + 1)
+      this.currentItem = this.history[index]
     },
-  },
-  setup() {
-    const router = useRouter()
-    const selectItem = (item) => {
-      router.push('/item/' + item.id)
-    }
   },
   async created() {
     const toolsTree = await getToolsTree()

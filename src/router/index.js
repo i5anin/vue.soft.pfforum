@@ -4,7 +4,6 @@ import Home from '@/views/Home.vue'
 import Tool from '@/modules/tool/components/Tabs.vue'
 import Login from '@/views/Login.vue'
 import Error404 from '@/views/404.vue'
-import ToolTabExplorer from '@/modules/tool/components/ToolTabExplorer.vue'
 
 export const Routes = {
   LOGIN: '/Login',
@@ -36,11 +35,6 @@ const routes = [
     path: '/Tool',
     name: 'Tool',
     component: Tool,
-  },
-  {
-    path: '/item/:id',
-    name: 'Item',
-    component: ToolTabExplorer,
   },
   {
     path: '/:catchAll(.*)',
