@@ -155,9 +155,13 @@ export default {
 </script>
 
 <style scoped>
-/* Стили для хлебных крошек, если нужно */
+/* Стили для хлебных крошек */
 .breadcrumbs-item {
   cursor: pointer;
+}
+
+.breadcrumbs {
+  margin-bottom: 8px;
 }
 
 .breadcrumbs-item-final {
@@ -165,8 +169,7 @@ export default {
 }
 
 .custom-container {
-  max-height: 500px; /* Пример максимальной высоты */
-  /
+  max-height: 500px;
 }
 
 .flex {
