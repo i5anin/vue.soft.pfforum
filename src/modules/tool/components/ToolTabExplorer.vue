@@ -1,7 +1,31 @@
 <template>
-  <v-app>
+  <v-app class="custom-container">
     <v-app-bar app color="primary" dark>
-      <v-toolbar-title>Проводник</v-toolbar-title>
+      <v-toolbar-title>
+        <div class="text-h6">
+          <v-text-field
+            v-if="isEditing"
+            v-model="editableLabel"
+            @blur="finishEditing"
+            @keyup.enter="finishEditing"
+            dense
+            solo
+            hide-details
+            :flat="true"
+            :autofocus="true"
+          />
+          <!-- Показываем название и иконку, если редактирование не активно -->
+          <span v-else @click="startEditing">
+            {{ currentItem ? currentItem.label : 'Выберите элемент' }}
+            <v-btn icon small @click.stop="startEditing">
+              <v-icon>mdi-pencil</v-icon>
+            </v-btn>
+            <v-btn icon small @click.stop="addItem">
+              <v-icon>mdi-plus</v-icon>
+            </v-btn>
+          </span>
+        </div></v-toolbar-title
+      >
       <v-spacer />
       <v-btn icon @click="goBack">
         <v-icon>mdi-arrow-left</v-icon>
@@ -11,29 +35,6 @@
       <v-container :fluid="true">
         <v-row>
           <v-col cols="12">
-            <div class="text-h6">
-              <v-text-field
-                v-if="isEditing"
-                v-model="editableLabel"
-                @blur="finishEditing"
-                @keyup.enter="finishEditing"
-                dense
-                solo
-                :flat="true"
-                hide-details
-                :autofocus="true"
-              ></v-text-field>
-              <!-- Показываем название и иконку, если редактирование не активно -->
-              <span v-else @click="startEditing">
-                {{ currentItem ? currentItem.label : 'Выберите элемент' }}
-                <v-btn icon small @click.stop="startEditing">
-                  <v-icon>mdi-pencil</v-icon>
-                </v-btn>
-                <v-btn icon small @click.stop="addItem">
-                  <v-icon>mdi-plus</v-icon>
-                </v-btn>
-              </span>
-            </div>
             <!-- Интеграция хлебных крошек -->
             <v-breadcrumbs :items="breadcrumbItems" divider="/">
               <template v-slot:item="{ item }">
@@ -148,10 +149,14 @@ export default {
 }
 </script>
 
-<!--<style scoped>-->
-<!--/* Стили для хлебных крошек, если нужно */-->
-<!--.breadcrumbs-item {-->
-<!--  cursor: pointer;-->
-<!--  color: blue;-->
-<!--}-->
-<!--</style>-->
+<style scoped>
+/* Стили для хлебных крошек, если нужно */
+.breadcrumbs-item {
+  cursor: pointer;
+  color: blue;
+}
+.custom-container {
+  max-height: 500px; /* Пример максимальной высоты */
+  //overflow-y: auto; /* Добавляет вертикальную прокрутку при необходимости */
+}
+</style>
