@@ -40,12 +40,14 @@
               <template v-slot:item="{ item }">
                 <v-breadcrumbs-item
                   :disabled="item.disabled"
-                  @click="item.clickable ? goTo(item.index) : null"
+                  @click="goToItem(item.id)"
+                  :href="item.href"
                 >
                   {{ item.text }}
                 </v-breadcrumbs-item>
               </template>
             </v-breadcrumbs>
+
             <!-- Отображение списка элементов -->
             <v-list-item-group
               v-if="currentItem && currentItem.nodes"
@@ -59,7 +61,7 @@
                 class="d-flex align-center"
               >
                 <v-list-item-content class="flex">
-                  <v-icon icon="mdi-folder" class="icon" />
+                  <v-icon icon="mdi-folder" class="icon" /><!-- color="info"-->
                   <v-list-item-title v-text="item.label" />
                 </v-list-item-content>
               </v-list-item>
@@ -97,10 +99,32 @@ export default {
   computed: {
     breadcrumbItems() {
       console.log(this.history)
-      return this.history.map((item, index) => item.label)
+      return this.history.map((item, index) => ({
+        text: item.label,
+        href: item.id ? '/item/' + item.id : '/', // replace with the actual path
+      }))
     },
   },
   methods: {
+    goToItem(id) {
+      const item = this.findItem(this.items, id)
+      if (item) {
+        this.selectItem(item)
+      }
+    },
+    findItem(items, id) {
+      for (let item of items) {
+        if (item.id === id) {
+          return item
+        } else if (item.nodes && item.nodes.length) {
+          const foundItem = this.findItem(item.nodes, id)
+          if (foundItem) {
+            return foundItem
+          }
+        }
+      }
+      return null
+    },
     handleKeydown(event) {
       // Проверяем, что нажата клавиша Backspace
       if (event.key === 'Backspace') {
