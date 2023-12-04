@@ -2,7 +2,7 @@
   <v-app>
     <v-app-bar app color="primary" dark>
       <v-toolbar-title>Проводник</v-toolbar-title>
-      <v-spacer></v-spacer>
+      <v-spacer />
       <v-btn icon @click="goBack">
         <v-icon>mdi-arrow-left</v-icon>
       </v-btn>
@@ -12,7 +12,27 @@
         <v-row>
           <v-col cols="12">
             <div class="text-h6">
-              {{ currentItem ? currentItem.label : 'Выберите элемент' }}
+              <v-text-field
+                v-if="isEditing"
+                v-model="editableLabel"
+                @blur="finishEditing"
+                @keyup.enter="finishEditing"
+                dense
+                solo
+                :flat="true"
+                hide-details
+                :autofocus="true"
+              ></v-text-field>
+              <!-- Показываем название и иконку, если редактирование не активно -->
+              <span v-else @click="startEditing">
+                {{ currentItem ? currentItem.label : 'Выберите элемент' }}
+                <v-btn icon small @click.stop="startEditing">
+                  <v-icon>mdi-pencil</v-icon>
+                </v-btn>
+                <v-btn icon small @click.stop="addItem">
+                  <v-icon>mdi-plus</v-icon>
+                </v-btn>
+              </span>
             </div>
             <!-- Интеграция хлебных крошек -->
             <v-breadcrumbs :items="breadcrumbItems" divider="/">
@@ -50,11 +70,23 @@
 import { getToolsTree } from '@/api'
 
 export default {
+  // Добавляем глобальный обработчик событий клавиатуры
+  mounted() {
+    window.addEventListener('keydown', this.handleKeydown)
+  },
+
+  // Удаляем глобальный обработчик событий клавиатуры при уничтожении компонента
+  beforeDestroy() {
+    window.removeEventListener('keydown', this.handleKeydown)
+  },
+
   data() {
     return {
-      currentItem: null,
       history: [],
+      currentItem: null,
       selectedItem: null,
+      isEditing: false, // Добавляем состояние редактирования
+      editableLabel: '', // Добавляем модель для текстового поля
     }
   },
   computed: {
@@ -64,12 +96,37 @@ export default {
     },
   },
   methods: {
+    handleKeydown(event) {
+      // Проверяем, что нажата клавиша Backspace
+      if (event.key === 'Backspace') {
+        this.goBack()
+        event.preventDefault() // Для предотвращения дополнительных действий браузера
+      }
+    },
+    addItem() {
+      if (!this.currentItem || !this.currentItem.nodes) {
+        alert('Выберите категорию для добавления нового элемента.')
+        return
+      }
+    },
     selectItem(item) {
       this.currentItem = item
       if (!this.history.includes(item)) {
         this.history.push(item)
       }
     },
+    startEditing() {
+      this.isEditing = true
+      this.editableLabel = this.currentItem ? this.currentItem.label : ''
+    },
+    finishEditing() {
+      this.isEditing = false
+      if (this.currentItem) {
+        // Обновляем название текущего элемента после редактирования
+        this.currentItem.label = this.editableLabel
+      }
+    },
+    // Логика для кнопки "назад"
     goBack() {
       if (this.history.length > 1) {
         this.history.pop()
@@ -91,10 +148,10 @@ export default {
 }
 </script>
 
-<style scoped>
-/* Стили для хлебных крошек, если нужно */
-.breadcrumbs-item {
-  cursor: pointer;
-  color: blue;
-}
-</style>
+<!--<style scoped>-->
+<!--/* Стили для хлебных крошек, если нужно */-->
+<!--.breadcrumbs-item {-->
+<!--  cursor: pointer;-->
+<!--  color: blue;-->
+<!--}-->
+<!--</style>-->
