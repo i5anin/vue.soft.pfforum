@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar app color="indigo" dark>
+    <v-app-bar app color="primary" dark>
       <v-toolbar-title>Проводник</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn icon @click="goBack">
@@ -12,26 +12,31 @@
         <v-row>
           <v-col cols="12">
             <div class="text-h6">
-              {{ currentItem ? currentItem.label : '' }}
+              {{ currentItem ? currentItem.label : 'Выберите элемент' }}
             </div>
-            <div class="breadcrumbs">
-              <span v-for="(item, index) in history" :key="index">
-                <span @click="goTo(index)">{{ item.label }}</span>
-                <span v-if="index < history.length - 1"> / </span>
-              </span>
-            </div>
+            <!-- Интеграция хлебных крошек -->
+            <v-breadcrumbs :items="breadcrumbItems" divider="/">
+              <template v-slot:item="{ item }">
+                <v-breadcrumbs-item
+                  :disabled="item.disabled"
+                  @click="item.clickable ? goTo(item.index) : null"
+                >
+                  {{ item.text }}
+                </v-breadcrumbs-item>
+              </template>
+            </v-breadcrumbs>
+            <!-- Отображение списка элементов -->
             <v-list-item-group
+              v-if="currentItem && currentItem.nodes"
               v-model="selectedItem"
               active-class="deep-purple--text text--accent-4"
             >
               <v-list-item
-                v-for="item in items"
+                v-for="item in currentItem.nodes"
                 :key="item.id"
                 @click="selectItem(item)"
               >
-                <v-list-item-content>
-                  <v-list-item-title v-text="item.label" />
-                </v-list-item-content>
+                <v-list-item-title v-text="item.label" />
               </v-list-item>
             </v-list-item-group>
           </v-col>
@@ -45,41 +50,51 @@
 import { getToolsTree } from '@/api'
 
 export default {
-  data: () => ({
-    items: [],
-    selectedItem: null,
-    currentItem: null,
-    history: [],
-  }),
+  data() {
+    return {
+      currentItem: null,
+      history: [],
+      selectedItem: null,
+    }
+  },
+  computed: {
+    breadcrumbItems() {
+      console.log(this.history)
+      return this.history.map((item, index) => item.label)
+    },
+  },
   methods: {
     selectItem(item) {
-      if (
-        this.currentItem &&
-        (!this.history.length ||
-          this.currentItem.id !== this.history[this.history.length - 1].id)
-      ) {
-        this.history.push(this.currentItem)
-      }
       this.currentItem = item
-      this.items = item.nodes
+      if (!this.history.includes(item)) {
+        this.history.push(item)
+      }
     },
     goBack() {
       if (this.history.length > 1) {
         this.history.pop()
         this.currentItem = this.history[this.history.length - 1]
-        this.items = this.currentItem.nodes
       }
     },
     goTo(index) {
       this.history = this.history.slice(0, index + 1)
       this.currentItem = this.history[index]
-      this.items = this.currentItem.nodes
     },
   },
   async created() {
-    this.items = await getToolsTree()
-    this.currentItem = this.items[0]
-    this.items = this.currentItem.nodes
+    const toolsTree = await getToolsTree()
+    if (toolsTree && toolsTree.length > 0) {
+      this.currentItem = toolsTree[0]
+      this.history.push(this.currentItem)
+    }
   },
 }
 </script>
+
+<style scoped>
+/* Стили для хлебных крошек, если нужно */
+.breadcrumbs-item {
+  cursor: pointer;
+  color: blue;
+}
+</style>
