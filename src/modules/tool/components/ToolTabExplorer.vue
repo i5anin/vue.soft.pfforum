@@ -56,8 +56,12 @@
                 v-for="item in currentItem.nodes"
                 :key="item.id"
                 @click="selectItem(item)"
+                class="d-flex align-center"
               >
-                <v-list-item-title v-text="item.label" />
+                <v-list-item-content class="flex">
+                  <v-icon icon="mdi-folder" class="icon" />
+                  <v-list-item-title v-text="item.label" />
+                </v-list-item-content>
               </v-list-item>
             </v-list-item-group>
           </v-col>
@@ -158,5 +162,13 @@ export default {
 .custom-container {
   max-height: 500px; /* Пример максимальной высоты */
   //overflow-y: auto; /* Добавляет вертикальную прокрутку при необходимости */
+}
+.flex {
+  display: flex;
+}
+
+.icon {
+  margin-right: 10px;
+  color: rgb(var(--v-theme-surface));
 }
 </style>
