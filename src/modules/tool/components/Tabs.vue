@@ -10,7 +10,7 @@
     <v-card-text>
       <v-window v-model="tab">
         <v-window-item value="ToolTable">
-          <ToolTabTable />
+          <TabMainTable />
         </v-window-item>
 
         <v-window-item value="Library">
@@ -32,7 +32,7 @@
 <script setup>
 import { ref } from 'vue'
 
-import ToolTabTable from '@/modules/tool/components/TabMainTable.vue'
+import TabMainTable from '@/modules/tool/components/TabMainTable.vue'
 import ToolTabLibrary from '@/modules/tool/components/TabLibrary.vue'
 import ToolTabInventory from '@/modules/tool/components/TabInventory.vue'
 import ToolTabTree from '@/modules/tool/components/TabExplorer.vue'
