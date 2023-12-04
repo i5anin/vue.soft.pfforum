@@ -32,10 +32,10 @@
 <script setup>
 import { ref } from 'vue'
 
-import ToolTabTable from '@/modules/tool/components/MainTabTable.vue'
+import ToolTabTable from '@/modules/tool/components/TabMainTable.vue'
 import ToolTabLibrary from '@/modules/tool/components/TabLibrary.vue'
 import ToolTabInventory from '@/modules/tool/components/TabInventory.vue'
-import ToolTabTree from '@/modules/tool/components/ToolTabExplorer.vue'
+import ToolTabTree from '@/modules/tool/components/TabExplorer.vue'
 
 const tab = ref('Tree') // Установите начальное значение
 </script>
