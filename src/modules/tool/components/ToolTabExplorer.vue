@@ -158,7 +158,6 @@ export default {
 /* Стили для хлебных крошек, если нужно */
 .breadcrumbs-item {
   cursor: pointer;
-  color: gray;
 }
 
 .custom-container {
