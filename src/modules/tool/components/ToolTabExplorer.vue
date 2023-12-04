@@ -52,16 +52,6 @@
                 </span>
               </span>
             </div>
-            <!-- FIXME: у стандартного не работает роут -->
-            <!--            <v-breadcrumbs :items="breadcrumbItems" divider="/">-->
-            <!--              <template v-slot:item="{ item }">-->
-            <!--                <v-breadcrumbs-item-->
-            <!--                  :disabled="item.disabled"-->
-            <!--                  @click="goTo(item.index)"-->
-            <!--                  {{ item.text }}-->
-            <!--                </v-breadcrumbs-item>-->
-            <!--              </template>-->
-            <!--            </v-breadcrumbs>-->
             <!-- Отображение списка элементов -->
             <v-list-item-group
               v-if="currentItem && currentItem.nodes"
@@ -110,11 +100,6 @@ export default {
       editableLabel: '',
     }
   },
-  // computed: {
-  //   breadcrumbItems() {
-  //     return this.history.map((item, index) => item.label)
-  //   },
-  // },
   methods: {
     handleKeydown(event) {
       // Проверяем, что нажата клавиша Backspace
