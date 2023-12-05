@@ -1,8 +1,8 @@
 const express = require('express')
 const routers = express.Router()
 const controllers = require('./controllers/tool')
-const toolTreeControllers = require('./controllers/tool_tree')
-const toolFilterControllers = require('./controllers/tool_filter')
+const treeControllers = require('./controllers/tool_tree')
+const filterControllers = require('./controllers/tool_filter')
 
 const login = require('./controllers/login')
 const { validateUser, getDatabaseInfo } = require('./controllers/login')
@@ -21,7 +21,7 @@ routers.get('/database-info', getDatabaseInfo)
 // Инструментальные маршруты
 // Основные сведения об инструменте
 
-routers.get('/tools', controllers.getTools)
+routers.get('/tools', filterControllers.getTools)
 routers.get('/tool-library', controllers.getLibrary)
 routers.get('/tool-spec', controllers.getToolNomSpec)
 routers.get('/unique-tool-specs', controllers.getUniqueToolSpecs)
@@ -44,8 +44,8 @@ routers.delete('/material/:id', controllers.deleteMaterial)
 routers.delete('/type/:id', controllers.deleteType)
 routers.delete('/group/:id', controllers.deleteGroup)
 
-routers.get('/tools-params', toolFilterControllers.getToolParams)
+routers.get('/tools-params', filterControllers.getToolParams)
 
-routers.get('/tools-tree', toolTreeControllers.getToolsTree)
+routers.get('/tools-tree', treeControllers.getToolsTree)
 
 module.exports = routers

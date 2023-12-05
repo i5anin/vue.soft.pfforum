@@ -83,107 +83,6 @@ async function getUniqueToolSpecs(req, res) {
 // }
 
 // Определение контроллеров
-async function getTools(req, res) {
-  try {
-    // Получение параметров запроса
-    const { search } = req.query
-    const page = parseInt(req.query.page || 1, 10)
-    const limit = parseInt(req.query.limit || 15, 10)
-    const offset = (page - 1) * limit
-
-    // Подготовка параметров для запросов
-    const searchCondition = search ? `WHERE tool_nom.name ILIKE $1` : ''
-    const limitOffsetCondition = search
-      ? `LIMIT $2::bigint OFFSET $3::bigint`
-      : `LIMIT $1::bigint OFFSET $2::bigint`
-    const queryParams = search
-      ? [`%${search}%`, limit, offset]
-      : [limit, offset]
-
-    // Запрос на получение общего количества инструментов
-    const countQuery = `
-      SELECT COUNT(*)::INTEGER
-      FROM dbo.tool_nom ${searchCondition}
-    `
-
-    // Запрос на получение инструментов
-    const toolQuery = `
-      SELECT tool_nom.id,
-             tool_nom.name,
-             tool_nom.group_id,
-             tool_nom.mat_id,
-             tool_nom.type_id,
-             COALESCE (tool_group.name, '[нет данных]') as group_name,
-             COALESCE (tool_mat.name, '[нет данных]')   as mat_name,
-             COALESCE (tool_type.name, '[нет данных]')  as type_name,
-             tool_nom.property
-      FROM dbo.tool_nom as tool_nom
-             LEFT JOIN dbo.tool_group ON tool_nom.group_id = tool_group.id
-             LEFT JOIN dbo.tool_mat ON tool_nom.mat_id = tool_mat.id
-             LEFT JOIN dbo.tool_type ON tool_nom.type_id = tool_type.id
-      ${searchCondition}
-      ORDER BY tool_nom.id DESC
-      ${limitOffsetCondition}
-    `
-
-    // Функция для получения сопоставления параметров
-    async function getParamsMapping() {
-      const query = 'SELECT id, params FROM dbo.tool_params'
-      const result = await pool.query(query)
-      return result.rows.reduce((acc, row) => {
-        acc[row.id] = row.params
-        return acc
-      }, {})
-    }
-
-    // Выполнение запросов
-    const [countResult, tools, paramsMapping] = await Promise.all([
-      pool.query(countQuery, search ? [`%${search}%`] : []),
-      pool.query(toolQuery, queryParams),
-      getParamsMapping(),
-    ])
-
-    const totalCount = countResult.rows[0].count
-
-    // Форматирование данных инструментов
-    const formattedTools = tools.rows.map((tool) => {
-      let formattedProperty = {}
-
-      // Проверка на null или undefined перед парсингом JSON
-      if (tool.property) {
-        const propertyObj = JSON.parse(tool.property)
-
-        formattedProperty = Object.entries(propertyObj).reduce(
-          (acc, [key, value]) => {
-            // Убедитесь, что paramsMapping[key] существует
-            if (paramsMapping[key]) acc[paramsMapping[key]] = value
-            return acc
-          },
-          {}
-        )
-      }
-
-      return {
-        id: tool.id,
-        name: tool.name,
-        mat: { name: tool.mat_name, id: tool.mat_id },
-        type: { name: tool.type_name, id: tool.type_id },
-        group: { name: tool.group_name, id: tool.group_id },
-        property: formattedProperty,
-      }
-    })
-
-    res.json({
-      currentPage: page,
-      itemsPerPage: limit,
-      totalCount,
-      tools: formattedTools,
-    })
-  } catch (err) {
-    console.error(err)
-    res.status(500).send(err.message)
-  }
-}
 
 async function deleteTool(req, res) {
   const { id } = req.params
@@ -573,7 +472,6 @@ module.exports = {
   deleteType,
   deleteMaterial,
   deleteGroup,
-  getTools,
   deleteTool,
   addTool,
   editTool,

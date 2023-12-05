@@ -1,7 +1,16 @@
 <template>
   <v-container>
     <v-row>
-      <v-col cols="12" md="4">
+      <v-col cols="12" md="3">
+        <v-text-field
+          v-model="filters.search"
+          label="Маркировка"
+          outlined
+          :clearable="true"
+          @input="onSearch"
+        />
+      </v-col>
+      <v-col cols="12" md="2">
         <v-combobox
           :chips="true"
           multiple
@@ -14,7 +23,7 @@
           @change="applyFilters"
         />
       </v-col>
-      <v-col cols="12" md="4">
+      <v-col cols="12" md="2">
         <v-combobox
           :chips="true"
           multiple
@@ -27,7 +36,7 @@
           @change="applyFilters"
         />
       </v-col>
-      <v-col cols="12" md="4">
+      <v-col cols="12" md="2">
         <v-combobox
           :chips="true"
           multiple
@@ -40,21 +49,30 @@
           @change="applyFilters"
         />
       </v-col>
-    </v-row>
-    <v-row>
-      <v-col class="pa-3">
-        <v-text-field
-          v-model="filters.search"
-          label="Поиск"
-          outlined
-          :clearable="true"
-          @input="onSearch"
+      <v-col cols="12" md="3">
+        <v-combobox
+          :chips="true"
+          multiple
+          v-model="selectedMaterial"
+          :items="materialOptions"
+          item-text="name"
+          item-value="id"
+          label="Параметры"
+          return-object
+          @change="applyFilters"
         />
       </v-col>
+    </v-row>
+
+    <v-row>
       <v-col class="pa-3 text-right">
         <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>
       </v-col>
+      <v-col cols="12" md="2">
+        <v-checkbox label="Не заполненые данные" v-model="isCheckboxChecked" />
+      </v-col>
     </v-row>
+
     <edit-tool-modal
       v-if="openDialog"
       :tool="editingTool"
@@ -106,30 +124,30 @@
           item.mat.name
         }}</span>
       </template>
-      <template v-slot:item.geometry="{ item }">
-        <td>{{ item.spec.geometry }}</td>
-      </template>
-      <template v-slot:item.radius="{ item }">
-        <td class="narrow-column">{{ item.spec.radius }}</td>
-      </template>
-      <template v-slot:item.diam="{ item }">
-        <td class="narrow-column">{{ item.spec.diam }}</td>
-      </template>
-      <template v-slot:item.shag="{ item }">
-        <td class="narrow-column">
-          {{ item.spec.shag !== '0' ? item.spec.shag : '' }}
-        </td>
-      </template>
-      <template v-slot:item.gabarit="{ item }">
-        <td class="narrow-column">
-          {{ item.spec.gabarit !== '0' ? item.spec.gabarit : '' }}
-        </td>
-      </template>
-      <template v-slot:item.width="{ item }">
-        <td class="narrow-column">
-          {{ item.spec.width !== '0' ? item.spec.width : '' }}
-        </td>
-      </template>
+      <!--      <template v-slot:item.geometry="{ item }">-->
+      <!--        <td>{{ item.spec.geometry }}</td>-->
+      <!--      </template>-->
+      <!--      <template v-slot:item.radius="{ item }">-->
+      <!--        <td class="narrow-column">{{ item.spec.radius }}</td>-->
+      <!--      </template>-->
+      <!--      <template v-slot:item.diam="{ item }">-->
+      <!--        <td class="narrow-column">{{ item.spec.diam }}</td>-->
+      <!--      </template>-->
+      <!--      <template v-slot:item.shag="{ item }">-->
+      <!--        <td class="narrow-column">-->
+      <!--          {{ item.spec.shag !== '0' ? item.spec.shag : '' }}-->
+      <!--        </td>-->
+      <!--      </template>-->
+      <!--      <template v-slot:item.gabarit="{ item }">-->
+      <!--        <td class="narrow-column">-->
+      <!--          {{ item.spec.gabarit !== '0' ? item.spec.gabarit : '' }}-->
+      <!--        </td>-->
+      <!--      </template>-->
+      <!--      <template v-slot:item.width="{ item }">-->
+      <!--        <td class="narrow-column">-->
+      <!--          {{ item.spec.width !== '0' ? item.spec.width : '' }}-->
+      <!--        </td>-->
+      <!--      </template>-->
 
       <template v-slot:item.name="{ item }">
         <span style="white-space: nowrap">{{ item.name }}</span>
@@ -150,6 +168,7 @@ export default {
   components: { VDataTableServer, EditToolModal },
   data() {
     return {
+      isCheckboxChecked: true,
       openDialog: false,
       editingTool: null,
       ToolTableHeaders,

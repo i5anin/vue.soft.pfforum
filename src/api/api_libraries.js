@@ -1,3 +1,7 @@
+import axios from 'axios'
+
+const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:4000/api'
+
 export async function addMaterial(name) {
   const response = await axios.post(`${BASE_URL}/add-material`, { name })
   return response.data
