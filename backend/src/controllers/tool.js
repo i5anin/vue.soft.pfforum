@@ -110,6 +110,9 @@ async function getTools(req, res) {
     const toolQuery = `
       SELECT tool_nom.id,
              tool_nom.name,
+             tool_nom.group_id,
+             tool_nom.mat_id,
+             tool_nom.type_id,
              COALESCE (tool_group.name, '[нет данных]') as group_name,
              COALESCE (tool_mat.name, '[нет данных]')   as mat_name,
              COALESCE (tool_type.name, '[нет данных]')  as type_name,
