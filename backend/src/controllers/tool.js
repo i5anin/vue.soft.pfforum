@@ -155,7 +155,8 @@ async function getTools(req, res) {
 
         formattedProperty = Object.entries(propertyObj).reduce(
           (acc, [key, value]) => {
-            if (paramsMapping[key]) acc[paramsMapping[key]] = value // Убедитесь, что paramsMapping[key] существует
+            // Убедитесь, что paramsMapping[key] существует
+            if (paramsMapping[key]) acc[paramsMapping[key]] = value
             return acc
           },
           {}
@@ -165,6 +166,9 @@ async function getTools(req, res) {
       return {
         id: tool.id,
         name: tool.name,
+        mat: { name: tool.mat_name, id: tool.mat_id },
+        type: { name: tool.type_name, id: tool.type_id },
+        group: { name: tool.group_name, id: tool.group_id },
         property: formattedProperty,
       }
     })
