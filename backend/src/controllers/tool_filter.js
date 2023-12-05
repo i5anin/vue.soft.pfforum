@@ -15,25 +15,22 @@ const pool = new Pool(dbConfig)
 async function getTools(req, res) {
   try {
     // Получение параметров запроса
-    const { search } = req.query
+    const { search, includeNull } = req.query
     const page = parseInt(req.query.page || 1, 10)
     const limit = parseInt(req.query.limit || 15, 10)
     const offset = (page - 1) * limit
 
+    // Определение типа JOIN в зависимости от параметра includeNull
+    const joinType = includeNull === 'true' ? 'LEFT' : 'INNER'
+
     // Подготовка параметров для запросов
     const searchCondition = search ? `WHERE tool_nom.name ILIKE $1` : ''
     const limitOffsetCondition = search
-      ? `LIMIT $2::bigint OFFSET $3::bigint`
-      : `LIMIT $1::bigint OFFSET $2::bigint`
+      ? `LIMIT $2 OFFSET $3`
+      : `LIMIT $1 OFFSET $2`
     const queryParams = search
       ? [`%${search}%`, limit, offset]
       : [limit, offset]
-
-    // Запрос на получение общего количества инструментов
-    const countQuery = `
-      SELECT COUNT(*)::INTEGER
-      FROM dbo.tool_nom ${searchCondition}
-    `
 
     // Запрос на получение инструментов
     const toolQuery = `
@@ -43,20 +40,20 @@ async function getTools(req, res) {
              tool_nom.mat_id,
              tool_nom.type_id,
              tool_group.name as group_name,
-             tool_mat.name   as mat_name,
-             tool_type.name  as type_name,
+             tool_mat.name as mat_name,
+             tool_type.name as type_name,
              tool_nom.property
       FROM dbo.tool_nom as tool_nom
-             LEFT JOIN dbo.tool_group ON tool_nom.group_id = tool_group.id
-             LEFT JOIN dbo.tool_mat ON tool_nom.mat_id = tool_mat.id
-             LEFT JOIN dbo.tool_type ON tool_nom.type_id = tool_type.id
+             ${joinType} JOIN dbo.tool_group ON tool_nom.group_id = tool_group.id
+             ${joinType} JOIN dbo.tool_mat ON tool_nom.mat_id = tool_mat.id
+             ${joinType} JOIN dbo.tool_type ON tool_nom.type_id = tool_type.id
       ${searchCondition}
       ORDER BY tool_nom.id DESC
       ${limitOffsetCondition}
     `
 
     // Функция для получения сопоставления параметров
-    async function getParamsMapping() {
+    const getParamsMapping = async () => {
       const query = 'SELECT id, params FROM dbo.tool_params'
       const result = await pool.query(query)
       return result.rows.reduce((acc, row) => {
