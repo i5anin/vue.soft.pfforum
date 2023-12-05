@@ -42,9 +42,9 @@ async function getTools(req, res) {
              tool_nom.group_id,
              tool_nom.mat_id,
              tool_nom.type_id,
-             COALESCE (tool_group.name, '[нет данных]') as group_name,
-             COALESCE (tool_mat.name, '[нет данных]')   as mat_name,
-             COALESCE (tool_type.name, '[нет данных]')  as type_name,
+             tool_group.name as group_name,
+             tool_mat.name   as mat_name,
+             tool_type.name  as type_name,
              tool_nom.property
       FROM dbo.tool_nom as tool_nom
              LEFT JOIN dbo.tool_group ON tool_nom.group_id = tool_group.id
