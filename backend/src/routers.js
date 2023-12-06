@@ -1,42 +1,42 @@
 const express = require('express')
-const routers = express.Router()
-const controllers = require('./controllers/tool')
-const treeControllers = require('./controllers/tool_tree')
-const filterControllers = require('./controllers/tool_filter')
+const router = express.Router()
 
-const login = require('./controllers/login')
-const { validateUser, getDatabaseInfo } = require('./controllers/login')
+const loginController = require('./controllers/login')
+const toolController = require('./controllers/tool')
+const treeController = require('./controllers/tool_tree')
+const filterController = require('./controllers/tool_filter')
 
-// Маршруты аутентификации
-routers.post('/validate-user', login.validateUser)
-routers.get('/database-info', getDatabaseInfo)
+// Authentication Routes
+router.post('/validate-user', loginController.validateUser)
+router.get('/database-info', loginController.getDatabaseInfo)
 
-routers.get('/tools', filterControllers.getTools)
-routers.get('/tool-library', controllers.getLibrary)
-routers.get('/tool-spec', controllers.getToolNomSpec)
-routers.get('/unique-tool-specs', controllers.getUniqueToolSpecs)
+router
+  .route('/tool')
+  .get(toolController.getToolsWithInventoryInfo)
+  .post(toolController.addTool)
 
-// Инвентаризация и управление инструментами
-routers.get('/tools-inventory', controllers.getToolsWithInventoryInfo)
-routers.post('/tool', controllers.addTool)
-routers.put('/tool/:id', controllers.editTool)
-routers.delete('/tool/:id', controllers.deleteTool)
+router
+  .route('/tool/:id')
+  .put(toolController.editTool)
+  .delete(toolController.deleteTool)
 
-// СКЛАД Добавление инструмента на склад с параметрами zakaz, norma, kolvo_sklad
-routers.post('/add-to-warehouse/:id', controllers.addToWarehouse)
+router.get('/tools', filterController.getTools)
 
-// FIXME: DELETE
-// РЕСУРСЫ Дополнительные ресурсы, связанные с инструментами
-routers.post('/add-material', controllers.addMaterial)
-routers.post('/add-type', controllers.addType)
-routers.post('/add-group', controllers.addGroup)
-routers.delete('/material/:id', controllers.deleteMaterial)
-routers.delete('/type/:id', controllers.deleteType)
-routers.delete('/group/:id', controllers.deleteGroup)
+router.post('/add-to-warehouse/:id', toolController.addToWarehouse)
+router.get('/tool-library', toolController.getLibrary)
+router.get('/unique-tool-specs', toolController.getUniqueToolSpecs)
 
-// Маршрут для получения параметров инструментов
-routers.get('/tools-params', filterControllers.getToolParams)
+router.get('/tools-params', filterController.getToolParams)
 
-routers.get('/tools-tree', treeControllers.getToolsTree)
+// Добавление и удаление материалов, типов и групп
+router.post('/add-material', toolController.addMaterial)
+router.post('/add-type', toolController.addType)
+router.post('/add-group', toolController.addGroup)
+router.delete('/material/:id', toolController.deleteMaterial)
+router.delete('/type/:id', toolController.deleteType)
+router.delete('/group/:id', toolController.deleteGroup)
 
-module.exports = routers
+// Tree Routes
+router.get('/tools-tree', treeController.getToolsTree)
+
+module.exports = router
