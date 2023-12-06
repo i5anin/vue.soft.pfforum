@@ -66,7 +66,11 @@
 
     <v-row>
       <v-col cols="12" md="3">
-        <v-checkbox label="Незаполненные данные" v-model="isCheckboxChecked" />
+        <v-checkbox
+          label="Незаполненные данные"
+          v-model="isCheckboxChecked"
+          :color="checkboxColor"
+        />
       </v-col>
       <v-col class="pa-3 text-right">
         <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>
@@ -127,6 +131,11 @@
       <template v-slot:item.name="{ item }">
         <span style="white-space: nowrap">{{ item.name }}</span>
       </template>
+      <template v-slot:item.param="{ item }">
+        <div v-for="(value, key) in item.property" :key="key">
+          {{ key }}: {{ value }}
+        </div>
+      </template>
     </v-data-table-server>
   </v-container>
 </template>
@@ -143,7 +152,7 @@ export default {
   components: { VDataTableServer, EditToolModal },
   data() {
     return {
-      isCheckboxChecked: true,
+      isCheckboxChecked: false,
       openDialog: false,
       editingTool: null,
       ToolTableHeaders,
@@ -159,11 +168,13 @@ export default {
   },
   computed: {
     ...mapGetters('tool', ['toolsTotalCount', 'tools', 'filters', 'isLoading']),
+    checkboxColor() {
+      return this.isCheckboxChecked ? 'red' : ''
+    },
   },
   async mounted() {
     await this.fetchToolsByFilter()
     await this.fetchUniqueToolSpecs()
-
     try {
       const rawData = await getLibraries()
       this.typeOptions = rawData.types.map((type) => type.name)
@@ -177,12 +188,13 @@ export default {
     selectedType: 'onFilterChange',
     selectedGroup: 'onFilterChange',
     selectedMaterial: 'onFilterChange',
+
     'filters.search': 'onFilterChange',
     'filters.currentPage': 'onFilterChange',
     'filters.itemsPerPage': 'onFilterChange',
     isCheckboxChecked(newVal, oldVal) {
       if (newVal !== oldVal) {
-        this.setIncludeNull(newVal) // commit the mutation when checkbox value changes
+        this.setIncludeNull(newVal)
         this.applyFilters()
       }
     },
