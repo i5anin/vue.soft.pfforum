@@ -114,22 +114,21 @@
       </template>
       <!--type-->
       <template v-slot:item.type_name="{ item }">
-        <span :style="item.type.name === '[нет данных]' ? 'color: red;' : ''">{{
-          item.type.name
-        }}</span>
-      </template>
-      <!--mat-->
-      <template v-slot:item.group_name="{ item }">
-        <span
-          :style="item.group.name === '[нет данных]' ? 'color: red;' : ''"
-          >{{ item.group.name }}</span
-        >
+        <span :style="item.type.name === null ? 'color: red;' : ''">
+          {{ item.type.name === null ? 'null' : item.type.name }}
+        </span>
       </template>
       <!--group-->
+      <template v-slot:item.group_name="{ item }">
+        <span :style="item.group.name === null ? 'color: red;' : ''">
+          {{ item.group.name === null ? 'null' : item.group.name }}
+        </span>
+      </template>
+      <!--mat-->
       <template v-slot:item.mat_name="{ item }">
-        <span :style="item.mat.name === '[нет данных]' ? 'color: red;' : ''">{{
-          item.mat.name
-        }}</span>
+        <span :style="item.mat.name === null ? 'color: red;' : ''">
+          {{ item.mat.name === null ? 'null' : item.mat.name }}
+        </span>
       </template>
       <!--property-->
       <template v-slot:item.param="{ item }">
