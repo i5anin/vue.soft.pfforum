@@ -108,21 +108,30 @@
           {{ index + 1 }}
         </td>
       </template>
+      <!--name-->
+      <template v-slot:item.name="{ item }">
+        <span style="white-space: nowrap">{{ item.name }}</span>
+      </template>
+      <!--type-->
       <template v-slot:item.type_name="{ item }">
         <span :style="item.type.name === '[нет данных]' ? 'color: red;' : ''">{{
           item.type.name
         }}</span>
       </template>
-
+      <!--mat-->
       <template v-slot:item.group_name="{ item }">
         <span
           :style="item.group.name === '[нет данных]' ? 'color: red;' : ''"
           >{{ item.group.name }}</span
         >
       </template>
-      <template v-slot:item.name="{ item }">
-        <span style="white-space: nowrap">{{ item.name }}</span>
+      <!--group-->
+      <template v-slot:item.mat_name="{ item }">
+        <span :style="item.mat.name === '[нет данных]' ? 'color: red;' : ''">{{
+          item.mat.name
+        }}</span>
       </template>
+      <!--property-->
       <template v-slot:item.param="{ item }">
         <div v-for="(prop, key) in item.property" :key="key">
           {{ prop.info }}: {{ prop.value }}
