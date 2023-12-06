@@ -65,11 +65,11 @@
     </v-row>
 
     <v-row>
+      <v-col cols="12" md="3">
+        <v-checkbox label="Незаполненные данные" v-model="isCheckboxChecked" />
+      </v-col>
       <v-col class="pa-3 text-right">
         <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>
-      </v-col>
-      <v-col cols="12" md="2">
-        <v-checkbox label="Не заполненые данные" v-model="isCheckboxChecked" />
       </v-col>
     </v-row>
 
@@ -124,31 +124,6 @@
           item.mat.name
         }}</span>
       </template>
-      <!--      <template v-slot:item.geometry="{ item }">-->
-      <!--        <td>{{ item.spec.geometry }}</td>-->
-      <!--      </template>-->
-      <!--      <template v-slot:item.radius="{ item }">-->
-      <!--        <td class="narrow-column">{{ item.spec.radius }}</td>-->
-      <!--      </template>-->
-      <!--      <template v-slot:item.diam="{ item }">-->
-      <!--        <td class="narrow-column">{{ item.spec.diam }}</td>-->
-      <!--      </template>-->
-      <!--      <template v-slot:item.shag="{ item }">-->
-      <!--        <td class="narrow-column">-->
-      <!--          {{ item.spec.shag !== '0' ? item.spec.shag : '' }}-->
-      <!--        </td>-->
-      <!--      </template>-->
-      <!--      <template v-slot:item.gabarit="{ item }">-->
-      <!--        <td class="narrow-column">-->
-      <!--          {{ item.spec.gabarit !== '0' ? item.spec.gabarit : '' }}-->
-      <!--        </td>-->
-      <!--      </template>-->
-      <!--      <template v-slot:item.width="{ item }">-->
-      <!--        <td class="narrow-column">-->
-      <!--          {{ item.spec.width !== '0' ? item.spec.width : '' }}-->
-      <!--        </td>-->
-      <!--      </template>-->
-
       <template v-slot:item.name="{ item }">
         <span style="white-space: nowrap">{{ item.name }}</span>
       </template>
@@ -205,12 +180,24 @@ export default {
     'filters.search': 'onFilterChange',
     'filters.currentPage': 'onFilterChange',
     'filters.itemsPerPage': 'onFilterChange',
+    isCheckboxChecked(newVal, oldVal) {
+      if (newVal !== oldVal) {
+        this.setIncludeNull(newVal) // commit the mutation when checkbox value changes
+        this.applyFilters()
+      }
+    },
   },
   methods: {
     ...mapActions('tool', ['fetchToolsByFilter', 'fetchUniqueToolSpecs']),
-    ...mapMutations('tool', ['setCurrentPage', 'setItemsPerPage', 'setSearch']),
+    ...mapMutations({
+      setIncludeNull: 'tool/setIncludeNull', // Add your namespaced mutation here
+      setCurrentPage: 'tool/setCurrentPage',
+      setItemsPerPage: 'tool/setItemsPerPage',
+      setSearch: 'tool/setSearch',
+    }),
 
     async applyFilters() {
+      console.log('Checkbox value:', this.isCheckboxChecked)
       const filters = {
         type: this.selectedType?.id,
         group: this.selectedGroup?.id,
@@ -218,8 +205,9 @@ export default {
         search: this.filters.search,
         page: this.filters.currentPage,
         limit: this.filters.itemsPerPage,
+        includeNull: this.isCheckboxChecked,
       }
-      // Обновление списка инструментов с применением фильтров
+      console.log('Filters:', filters)
       await this.fetchToolsByFilter(filters)
     },
     async onChangePage(page) {
@@ -247,12 +235,6 @@ export default {
         type_name: '',
         mat_name: '',
         name: '',
-        geometry: '',
-        radius: 0,
-        shag: 0,
-        gabarit: 0,
-        width: 0,
-        diam: 0,
       }
       this.openDialog = true
     },

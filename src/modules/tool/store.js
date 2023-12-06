@@ -29,6 +29,9 @@ export const store = {
     },
   },
   mutations: {
+    setIncludeNull(state, includeNull) {
+      state.filters.includeNull = includeNull
+    },
     setIsLoading(state, isLoading) {
       state.isLoading = isLoading
     },
@@ -63,16 +66,18 @@ export const store = {
   actions: {
     async fetchToolsByFilter({ commit, getters }) {
       commit('setIsLoading', true)
-      const { itemsPerPage, search, currentPage } = getters.filters
+      const { itemsPerPage, search, currentPage, includeNull } = getters.filters // Include includeNull here
       const { tools, totalCount } = await getTools(
         search,
         currentPage,
-        itemsPerPage
+        itemsPerPage,
+        includeNull
       )
       commit('setTools', tools)
       commit('setToolsTotalCount', totalCount)
       commit('setIsLoading', false)
     },
+
     async fetchUniqueToolSpecs({ commit }) {
       const { shags, gabarits, widths, names } = await getUniqueToolSpecs()
       commit('setShagOptions', shags)

@@ -28,10 +28,15 @@ export async function getToolsWithInventoryInfo(
     return null
   }
 }
-export async function getTools(search = '', page = 1, limit = 10) {
+export async function getTools(
+  search = '',
+  page = 1,
+  limit = 10,
+  includeNull = false
+) {
   try {
     const response = await axios.get(`${BASE_URL}/tools`, {
-      params: { search, page, limit },
+      params: { search, page, limit, includeNull },
     })
     response.data.totalCount = parseInt(response.data.totalCount, 10)
     return response.data

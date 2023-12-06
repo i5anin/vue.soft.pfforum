@@ -15,7 +15,7 @@ const pool = new Pool(dbConfig)
 async function getTools(req, res) {
   try {
     // Получение параметров запроса
-    const { search, includeNull } = req.query
+    const { search, includeNull, showNull = 'false' } = req.query
     const page = parseInt(req.query.page || 1, 10)
     const limit = parseInt(req.query.limit || 15, 10)
     const offset = (page - 1) * limit
@@ -23,16 +23,26 @@ async function getTools(req, res) {
     // Определение типа JOIN в зависимости от параметра includeNull
     const joinType = includeNull === 'true' ? 'LEFT' : 'INNER'
 
-    // Подготовка параметров для запросов
-    const searchCondition = search ? `WHERE tool_nom.name ILIKE $1` : ''
-    const limitOffsetCondition = search
-      ? `LIMIT $2 OFFSET $3`
-      : `LIMIT $1 OFFSET $2`
-    const queryParams = search
-      ? [`%${search}%`, limit, offset]
-      : [limit, offset]
+    // Формирование условия поиска и фильтрации по NULL
+    const searchCondition = search
+      ? `WHERE tool_nom.name ILIKE '%${search.replace(/'/g, "''")}%'`
+      : ''
+    const nullFilter =
+      showNull === 'false'
+        ? 'AND tool_nom.mat_id IS NOT NULL AND tool_nom.type_id IS NOT NULL AND tool_nom.group_id IS NOT NULL'
+        : ''
 
-    // Запрос на получение инструментов
+    // Запрос на подсчет общего количества записей
+    const countQuery = `
+      SELECT COUNT(*)
+      FROM dbo.tool_nom as tool_nom
+             ${joinType} JOIN dbo.tool_group ON tool_nom.group_id = tool_group.id
+             ${joinType} JOIN dbo.tool_mat ON tool_nom.mat_id = tool_mat.id
+             ${joinType} JOIN dbo.tool_type ON tool_nom.type_id = tool_type.id
+      ${searchCondition} ${nullFilter}
+    `
+
+    // Запрос на получение инструментов с учетом новых условий
     const toolQuery = `
       SELECT tool_nom.id,
              tool_nom.name,
@@ -47,9 +57,9 @@ async function getTools(req, res) {
              ${joinType} JOIN dbo.tool_group ON tool_nom.group_id = tool_group.id
              ${joinType} JOIN dbo.tool_mat ON tool_nom.mat_id = tool_mat.id
              ${joinType} JOIN dbo.tool_type ON tool_nom.type_id = tool_type.id
-      ${searchCondition}
+      ${searchCondition} ${nullFilter}
       ORDER BY tool_nom.id DESC
-      ${limitOffsetCondition}
+      LIMIT ${limit} OFFSET ${offset}
     `
 
     // Функция для получения сопоставления параметров
@@ -64,8 +74,8 @@ async function getTools(req, res) {
 
     // Выполнение запросов
     const [countResult, tools, paramsMapping] = await Promise.all([
-      pool.query(countQuery, search ? [`%${search}%`] : []),
-      pool.query(toolQuery, queryParams),
+      pool.query(countQuery),
+      pool.query(toolQuery),
       getParamsMapping(),
     ])
 
