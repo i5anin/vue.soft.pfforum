@@ -12,6 +12,15 @@ const dbConfig =
 // Создание соединения с базой данных
 const pool = new Pool(dbConfig)
 
+async function getParamsMapping() {
+  const query = 'SELECT id, params, info FROM dbo.tool_params'
+  const result = await pool.query(query)
+  return result.rows.reduce((acc, row) => {
+    acc[row.id] = { value: row.params, info: row.info }
+    return acc
+  }, {})
+}
+
 async function getTools(req, res) {
   try {
     // Получение параметров запроса
@@ -62,18 +71,8 @@ async function getTools(req, res) {
       LIMIT ${limit} OFFSET ${offset}
     `
 
-    // Функция для получения сопоставления параметров
-    const getParamsMapping = async () => {
-      const query = 'SELECT id, params FROM dbo.tool_params'
-      const result = await pool.query(query)
-      return result.rows.reduce((acc, row) => {
-        acc[row.id] = row.params
-        return acc
-      }, {})
-    }
-
     // Выполнение запросов
-    const [countResult, tools, paramsMapping] = await Promise.all([
+    const [countResult, toolsResult, paramsMapping] = await Promise.all([
       pool.query(countQuery),
       pool.query(toolQuery),
       getParamsMapping(),
@@ -82,18 +81,20 @@ async function getTools(req, res) {
     const totalCount = countResult.rows[0].count
 
     // Форматирование данных инструментов
-    const formattedTools = tools.rows.map((tool) => {
+    const formattedTools = toolsResult.rows.map((tool) => {
       let formattedProperty = {}
 
-      // Проверка на null или undefined перед парсингом JSON
       if (tool.property) {
         const propertyObj = JSON.parse(tool.property)
 
         formattedProperty = Object.entries(propertyObj).reduce(
           (acc, [key, value]) => {
-            // Check if paramsMapping[key] exists and value is not empty
-            if (paramsMapping[key] && value !== '')
-              acc[paramsMapping[key]] = value
+            if (value !== '' && paramsMapping[key]) {
+              acc[key] = {
+                info: paramsMapping[key].info,
+                value: value, // Это значение из propertyObj
+              }
+            }
             return acc
           },
           {}
@@ -121,19 +122,16 @@ async function getTools(req, res) {
     res.status(500).send(err.message)
   }
 }
-
 async function getToolParams() {
   try {
     // Выполняем запрос к базе данных
     const query = 'SELECT id, params, info FROM dbo.tool_params'
     const result = await pool.query(query)
-
     // Возвращаем результат запроса
     return result.rows // Это массив объектов с полями id, params, info
   } catch (error) {
     // Логируем ошибку для отладки
     console.error('Error fetching tool parameters:', error)
-
     // Перебрасываем ошибку для дальнейшей обработки или логирования
     throw error
   }
