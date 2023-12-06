@@ -1,1 +1,0 @@
-{"version":"2befe423576d6871","fileName":"store.js","fileSimpleName":"tool","fileType":"js","notes":{"186":"Удаление инструмента"}}

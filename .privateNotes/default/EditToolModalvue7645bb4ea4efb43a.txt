@@ -1,1 +1,0 @@
-{"version":"7645bb4ea4efb43a","fileName":"EditToolModal.vue","fileSimpleName":"EditToolModal","fileType":"vue","notes":{"9":"https://vuetifyjs.com/en/components/combobox/#usage","10":"х быстрое удаление поля"}}
