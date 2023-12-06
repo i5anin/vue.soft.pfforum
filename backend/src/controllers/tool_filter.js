@@ -91,8 +91,9 @@ async function getTools(req, res) {
 
         formattedProperty = Object.entries(propertyObj).reduce(
           (acc, [key, value]) => {
-            // Убедитесь, что paramsMapping[key] существует
-            if (paramsMapping[key]) acc[paramsMapping[key]] = value
+            // Check if paramsMapping[key] exists and value is not empty
+            if (paramsMapping[key] && value !== '')
+              acc[paramsMapping[key]] = value
             return acc
           },
           {}
