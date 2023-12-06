@@ -122,18 +122,12 @@
           >{{ item.group.name }}</span
         >
       </template>
-
-      <template v-slot:item.mat_name="{ item }">
-        <span :style="item.mat.name === '[нет данных]' ? 'color: red;' : ''">{{
-          item.mat.name
-        }}</span>
-      </template>
       <template v-slot:item.name="{ item }">
         <span style="white-space: nowrap">{{ item.name }}</span>
       </template>
       <template v-slot:item.param="{ item }">
-        <div v-for="(value, key) in item.property" :key="key">
-          {{ key }}: {{ value }}
+        <div v-for="(prop, key) in item.property" :key="key">
+          {{ prop.info }}: {{ prop.value }}
         </div>
       </template>
     </v-data-table-server>

@@ -73,15 +73,6 @@ async function getUniqueToolSpecs(req, res) {
   }
 }
 
-// async function getParamsMapping() {
-//   const query = 'SELECT id, params FROM tool_params'
-//   const result = await pool.query(query)
-//   return result.rows.reduce((acc, row) => {
-//     acc[row.id] = row.params
-//     return acc
-//   }, {})
-// }
-
 // Определение контроллеров
 
 async function deleteTool(req, res) {
