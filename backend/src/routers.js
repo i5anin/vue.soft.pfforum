@@ -34,6 +34,7 @@ routers.delete('/material/:id', controllers.deleteMaterial)
 routers.delete('/type/:id', controllers.deleteType)
 routers.delete('/group/:id', controllers.deleteGroup)
 
+// Маршрут для получения параметров инструментов
 routers.get('/tools-params', filterControllers.getToolParams)
 
 routers.get('/tools-tree', treeControllers.getToolsTree)

@@ -50,3 +50,16 @@ export async function deleteGroup(id) {
     return null
   }
 }
+
+export async function getToolParams() {
+  try {
+    const response = await axios.get(`${BASE_URL}/tools-params`)
+    return response.data
+  } catch (error) {
+    console.error(
+      'There has been a problem with fetching tool parameters:',
+      error
+    )
+    return null
+  }
+}

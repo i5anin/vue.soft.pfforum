@@ -53,10 +53,8 @@
         <v-combobox
           :chips="true"
           multiple
-          v-model="selectedMaterial"
-          :items="materialOptions"
-          item-text="name"
-          item-value="id"
+          v-model="selectedParams"
+          :items="paramsOptions"
           label="Параметры"
           return-object
           @change="applyFilters"
@@ -139,7 +137,7 @@ import EditToolModal from '@/modules/tool/components/EditToolModal.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
 import { ToolTableHeaders } from '@/modules/tool/components/config'
-import { getLibraries } from '@/api'
+import { getLibraries, getToolParams } from '@/api'
 
 export default {
   emits: ['changes-saved', 'canceled'],
@@ -158,6 +156,8 @@ export default {
       typeOptions: [],
       groupOptions: [],
       materialOptions: [],
+      paramsOptions: [],
+      selectedParams: [],
     }
   },
   computed: {
@@ -171,9 +171,12 @@ export default {
     await this.fetchUniqueToolSpecs()
     try {
       const rawData = await getLibraries()
+      const paramsData = await getToolParams()
+
       this.typeOptions = rawData.types.map((type) => type.name)
       this.groupOptions = rawData.groups.map((group) => group.name)
       this.materialOptions = rawData.materials.map((material) => material.name)
+      this.paramsOptions = paramsData.map((param) => param.info)
     } catch (error) {
       console.error('Ошибка при получении данных:', error)
     }

@@ -122,18 +122,14 @@ async function getTools(req, res) {
     res.status(500).send(err.message)
   }
 }
-async function getToolParams() {
+async function getToolParams(req, res) {
   try {
-    // Выполняем запрос к базе данных
     const query = 'SELECT id, params, info FROM dbo.tool_params'
     const result = await pool.query(query)
-    // Возвращаем результат запроса
-    return result.rows // Это массив объектов с полями id, params, info
+    res.json(result.rows) // Отправляем результат запроса обратно клиенту
   } catch (error) {
-    // Логируем ошибку для отладки
     console.error('Error fetching tool parameters:', error)
-    // Перебрасываем ошибку для дальнейшей обработки или логирования
-    throw error
+    res.status(500).send('Internal Server Error') // Отправляем сообщение об ошибке
   }
 }
 
