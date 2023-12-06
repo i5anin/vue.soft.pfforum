@@ -124,11 +124,8 @@
         <span style="white-space: nowrap">{{ item.name }}</span>
       </template>
       <template v-slot:item.param="{ item }">
-        <div v-for="param in paramsData" :key="param.id">
-          <div v-if="hasProperty(item, param.id.toString())">
-            {{ item.property[param.id].info }}:
-            {{ item.property[param.id].value }}
-          </div>
+        <div v-for="(prop, key) in item.property" :key="key">
+          {{ prop.info }}: {{ prop.value }}
         </div>
       </template>
     </v-data-table-server>
@@ -156,22 +153,14 @@ export default {
       selectedGroup: null,
       selectedMaterial: null,
 
-      paramsData: [],
       typeOptions: [],
       groupOptions: [],
+      materialOptions: [],
       paramsOptions: [],
       selectedParams: [],
-      materialOptions: [],
     }
   },
   computed: {
-    paramsMap() {
-      let map = {}
-      this.paramsData.forEach((param) => {
-        map[param.id] = param.info
-      })
-      return map
-    },
     ...mapGetters('tool', ['toolsTotalCount', 'tools', 'filters', 'isLoading']),
     checkboxColor() {
       return this.isCheckboxChecked ? 'red' : ''
@@ -184,8 +173,6 @@ export default {
       const rawData = await getLibraries()
       const paramsData = await getToolParams()
 
-      console.log(paramsData)
-
       this.typeOptions = rawData.types.map((type) => type.name)
       this.groupOptions = rawData.groups.map((group) => group.name)
       this.materialOptions = rawData.materials.map((material) => material.name)
@@ -195,7 +182,6 @@ export default {
     }
   },
   watch: {
-    someDataProperty: 'onFilterChange',
     selectedType: 'onFilterChange',
     selectedGroup: 'onFilterChange',
     selectedMaterial: 'onFilterChange',
@@ -211,9 +197,6 @@ export default {
     },
   },
   methods: {
-    hasProperty(tool, propId) {
-      return Object.prototype.hasOwnProperty.call(tool.property, propId)
-    },
     ...mapActions('tool', ['fetchToolsByFilter', 'fetchUniqueToolSpecs']),
     ...mapMutations({
       setIncludeNull: 'tool/setIncludeNull', // Add your namespaced mutation here
