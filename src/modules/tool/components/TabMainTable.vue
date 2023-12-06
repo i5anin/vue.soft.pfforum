@@ -209,6 +209,7 @@ export default {
       }
       console.log('Filters:', filters)
       await this.fetchToolsByFilter(filters)
+      this.setIsLoading(false)
     },
     async onChangePage(page) {
       this.setCurrentPage(page)
