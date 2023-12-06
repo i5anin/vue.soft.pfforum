@@ -123,13 +123,9 @@
       <template v-slot:item.name="{ item }">
         <span style="white-space: nowrap">{{ item.name }}</span>
       </template>
-      <template v-for="paramId in selectedParams" :key="paramId">
-        <div>
-          <v-text-field
-            :label="toolParams.find((param) => param.id === paramId).info"
-            v-model="selectedParamsValues[paramId]"
-            @input="updateParamValue(paramId, $event)"
-          />
+      <template v-slot:item.param="{ item }">
+        <div v-for="(prop, key) in item.property" :key="key">
+          {{ prop.info }}: {{ prop.value }}
         </div>
       </template>
     </v-data-table-server>
@@ -148,25 +144,20 @@ export default {
   components: { VDataTableServer, EditToolModal },
   data() {
     return {
-      openDialog: false,
       isCheckboxChecked: false,
-
+      openDialog: false,
+      editingTool: null,
       ToolTableHeaders,
 
-      editingTool: null,
       selectedType: null,
       selectedGroup: null,
       selectedMaterial: null,
 
-      selectedParamsValues: {},
-
-      paramsData: '',
-      toolParams: [],
       typeOptions: [],
       groupOptions: [],
+      materialOptions: [],
       paramsOptions: [],
       selectedParams: [],
-      materialOptions: [],
     }
   },
   computed: {
@@ -178,7 +169,6 @@ export default {
   async mounted() {
     await this.fetchToolsByFilter()
     await this.fetchUniqueToolSpecs()
-    this.toolParams = await getToolParams()
     try {
       const rawData = await getLibraries()
       const paramsData = await getToolParams()
@@ -207,9 +197,6 @@ export default {
     },
   },
   methods: {
-    updateParamValue(paramId, value) {
-      this.$set(this.selectedParamsValues, paramId, value)
-    },
     ...mapActions('tool', ['fetchToolsByFilter', 'fetchUniqueToolSpecs']),
     ...mapMutations({
       setIncludeNull: 'tool/setIncludeNull', // Add your namespaced mutation here
