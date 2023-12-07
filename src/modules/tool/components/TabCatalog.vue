@@ -79,15 +79,6 @@ import TabMainTable from '@/modules/tool/components/TabMainTable.vue'
 
 export default {
   components: { TabMainTable },
-  // Добавляем глобальный обработчик событий клавиатуры
-  // mounted() {
-  //   window.addEventListener('keydown', this.handleKeydown)
-  // },
-  //
-  // // Удаляем глобальный обработчик событий клавиатуры при уничтожении компонента
-  // beforeDestroy() {
-  //   window.removeEventListener('keydown', this.handleKeydown)
-  // },
 
   data() {
     return {
@@ -106,13 +97,6 @@ export default {
       }
     },
 
-    // handleKeydown(event) {
-    //   // Проверяем, что нажата клавиша Backspace
-    //   if (event.key === 'Backspace') {
-    //     this.goBack()
-    //     event.preventDefault() // Для предотвращения дополнительных действий браузера
-    //   }
-    // },
     addItem() {
       if (!this.currentItem || !this.currentItem.nodes) {
         return alert('Выберите категорию для добавления нового элемента.')
