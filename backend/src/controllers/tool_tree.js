@@ -32,7 +32,7 @@ async function buildTreeData(parentId = 0) {
       treeData.push({
         id: row.id,
         label: row.name,
-        elements: row.element_count, // Элементы на текущем уровне
+        elements: parseInt(row.element_count, 10),
         totalElements: totalElements, // Общее количество элементов в поддереве
         nodes: children,
       })
