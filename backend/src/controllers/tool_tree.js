@@ -14,20 +14,26 @@ const pool = new Pool(dbConfig)
 // Функция для построения дерева данных
 async function buildTreeData(parentId = 0) {
   try {
-    // Запрос к базе данных
     const { rows } = await pool.query(
-      'SELECT id, name, (SELECT COUNT(*) FROM dbo.tool_nom WHERE parent_id = tt.id) AS elements FROM dbo.tool_tree AS tt WHERE id_parent = $1',
+      `SELECT t.id, t.id_parent, t.name,
+        (SELECT COUNT(*) FROM dbo.tool_nom n WHERE n.parent_id = t.id) as element_count
+      FROM dbo.tool_tree t
+      WHERE t.id_parent = $1`,
       [parentId]
     )
 
     const treeData = []
     for (const row of rows) {
-      // Рекурсивно строим дерево для каждого дочернего узла
       const children = await buildTreeData(row.id)
+      const totalElements =
+        children.reduce((acc, child) => acc + child.totalElements, 0) +
+        parseInt(row.element_count)
+
       treeData.push({
         id: row.id,
         label: row.name,
-        elements: parseInt(row.elements, 10), // Преобразование строки в число
+        elements: row.element_count, // Элементы на текущем уровне
+        totalElements: totalElements, // Общее количество элементов в поддереве
         nodes: children,
       })
     }
