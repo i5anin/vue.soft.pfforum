@@ -92,17 +92,7 @@ async function deleteTool(req, res) {
 }
 
 async function addTool(req, res) {
-  const {
-    name,
-    group_id,
-    mat_id,
-    type_id,
-    // radius,
-    // shag,
-    // gabarit,
-    // width,
-    // diam,
-  } = req.body
+  const { name, group_id, mat_id, type_id } = req.body
 
   try {
     const toolInsertResult = await pool.query(
