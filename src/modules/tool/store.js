@@ -131,11 +131,11 @@ export const store = {
   getters: {
     filters: (state) => state.filters,
     tools: (state) => state.tools,
-    toolsTotalCount: (state) => state.toolsTotalCount,
     isLoading: (state) => state.isLoading,
-    shagOptions: (state) => state.shagOptions,
-    gabaritOptions: (state) => state.gabaritOptions,
-    widthOptions: (state) => state.widthOptions,
+    // gabaritOptions: (state) => state.gabaritOptions,
+    // widthOptions: (state) => state.widthOptions,
+    // shagOptions: (state) => state.shagOptions,
     nameOptions: (state) => state.nameOptions,
+    toolsTotalCount: (state) => state.toolsTotalCount,
   },
 }

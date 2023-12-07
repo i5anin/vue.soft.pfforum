@@ -53,45 +53,45 @@
             </div>
             <h2 class="text-h6">Размеры:</h2>
             <!-- правый столбец -->
-            <div>
-              <v-col cols="8">
-                <v-text-field
-                  label="Радиус (Пластины)"
-                  v-model="toolModel.radius"
-                  required
-                />
-                <v-text-field
-                  label="Диаметр (Сверла)"
-                  v-model="toolModel.diam"
-                  required
-                />
-              </v-col>
+            <!--            <div>-->
+            <!--              <v-col cols="8">-->
+            <!--                <v-text-field-->
+            <!--                  label="Радиус (Пластины)"-->
+            <!--                  v-model="toolModel.radius"-->
+            <!--                  required-->
+            <!--                />-->
+            <!--                <v-text-field-->
+            <!--                  label="Диаметр (Сверла)"-->
+            <!--                  v-model="toolModel.diam"-->
+            <!--                  required-->
+            <!--                />-->
+            <!--              </v-col>-->
 
-              <v-combobox
-                label="Геометрия"
-                v-model="toolModel.geometry"
-                :items="geometryOptions"
-                required
-              />
-              <v-combobox
-                label="Шаг"
-                v-model="toolModel.shag"
-                :items="shagOptions"
-                required
-              />
-              <v-combobox
-                label="Габариты"
-                v-model="toolModel.gabarit"
-                :items="gabaritOptions"
-                required
-              />
-              <v-combobox
-                label="Вылет (Резцы)"
-                v-model="toolModel.width"
-                :items="widthOptions"
-                required
-              />
-            </div>
+            <!--              <v-combobox-->
+            <!--                label="Геометрия"-->
+            <!--                v-model="toolModel.geometry"-->
+            <!--                :items="geometryOptions"-->
+            <!--                required-->
+            <!--              />-->
+            <!--              <v-combobox-->
+            <!--                label="Шаг"-->
+            <!--                v-model="toolModel.shag"-->
+            <!--                :items="shagOptions"-->
+            <!--                required-->
+            <!--              />-->
+            <!--              <v-combobox-->
+            <!--                label="Габариты"-->
+            <!--                v-model="toolModel.gabarit"-->
+            <!--                :items="gabaritOptions"-->
+            <!--                required-->
+            <!--              />-->
+            <!--              <v-combobox-->
+            <!--                label="Вылет (Резцы)"-->
+            <!--                v-model="toolModel.width"-->
+            <!--                :items="widthOptions"-->
+            <!--                required-->
+            <!--              />-->
+            <!--            </div>-->
           </v-col>
         </v-row>
       </v-container>
