@@ -10,14 +10,14 @@
       </v-list-item-content>
 
       <!-- Рекурсивное отображение дочерних узлов -->
-      <v-list-item-group v-if="node.nodes && node.nodes.length">
+      <v-list-item-content v-if="node.nodes && node.nodes.length">
         <tree-node
           v-for="child in node.nodes"
           :key="child.id"
           :node="child"
           class="child-node"
         />
-      </v-list-item-group>
+      </v-list-item-content>
     </div>
   </v-list-item>
 </template>
@@ -37,6 +37,7 @@ export default {
 .node-content {
   display: flex;
   align-items: center;
+  min-height: 40px;
 }
 
 .child-node {
@@ -48,9 +49,18 @@ export default {
   content: '';
   position: absolute;
   left: 0;
-  top: 0;
-  bottom: 0;
+  top: 24px;
   width: 20px;
   border-bottom: 1px solid #989898;
+}
+
+.child-node::after {
+  content: '';
+  position: absolute;
+  left: -1px;
+  top: 24px;
+  width: 1px;
+  opacity: 1;
+  background: rgb(var(--v-theme-background));
 }
 </style>

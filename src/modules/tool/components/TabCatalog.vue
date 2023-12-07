@@ -82,6 +82,7 @@ import { getToolsTree } from '@/api'
 import TabMainTable from '@/modules/tool/components/TabMainTable.vue'
 
 export default {
+  name: 'TabCatalog',
   components: { TabMainTable },
 
   data() {
@@ -106,18 +107,15 @@ export default {
         return alert('Выберите категорию для добавления нового элемента.')
       }
     },
-    selectItem(item) {
+    async selectItem(item) {
       this.currentItem = item
       if (!this.history.includes(item)) {
         this.history.push(item)
       }
-      this.fetchTableData(item.id) // Вызов метода для обновления данных таблицы
-      console.log('Выбранный parent_id:', item.id)
-    },
-    async fetchTableData(parentId) {
+
       try {
         await this.$store.dispatch('tool/fetchToolsByFilter', {
-          parent_id: parentId,
+          parentId: item.id,
         })
       } catch (error) {
         console.error('Ошибка при получении данных:', error)
@@ -139,15 +137,12 @@ export default {
       if (this.history.length > 1) {
         this.history.pop() // Удаляем последний элемент истории
         this.currentItem = this.history[this.history.length - 1] // Обновляем currentItem на предыдущий элемент
-        this.fetchTableData(this.currentItem.id) // Запрашиваем данные для этого элемента
       }
     },
     goTo(index) {
       console.log('Переход к элементу с индексом:', index)
       this.history = this.history.slice(0, index + 1)
       this.currentItem = this.history[index]
-      if (this.currentItem && this.currentItem.id)
-        this.fetchTableData(this.currentItem.id)
     },
   },
   async created() {
@@ -160,7 +155,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 /* Стили для хлебных крошек */
 .breadcrumbs-item {
   cursor: pointer;
@@ -174,8 +169,8 @@ export default {
   color: gray;
 }
 
-.custom-container {
-  max-height: 400px;
+.custom-container > div {
+  min-height: 0 !important;
 }
 
 .flex {

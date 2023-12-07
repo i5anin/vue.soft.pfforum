@@ -4,6 +4,7 @@ import {
   addTool,
   addType,
   getLibraries,
+  getToolParams,
   getTools,
   getUniqueToolSpecs,
   updateTool,
@@ -26,12 +27,20 @@ export const store = {
       currentPage: 1,
       itemsPerPage: 15,
       search: '',
+      types: [],
+      groups: [],
+      materials: [],
+      selectedParams: [],
+      includeNull: false,
     },
+
+    // filter options
+    typeOptions: [],
+    groupOptions: [],
+    materialOptions: [],
+    paramsOptions: [],
   },
   mutations: {
-    setIncludeNull(state, includeNull) {
-      state.filters.includeNull = includeNull
-    },
     setIsLoading(state, isLoading) {
       state.isLoading = isLoading
     },
@@ -53,6 +62,14 @@ export const store = {
     setSearch(state, search) {
       state.filters.search = search
     },
+    setFilters(state, filters) {
+      state.filters = { ...filters }
+    },
+    setIncludeNull(state, includeNull) {
+      console.log(state, includeNull)
+      state.filters.includeNull = includeNull
+    },
+
     setItemsPerPage(state, itemsPerPage) {
       state.filters.itemsPerPage = itemsPerPage
     },
@@ -62,19 +79,67 @@ export const store = {
     setTools(state, tools) {
       state.tools = tools
     },
+    setTypeOptions(state, typeOptions) {
+      state.typeOptions = typeOptions
+    },
+    setGroupOptions(state, groupOptions) {
+      state.groupOptions = groupOptions
+    },
+    setParamsOptions(state, paramsOptions) {
+      state.paramsOptions = paramsOptions
+    },
+    setMaterialOptions(state, materialOptions) {
+      state.materialOptions = materialOptions
+    },
   },
   actions: {
+    async initFilterOptions({ commit }) {
+      const [{ types, groups, materials }, paramsData] = await Promise.all([
+        getLibraries(),
+        getToolParams(),
+      ])
+
+      commit(
+        'setTypeOptions',
+        types.map(({ name }) => name)
+      )
+      commit(
+        'setGroupOptions',
+        groups.map(({ name }) => name)
+      )
+      commit(
+        'setMaterialOptions',
+        materials.map(({ name }) => name)
+      )
+      commit(
+        'setParamsOptions',
+        paramsData.map(({ info }) => info)
+      )
+    },
     async fetchToolsByFilter({ commit, state }, payload) {
       commit('setIsLoading', true)
-      const { currentPage, itemsPerPage, search, includeNull } = state.filters
-      const parentId = payload?.parent_id || null
+      const {
+        currentPage,
+        itemsPerPage,
+        search,
+        includeNull,
+        selectedParams,
+        materials,
+        groups,
+        types,
+      } = state.filters
+      const parentId = payload?.parentId || null
       try {
         const { tools, totalCount } = await getTools(
           search,
           currentPage,
           itemsPerPage,
           includeNull,
-          parentId
+          parentId,
+          selectedParams,
+          materials,
+          groups,
+          types
         )
         commit('setTools', tools)
         commit('setToolsTotalCount', totalCount)
@@ -135,9 +200,16 @@ export const store = {
     },
   },
   getters: {
-    filters: (state) => state.filters,
-    tools: (state) => state.tools,
+    filters: (state) => ({ ...state.filters }),
+    tools: (state) => [...state.tools],
     isLoading: (state) => state.isLoading,
+
+    // filter options
+    typeOptions: (state) => state.typeOptions,
+    groupOptions: (state) => state.groupOptions,
+    materialOptions: (state) => state.materialOptions,
+    paramsOptions: (state) => state.paramsOptions,
+
     // gabaritOptions: (state) => state.gabaritOptions,
     // widthOptions: (state) => state.widthOptions,
     // shagOptions: (state) => state.shagOptions,

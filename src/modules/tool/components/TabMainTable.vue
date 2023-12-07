@@ -1,79 +1,8 @@
 <template>
   <v-container>
-    <v-row>
-      <v-col cols="12" md="3">
-        <v-text-field
-          v-model="filters.search"
-          label="Маркировка"
-          outlined
-          :clearable="true"
-          @input="onSearch"
-        />
-      </v-col>
-      <v-col cols="12" md="2">
-        <v-combobox
-          :chips="true"
-          multiple
-          v-model="selectedType"
-          :items="typeOptions"
-          item-text="name"
-          item-value="id"
-          label="Тип"
-          return-object
-          @change="applyFilters"
-        />
-      </v-col>
-      <v-col cols="12" md="2">
-        <v-combobox
-          :chips="true"
-          multiple
-          v-model="selectedGroup"
-          :items="groupOptions"
-          item-text="name"
-          item-value="id"
-          label="Группа"
-          return-object
-          @change="applyFilters"
-        />
-      </v-col>
-      <v-col cols="12" md="2">
-        <v-combobox
-          :chips="true"
-          multiple
-          v-model="selectedMaterial"
-          :items="materialOptions"
-          item-text="name"
-          item-value="id"
-          label="Материал"
-          return-object
-          @change="applyFilters"
-        />
-      </v-col>
-      <v-col cols="12" md="3">
-        <v-combobox
-          :chips="true"
-          multiple
-          v-model="selectedParams"
-          :items="paramsOptions"
-          label="Параметры"
-          return-object
-          @change="applyFilters"
-        />
-      </v-col>
-    </v-row>
-
-    <v-row>
-      <v-col cols="12" md="3">
-        <v-checkbox
-          label="Незаполненные данные"
-          v-model="isCheckboxChecked"
-          :color="checkboxColor"
-        />
-      </v-col>
-      <v-col class="pa-3 text-right">
-        <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>
-      </v-col>
-    </v-row>
+    <tool-filter>
+      <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>
+    </tool-filter>
 
     <edit-tool-modal
       v-if="openDialog"
@@ -145,95 +74,38 @@ import EditToolModal from '@/modules/tool/components/EditToolModal.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
 import { ToolTableHeaders } from '@/modules/tool/components/config'
-import { getLibraries, getToolParams } from '@/api'
+import ToolFilter from '@/modules/tool/components/tool/ToolFilter.vue'
 
 export default {
   emits: ['changes-saved', 'canceled'],
-  components: { VDataTableServer, EditToolModal },
+  components: { VDataTableServer, EditToolModal, ToolFilter },
+  props: {
+    parentId: {
+      type: Number,
+      default: null,
+    },
+  },
   data() {
     return {
-      isCheckboxChecked: false,
       openDialog: false,
       editingTool: null,
       ToolTableHeaders,
-
-      selectedType: null,
-      selectedGroup: null,
-      selectedMaterial: null,
-
-      typeOptions: [],
-      groupOptions: [],
-      materialOptions: [],
-      paramsOptions: [],
-      selectedParams: [],
     }
   },
   computed: {
     ...mapGetters('tool', ['toolsTotalCount', 'tools', 'filters', 'isLoading']),
-    checkboxColor() {
-      return this.isCheckboxChecked ? 'red' : ''
-    },
   },
   async mounted() {
     await this.fetchToolsByFilter()
-    // await this.fetchUniqueToolSpecs()
-    try {
-      const rawData = await getLibraries()
-      const paramsData = await getToolParams()
-
-      this.typeOptions = rawData.types.map((type) => type.name)
-      this.groupOptions = rawData.groups.map((group) => group.name)
-      this.materialOptions = rawData.materials.map((material) => material.name)
-      this.paramsOptions = paramsData.map((param) => param.info)
-    } catch (error) {
-      console.error('Ошибка при получении данных:', error)
-    }
-  },
-  watch: {
-    selectedType: 'onFilterChange',
-    selectedGroup: 'onFilterChange',
-    selectedMaterial: 'onFilterChange',
-
-    'filters.search': 'onFilterChange',
-    'filters.currentPage': 'onFilterChange',
-    'filters.itemsPerPage': 'onFilterChange',
-    isCheckboxChecked(newVal, oldVal) {
-      if (newVal !== oldVal) {
-        this.setIncludeNull(newVal)
-        this.applyFilters()
-      }
-    },
   },
   methods: {
-    ...mapActions('tool', ['fetchToolsByFilter', 'fetchUniqueToolSpecs']),
+    ...mapActions('tool', ['fetchToolsByFilter']),
     ...mapMutations({
-      setIncludeNull: 'tool/setIncludeNull', // Add your namespaced mutation here
       setCurrentPage: 'tool/setCurrentPage',
       setItemsPerPage: 'tool/setItemsPerPage',
-      setSearch: 'tool/setSearch',
     }),
-
-    async applyFilters() {
-      console.log('Checkbox value:', this.isCheckboxChecked)
-      const filters = {
-        type: this.selectedType?.id,
-        group: this.selectedGroup?.id,
-        material: this.selectedMaterial?.id,
-        search: this.filters.search,
-        page: this.filters.currentPage,
-        limit: this.filters.itemsPerPage,
-        includeNull: this.isCheckboxChecked,
-      }
-      // console.log('Filters:', filters)
-      await this.fetchToolsByFilter(filters)
-      this.setIsLoading(false)
-    },
     async onChangePage(page) {
       this.setCurrentPage(page)
-      await this.fetchToolsByFilter()
-    },
-    async onSearch(event) {
-      this.setSearch(event.target.value)
       await this.fetchToolsByFilter()
     },
     async onUpdateItemsPerPage(itemsPerPage) {
