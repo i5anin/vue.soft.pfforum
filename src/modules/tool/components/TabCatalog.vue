@@ -61,7 +61,9 @@
               >
                 <v-list-item-content class="flex">
                   <v-icon color="info" icon="mdi-folder" class="icon" />
-                  <v-list-item-title v-text="item.label" />
+                  <v-list-item-title>
+                    {{ item.label }} ({{ item.totalElements }})
+                  </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
             </v-list-item-group>
