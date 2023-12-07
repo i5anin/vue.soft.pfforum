@@ -1,8 +1,8 @@
 <template>
   <v-list-item>
-    <div class="tree-node">
+    <div className="tree-node">
       <!-- Отображение текущего узла -->
-      <v-list-item-content class="node-content">
+      <v-list-item-content className="node-content">
         <v-icon color="info">mdi-folder</v-icon>
         <span>
           {{ node.label }} ({{ node.elements }}) [{{ node.totalElements }}]
@@ -25,9 +25,7 @@
 <script>
 export default {
   name: 'TreeNode',
-  props: {
-    node: Object,
-  },
+  props: ['node'],
 }
 </script>
 

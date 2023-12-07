@@ -35,7 +35,5 @@ export default {
 </script>
 
 <style scoped>
-.flex {
-  display: flex;
-}
+/* Стили для вашего дерева */
 </style>
