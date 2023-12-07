@@ -16,7 +16,7 @@ async function buildTreeData(parentId = 0) {
   try {
     // Запрос к базе данных
     const { rows } = await pool.query(
-      'SELECT id, name, (SELECT COUNT(*) FROM tool_nom WHERE parent_id = tt.id) AS elements FROM dbo.tool_tree AS tt WHERE id_parent = $1',
+      'SELECT id, name, (SELECT COUNT(*) FROM dbo.tool_nom WHERE parent_id = tt.id) AS elements FROM dbo.tool_tree AS tt WHERE id_parent = $1',
       [parentId]
     )
 
