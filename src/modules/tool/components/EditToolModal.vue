@@ -212,12 +212,12 @@ export default {
   //data - используется для определения реактивных данных компонента, которые непосредственно управляют состоянием и поведением этого компонента.
   //watch - используется для отслеживания изменений в этих данных (или в других реактивных источниках) и выполнения дополнительных действий или логики в ответ на эти изменения.
   async mounted() {
-    this.fetchUniqueToolSpecs()
-    // this.loadInitialData()
-    try {
-    } catch (error) {
-      console.error('Ошибка при получении уникальных спецификаций:', error)
-    }
+    // this.fetchUniqueToolSpecs()
+    // // this.loadInitialData()
+    // try {
+    // } catch (error) {
+    //   console.error('Ошибка при получении уникальных спецификаций:', error)
+    // }
     this.loadLastSavedData()
 
     try {

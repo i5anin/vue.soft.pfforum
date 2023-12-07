@@ -176,7 +176,7 @@ export default {
   },
   async mounted() {
     await this.fetchToolsByFilter()
-    await this.fetchUniqueToolSpecs()
+    // await this.fetchUniqueToolSpecs()
     try {
       const rawData = await getLibraries()
       const paramsData = await getToolParams()
@@ -224,7 +224,7 @@ export default {
         limit: this.filters.itemsPerPage,
         includeNull: this.isCheckboxChecked,
       }
-      console.log('Filters:', filters)
+      // console.log('Filters:', filters)
       await this.fetchToolsByFilter(filters)
       this.setIsLoading(false)
     },

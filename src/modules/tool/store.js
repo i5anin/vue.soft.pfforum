@@ -67,7 +67,7 @@ export const store = {
     async fetchToolsByFilter({ commit, state }, payload) {
       commit('setIsLoading', true)
       const { currentPage, itemsPerPage, search, includeNull } = state.filters
-      const parentId = payload.parent_id
+      const parentId = payload?.parent_id || null
       try {
         const { tools, totalCount } = await getTools(
           search,
@@ -84,13 +84,13 @@ export const store = {
         commit('setIsLoading', false)
       }
     },
-    async fetchUniqueToolSpecs({ commit }) {
-      const { shags, gabarits, widths, names } = await getUniqueToolSpecs()
-      commit('setShagOptions', shags)
-      commit('setGabaritOptions', gabarits)
-      commit('setWidthOptions', widths)
-      commit('setNameOptions', names)
-    },
+    // async fetchUniqueToolSpecs({ commit }) {
+    //   const { shags, gabarits, widths, names } = await getUniqueToolSpecs()
+    //   commit('setShagOptions', shags)
+    //   commit('setGabaritOptions', gabarits)
+    //   commit('setWidthOptions', widths)
+    //   commit('setNameOptions', names)
+    // },
     async onSaveToolModel({ dispatch }, toolModel) {
       const { id, group, type, mat, name } = toolModel
       const { groups, materials, types } = await getLibraries()
