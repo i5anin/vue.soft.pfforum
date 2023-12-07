@@ -39,7 +39,7 @@
             <div class="breadcrumbs">
               <span v-for="(item, index) in history" :key="index">
                 <span :class="getBreadcrumbClass(index)" @click="goTo(index)">
-                  {{ item.label }}
+                  {{ item.label }} ({{ item.elements }})
                 </span>
                 <span v-if="index < history.length - 1">
                   &nbsp;&nbsp;/&nbsp;&nbsp;
@@ -62,7 +62,9 @@
                 <v-list-item-content class="flex">
                   <v-icon color="info" icon="mdi-folder" class="icon" />
                   <v-list-item-title>
-                    {{ item.label }} ({{ item.totalElements }})
+                    {{ item.label }} ({{ item.elements }}) [{{
+                      item.totalElements
+                    }}]
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>

@@ -4,7 +4,9 @@
       <!-- Отображение текущего узла -->
       <v-list-item-content class="node-content">
         <v-icon color="info">mdi-folder</v-icon>
-        <span>{{ node.label }} ({{ node.totalElements }})</span>
+        <span>
+          {{ node.label }} ({{ node.elements }}) [{{ node.totalElements }}]
+        </span>
       </v-list-item-content>
 
       <!-- Рекурсивное отображение дочерних узлов -->
