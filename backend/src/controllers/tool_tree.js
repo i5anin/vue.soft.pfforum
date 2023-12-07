@@ -1,4 +1,3 @@
-// tool_tree.js
 const { Pool } = require('pg')
 const { getNetworkDetails } = require('../db_type')
 const config = require('../config')
@@ -8,22 +7,27 @@ const dbConfig =
   networkDetails.databaseType === 'build'
     ? config.dbConfig
     : config.dbConfigTest
+
+// Создание пула соединений с базой данных
 const pool = new Pool(dbConfig)
 
+// Функция для построения дерева данных
 async function buildTreeData(parentId = 0) {
   try {
+    // Запрос к базе данных
     const { rows } = await pool.query(
-      'SELECT t.id, t.id_parent, t.name, COUNT(n.id) as element_count FROM dbo.tool_tree t LEFT JOIN dbo.tool_nom n ON t.id = n.parent_id WHERE t.id_parent = $1 GROUP BY t.id',
+      'SELECT id, name, (SELECT COUNT(*) FROM tool_nom WHERE parent_id = tt.id) AS elements FROM dbo.tool_tree AS tt WHERE id_parent = $1',
       [parentId]
     )
 
     const treeData = []
     for (const row of rows) {
+      // Рекурсивно строим дерево для каждого дочернего узла
       const children = await buildTreeData(row.id)
       treeData.push({
         id: row.id,
         label: row.name,
-        elements: row.element_count, // Количество элементов
+        elements: parseInt(row.elements, 10), // Преобразование строки в число
         nodes: children,
       })
     }
@@ -34,6 +38,7 @@ async function buildTreeData(parentId = 0) {
   }
 }
 
+// Экспорт функции для получения дерева инструментов
 async function getToolsTree(req, res) {
   try {
     const tree = await buildTreeData()
