@@ -1,10 +1,11 @@
 <template>
   <v-card>
     <v-tabs v-model="tab">
+      <v-tab value="Catalog">Каталог</v-tab>
+      <v-tab value="Tree">Дерево</v-tab>
       <v-tab value="ToolTable">Инструмент</v-tab>
       <v-tab value="Library">Библиотека</v-tab>
       <v-tab value="Inventory">Склад</v-tab>
-      <v-tab value="Tree">Дерево</v-tab>
     </v-tabs>
 
     <v-card-text>
@@ -24,6 +25,10 @@
         <v-window-item value="Tree">
           <ToolTabTree />
         </v-window-item>
+
+        <v-window-item value="Catalog">
+          <TabCatalog />
+        </v-window-item>
       </v-window>
     </v-card-text>
   </v-card>
@@ -35,7 +40,8 @@ import { ref } from 'vue'
 import TabMainTable from '@/modules/tool/components/TabMainTable.vue'
 import ToolTabLibrary from '@/modules/tool/components/TabLibrary.vue'
 import ToolTabInventory from '@/modules/tool/components/TabInventory.vue'
-import ToolTabTree from '@/modules/tool/components/TabExplorer.vue'
+import TabCatalog from '@/modules/tool/components/TabCatalog.vue'
+import ToolTabTree from '@/modules/tool/components/TabTree.vue'
 
-const tab = ref('Tree') // Установите начальное значение
+const tab = ref('Catalog') // Установите начальное значение
 </script>
