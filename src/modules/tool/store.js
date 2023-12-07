@@ -64,20 +64,26 @@ export const store = {
     },
   },
   actions: {
-    async fetchToolsByFilter({ commit, getters }) {
+    async fetchToolsByFilter({ commit, state }, payload) {
       commit('setIsLoading', true)
-      const { itemsPerPage, search, currentPage, includeNull } = getters.filters // Include includeNull here
-      const { tools, totalCount } = await getTools(
-        search,
-        currentPage,
-        itemsPerPage,
-        includeNull
-      )
-      commit('setTools', tools)
-      commit('setToolsTotalCount', totalCount)
-      commit('setIsLoading', false)
+      const { currentPage, itemsPerPage, search, includeNull } = state.filters
+      const parentId = payload.parent_id
+      try {
+        const { tools, totalCount } = await getTools(
+          search,
+          currentPage,
+          itemsPerPage,
+          includeNull,
+          parentId
+        )
+        commit('setTools', tools)
+        commit('setToolsTotalCount', totalCount)
+      } catch (error) {
+        console.error('Ошибка при получении данных:', error)
+      } finally {
+        commit('setIsLoading', false)
+      }
     },
-
     async fetchUniqueToolSpecs({ commit }) {
       const { shags, gabarits, widths, names } = await getUniqueToolSpecs()
       commit('setShagOptions', shags)

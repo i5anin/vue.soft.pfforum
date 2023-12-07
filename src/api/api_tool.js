@@ -32,12 +32,16 @@ export async function getTools(
   search = '',
   page = 1,
   limit = 10,
-  includeNull = false
+  includeNull = false,
+  parentId = null
 ) {
+  const params = { search, page, limit, includeNull }
+  if (parentId !== null) {
+    params.parent_id = parentId
+  }
+
   try {
-    const response = await axios.get(`${BASE_URL}/tools`, {
-      params: { search, page, limit, includeNull },
-    })
+    const response = await axios.get(`${BASE_URL}/tools`, { params })
     response.data.totalCount = parseInt(response.data.totalCount, 10)
     return response.data
   } catch (error) {
