@@ -8,13 +8,12 @@ const dbConfig =
   networkDetails.databaseType === 'build'
     ? config.dbConfig
     : config.dbConfigTest
-// Create a connection pool to the database
 const pool = new Pool(dbConfig)
 
 async function buildTreeData(parentId = 0) {
   try {
     const { rows } = await pool.query(
-      'SELECT id, id_parent, name FROM dbo.tool_tree WHERE id_parent = $1',
+      'SELECT t.id, t.id_parent, t.name, COUNT(n.id) as element_count FROM dbo.tool_tree t LEFT JOIN dbo.tool_nom n ON t.id = n.parent_id WHERE t.id_parent = $1 GROUP BY t.id',
       [parentId]
     )
 
@@ -22,8 +21,9 @@ async function buildTreeData(parentId = 0) {
     for (const row of rows) {
       const children = await buildTreeData(row.id)
       treeData.push({
-        id: row.id, // Раскомментируйте эту строку
+        id: row.id,
         label: row.name,
+        elements: row.element_count, // Количество элементов
         nodes: children,
       })
     }
