@@ -3,7 +3,7 @@
     <v-main>
       <v-container>
         <!-- Рекурсивное отображение дерева -->
-        <div class="tree-view">
+        <div className="tree-view">
           <tree-node v-for="node in treeData" :key="node.id" :node="node" />
         </div>
       </v-container>
@@ -13,33 +13,17 @@
 
 <script>
 import { getToolsTree } from '@/api'
+import TreeNode from './TreeNode.vue'
 
 export default {
   name: 'TreeView',
+  components: {
+    TreeNode,
+  },
   data() {
     return {
       treeData: [], // Инициализация пустого массива для данных дерева
     }
-  },
-  components: {
-    TreeNode: {
-      name: 'TreeNode',
-      props: {
-        node: Object,
-      },
-      template: `
-        <div>
-          <div>{{ node.label }}</div>
-          <div v-if="node.nodes && node.nodes.length" class="child-nodes">
-            <tree-node
-              v-for="child in node.nodes"
-              :key="child.id"
-              :node="child"
-            />
-          </div>
-        </div>
-      `,
-    },
   },
   async created() {
     const toolsTree = await getToolsTree()
@@ -53,9 +37,5 @@ export default {
 <style scoped>
 .tree-view {
   /* Стили для вашего дерева */
-}
-
-.child-nodes {
-  padding-left: 20px; /* Отступ для вложенных узлов */
 }
 </style>
