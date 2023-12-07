@@ -3,9 +3,9 @@
     <v-main>
       <v-container>
         <!-- Рекурсивное отображение дерева -->
-        <div className="tree-view">
+        <v-list-item-group>
           <tree-node v-for="node in treeData" :key="node.id" :node="node" />
-        </div>
+        </v-list-item-group>
       </v-container>
     </v-main>
   </v-app>
@@ -35,7 +35,7 @@ export default {
 </script>
 
 <style scoped>
-.tree-view {
-  /* Стили для вашего дерева */
+.flex {
+  display: flex;
 }
 </style>
