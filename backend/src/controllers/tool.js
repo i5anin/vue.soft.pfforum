@@ -59,10 +59,10 @@ async function getUniqueToolSpecs(req, res) {
     // Объединение результатов
     const result = {
       names: names.rows.map((row) => row.name),
-      widths: widths.rows.map((row) => row.width),
-      gabarits: gabarits.rows.map((row) => row.gabarit),
-      shags: shags.rows.map((row) => row.shag),
-      diams: diams.rows.map((row) => row.diam),
+      // widths: widths.rows.map((row) => row.width),
+      // gabarits: gabarits.rows.map((row) => row.gabarit),
+      // shags: shags.rows.map((row) => row.shag),
+      // diams: diams.rows.map((row) => row.diam),
     }
 
     res.json(result)
@@ -97,17 +97,17 @@ async function addTool(req, res) {
     group_id,
     mat_id,
     type_id,
-    radius,
-    shag,
-    gabarit,
-    width,
-    diam,
+    // radius,
+    // shag,
+    // gabarit,
+    // width,
+    // diam,
   } = req.body
 
   try {
     const toolInsertResult = await pool.query(
-      'INSERT INTO dbo.tool_nom (name, group_id, mat_id, type_id, radius, shag, gabarit, width, diam) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id',
-      [name, group_id, mat_id, type_id, radius, shag, gabarit, width, diam]
+      'INSERT INTO dbo.tool_nom (name, group_id, mat_id, type_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id',
+      [name, group_id, mat_id, type_id]
     )
 
     const toolId = toolInsertResult.rows[0].id
