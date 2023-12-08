@@ -40,6 +40,7 @@
                 required
                 :rules="typeRules"
               />
+
               <v-combobox
                 label="Маркировка"
                 v-model="toolModel.name"
@@ -52,13 +53,42 @@
             </div>
             <h2 class="text-h6">Размеры:</h2>
             <!-- правый столбец -->
-            <div v-for="param in toolParams" :key="param.id">
+            <div>
+              <v-col cols="8">
+                <v-text-field
+                  label="Радиус (Пластины)"
+                  v-model="toolModel.radius"
+                  required
+                />
+                <v-text-field
+                  label="Диаметр (Сверла)"
+                  v-model="toolModel.diam"
+                  required
+                />
+              </v-col>
+
               <v-combobox
-                :label="param.info"
-                v-model="toolModel[param.params]"
-                :items="getDynamicOptions(param.params)"
-                item-text="text"
-                item-value="value"
+                label="Геометрия"
+                v-model="toolModel.geometry"
+                :items="geometryOptions"
+                required
+              />
+              <v-combobox
+                label="Шаг"
+                v-model="toolModel.shag"
+                :items="shagOptions"
+                required
+              />
+              <v-combobox
+                label="Габариты"
+                v-model="toolModel.gabarit"
+                :items="gabaritOptions"
+                required
+              />
+              <v-combobox
+                label="Вылет (Резцы)"
+                v-model="toolModel.width"
+                :items="widthOptions"
                 required
               />
             </div>
@@ -105,7 +135,7 @@
 
 <script>
 import Modal from '@/components/shared/Modal.vue'
-import { deleteTool, getLibraries, getToolParams } from '@/api'
+import { deleteTool, getLibraries } from '@/api'
 import DeleteConfirmationDialog from '@/modules/tool/components/DeleteConfirmationDialog.vue'
 import { mapActions, mapGetters } from 'vuex'
 
@@ -145,7 +175,6 @@ export default {
       diam: '',
       geometry: '',
     },
-    toolParams: [],
     typeOptions: [],
     groupOptions: [],
     materialOptions: [],
@@ -183,12 +212,23 @@ export default {
   //data - используется для определения реактивных данных компонента, которые непосредственно управляют состоянием и поведением этого компонента.
   //watch - используется для отслеживания изменений в этих данных (или в других реактивных источниках) и выполнения дополнительных действий или логики в ответ на эти изменения.
   async mounted() {
+    // this.fetchUniqueToolSpecs()
+    // // this.loadInitialData()
+    // try {
+    // } catch (error) {
+    //   console.error('Ошибка при получении уникальных спецификаций:', error)
+    // }
     this.loadLastSavedData()
-    await this.loadToolParams()
-    const rawData = await getLibraries()
-    this.typeOptions = rawData.types.map((type) => type.name)
-    this.groupOptions = rawData.groups.map((group) => group.name)
-    this.materialOptions = rawData.materials.map((material) => material.name)
+
+    try {
+      const rawData = await getLibraries()
+      console.log(rawData)
+      this.typeOptions = rawData.types.map((type) => type.name)
+      this.groupOptions = rawData.groups.map((group) => group.name)
+      this.materialOptions = rawData.materials.map((material) => material.name)
+    } catch (error) {
+      console.error('Ошибка при получении данных:', error)
+    }
   },
   computed: {
     ...mapGetters('tool', [
@@ -213,32 +253,12 @@ export default {
       }
     },
 
-    async loadOptionsForParam(paramName) {
-      try {
-        const response = await someApiMethodToGetOptions(paramName) // Замените на ваш реальный API-метод
-        this.dynamicOptions[paramName] = response.data
-      } catch (error) {
-        console.error('Ошибка при загрузке опций:', error)
-      }
-    },
-
-    getDynamicOptions(paramName) {
-      return this.dynamicOptions[paramName] || []
-    },
-
-    async loadToolParams() {
-      const params = await getToolParams()
-      this.toolParams = params
-      params.forEach((param) => {
-        this.loadOptionsForParam(param.params) // Убедитесь, что этот метод вызывается
-      })
-    },
-
     prependLastSavedData(data) {
       this.prependOptionIfNeeded(data.type, this.typeOptions, 'type')
       this.prependOptionIfNeeded(data.group, this.groupOptions, 'group')
       this.prependOptionIfNeeded(data.mat, this.materialOptions, 'mat')
       this.prependOptionIfNeeded(data.name, this.nameOptions, 'name')
+      // Для других полей, если они есть, добавьте по аналогии
     },
 
     prependOptionIfNeeded(value, optionsList, propName) {
@@ -253,6 +273,19 @@ export default {
       }
       return parseFloat(value.toString().replace(',', '.'))
     },
+
+    // checkDisabledStatus() {
+    //   // console.log('Radius:', this.toolModel.radius)
+    //   // console.log('Diameter:', this.toolModel.diam)
+    //   return this.toolModel.radius || this.toolModel.diam
+    // },
+    // onTypeChange() {
+    //   if (this.selectedType === 'Радиус' && !this.toolModel.radius) {
+    //     this.selectedType = '' // Очищаем выбранный тип, если радиус пуст
+    //   } else if (this.selectedType === 'Диаметр' && !this.toolModel.diam) {
+    //     this.toolModel.diam = this.toolModel.radius // Сохраняем значение радиуса как диаметр, если диаметр пуст
+    //   }
+    // },
 
     confirmDelete() {
       this.confirmDeleteDialog = true
