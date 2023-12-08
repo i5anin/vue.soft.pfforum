@@ -60,7 +60,6 @@ export default {
   left: -1px;
   top: 24px;
   width: 1px;
-  opacity: 1;
   background: rgb(var(--v-theme-background));
 }
 </style>
