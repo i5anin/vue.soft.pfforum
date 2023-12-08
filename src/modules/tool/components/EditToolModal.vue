@@ -19,12 +19,20 @@
               />
             </div>
             <!-- правый столбец -->
+            <v-combobox
+              :chips="true"
+              multiple
+              v-model="selectedParams"
+              :items="toolParams"
+              label="Параметры"
+              return-object
+            />
             <h2 class="text-h6">Размеры:</h2>
-            <div v-if="toolParams" v-for="(param, id) in toolParams" :key="id">
+            <div v-for="param in selectedParamsInfo" :key="param.id">
               <v-combobox
                 density="compact"
                 :label="param.info"
-                v-model="toolModel[param.params]"
+                v-model="toolModel[param.id]"
                 required
               />
             </div>
@@ -141,9 +149,16 @@ export default {
     this.groupOptions = rawData.groups.map((group) => group.name)
     this.materialOptions = rawData.materials.map((material) => material.name)
 
-    this.toolParams = await getToolParams()
+    const rawToolParams = await getToolParams()
+    this.toolParams = rawToolParams.map((param) => param.info)
   },
   computed: {
+    selectedParamsInfo() {
+      return this.selectedParams.map((info) => {
+        const param = this.toolParams.find((p) => p.info === info)
+        return param ? { id: param.id, info } : { id: null, info }
+      })
+    },
     ...mapGetters('tool', [
       'widthOptions',
       'shagOptions',
