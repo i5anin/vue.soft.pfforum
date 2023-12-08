@@ -7,41 +7,6 @@
           <v-col>
             <!--левый столбец -->
             <div>
-              <!--              <v-combobox-->
-              <!--                density="compact"-->
-              <!--                label="Название (Тип)"-->
-              <!--                v-model="toolModel.type"-->
-              <!--                :items="typeOptions"-->
-              <!--                item-text="text"-->
-              <!--                item-value="value"-->
-              <!--                required-->
-              <!--                :clearable="true"-->
-              <!--                :counter="3"-->
-              <!--                :rules="typeRules"-->
-              <!--              />-->
-              <!--              <v-combobox-->
-              <!--                density="compact"-->
-              <!--                label="Группа"-->
-              <!--                :clearable="true"-->
-              <!--                v-model="toolModel.group"-->
-              <!--                :items="groupOptions"-->
-              <!--                item-text="text"-->
-              <!--                item-value="value"-->
-              <!--                required-->
-              <!--                :rules="typeRules"-->
-              <!--              />-->
-              <!--              <v-combobox-->
-              <!--                density="compact"-->
-              <!--                label="Применяемость материала"-->
-              <!--                :clearable="true"-->
-              <!--                v-model="toolModel.mat"-->
-              <!--                :items="materialOptions"-->
-              <!--                item-text="text"-->
-              <!--                item-value="value"-->
-              <!--                required-->
-              <!--                :rules="typeRules"-->
-              <!--              />-->
-
               <v-combobox
                 density="compact"
                 label="Маркировка"
@@ -53,9 +18,7 @@
                 :rules="typeRules"
               />
             </div>
-
             <!-- правый столбец -->
-            <!--            <v-col cols="6">-->
             <h2 class="text-h6">Размеры:</h2>
             <div v-if="toolParams" v-for="(param, id) in toolParams" :key="id">
               <v-combobox
@@ -65,7 +28,6 @@
                 required
               />
             </div>
-            <!--            </v-col>-->
           </v-col>
         </v-row>
       </v-container>
