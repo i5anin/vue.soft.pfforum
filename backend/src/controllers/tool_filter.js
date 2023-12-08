@@ -13,10 +13,10 @@ const dbConfig =
 const pool = new Pool(dbConfig)
 
 async function getParamsMapping() {
-  const query = 'SELECT id, params, info FROM dbo.tool_params'
+  const query = 'SELECT id, info FROM dbo.tool_params'
   const result = await pool.query(query)
   return result.rows.reduce((acc, row) => {
-    acc[row.id] = { value: row.params, info: row.info }
+    acc[row.id] = { info: row.info }
     return acc
   }, {})
 }
@@ -88,14 +88,14 @@ async function getTools(req, res) {
       let formattedProperty = {}
 
       if (tool.property) {
-        const propertyObj = JSON.parse(tool.property)
+        const propertyObj = tool.property
 
         formattedProperty = Object.entries(propertyObj).reduce(
           (acc, [key, value]) => {
             if (value !== '' && paramsMapping[key]) {
               acc[key] = {
                 info: paramsMapping[key].info,
-                value: value, // Это значение из propertyObj
+                value: value,
               }
             }
             return acc
@@ -128,7 +128,7 @@ async function getTools(req, res) {
 
 async function getToolParams(req, res) {
   try {
-    const query = 'SELECT id, params, info FROM dbo.tool_params'
+    const query = 'SELECT id, info FROM dbo.tool_params'
     const result = await pool.query(query)
     res.json(result.rows) // Отправляем результат запроса обратно клиенту
   } catch (error) {
