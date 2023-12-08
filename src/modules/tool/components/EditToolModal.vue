@@ -53,42 +53,10 @@
             </div>
             <h2 class="text-h6">Размеры:</h2>
             <!-- правый столбец -->
-            <div>
-              <v-col cols="8">
-                <v-text-field
-                  label="Радиус (Пластины)"
-                  v-model="toolModel.radius"
-                  required
-                />
-                <v-text-field
-                  label="Диаметр (Сверла)"
-                  v-model="toolModel.diam"
-                  required
-                />
-              </v-col>
-
+            <div v-if="toolParams" v-for="(param, id) in toolParams" :key="id">
               <v-combobox
-                label="Геометрия"
-                v-model="toolModel.geometry"
-                :items="geometryOptions"
-                required
-              />
-              <v-combobox
-                label="Шаг"
-                v-model="toolModel.shag"
-                :items="shagOptions"
-                required
-              />
-              <v-combobox
-                label="Габариты"
-                v-model="toolModel.gabarit"
-                :items="gabaritOptions"
-                required
-              />
-              <v-combobox
-                label="Вылет (Резцы)"
-                v-model="toolModel.width"
-                :items="widthOptions"
+                :label="param.info"
+                v-model="toolModel[param.params]"
                 required
               />
             </div>
@@ -135,7 +103,7 @@
 
 <script>
 import Modal from '@/components/shared/Modal.vue'
-import { deleteTool, getLibraries } from '@/api'
+import { deleteTool, getLibraries, getToolParams } from '@/api'
 import DeleteConfirmationDialog from '@/modules/tool/components/DeleteConfirmationDialog.vue'
 import { mapActions, mapGetters } from 'vuex'
 
@@ -153,10 +121,6 @@ export default {
         group_name: '',
         type_name: '',
         mat_name: '',
-        name: '',
-        diam: '',
-        shag: '',
-        geometry: '',
         typeOptions: ['Radius', 'Diam', 'Step', 'Dimensions', 'Projection'],
       }),
     },
@@ -166,14 +130,12 @@ export default {
   //реактивные данные
   data: () => ({
     geometryOptions: [],
+    toolParams: [],
     toolModel: {
       type: '',
       group: '',
       mat: '',
       name: '',
-      radius: '',
-      diam: '',
-      geometry: '',
     },
     typeOptions: [],
     groupOptions: [],
@@ -194,41 +156,23 @@ export default {
         const { mat, group, type } = tool
         this.toolModel = {
           ...tool,
-          mat: mat?.name === '[нет данных]' ? null : mat?.name,
-          group: group?.name === '[нет данных]' ? null : group?.name,
-          type: type?.name === '[нет данных]' ? null : type?.name,
-          radius: tool.spec?.radius,
-          shag: tool.spec?.shag,
-          gabarit: tool.spec?.gabarit,
-          width: tool.spec?.width,
-          diam: tool.spec?.diam,
-          geometry: tool.spec?.geometry,
+          mat: mat?.name === null ? null : mat?.name,
+          group: group?.name === null ? null : group?.name,
+          type: type?.name === null ? null : type?.name,
         }
-        console.log(tool)
-        // console.log('Загрузка модели Tool Model:', this.toolModel) // Добавленный console.log
       },
     },
   },
   //data - используется для определения реактивных данных компонента, которые непосредственно управляют состоянием и поведением этого компонента.
   //watch - используется для отслеживания изменений в этих данных (или в других реактивных источниках) и выполнения дополнительных действий или логики в ответ на эти изменения.
   async mounted() {
-    // this.fetchUniqueToolSpecs()
-    // // this.loadInitialData()
-    // try {
-    // } catch (error) {
-    //   console.error('Ошибка при получении уникальных спецификаций:', error)
-    // }
     this.loadLastSavedData()
+    const rawData = await getLibraries()
+    this.typeOptions = rawData.types.map((type) => type.name)
+    this.groupOptions = rawData.groups.map((group) => group.name)
+    this.materialOptions = rawData.materials.map((material) => material.name)
 
-    try {
-      const rawData = await getLibraries()
-      console.log(rawData)
-      this.typeOptions = rawData.types.map((type) => type.name)
-      this.groupOptions = rawData.groups.map((group) => group.name)
-      this.materialOptions = rawData.materials.map((material) => material.name)
-    } catch (error) {
-      console.error('Ошибка при получении данных:', error)
-    }
+    this.toolParams = await getToolParams()
   },
   computed: {
     ...mapGetters('tool', [
@@ -247,18 +191,18 @@ export default {
     ...mapActions('tool', ['fetchUniqueToolSpecs']),
     loadLastSavedData() {
       const lastSavedData = localStorage.getItem('lastSavedToolModel')
-      if (lastSavedData == null) {
+      if (lastSavedData) {
         const lastSavedToolModel = JSON.parse(lastSavedData)
         this.prependLastSavedData(lastSavedToolModel)
       }
     },
 
     prependLastSavedData(data) {
+      if (!data) return
       this.prependOptionIfNeeded(data.type, this.typeOptions, 'type')
       this.prependOptionIfNeeded(data.group, this.groupOptions, 'group')
       this.prependOptionIfNeeded(data.mat, this.materialOptions, 'mat')
       this.prependOptionIfNeeded(data.name, this.nameOptions, 'name')
-      // Для других полей, если они есть, добавьте по аналогии
     },
 
     prependOptionIfNeeded(value, optionsList, propName) {
@@ -268,24 +212,9 @@ export default {
     },
 
     parseToFloat(value) {
-      if (value === null) {
-        return 0 // Или другое значение по умолчанию
-      }
+      if (value === null) return 0
       return parseFloat(value.toString().replace(',', '.'))
     },
-
-    // checkDisabledStatus() {
-    //   // console.log('Radius:', this.toolModel.radius)
-    //   // console.log('Diameter:', this.toolModel.diam)
-    //   return this.toolModel.radius || this.toolModel.diam
-    // },
-    // onTypeChange() {
-    //   if (this.selectedType === 'Радиус' && !this.toolModel.radius) {
-    //     this.selectedType = '' // Очищаем выбранный тип, если радиус пуст
-    //   } else if (this.selectedType === 'Диаметр' && !this.toolModel.diam) {
-    //     this.toolModel.diam = this.toolModel.radius // Сохраняем значение радиуса как диаметр, если диаметр пуст
-    //   }
-    // },
 
     confirmDelete() {
       this.confirmDeleteDialog = true
