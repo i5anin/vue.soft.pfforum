@@ -79,7 +79,7 @@
 
 <script>
 import { getToolsTree } from '@/api'
-import TabMainTable from '@/modules/tool/components/tabs/TabMainTable.vue'
+import TabMainTable from '@/modules/tool/components/tabs/MainTable.vue'
 
 export default {
   name: 'TabCatalog',

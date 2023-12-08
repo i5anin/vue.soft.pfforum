@@ -4,7 +4,7 @@
     <template #content>
       <v-container>
         <v-row>
-          <v-col class="flex">
+          <v-col>
             <!--левый столбец -->
             <div>
               <!--https://vuetifyjs.com/en/components/combobox/#usage-->
@@ -53,45 +53,45 @@
             </div>
             <h2 class="text-h6">Размеры:</h2>
             <!-- правый столбец -->
-            <!--            <div>-->
-            <!--              <v-col cols="8">-->
-            <!--                <v-text-field-->
-            <!--                  label="Радиус (Пластины)"-->
-            <!--                  v-model="toolModel.radius"-->
-            <!--                  required-->
-            <!--                />-->
-            <!--                <v-text-field-->
-            <!--                  label="Диаметр (Сверла)"-->
-            <!--                  v-model="toolModel.diam"-->
-            <!--                  required-->
-            <!--                />-->
-            <!--              </v-col>-->
+            <div>
+              <v-col cols="8">
+                <v-text-field
+                  label="Радиус (Пластины)"
+                  v-model="toolModel.radius"
+                  required
+                />
+                <v-text-field
+                  label="Диаметр (Сверла)"
+                  v-model="toolModel.diam"
+                  required
+                />
+              </v-col>
 
-            <!--              <v-combobox-->
-            <!--                label="Геометрия"-->
-            <!--                v-model="toolModel.geometry"-->
-            <!--                :items="geometryOptions"-->
-            <!--                required-->
-            <!--              />-->
-            <!--              <v-combobox-->
-            <!--                label="Шаг"-->
-            <!--                v-model="toolModel.shag"-->
-            <!--                :items="shagOptions"-->
-            <!--                required-->
-            <!--              />-->
-            <!--              <v-combobox-->
-            <!--                label="Габариты"-->
-            <!--                v-model="toolModel.gabarit"-->
-            <!--                :items="gabaritOptions"-->
-            <!--                required-->
-            <!--              />-->
-            <!--              <v-combobox-->
-            <!--                label="Вылет (Резцы)"-->
-            <!--                v-model="toolModel.width"-->
-            <!--                :items="widthOptions"-->
-            <!--                required-->
-            <!--              />-->
-            <!--            </div>-->
+              <v-combobox
+                label="Геометрия"
+                v-model="toolModel.geometry"
+                :items="geometryOptions"
+                required
+              />
+              <v-combobox
+                label="Шаг"
+                v-model="toolModel.shag"
+                :items="shagOptions"
+                required
+              />
+              <v-combobox
+                label="Габариты"
+                v-model="toolModel.gabarit"
+                :items="gabaritOptions"
+                required
+              />
+              <v-combobox
+                label="Вылет (Резцы)"
+                v-model="toolModel.width"
+                :items="widthOptions"
+                required
+              />
+            </div>
           </v-col>
         </v-row>
       </v-container>
@@ -274,18 +274,18 @@ export default {
       return parseFloat(value.toString().replace(',', '.'))
     },
 
-    checkDisabledStatus() {
-      // console.log('Radius:', this.toolModel.radius)
-      // console.log('Diameter:', this.toolModel.diam)
-      return this.toolModel.radius || this.toolModel.diam
-    },
-    onTypeChange() {
-      if (this.selectedType === 'Радиус' && !this.toolModel.radius) {
-        this.selectedType = '' // Очищаем выбранный тип, если радиус пуст
-      } else if (this.selectedType === 'Диаметр' && !this.toolModel.diam) {
-        this.toolModel.diam = this.toolModel.radius // Сохраняем значение радиуса как диаметр, если диаметр пуст
-      }
-    },
+    // checkDisabledStatus() {
+    //   // console.log('Radius:', this.toolModel.radius)
+    //   // console.log('Diameter:', this.toolModel.diam)
+    //   return this.toolModel.radius || this.toolModel.diam
+    // },
+    // onTypeChange() {
+    //   if (this.selectedType === 'Радиус' && !this.toolModel.radius) {
+    //     this.selectedType = '' // Очищаем выбранный тип, если радиус пуст
+    //   } else if (this.selectedType === 'Диаметр' && !this.toolModel.diam) {
+    //     this.toolModel.diam = this.toolModel.radius // Сохраняем значение радиуса как диаметр, если диаметр пуст
+    //   }
+    // },
 
     confirmDelete() {
       this.confirmDeleteDialog = true
