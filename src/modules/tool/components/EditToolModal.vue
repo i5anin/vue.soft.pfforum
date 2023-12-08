@@ -7,41 +7,43 @@
           <v-col>
             <!--левый столбец -->
             <div>
-              <!--https://vuetifyjs.com/en/components/combobox/#usage-->
-              <!--https://vuetifyjs.com/en/api/v-combobox/#links-->
-              <v-combobox
-                label="Название (Тип)"
-                v-model="toolModel.type"
-                :items="typeOptions"
-                item-text="text"
-                item-value="value"
-                required
-                :clearable="true"
-                :counter="3"
-                :rules="typeRules"
-              />
-              <v-combobox
-                label="Группа"
-                :clearable="true"
-                v-model="toolModel.group"
-                :items="groupOptions"
-                item-text="text"
-                item-value="value"
-                required
-                :rules="typeRules"
-              />
-              <v-combobox
-                label="Применяемость материала"
-                :clearable="true"
-                v-model="toolModel.mat"
-                :items="materialOptions"
-                item-text="text"
-                item-value="value"
-                required
-                :rules="typeRules"
-              />
+              <!--              <v-combobox-->
+              <!--                density="compact"-->
+              <!--                label="Название (Тип)"-->
+              <!--                v-model="toolModel.type"-->
+              <!--                :items="typeOptions"-->
+              <!--                item-text="text"-->
+              <!--                item-value="value"-->
+              <!--                required-->
+              <!--                :clearable="true"-->
+              <!--                :counter="3"-->
+              <!--                :rules="typeRules"-->
+              <!--              />-->
+              <!--              <v-combobox-->
+              <!--                density="compact"-->
+              <!--                label="Группа"-->
+              <!--                :clearable="true"-->
+              <!--                v-model="toolModel.group"-->
+              <!--                :items="groupOptions"-->
+              <!--                item-text="text"-->
+              <!--                item-value="value"-->
+              <!--                required-->
+              <!--                :rules="typeRules"-->
+              <!--              />-->
+              <!--              <v-combobox-->
+              <!--                density="compact"-->
+              <!--                label="Применяемость материала"-->
+              <!--                :clearable="true"-->
+              <!--                v-model="toolModel.mat"-->
+              <!--                :items="materialOptions"-->
+              <!--                item-text="text"-->
+              <!--                item-value="value"-->
+              <!--                required-->
+              <!--                :rules="typeRules"-->
+              <!--              />-->
 
               <v-combobox
+                density="compact"
                 label="Маркировка"
                 v-model="toolModel.name"
                 :items="nameOptions"
@@ -51,15 +53,19 @@
                 :rules="typeRules"
               />
             </div>
-            <h2 class="text-h6">Размеры:</h2>
+
             <!-- правый столбец -->
+            <!--            <v-col cols="6">-->
+            <h2 class="text-h6">Размеры:</h2>
             <div v-if="toolParams" v-for="(param, id) in toolParams" :key="id">
               <v-combobox
+                density="compact"
                 :label="param.info"
                 v-model="toolModel[param.params]"
                 required
               />
             </div>
+            <!--            </v-col>-->
           </v-col>
         </v-row>
       </v-container>
@@ -129,6 +135,7 @@ export default {
   components: { DeleteConfirmationDialog, Modal },
   //реактивные данные
   data: () => ({
+    selectedParams: [],
     geometryOptions: [],
     toolParams: [],
     toolModel: {
