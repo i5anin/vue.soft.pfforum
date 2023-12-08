@@ -13,7 +13,7 @@
 
 <script>
 import { getToolsTree } from '@/api'
-import TreeNode from './TreeNode.vue'
+import TreeNode from '../TreeNode.vue'
 
 export default {
   name: 'TreeView',

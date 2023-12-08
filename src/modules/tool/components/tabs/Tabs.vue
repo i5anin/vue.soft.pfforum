@@ -37,11 +37,11 @@
 <script setup>
 import { ref } from 'vue'
 
-import TabMainTable from '@/modules/tool/components/TabMainTable.vue'
-import ToolTabLibrary from '@/modules/tool/components/TabLibrary.vue'
-import ToolTabInventory from '@/modules/tool/components/TabInventory.vue'
-import TabCatalog from '@/modules/tool/components/TabCatalog.vue'
-import ToolTabTree from '@/modules/tool/components/TabTree.vue'
+import TabMainTable from '@/modules/tool/components/tabs/TabMainTable.vue'
+import ToolTabLibrary from '@/modules/tool/components/tabs/TabLibrary.vue'
+import ToolTabInventory from '@/modules/tool/components/tabs/TabInventory.vue'
+import TabCatalog from '@/modules/tool/components/tabs/TabCatalog.vue'
+import ToolTabTree from '@/modules/tool/components/tabs/TabTree.vue'
 
 const tab = ref('Catalog') // Установите начальное значение
 </script>
