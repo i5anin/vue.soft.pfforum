@@ -43,5 +43,5 @@ import ToolTabInventory from '@/modules/tool/components/tabs/Sklad.vue'
 import TabCatalog from '@/modules/tool/components/tabs/Catalog.vue'
 import ToolTabTree from '@/modules/tool/components/tabs/Tree.vue'
 
-const tab = ref('Catalog') // Установите начальное значение
+const tab = ref('Catalog') // Начальное значение
 </script>

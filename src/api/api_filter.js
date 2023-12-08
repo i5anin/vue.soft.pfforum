@@ -8,6 +8,6 @@ export async function getToolsTree() {
     return response.data // Возвращаем полученное дерево
   } catch (error) {
     console.error('There has been a problem with fetching tools tree:', error)
-    return null // Возвращаем null в случае ошибки
+    return null
   }
 }
