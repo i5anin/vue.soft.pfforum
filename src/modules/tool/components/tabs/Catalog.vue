@@ -80,6 +80,8 @@
 </template>
 
 <script>
+import { ref } from 'vue'
+
 import { addBranch, getToolsTree } from '@/api'
 import TabMainTable from '@/modules/tool/components/tabs/MainTable.vue'
 import { normSpaces } from '@/modules/tool/components/normSpaces'
@@ -88,13 +90,23 @@ export default {
   name: 'TabCatalog',
   components: { TabMainTable },
 
-  data() {
+  setup() {
+    const history = ref([]) // Определение реактивного свойства history
+    const currentItem = ref(null) // Определение реактивного свойства currentItem
+    const selectedItem = ref(null) // Определение реактивного свойства selectedItem
+    const isEditing = ref(false) // Определение реактивного свойства isEditing
+    const editableLabel = ref('') // Определение реактивного свойства editableLabel
+
+    // Ваши методы и логика здесь
+
+    // Возвращаем реактивные свойства из setup
     return {
-      history: [],
-      currentItem: null,
-      selectedItem: null,
-      isEditing: false,
-      editableLabel: '',
+      history,
+      currentItem,
+      selectedItem,
+      isEditing,
+      editableLabel,
+      // Ваши другие свойства и методы
     }
   },
   methods: {
@@ -107,7 +119,6 @@ export default {
 
     async addItem() {
       console.log('Добавление элемента начато')
-
       if (!this.currentItem || !this.currentItem.nodes) {
         console.log('Текущий элемент или его узлы не определены')
         return alert('Выберите категорию для добавления нового элемента.')
@@ -125,37 +136,47 @@ export default {
           alert('Произошла ошибка при добавлении ветки.')
         }
       }
+      console.log('addItem завершен, обновляем дерево')
+      await this.refreshTree()
     },
 
     async refreshTree() {
+      console.log('Начало обновления дерева')
       try {
         const updatedTree = await getToolsTree()
-        console.log('Обновленное дерево:', JSON.stringify(updatedTree))
+        console.log('Получено обновленное дерево:', updatedTree)
 
+        // Обновление истории
         this.history = this.history.map((item) => {
-          const updatedItem = updatedTree.find(
-            (updated) => updated.id === item.id
-          )
-          return updatedItem ? updatedItem : item
+          const updatedItem = updatedTree.find((u) => u.id === item.id)
+          return updatedItem ? { ...updatedItem } : { ...item }
         })
 
+        // Обновление currentItem
         if (this.currentItem) {
           const updatedCurrentItem = updatedTree.find(
             (item) => item.id === this.currentItem.id
           )
+
           if (updatedCurrentItem) {
             console.log(
-              'Текущий элемент обновлен:',
-              JSON.stringify(updatedCurrentItem)
+              'Обновленный currentItem.nodes:',
+              updatedCurrentItem.nodes
             )
-            this.currentItem = { ...updatedCurrentItem }
+
+            // Обновление nodes внутри currentItem
             this.currentItem.nodes = updatedCurrentItem.nodes
           }
         }
+        console.log(
+          'refreshTree завершен, обновленный currentItem:',
+          this.currentItem
+        )
       } catch (error) {
         console.error('Ошибка при обновлении дерева:', error)
       }
     },
+
     async selectItem(item) {
       console.log('Выбор элемента:', JSON.stringify(item))
       this.currentItem = item
