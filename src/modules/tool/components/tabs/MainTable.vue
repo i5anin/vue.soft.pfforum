@@ -73,7 +73,7 @@
 import EditToolModal from '@/modules/tool/components/modal/EditToolModal.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
-import { ToolTableHeaders } from '@/modules/tool/components/tabs/config'
+import { ToolTableHeaders } from '@/modules/tool/components/config'
 import ToolFilter from '@/modules/tool/components/ToolFilter.vue'
 
 export default {
