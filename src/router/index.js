@@ -1,7 +1,7 @@
 // src/index.js
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '@/views/Home.vue'
-import Tool from '@/modules/tool/components/tabs/Tabs.vue'
+import Tool from '@/modules/tool/components/Tabs.vue'
 import Login from '@/views/Login.vue'
 import Error404 from '@/views/404.vue'
 
