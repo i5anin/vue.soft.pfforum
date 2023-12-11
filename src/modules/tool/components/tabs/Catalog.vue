@@ -62,9 +62,10 @@
                 <v-list-item-content class="flex">
                   <v-icon color="info" icon="mdi-folder" class="icon" />
                   <v-list-item-title>
-                    {{ item.label }} ({{ item.elements }}) [{{
-                      item.totalElements
-                    }}]
+                    {{ item.label }}
+                    <span v-if="item.elements !== 0">
+                      ({{ item.elements }})
+                    </span>
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
