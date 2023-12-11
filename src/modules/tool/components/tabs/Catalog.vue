@@ -103,23 +103,31 @@ export default {
     }
   },
   methods: {
-    async deleteItem() {
+    async deleteItem(itemId) {
       if (!this.currentItem) {
         return alert('Не выбран элемент для удаления.')
       }
 
-      const itemId = this.currentItem.id
       if (
         confirm(`Вы уверены, что хотите удалить ${this.currentItem.label}?`)
       ) {
         try {
           await deleteItem(itemId) // Вызов API для удаления
           alert('Элемент успешно удален.')
+
+          // Удаление элемента из дерева
+          if (this.currentItem && this.currentItem.nodes) {
+            this.currentItem.nodes = this.currentItem.nodes.filter(
+              (item) => item.id !== itemId
+            )
+          }
+
+          // Обновление состояния currentItem и истории
           if (this.history.length > 1) {
             this.history.pop()
             this.currentItem = this.history[this.history.length - 1]
           } else {
-            // Если удаляется корневой элемент, обновите дерево
+            this.currentItem = null // или установите на другой подходящий элемент
             await this.refreshTree()
           }
         } catch (error) {
@@ -137,34 +145,51 @@ export default {
     },
 
     async addItem() {
-      console.log('Начало добавления новой папки') // Начальный лог
+      console.log('Начало добавления новой папки') // Логирование начала процесса добавления
 
+      // Проверяем, выбран ли текущий элемент
       if (!this.currentItem || !this.currentItem.nodes) {
         console.log('Не выбрана категория для добавления новой папки')
         return alert('Выберите категорию для добавления нового элемента.')
       }
 
+      // Запрашиваем название новой папки
       let branchName = prompt('Введите название новой ветки:')
       if (branchName) {
         branchName = normSpaces(branchName)
-        console.log(`Введенное название папки: ${branchName}`) // Лог введенного названия папки
+        console.log(`Введенное название папки: ${branchName}`) // Логирование введенного названия
 
         try {
           console.log(
             `Попытка добавления папки '${branchName}' в категорию с ID: ${this.currentItem.id}`
-          ) // Лог перед добавлением
+          )
           const newBranch = await addBranch(branchName, this.currentItem.id)
           console.log(
             `Папка добавлена успешно. ID новой папки: ${newBranch.newBranchId}`
           )
 
-          await this.refreshTree()
+          // Создаем объект новой папки
+          const newFolder = {
+            id: newBranch.newBranchId,
+            label: branchName,
+            elements: 0,
+            nodes: [],
+          }
+
+          // Добавляем новую папку в список дочерних элементов текущего элемента
+          this.currentItem.nodes.push(newFolder)
+
+          // Обновляем текущий элемент, чтобы отображать новую папку
+          this.currentItem = newFolder
+
+          // Добавляем новую папку в историю для навигации
+          this.history.push(newFolder)
         } catch (error) {
           console.error('Ошибка при добавлении новой ветки:', error)
           alert('Произошла ошибка при добавлении ветки.')
         }
       } else {
-        console.log('Добавление папки отменено пользователем') // Лог отмены добавления
+        console.log('Добавление папки отменено пользователем')
       }
     },
 
@@ -174,27 +199,32 @@ export default {
         const updatedTree = await getToolsTree()
         console.log('Дерево получено:', updatedTree)
         this.treeData = updatedTree
-        if (this.currentItem) {
-          const updatedCurrentItem = updatedTree.find(
-            (item) => item.id === this.currentItem.id
+
+        // Проверяем, если текущий элемент присутствует в обновленном дереве
+        const updatedCurrentItem = updatedTree.find(
+          (item) => item.id === this.currentItem.id
+        )
+
+        if (updatedCurrentItem) {
+          // Обновляем текущий элемент, если он найден
+          this.currentItem = updatedCurrentItem
+          console.log('Текущий элемент обновлен:', this.currentItem)
+        } else {
+          // Если текущий элемент не найден, обновляем его на первый элемент из дерева
+          // или на null, если дерево пустое
+          this.currentItem = updatedTree.length > 0 ? updatedTree[0] : null
+          console.log(
+            'Текущий элемент обновлен на первый элемент дерева или null'
           )
-          if (updatedCurrentItem) {
-            this.currentItem = updatedCurrentItem
-            console.log('Текущий элемент обновлен:', this.currentItem)
-          } else {
-            console.log('Текущий элемент не найден в обновленном дереве')
-          }
         }
       } catch (error) {
         console.error('Ошибка при обновлении дерева:', error)
       }
     },
+
     async selectItem(item) {
       this.currentItem = item
-      if (!this.history.includes(item)) {
-        this.history.push(item)
-      }
-
+      if (!this.history.includes(item)) this.history.push(item)
       try {
         await this.$store.dispatch('tool/fetchToolsByFilter', {
           parentId: item.id,
@@ -209,10 +239,7 @@ export default {
     },
     finishEditing() {
       this.isEditing = false
-      if (this.currentItem) {
-        // Обновляем название текущего элемента после редактирования
-        this.currentItem.label = this.editableLabel
-      }
+      if (this.currentItem) this.currentItem.label = this.editableLabel
     },
     // Логика для кнопки "назад"
     goBack() {
