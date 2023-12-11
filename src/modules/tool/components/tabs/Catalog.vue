@@ -103,33 +103,26 @@ export default {
     }
   },
   methods: {
-    async deleteItem(itemId) {
+    async deleteItem() {
       if (!this.currentItem) {
         return alert('Не выбран элемент для удаления.')
       }
 
+      const itemId = this.currentItem.id
       if (
         confirm(`Вы уверены, что хотите удалить ${this.currentItem.label}?`)
       ) {
         try {
-          await deleteItem(itemId) // Вызов API для удаления
+          await deleteItem(itemId)
           alert('Элемент успешно удален.')
 
-          // Удаление элемента из дерева
-          if (this.currentItem && this.currentItem.nodes) {
-            this.currentItem.nodes = this.currentItem.nodes.filter(
-              (item) => item.id !== itemId
-            )
-          }
-
-          // Обновление состояния currentItem и истории
           if (this.history.length > 1) {
             this.history.pop()
             this.currentItem = this.history[this.history.length - 1]
-          } else {
-            this.currentItem = null // или установите на другой подходящий элемент
-            await this.refreshTree()
           }
+
+          // Вызываем refreshTree для обновления дерева и currentItem
+          await this.refreshTree()
         } catch (error) {
           console.error('Ошибка при удалении:', error)
           alert('Произошла ошибка при удалении.')
