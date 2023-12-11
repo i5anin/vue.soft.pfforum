@@ -42,7 +42,10 @@
             <div class="breadcrumbs">
               <span v-for="(item, index) in history" :key="index">
                 <span :class="getBreadcrumbClass(index)" @click="goTo(index)">
-                  {{ item.label }} ({{ item.elements }})
+                  {{ item.label }}
+                  <span v-if="item.elements !== 0">
+                    ({{ item.elements }})
+                  </span>
                 </span>
                 <span v-if="index < history.length - 1">
                   &nbsp;&nbsp;/&nbsp;&nbsp;
@@ -112,8 +115,6 @@ export default {
         try {
           await deleteItem(itemId) // Вызов API для удаления
           alert('Элемент успешно удален.')
-
-          // Обновление локального состояния
           if (this.history.length > 1) {
             this.history.pop()
             this.currentItem = this.history[this.history.length - 1]
@@ -204,7 +205,6 @@ export default {
       }
     },
     goTo(index) {
-      console.log('Переход к элементу с индексом:', index)
       this.history = this.history.slice(0, index + 1)
       this.currentItem = this.history[index]
     },
