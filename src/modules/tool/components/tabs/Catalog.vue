@@ -78,8 +78,9 @@
 </template>
 
 <script>
-import { getToolsTree } from '@/api'
+import { addBranch, getToolsTree } from '@/api'
 import TabMainTable from '@/modules/tool/components/tabs/MainTable.vue'
+import { normSpaces } from '@/modules/tool/components/normSpaces'
 
 export default {
   name: 'TabCatalog',
@@ -102,11 +103,42 @@ export default {
       }
     },
 
-    addItem() {
+    async addItem() {
       if (!this.currentItem || !this.currentItem.nodes) {
         return alert('Выберите категорию для добавления нового элемента.')
       }
+
+      let branchName = prompt('Введите название новой ветки:')
+      if (branchName) {
+        branchName = normSpaces(branchName)
+        try {
+          const newBranch = await addBranch(branchName, this.currentItem.id)
+          alert(`Ветка добавлена успешно: ${newBranch.newBranchId}`)
+          await this.refreshTree()
+        } catch (error) {
+          console.error('Ошибка при добавлении новой ветки:', error)
+          alert('Произошла ошибка при добавлении ветки.')
+        }
+      }
     },
+
+    async refreshTree() {
+      try {
+        const updatedTree = await getToolsTree()
+        this.treeData = updatedTree
+        if (this.currentItem) {
+          const updatedCurrentItem = updatedTree.find(
+            (item) => item.id === this.currentItem.id
+          )
+          if (updatedCurrentItem) {
+            this.currentItem = updatedCurrentItem
+          }
+        }
+      } catch (error) {
+        console.error('Ошибка при обновлении дерева:', error)
+      }
+    },
+
     async selectItem(item) {
       this.currentItem = item
       if (!this.history.includes(item)) {
