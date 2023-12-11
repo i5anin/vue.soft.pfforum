@@ -71,7 +71,7 @@ import {
   getUniqueToolSpecs,
   addToWarehouse,
 } from '@/api'
-import DeleteConfirmationDialog from '@/modules/tool/components/DeleteConfirmationDialog.vue'
+import DeleteConfirmationDialog from '@/modules/tool/components/modal/DeleteConfirmationDialog.vue'
 
 export default {
   name: 'EditToolSkladModal',

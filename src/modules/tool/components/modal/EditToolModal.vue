@@ -80,7 +80,7 @@
 <script>
 import Modal from '@/components/shared/Modal.vue'
 import { deleteTool, getLibraries, getToolParams } from '@/api'
-import DeleteConfirmationDialog from '@/modules/tool/components/DeleteConfirmationDialog.vue'
+import DeleteConfirmationDialog from '@/modules/tool/components/modal/DeleteConfirmationDialog.vue'
 import { mapActions, mapGetters } from 'vuex'
 
 export default {

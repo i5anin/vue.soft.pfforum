@@ -70,7 +70,7 @@
 </template>
 
 <script>
-import EditToolModal from '@/modules/tool/components/EditToolModal.vue'
+import EditToolModal from '@/modules/tool/components/modal/EditToolModal.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
 import { ToolTableHeaders } from '@/modules/tool/components/tabs/config'
