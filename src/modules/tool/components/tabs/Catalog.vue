@@ -137,27 +137,42 @@ export default {
     },
 
     async addItem() {
+      console.log('Начало добавления новой папки') // Начальный лог
+
       if (!this.currentItem || !this.currentItem.nodes) {
+        console.log('Не выбрана категория для добавления новой папки')
         return alert('Выберите категорию для добавления нового элемента.')
       }
 
       let branchName = prompt('Введите название новой ветки:')
       if (branchName) {
         branchName = normSpaces(branchName)
+        console.log(`Введенное название папки: ${branchName}`) // Лог введенного названия папки
+
         try {
+          console.log(
+            `Попытка добавления папки '${branchName}' в категорию с ID: ${this.currentItem.id}`
+          ) // Лог перед добавлением
           const newBranch = await addBranch(branchName, this.currentItem.id)
-          alert(`Ветка добавлена успешно: ${newBranch.newBranchId}`)
+          console.log(
+            `Папка добавлена успешно. ID новой папки: ${newBranch.newBranchId}`
+          )
+
           await this.refreshTree()
         } catch (error) {
           console.error('Ошибка при добавлении новой ветки:', error)
           alert('Произошла ошибка при добавлении ветки.')
         }
+      } else {
+        console.log('Добавление папки отменено пользователем') // Лог отмены добавления
       }
     },
 
     async refreshTree() {
+      console.log('Начало обновления дерева')
       try {
         const updatedTree = await getToolsTree()
+        console.log('Дерево получено:', updatedTree)
         this.treeData = updatedTree
         if (this.currentItem) {
           const updatedCurrentItem = updatedTree.find(
@@ -165,13 +180,15 @@ export default {
           )
           if (updatedCurrentItem) {
             this.currentItem = updatedCurrentItem
+            console.log('Текущий элемент обновлен:', this.currentItem)
+          } else {
+            console.log('Текущий элемент не найден в обновленном дереве')
           }
         }
       } catch (error) {
         console.error('Ошибка при обновлении дерева:', error)
       }
     },
-
     async selectItem(item) {
       this.currentItem = item
       if (!this.history.includes(item)) {
