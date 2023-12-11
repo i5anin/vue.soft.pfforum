@@ -37,6 +37,7 @@ router.delete('/type/:id', toolController.deleteType)
 router.delete('/group/:id', toolController.deleteGroup)
 
 router.post('/tools-tree', treeController.addBranch)
+router.delete('/tools-tree/:id', treeController.dellFolderTree)
 
 // Tree Routes
 router.get('/tools-tree', treeController.getToolsTree)

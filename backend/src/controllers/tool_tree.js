@@ -96,7 +96,63 @@ async function getToolsTree(req, res) {
   }
 }
 
+async function dellFolderTree(req, res) {
+  try {
+    const itemId = req.params.id // Изменено на req.params.id
+
+    // Проверка существования папки
+    const folderExistResult = await pool.query(
+      'SELECT id FROM dbo.tool_tree WHERE id = $1',
+      [itemId]
+    )
+    console.log('Folder Exist Result:', folderExistResult)
+    if (folderExistResult.rows.length === 0) {
+      return res.status(400).send({
+        message: 'Папка не существует',
+        reason: 'Folder does not exist',
+      })
+    }
+
+    // Проверка наличия дочерних элементов
+    const childCheckResult = await pool.query(
+      'SELECT id FROM dbo.tool_tree WHERE id_parent = $1',
+      [itemId]
+    )
+    console.log('Child Check Result:', childCheckResult.rows)
+    if (childCheckResult.rows.length > 0) {
+      return res.status(400).send({
+        message: 'Нельзя удалить папку с дочерними элементами',
+        reason: 'Folder has child elements',
+      })
+    }
+
+    // Проверка отсутствия привязанных номенклатур
+    const nomenclatureCheckResult = await pool.query(
+      'SELECT id FROM dbo.tool_nom WHERE parent_id = $1',
+      [itemId]
+    )
+    console.log('Nomenclature Check Result:', nomenclatureCheckResult.rows)
+    if (nomenclatureCheckResult.rows.length > 0) {
+      return res.status(400).send({
+        message: 'Нельзя удалить папку с привязанными номенклатурами',
+        reason: 'Folder is linked to nomenclature',
+      })
+    }
+
+    // Удаление папки из базы данных
+    await pool.query('DELETE FROM dbo.tool_tree WHERE id = $1', [itemId])
+
+    res.status(200).send({ message: 'Папка успешно удалена' })
+  } catch (error) {
+    console.error('Ошибка при удалении папки:', error)
+    res
+      .status(500)
+      .send({ message: 'Ошибка при удалении папки', reason: error.message })
+  }
+}
+
 module.exports = {
+  dellFolderTree,
   getToolsTree,
   addBranch,
 }
