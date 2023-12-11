@@ -23,6 +23,9 @@
             <v-btn icon small @click.stop="addItem">
               <v-icon>mdi-plus</v-icon>
             </v-btn>
+            <v-btn icon small @click.stop="deleteItem(currentItem.id)">
+              <v-icon>mdi-delete</v-icon>
+            </v-btn>
           </span>
         </div>
       </v-toolbar-title>
@@ -79,7 +82,7 @@
 </template>
 
 <script>
-import { addBranch, getToolsTree } from '@/api'
+import { addBranch, deleteItem, getToolsTree } from '@/api'
 import TabMainTable from '@/modules/tool/components/tabs/MainTable.vue'
 import { normSpaces } from '@/modules/tool/components/normSpaces'
 
@@ -97,6 +100,34 @@ export default {
     }
   },
   methods: {
+    async deleteItem() {
+      if (!this.currentItem) {
+        return alert('Не выбран элемент для удаления.')
+      }
+
+      const itemId = this.currentItem.id
+      if (
+        confirm(`Вы уверены, что хотите удалить ${this.currentItem.label}?`)
+      ) {
+        try {
+          await deleteItem(itemId) // Вызов API для удаления
+          alert('Элемент успешно удален.')
+
+          // Обновление локального состояния
+          if (this.history.length > 1) {
+            this.history.pop()
+            this.currentItem = this.history[this.history.length - 1]
+          } else {
+            // Если удаляется корневой элемент, обновите дерево
+            await this.refreshTree()
+          }
+        } catch (error) {
+          console.error('Ошибка при удалении:', error)
+          alert('Произошла ошибка при удалении.')
+        }
+      }
+    },
+
     getBreadcrumbClass(index) {
       return {
         'breadcrumbs-item': index < this.history.length - 1,
