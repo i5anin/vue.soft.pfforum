@@ -62,10 +62,12 @@
                 <v-list-item-content class="flex">
                   <v-icon color="info" icon="mdi-folder" class="icon" />
                   <v-list-item-title>
-                    {{ item.label }} ({{ item.elements }}) [{{
-                      item.totalElements
-                    }}]
+                    {{ item.label }}
+                    <span v-if="item.elements !== 0">
+                      ({{ item.elements }})
+                    </span>
                   </v-list-item-title>
+                  <!--[{{item.totalElements}}]-->
                 </v-list-item-content>
               </v-list-item>
             </v-list-item-group>
@@ -104,7 +106,10 @@ export default {
     },
 
     async addItem() {
+      console.log('Добавление элемента начато')
+
       if (!this.currentItem || !this.currentItem.nodes) {
+        console.log('Текущий элемент или его узлы не определены')
         return alert('Выберите категорию для добавления нового элемента.')
       }
 
@@ -113,7 +118,7 @@ export default {
         branchName = normSpaces(branchName)
         try {
           const newBranch = await addBranch(branchName, this.currentItem.id)
-          alert(`Ветка добавлена успешно: ${newBranch.newBranchId}`)
+          console.log(`Новая ветка добавлена: ${JSON.stringify(newBranch)}`)
           await this.refreshTree()
         } catch (error) {
           console.error('Ошибка при добавлении новой ветки:', error)
@@ -125,21 +130,34 @@ export default {
     async refreshTree() {
       try {
         const updatedTree = await getToolsTree()
-        this.treeData = updatedTree
+        console.log('Обновленное дерево:', JSON.stringify(updatedTree))
+
+        this.history = this.history.map((item) => {
+          const updatedItem = updatedTree.find(
+            (updated) => updated.id === item.id
+          )
+          return updatedItem ? updatedItem : item
+        })
+
         if (this.currentItem) {
           const updatedCurrentItem = updatedTree.find(
             (item) => item.id === this.currentItem.id
           )
           if (updatedCurrentItem) {
-            this.currentItem = updatedCurrentItem
+            console.log(
+              'Текущий элемент обновлен:',
+              JSON.stringify(updatedCurrentItem)
+            )
+            this.currentItem = { ...updatedCurrentItem }
+            this.currentItem.nodes = updatedCurrentItem.nodes
           }
         }
       } catch (error) {
         console.error('Ошибка при обновлении дерева:', error)
       }
     },
-
     async selectItem(item) {
+      console.log('Выбор элемента:', JSON.stringify(item))
       this.currentItem = item
       if (!this.history.includes(item)) {
         this.history.push(item)
