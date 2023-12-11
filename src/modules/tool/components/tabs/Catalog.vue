@@ -80,7 +80,8 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
+
 import { addBranch, getToolsTree } from '@/api'
 import TabMainTable from '@/modules/tool/components/tabs/MainTable.vue'
 import { normSpaces } from '@/modules/tool/components/normSpaces'
@@ -90,22 +91,35 @@ export default {
   components: { TabMainTable },
 
   setup() {
-    const history = ref([])
-    const currentItem = ref(null)
-    const selectedItem = ref(null)
-    const isEditing = ref(false)
-    const editableLabel = ref('')
+    const history = ref([]) // Определение реактивного свойства history
+    const currentItem = ref(null) // Определение реактивного свойства currentItem
+    const selectedItem = ref(null) // Определение реактивного свойства selectedItem
+    const isEditing = ref(false) // Определение реактивного свойства isEditing
+    const editableLabel = ref('') // Определение реактивного свойства editableLabel
 
-    const getBreadcrumbClass = (index) => {
-      return {
-        'breadcrumbs-item': index < history.value.length - 1,
-        'breadcrumbs-item-final': index === history.value.length - 1,
-      }
+    // Ваши методы и логика здесь
+
+    // Возвращаем реактивные свойства из setup
+    return {
+      history,
+      currentItem,
+      selectedItem,
+      isEditing,
+      editableLabel,
+      // Ваши другие свойства и методы
     }
+  },
+  methods: {
+    getBreadcrumbClass(index) {
+      return {
+        'breadcrumbs-item': index < this.history.length - 1,
+        'breadcrumbs-item-final': index === this.history.length - 1,
+      }
+    },
 
-    const addItem = async () => {
+    async addItem() {
       console.log('Добавление элемента начато')
-      if (!currentItem.value || !currentItem.value.nodes) {
+      if (!this.currentItem || !this.currentItem.nodes) {
         console.log('Текущий элемент или его узлы не определены')
         return alert('Выберите категорию для добавления нового элемента.')
       }
@@ -114,34 +128,34 @@ export default {
       if (branchName) {
         branchName = normSpaces(branchName)
         try {
-          const newBranch = await addBranch(branchName, currentItem.value.id)
+          const newBranch = await addBranch(branchName, this.currentItem.id)
           console.log(`Новая ветка добавлена: ${JSON.stringify(newBranch)}`)
-          await refreshTree()
+          await this.refreshTree()
         } catch (error) {
           console.error('Ошибка при добавлении новой ветки:', error)
           alert('Произошла ошибка при добавлении ветки.')
         }
       }
       console.log('addItem завершен, обновляем дерево')
-      await refreshTree()
-    }
+      await this.refreshTree()
+    },
 
-    const refreshTree = async () => {
+    async refreshTree() {
       console.log('Начало обновления дерева')
       try {
         const updatedTree = await getToolsTree()
         console.log('Получено обновленное дерево:', updatedTree)
 
         // Обновление истории
-        history.value = history.value.map((item) => {
+        this.history = this.history.map((item) => {
           const updatedItem = updatedTree.find((u) => u.id === item.id)
           return updatedItem ? { ...updatedItem } : { ...item }
         })
 
         // Обновление currentItem
-        if (currentItem.value) {
+        if (this.currentItem) {
           const updatedCurrentItem = updatedTree.find(
-            (item) => item.id === currentItem.value.id
+            (item) => item.id === this.currentItem.id
           )
 
           if (updatedCurrentItem) {
@@ -151,81 +165,62 @@ export default {
             )
 
             // Обновление nodes внутри currentItem
-            currentItem.value.nodes = updatedCurrentItem.nodes
+            this.currentItem.nodes = updatedCurrentItem.nodes
           }
         }
         console.log(
           'refreshTree завершен, обновленный currentItem:',
-          currentItem.value
+          this.currentItem
         )
       } catch (error) {
         console.error('Ошибка при обновлении дерева:', error)
       }
-    }
+    },
 
-    const selectItem = async (item) => {
+    async selectItem(item) {
       console.log('Выбор элемента:', JSON.stringify(item))
-      currentItem.value = item
-      if (!history.value.includes(item)) {
-        history.value.push(item)
+      this.currentItem = item
+      if (!this.history.includes(item)) {
+        this.history.push(item)
       }
 
       try {
-        // Здесь вызовите вашу функцию для получения данных
+        await this.$store.dispatch('tool/fetchToolsByFilter', {
+          parentId: item.id,
+        })
       } catch (error) {
         console.error('Ошибка при получении данных:', error)
       }
-    }
-
-    const startEditing = () => {
-      isEditing.value = true
-      editableLabel.value = currentItem.value ? currentItem.value.label : ''
-    }
-
-    const finishEditing = () => {
-      isEditing.value = false
-      if (currentItem.value) {
+    },
+    startEditing() {
+      this.isEditing = true
+      this.editableLabel = this.currentItem ? this.currentItem.label : ''
+    },
+    finishEditing() {
+      this.isEditing = false
+      if (this.currentItem) {
         // Обновляем название текущего элемента после редактирования
-        currentItem.value.label = editableLabel.value
+        this.currentItem.label = this.editableLabel
       }
-    }
-
+    },
     // Логика для кнопки "назад"
-    const goBack = () => {
-      if (history.value.length > 1) {
-        history.value.pop() // Удаляем последний элемент истории
-        currentItem.value = history.value[history.value.length - 1] // Обновляем currentItem на предыдущий элемент
+    goBack() {
+      if (this.history.length > 1) {
+        this.history.pop() // Удаляем последний элемент истории
+        this.currentItem = this.history[this.history.length - 1] // Обновляем currentItem на предыдущий элемент
       }
-    }
-
-    const goTo = (index) => {
+    },
+    goTo(index) {
       console.log('Переход к элементу с индексом:', index)
-      history.value = history.value.slice(0, index + 1)
-      currentItem.value = history.value[index]
-    }
-
-    onMounted(async () => {
-      const toolsTree = await getToolsTree()
-      if (toolsTree && toolsTree.length > 0) {
-        currentItem.value = toolsTree[0]
-        history.value.push(currentItem.value)
-      }
-    })
-
-    return {
-      history,
-      currentItem,
-      selectedItem,
-      isEditing,
-      editableLabel,
-      getBreadcrumbClass,
-      addItem,
-      refreshTree,
-      selectItem,
-      startEditing,
-      finishEditing,
-      goBack,
-      goTo,
+      this.history = this.history.slice(0, index + 1)
+      this.currentItem = this.history[index]
+    },
+  },
+  async created() {
+    const toolsTree = await getToolsTree()
+    if (toolsTree && toolsTree.length > 0) {
+      this.currentItem = toolsTree[0]
+      this.history.push(this.currentItem)
     }
   },
 }
