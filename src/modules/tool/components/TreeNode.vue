@@ -1,15 +1,16 @@
 <template>
   <v-list-item>
     <div className="tree-node">
-      <!-- Отображение текущего узла -->
       <v-list-item-content className="node-content">
         <v-icon color="info">mdi-folder</v-icon>
         <span>
-          {{ node.label }} ({{ node.elements }}) [{{ node.totalElements }}]
+          {{ node.label }}
+          <span v-if="node.elements !== 0">
+            (Элементов: {{ node.elements }})
+          </span>
+          <span class="node-id">id: {{ node.id }} </span>
         </span>
       </v-list-item-content>
-
-      <!-- Рекурсивное отображение дочерних узлов -->
       <v-list-item-content v-if="node.nodes && node.nodes.length">
         <tree-node
           v-for="child in node.nodes"
@@ -52,6 +53,10 @@ export default {
   top: 24px;
   width: 20px;
   border-bottom: 1px solid #989898;
+}
+
+.node-id {
+  color: gray;
 }
 
 .child-node::after {

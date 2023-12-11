@@ -24,3 +24,7 @@ export async function addBranch(name, parentId) {
     return null // Return null or an appropriate error response
   }
 }
+
+export async function deleteItem(itemId) {
+  return axios.delete(`${BASE_URL}/tools-tree/${itemId}`)
+}
