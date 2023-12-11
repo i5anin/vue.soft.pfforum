@@ -97,7 +97,7 @@ export default {
         group_name: '',
         type_name: '',
         mat_name: '',
-        typeOptions: ['Radius', 'Diam', 'Step', 'Dimensions', 'Projection'],
+        typeOptions: ['Step', 'Dimensions', 'Projection'],
       }),
     },
     radiusOptions: { type: Array },

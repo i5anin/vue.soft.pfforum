@@ -44,6 +44,28 @@ async function buildTreeData(parentId = 0) {
   }
 }
 
+const addBranch = async (req, res) => {
+  try {
+    const { name, parentId } = req.body
+    // Execute SQL query to insert the new branch
+    const result = await pool.query(
+      `INSERT INTO dbo.tool_tree (name, id_parent)
+       VALUES ($1, $2)
+       RETURNING id`, // Return the ID of the new row
+      [name, parentId]
+    )
+
+    // Respond with the ID of the newly added branch
+    res.json({
+      message: 'New branch added successfully.',
+      newBranchId: result.rows[0].id,
+    })
+  } catch (error) {
+    console.error('Error adding new branch:', error)
+    res.status(500).send(`Error: ${error.message}`)
+  }
+}
+
 // Экспорт функции для получения дерева инструментов
 async function getToolsTree(req, res) {
   try {
@@ -57,4 +79,5 @@ async function getToolsTree(req, res) {
 
 module.exports = {
   getToolsTree,
+  addBranch,
 }
