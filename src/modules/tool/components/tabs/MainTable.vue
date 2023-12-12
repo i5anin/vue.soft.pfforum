@@ -38,8 +38,16 @@
       <template v-slot:item.name="{ item }">
         <span style="white-space: nowrap">{{ item.name }}</span>
       </template>
+
       <!--      TODO: параметр будет автоматически генерироваться из paramsList метода getTools()-->
       <!--      TODO: в данном случае "paramsList": [{"key": "1","label": "Тип"},{"key": "2","label": "Группа"... {"key": "13","label": "Геометрия"}],-->
+
+      <template
+        v-for="param in paramsList"
+        v-slot:[`item.${param.key}`]="{ item }"
+      >
+        <td>{{ item.properties[param.key] }}</td>
+      </template>
       <!--      <template v-slot:item.param="{ item }">-->
       <!--        <div v-for="(prop, key) in item.property" :key="key">-->
       <!--          {{ prop.info }}: {{ prop.value }}-->
@@ -53,12 +61,15 @@
 import EditToolModal from '@/modules/tool/components/modal/EditToolModal.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
-// import { ToolTableHeaders } from '@/modules/tool/components/config'
 import ToolFilter from '@/modules/tool/components/ToolFilter.vue'
 
 export default {
   emits: ['changes-saved', 'canceled'],
-  components: { VDataTableServer, EditToolModal, ToolFilter },
+  components: {
+    VDataTableServer,
+    EditToolModal,
+    ToolFilter,
+  },
   props: {
     parentId: {
       type: Number,
@@ -72,16 +83,19 @@ export default {
       ToolTableHeaders: [
         { title: '№', key: 'index', sortable: false },
         { title: 'Маркировка', key: 'name', sortable: true },
-        //TODO: параметр будет автоматически генерироваться key будет id параметра т.к. в базе только id и info(name)
-        // { title: 'Параметры', key: 'param', sortable: true }, -
+        // Инициализируем пустой массив для динамических заголовков
       ],
     }
   },
   computed: {
     ...mapGetters('tool', ['toolsTotalCount', 'tools', 'filters', 'isLoading']),
+    paramsList() {
+      return this.$store.state.tool.paramsList
+    },
   },
   async mounted() {
     await this.fetchToolsByFilter()
+    this.addDynamicHeaders() // Вызываем после загрузки данных
   },
   methods: {
     ...mapActions('tool', ['fetchToolsByFilter']),
@@ -89,6 +103,18 @@ export default {
       setCurrentPage: 'tool/setCurrentPage',
       setItemsPerPage: 'tool/setItemsPerPage',
     }),
+    addDynamicHeaders() {
+      if (this.paramsList && this.paramsList.length) {
+        this.ToolTableHeaders = [
+          ...this.ToolTableHeaders,
+          ...this.paramsList.map((param) => ({
+            title: param.label,
+            key: param.key,
+            sortable: true,
+          })),
+        ]
+      }
+    },
     async onChangePage(page) {
       this.setCurrentPage(page)
       await this.fetchToolsByFilter()
