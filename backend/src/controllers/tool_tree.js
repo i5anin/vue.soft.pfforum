@@ -151,7 +151,32 @@ async function dellFolderTree(req, res) {
   }
 }
 
+async function updateFolderTree(req, res) {
+  console.log('Request body:', req.body) // Добавить для отладки
+  try {
+    const { id, newName } = req.body // получение ID и нового названия из тела запроса
+
+    if (!id || !newName) {
+      return res
+        .status(400)
+        .json({ message: 'Необходимы ID и новое имя папки' })
+    }
+
+    // Выполнение SQL запроса на обновление
+    await pool.query('UPDATE dbo.tool_tree SET name = $1 WHERE id = $2', [
+      newName,
+      id,
+    ])
+
+    res.json({ message: 'Название папки успешно обновлено' })
+  } catch (error) {
+    console.error('Ошибка при обновлении названия папки:', error)
+    res.status(500).json({ message: 'Ошибка сервера', reason: error.message })
+  }
+}
+
 module.exports = {
+  updateFolderTree,
   dellFolderTree,
   getToolsTree,
   addBranch,

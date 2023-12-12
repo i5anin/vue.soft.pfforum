@@ -23,6 +23,7 @@ router
 router.get('/tools', filterController.getTools)
 
 router.post('/add-to-warehouse/:id', toolController.addToWarehouse)
+
 router.get('/tool-library', toolController.getLibrary)
 router.get('/unique-tool-specs', toolController.getUniqueToolSpecs)
 
@@ -36,10 +37,17 @@ router.delete('/material/:id', toolController.deleteMaterial)
 router.delete('/type/:id', toolController.deleteType)
 router.delete('/group/:id', toolController.deleteGroup)
 
-router.post('/tools-tree', treeController.addBranch)
 router.delete('/tools-tree/:id', treeController.dellFolderTree)
 
-// Tree Routes
+router.post('/tools-tree', treeController.addBranch)
 router.get('/tools-tree', treeController.getToolsTree)
+
+router
+  .route('/tools-tree')
+  .get(treeController.getToolsTree)
+  .post(treeController.addBranch)
+  .put(treeController.updateFolderTree)
+
+router.route('/tools-tree/:id').delete(treeController.dellFolderTree)
 
 module.exports = router
