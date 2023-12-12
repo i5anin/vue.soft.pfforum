@@ -91,7 +91,6 @@ export default {
     persistent: { type: Boolean, default: false },
     tool: {
       type: Object,
-      //устанавливает начальные значения для tool
       default: () => ({
         id: null,
         group_name: '',

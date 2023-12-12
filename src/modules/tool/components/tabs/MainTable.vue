@@ -42,23 +42,23 @@
         <span style="white-space: nowrap">{{ item.name }}</span>
       </template>
       <!--type-->
-      <template v-slot:item.type_name="{ item }">
-        <span :style="item.type.name === null ? 'color: red;' : ''">
-          {{ item.type.name === null ? 'null' : item.type.name }}
-        </span>
-      </template>
-      <!--group-->
-      <template v-slot:item.group_name="{ item }">
-        <span :style="item.group.name === null ? 'color: red;' : ''">
-          {{ item.group.name === null ? 'null' : item.group.name }}
-        </span>
-      </template>
-      <!--mat-->
-      <template v-slot:item.mat_name="{ item }">
-        <span :style="item.mat.name === null ? 'color: red;' : ''">
-          {{ item.mat.name === null ? 'null' : item.mat.name }}
-        </span>
-      </template>
+      <!--      <template v-slot:item.type_name="{ item }">-->
+      <!--        <span :style="item.type.name === null ? 'color: red;' : ''">-->
+      <!--          {{ item.type.name === null ? 'null' : item.type.name }}-->
+      <!--        </span>-->
+      <!--      </template>-->
+      <!--      &lt;!&ndash;group&ndash;&gt;-->
+      <!--      <template v-slot:item.group_name="{ item }">-->
+      <!--        <span :style="item.group.name === null ? 'color: red;' : ''">-->
+      <!--          {{ item.group.name === null ? 'null' : item.group.name }}-->
+      <!--        </span>-->
+      <!--      </template>-->
+      <!--      &lt;!&ndash;mat&ndash;&gt;-->
+      <!--      <template v-slot:item.mat_name="{ item }">-->
+      <!--        <span :style="item.mat.name === null ? 'color: red;' : ''">-->
+      <!--          {{ item.mat.name === null ? 'null' : item.mat.name }}-->
+      <!--        </span>-->
+      <!--      </template>-->
       <!--property-->
       <template v-slot:item.param="{ item }">
         <div v-for="(prop, key) in item.property" :key="key">
