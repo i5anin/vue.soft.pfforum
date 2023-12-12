@@ -114,7 +114,23 @@ async function getTools(req, res) {
       }
     })
 
+    // Сбор уникальных ключей параметров
+    const uniqueParams = new Set()
+    toolsResult.rows.forEach((tool) => {
+      if (tool.property) {
+        Object.keys(tool.property).forEach((key) => uniqueParams.add(key))
+      }
+    })
+
+    // Получение дополнительных данных для параметров
+    const paramsList = Array.from(uniqueParams).map((key) => ({
+      key: key,
+      label: paramsMapping[key]?.info || key,
+    }))
+
+    // Формирование и отправка ответа
     res.json({
+      paramsList,
       currentPage: page,
       itemsPerPage: limit,
       totalCount,
