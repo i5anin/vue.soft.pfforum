@@ -38,11 +38,13 @@
       <template v-slot:item.name="{ item }">
         <span style="white-space: nowrap">{{ item.name }}</span>
       </template>
-      <template v-slot:item.param="{ item }">
-        <div v-for="(prop, key) in item.property" :key="key">
-          {{ prop.info }}: {{ prop.value }}
-        </div>
-      </template>
+      <!--      TODO: параметр будет автоматически генерироваться из paramsList метода getTools()-->
+      <!--      TODO: в данном случае "paramsList": [{"key": "1","label": "Тип"},{"key": "2","label": "Группа"... {"key": "13","label": "Геометрия"}],-->
+      <!--      <template v-slot:item.param="{ item }">-->
+      <!--        <div v-for="(prop, key) in item.property" :key="key">-->
+      <!--          {{ prop.info }}: {{ prop.value }}-->
+      <!--        </div>-->
+      <!--      </template>-->
     </v-data-table-server>
   </v-container>
 </template>
@@ -51,7 +53,7 @@
 import EditToolModal from '@/modules/tool/components/modal/EditToolModal.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
-import { ToolTableHeaders } from '@/modules/tool/components/config'
+// import { ToolTableHeaders } from '@/modules/tool/components/config'
 import ToolFilter from '@/modules/tool/components/ToolFilter.vue'
 
 export default {
@@ -67,7 +69,12 @@ export default {
     return {
       openDialog: false,
       editingTool: null,
-      ToolTableHeaders,
+      ToolTableHeaders: [
+        { title: '№', key: 'index', sortable: false },
+        { title: 'Маркировка', key: 'name', sortable: true },
+        //TODO: параметр будет автоматически генерироваться key будет id параметра т.к. в базе только id и info(name)
+        // { title: 'Параметры', key: 'param', sortable: true }, -
+      ],
     }
   },
   computed: {
