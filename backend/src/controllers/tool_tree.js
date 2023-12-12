@@ -98,18 +98,36 @@ async function getToolsTree(req, res) {
 
 async function dellFolderTree(req, res) {
   try {
-    const itemId = req.params.id // Изменено на req.params.id
+    const itemId = req.params.id
+
+    // Запрет на удаление папки с ID 0
+    if (itemId === '0') {
+      return res.status(400).send({
+        message: 'Нельзя удалить папку с ID 0',
+        reason: 'Deletion of folder with ID 0 is prohibited',
+      })
+    }
 
     // Проверка существования папки
     const folderExistResult = await pool.query(
-      'SELECT id FROM dbo.tool_tree WHERE id = $1',
+      'SELECT id, id_parent FROM dbo.tool_tree WHERE id = $1',
       [itemId]
     )
-    console.log('Folder Exist Result:', folderExistResult)
+
     if (folderExistResult.rows.length === 0) {
       return res.status(400).send({
         message: 'Папка не существует',
         reason: 'Folder does not exist',
+      })
+    }
+
+    const idParent = folderExistResult.rows[0].id_parent
+
+    // Запрет на удаление корневой папки
+    if (idParent === 0) {
+      return res.status(400).send({
+        message: 'Нельзя удалить корневую папку',
+        reason: 'Deletion of root folder is prohibited',
       })
     }
 
@@ -118,7 +136,7 @@ async function dellFolderTree(req, res) {
       'SELECT id FROM dbo.tool_tree WHERE id_parent = $1',
       [itemId]
     )
-    console.log('Child Check Result:', childCheckResult.rows)
+
     if (childCheckResult.rows.length > 0) {
       return res.status(400).send({
         message: 'Нельзя удалить папку с дочерними элементами',
@@ -131,7 +149,7 @@ async function dellFolderTree(req, res) {
       'SELECT id FROM dbo.tool_nom WHERE parent_id = $1',
       [itemId]
     )
-    console.log('Nomenclature Check Result:', nomenclatureCheckResult.rows)
+
     if (nomenclatureCheckResult.rows.length > 0) {
       return res.status(400).send({
         message: 'Нельзя удалить папку с привязанными номенклатурами',
@@ -156,16 +174,30 @@ async function updateFolderTree(req, res) {
   try {
     const { id, newName } = req.body // Получение ID и нового названия из тела запроса
 
-    if (!id || !newName)
+    if (!id || !newName) {
       return res
         .status(400)
         .json({ message: 'Необходимы ID и новое имя папки' })
+    }
 
-    // Проверка, чтобы не разрешать обновление для ID равного 0
-    if (id === 0)
+    // Получение текущего id_parent для данной записи
+    const parentCheckResult = await pool.query(
+      'SELECT id_parent FROM dbo.tool_tree WHERE id = $1',
+      [id]
+    )
+
+    if (parentCheckResult.rows.length === 0) {
+      return res.status(400).json({ message: 'Запись не найдена.' })
+    }
+
+    const currentParentId = parentCheckResult.rows[0].id_parent
+
+    // Проверка, чтобы не разрешать обновление для id_parent равного 0
+    if (currentParentId === 0) {
       return res
         .status(400)
-        .json({ message: 'Переименование папки с ID 0 запрещено' })
+        .json({ message: 'Переименование корневой папки запрещено' })
+    }
 
     // Выполнение SQL запроса на обновление
     await pool.query('UPDATE dbo.tool_tree SET name = $1 WHERE id = $2', [
