@@ -152,15 +152,20 @@ async function dellFolderTree(req, res) {
 }
 
 async function updateFolderTree(req, res) {
-  console.log('Request body:', req.body) // Добавить для отладки
+  console.log('Request body:', req.body) // Для отладки
   try {
-    const { id, newName } = req.body // получение ID и нового названия из тела запроса
+    const { id, newName } = req.body // Получение ID и нового названия из тела запроса
 
-    if (!id || !newName) {
+    if (!id || !newName)
       return res
         .status(400)
         .json({ message: 'Необходимы ID и новое имя папки' })
-    }
+
+    // Проверка, чтобы не разрешать обновление для ID равного 0
+    if (id === 0)
+      return res
+        .status(400)
+        .json({ message: 'Переименование папки с ID 0 запрещено' })
 
     // Выполнение SQL запроса на обновление
     await pool.query('UPDATE dbo.tool_tree SET name = $1 WHERE id = $2', [
