@@ -80,11 +80,11 @@ export default {
     return {
       openDialog: false,
       editingTool: null,
-      // ToolTableHeaders: [
-      //   { title: '№', key: 'index', sortable: false },
-      //   { title: 'Маркировка', key: 'name', sortable: true },
-      //   // Инициализируем пустой массив для динамических заголовков
-      // ],
+      ToolTableHeaders: [
+        { title: '№', key: 'index', sortable: false },
+        { title: 'Маркировка', key: 'name', sortable: true },
+      ],
+      isDataLoaded: false,
     }
   },
   computed: {
@@ -92,29 +92,31 @@ export default {
     paramsList() {
       return this.$store.state.tool.paramsList
     },
-    ToolTableHeaders() {
-      // Проверяем, определен ли paramsList и не пустой ли он
-      if (this.paramsList && this.paramsList.length > 0) {
-        return [
-          { title: '№', key: 'index', sortable: false },
-          { title: 'Маркировка', key: 'name', sortable: true },
-          ...this.paramsList.map((param) => ({
-            title: param.label,
-            key: param.key,
-            sortable: true,
-          })),
-        ]
-      } else {
-        // Возвращаем базовые заголовки, если paramsList еще не загружен
-        return [
-          { title: '№', key: 'index', sortable: false },
-          { title: 'Маркировка', key: 'name', sortable: true },
-        ]
-      }
+  },
+  watch: {
+    paramsList: {
+      immediate: true,
+      handler(newVal) {
+        if (newVal && newVal.length > 0) {
+          this.ToolTableHeaders = [
+            { title: '№', key: 'index', sortable: false },
+            { title: 'Маркировка', key: 'name', sortable: true },
+            ...newVal.map((param) => ({
+              title: param.label,
+              key: param.key,
+              sortable: true,
+            })),
+          ]
+        }
+      },
     },
   },
   async mounted() {
     await this.fetchToolsByFilter()
+    if (this.paramsList && this.paramsList.length > 0)
+      this.updateToolTableHeaders()
+    this.isDataLoaded = true
+    console.log('Содержимое paramsList на момент монтажа:', this.paramsList)
   },
   methods: {
     ...mapActions('tool', ['fetchToolsByFilter']),
@@ -122,17 +124,16 @@ export default {
       setCurrentPage: 'tool/setCurrentPage',
       setItemsPerPage: 'tool/setItemsPerPage',
     }),
-    addDynamicHeaders() {
-      if (this.paramsList && this.paramsList.length) {
-        this.ToolTableHeaders = [
-          ...this.ToolTableHeaders,
-          ...this.paramsList.map((param) => ({
-            title: param.label,
-            key: param.key,
-            sortable: true,
-          })),
-        ]
-      }
+    updateToolTableHeaders() {
+      this.ToolTableHeaders = [
+        { title: '№', key: 'index', sortable: false },
+        { title: 'Маркировка', key: 'name', sortable: true },
+        ...this.paramsList.map((param) => ({
+          title: param.label,
+          key: param.key,
+          sortable: true,
+        })),
+      ]
     },
     async onChangePage(page) {
       this.setCurrentPage(page)
