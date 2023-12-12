@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import { getToolsTree } from '@/api'
+import { getTree } from '@/api'
 import TreeNode from '../TreeNode.vue'
 
 export default {
@@ -26,7 +26,7 @@ export default {
     }
   },
   async created() {
-    const toolsTree = await getToolsTree()
+    const toolsTree = await getTree()
     if (toolsTree && toolsTree.length > 0) {
       this.treeData = toolsTree
     }

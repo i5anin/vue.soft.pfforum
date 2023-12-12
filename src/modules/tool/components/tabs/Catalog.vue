@@ -85,7 +85,7 @@
 </template>
 
 <script>
-import { addBranch, deleteItem, getToolsTree } from '@/api'
+import { addFolder, deleteFolder, getTree, renameFolder } from '@/api'
 import TabMainTable from '@/modules/tool/components/tabs/MainTable.vue'
 import { normSpaces } from '@/modules/tool/components/normSpaces'
 
@@ -103,6 +103,38 @@ export default {
     }
   },
   methods: {
+    async renameCurrentItem() {
+      if (!this.currentItem || !this.editableLabel) {
+        return alert(
+          'Не выбран элемент для переименования или не введено новое имя.'
+        )
+      }
+
+      const itemId = this.currentItem.id
+      const newName = this.editableLabel
+
+      try {
+        const response = await renameFolder(itemId, newName)
+        if (response && response.message) {
+          alert('Элемент успешно переименован.')
+
+          // Обновляем название текущего элемента без перестроения всего дерева
+          this.currentItem.label = newName
+
+          // Необходимо обновить элемент в истории, если он там есть
+          const historyItem = this.history.find((item) => item.id === itemId)
+          if (historyItem) {
+            historyItem.label = newName
+          }
+        } else {
+          alert('Произошла ошибка при переименовании.')
+        }
+      } catch (error) {
+        console.error('Ошибка при переименовании:', error)
+        alert('Произошла ошибка при переименовании.')
+      }
+    },
+
     async deleteItem() {
       if (!this.currentItem) {
         return alert('Не выбран элемент для удаления.')
@@ -113,7 +145,7 @@ export default {
         confirm(`Вы уверены, что хотите удалить ${this.currentItem.label}?`)
       ) {
         try {
-          await deleteItem(itemId)
+          await deleteFolder(itemId)
           alert('Элемент успешно удален.')
 
           if (this.history.length > 1) {
@@ -156,7 +188,7 @@ export default {
           console.log(
             `Попытка добавления папки '${branchName}' в категорию с ID: ${this.currentItem.id}`
           )
-          const newBranch = await addBranch(branchName, this.currentItem.id)
+          const newBranch = await addFolder(branchName, this.currentItem.id)
           console.log(
             `Папка добавлена успешно. ID новой папки: ${newBranch.newBranchId}`
           )
@@ -189,7 +221,7 @@ export default {
     async refreshTree() {
       console.log('Начало обновления дерева')
       try {
-        const updatedTree = await getToolsTree()
+        const updatedTree = await getTree()
         console.log('Дерево получено:', updatedTree)
         this.treeData = updatedTree
 
@@ -230,11 +262,18 @@ export default {
       this.isEditing = true
       this.editableLabel = this.currentItem ? this.currentItem.label : ''
     },
+
     finishEditing() {
+      if (
+        this.isEditing &&
+        this.currentItem &&
+        this.editableLabel !== this.currentItem.label
+      ) {
+        this.renameCurrentItem()
+      }
       this.isEditing = false
-      if (this.currentItem) this.currentItem.label = this.editableLabel
     },
-    // Логика для кнопки "назад"
+
     goBack() {
       if (this.history.length > 1) {
         this.history.pop() // Удаляем последний элемент истории
@@ -247,7 +286,7 @@ export default {
     },
   },
   async created() {
-    const toolsTree = await getToolsTree()
+    const toolsTree = await getTree()
     if (toolsTree && toolsTree.length > 0) {
       this.currentItem = toolsTree[0]
       this.history.push(this.currentItem)

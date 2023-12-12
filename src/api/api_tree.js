@@ -2,7 +2,7 @@ import axios from 'axios'
 
 const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:4000/api'
 
-export async function getToolsTree() {
+export async function getTree() {
   try {
     const response = await axios.get(`${BASE_URL}/tools-tree`)
     return response.data // Возвращаем полученное дерево
@@ -12,7 +12,7 @@ export async function getToolsTree() {
   }
 }
 
-export async function addBranch(name, parentId) {
+export async function addFolder(name, parentId) {
   try {
     const response = await axios.post(`${BASE_URL}/tools-tree`, {
       name,
@@ -25,6 +25,20 @@ export async function addBranch(name, parentId) {
   }
 }
 
-export async function deleteItem(itemId) {
+export async function deleteFolder(itemId) {
   return axios.delete(`${BASE_URL}/tools-tree/${itemId}`)
+}
+
+export async function renameFolder(id, newName) {
+  try {
+    console.log(
+      `Отправка запроса на переименование: id=${id}, newName=${newName}`
+    )
+    const response = await axios.put(`${BASE_URL}/tools-tree`, { id, newName })
+    console.log('Ответ сервера:', response.data)
+    return response.data
+  } catch (error) {
+    console.error('Ошибка при переименовании элемента:', error)
+    return null
+  }
 }
