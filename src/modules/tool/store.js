@@ -15,7 +15,7 @@ export const store = {
   namespaced: true,
   state: {
     isLoading: false,
-
+    paramsList: [],
     shagOptions: [],
     gabaritOptions: [],
     widthOptions: [],
@@ -41,6 +41,9 @@ export const store = {
     paramsOptions: [],
   },
   mutations: {
+    setParamsList(state, params) {
+      state.paramsList = params
+    },
     setIsLoading(state, isLoading) {
       state.isLoading = isLoading
     },
@@ -93,6 +96,14 @@ export const store = {
     },
   },
   actions: {
+    async fetchParamsList({ commit }) {
+      try {
+        const paramsData = await getToolParams() // замените на ваш API-запрос
+        commit('setParamsList', paramsData)
+      } catch (error) {
+        console.error('Ошибка при загрузке параметров:', error)
+      }
+    },
     async initFilterOptions({ commit }) {
       const [{ types, groups, materials }, paramsData] = await Promise.all([
         getLibraries(),

@@ -11,6 +11,7 @@
       @changes-saved="onSaveChanges"
     />
     <v-data-table-server
+      v-if="isDataLoaded"
       noDataText="Нет данных"
       itemsPerPageText="Пункты на странице:"
       loadingText="Загрузка данных"
@@ -80,10 +81,6 @@ export default {
     return {
       openDialog: false,
       editingTool: null,
-      ToolTableHeaders: [
-        { title: '№', key: 'index', sortable: false },
-        { title: 'Маркировка', key: 'name', sortable: true },
-      ],
       isDataLoaded: false,
     }
   },
@@ -101,6 +98,7 @@ export default {
           this.ToolTableHeaders = [
             { title: '№', key: 'index', sortable: false },
             { title: 'Маркировка', key: 'name', sortable: true },
+            { title: 'Маркировка123', key: 'name123', sortable: true },
             ...newVal.map((param) => ({
               title: param.label,
               key: param.key,
@@ -112,9 +110,8 @@ export default {
     },
   },
   async mounted() {
+    await this.$store.dispatch('tool/fetchParamsList')
     await this.fetchToolsByFilter()
-    if (this.paramsList && this.paramsList.length > 0)
-      this.updateToolTableHeaders()
     this.isDataLoaded = true
     console.log('Содержимое paramsList на момент монтажа:', this.paramsList)
   },
@@ -124,17 +121,7 @@ export default {
       setCurrentPage: 'tool/setCurrentPage',
       setItemsPerPage: 'tool/setItemsPerPage',
     }),
-    updateToolTableHeaders() {
-      this.ToolTableHeaders = [
-        { title: '№', key: 'index', sortable: false },
-        { title: 'Маркировка', key: 'name', sortable: true },
-        ...this.paramsList.map((param) => ({
-          title: param.label,
-          key: param.key,
-          sortable: true,
-        })),
-      ]
-    },
+
     async onChangePage(page) {
       this.setCurrentPage(page)
       await this.fetchToolsByFilter()
