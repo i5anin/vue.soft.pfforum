@@ -80,11 +80,11 @@ export default {
     return {
       openDialog: false,
       editingTool: null,
-      ToolTableHeaders: [
-        { title: '№', key: 'index', sortable: false },
-        { title: 'Маркировка', key: 'name', sortable: true },
-        // Инициализируем пустой массив для динамических заголовков
-      ],
+      // ToolTableHeaders: [
+      //   { title: '№', key: 'index', sortable: false },
+      //   { title: 'Маркировка', key: 'name', sortable: true },
+      //   // Инициализируем пустой массив для динамических заголовков
+      // ],
     }
   },
   computed: {
@@ -92,10 +92,29 @@ export default {
     paramsList() {
       return this.$store.state.tool.paramsList
     },
+    ToolTableHeaders() {
+      // Проверяем, определен ли paramsList и не пустой ли он
+      if (this.paramsList && this.paramsList.length > 0) {
+        return [
+          { title: '№', key: 'index', sortable: false },
+          { title: 'Маркировка', key: 'name', sortable: true },
+          ...this.paramsList.map((param) => ({
+            title: param.label,
+            key: param.key,
+            sortable: true,
+          })),
+        ]
+      } else {
+        // Возвращаем базовые заголовки, если paramsList еще не загружен
+        return [
+          { title: '№', key: 'index', sortable: false },
+          { title: 'Маркировка', key: 'name', sortable: true },
+        ]
+      }
+    },
   },
   async mounted() {
     await this.fetchToolsByFilter()
-    this.addDynamicHeaders() // Вызываем после загрузки данных
   },
   methods: {
     ...mapActions('tool', ['fetchToolsByFilter']),
