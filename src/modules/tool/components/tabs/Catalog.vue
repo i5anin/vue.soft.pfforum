@@ -1,6 +1,6 @@
 <template>
   <v-app class="custom-container">
-    <v-app-bar app color="primary" dark>
+    <v-app-bar app dark>
       <v-toolbar-title>
         <div class="text-h6">
           <v-text-field
