@@ -24,22 +24,15 @@ async function getParamsMapping() {
 async function getTools(req, res) {
   try {
     // Получение параметров запроса
-    const { search, includeNull, showNull = 'false', parent_id } = req.query
+    const { search, parent_id } = req.query
     const page = parseInt(req.query.page || 1, 10)
     const limit = parseInt(req.query.limit || 15, 10)
     const offset = (page - 1) * limit
 
-    // Определение типа JOIN в зависимости от параметра includeNull
-    const joinType = includeNull === 'true' ? 'LEFT' : 'INNER'
-
-    // Формирование условия поиска и фильтрации по NULL
+    // Формирование условия поиска
     const searchCondition = search
       ? `WHERE tool_nom.name ILIKE '%${search.replace(/'/g, "''")}%'`
       : ''
-    const nullFilter =
-      showNull === 'false'
-        ? 'AND tool_nom.mat_id IS NOT NULL AND tool_nom.type_id IS NOT NULL AND tool_nom.group_id IS NOT NULL'
-        : ''
     const parentIdCondition = parent_id
       ? `AND tool_nom.parent_id = ${parent_id}`
       : ''
@@ -48,28 +41,16 @@ async function getTools(req, res) {
     const countQuery = `
       SELECT COUNT(*)
       FROM dbo.tool_nom as tool_nom
-             ${joinType} JOIN dbo.tool_group ON tool_nom.group_id = tool_group.id
-             ${joinType} JOIN dbo.tool_mat ON tool_nom.mat_id = tool_mat.id
-             ${joinType} JOIN dbo.tool_type ON tool_nom.type_id = tool_type.id
-      ${searchCondition} ${nullFilter} ${parentIdCondition}
+      ${searchCondition} ${parentIdCondition}
     `
 
-    // Запрос на получение инструментов с учетом новых условий
+    // Запрос на получение инструментов
     const toolQuery = `
       SELECT tool_nom.id,
              tool_nom.name,
-             tool_nom.group_id,
-             tool_nom.mat_id,
-             tool_nom.type_id,
-             tool_group.name as group_name,
-             tool_mat.name as mat_name,
-             tool_type.name as type_name,
              tool_nom.property
       FROM dbo.tool_nom as tool_nom
-             ${joinType} JOIN dbo.tool_group ON tool_nom.group_id = tool_group.id
-             ${joinType} JOIN dbo.tool_mat ON tool_nom.mat_id = tool_mat.id
-             ${joinType} JOIN dbo.tool_type ON tool_nom.type_id = tool_type.id
-      ${searchCondition} ${nullFilter} ${parentIdCondition}
+      ${searchCondition} ${parentIdCondition}
       ORDER BY tool_nom.id DESC
       LIMIT ${limit} OFFSET ${offset}
     `
@@ -81,7 +62,7 @@ async function getTools(req, res) {
       getParamsMapping(),
     ])
 
-    const totalCount = countResult.rows[0].count
+    const totalCount = parseInt(countResult.rows[0].count, 10)
 
     // Форматирование данных инструментов
     const formattedTools = toolsResult.rows.map((tool) => {
@@ -107,9 +88,6 @@ async function getTools(req, res) {
       return {
         id: tool.id,
         name: tool.name,
-        mat: { name: tool.mat_name, id: tool.mat_id },
-        type: { name: tool.type_name, id: tool.type_id },
-        group: { name: tool.group_name, id: tool.group_id },
         property: formattedProperty,
       }
     })
@@ -130,11 +108,11 @@ async function getTools(req, res) {
 
     // Формирование и отправка ответа
     res.json({
-      paramsList,
       currentPage: page,
       itemsPerPage: limit,
       totalCount,
       tools: formattedTools,
+      paramsList,
     })
   } catch (err) {
     console.error(err)

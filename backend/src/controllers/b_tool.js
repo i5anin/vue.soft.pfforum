@@ -92,19 +92,24 @@ async function deleteTool(req, res) {
 }
 
 async function addTool(req, res) {
-  const { name, group_id, mat_id, type_id } = req.body
+  const { name, property } = req.body
 
   try {
+    // Преобразование объекта property в строку JSON для хранения в базе данных
+    const propertyString = JSON.stringify(property)
+
+    // Вставка данных инструмента
     const toolInsertResult = await pool.query(
-      'INSERT INTO dbo.tool_nom (name, group_id, mat_id, type_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id',
-      [name, group_id, mat_id, type_id]
+      'INSERT INTO dbo.tool_nom (name, property) VALUES ($1, $2) RETURNING id',
+      [name, propertyString]
     )
 
     const toolId = toolInsertResult.rows[0].id
 
-    res.json({
-      toolId,
-    })
+    // Дополнительная логика обработки параметров, если необходимо
+    // ...
+
+    res.json({ toolId })
   } catch (err) {
     console.error(err)
     res.status(500).send(err.message)
