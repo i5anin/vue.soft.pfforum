@@ -160,53 +160,54 @@ export const store = {
         commit('setIsLoading', false)
       }
     },
-    // async fetchUniqueToolSpecs({ commit }) {
-    //   const { shags, gabarits, widths, names } = await getUniqueToolSpecs()
-    //   commit('setShagOptions', shags)
-    //   commit('setGabaritOptions', gabarits)
-    //   commit('setWidthOptions', widths)
-    //   commit('setNameOptions', names)
-    // },
     async onSaveToolModel({ dispatch }, toolModel) {
-      const { id, group, type, mat, name } = toolModel
-      const { groups, materials, types } = await getLibraries()
+      try {
+        console.log('Исходная модель инструмента:', toolModel) // Отладка: исходные данные модели
 
-      let groupId = foundSomeIdItemInArrayByName(group, groups)
-      let matId = foundSomeIdItemInArrayByName(mat, materials)
-      let typeId = foundSomeIdItemInArrayByName(type, types)
+        // Получаем список допустимых ключей параметров
+        const paramsData = await getToolParams()
+        console.log('Полученные параметры инструмента:', paramsData) // Отладка: параметры инструмента
 
-      if (groupId == null) {
-        const newGroup = await addGroup(group)
-        groupId = newGroup.id
-      }
+        const paramsMap = new Map(
+          paramsData.map((param) => [param.info, param.id.toString()])
+        )
+        console.log('Карта соответствия параметров:', paramsMap) // Отладка: карта соответствия
 
-      if (matId == null) {
-        const newMaterial = await addMaterial(mat)
-        matId = newMaterial.id
-      }
+        // Собираем свойства инструмента
+        const properties = {}
+        for (const [key, value] of Object.entries(toolModel)) {
+          console.log(`Проверка ключа ${key} со значением ${value}`) // Отладка: текущий ключ и значение
 
-      if (typeId == null) {
-        const newType = await addType(type)
-        typeId = newType.id
-      }
+          const paramId = paramsMap.get(key)
+          console.log(`Найденный идентификатор параметра для ${key}:`, paramId) // Отладка: идентификатор параметра
 
-      const toolData = {
-        ...toolModel,
-        group_id: parseInt(groupId),
-        mat_id: parseInt(matId),
-        type_id: parseInt(typeId),
-      }
-      let result
-      if (id == null) {
-        result = await addTool(toolData)
-      } else {
-        result = await updateTool(id, toolData)
-      }
+          if (paramId && value !== undefined && value !== '') {
+            properties[paramId] = value
+            console.log(`Добавлено свойство ${paramId}:`, value) // Отладка: добавленное свойство
+          }
+        }
 
-      if (result) {
-        this.dispatch('tool/fetchToolsByFilter')
-        localStorage.setItem('lastSavedToolModel', JSON.stringify(toolModel))
-        console.log('Инструмент сохранен в localStorage')
+        console.log('Сформированные свойства для отправки:', properties) // Отладка: свойства для отправки
+
+        // Формирование данных для отправки
+        const toolData = {
+          name: toolModel.name,
+          property: properties,
+        }
+        console.log('Данные для отправки:', toolData) // Отладка: данные для отправки
+
+        // Отправка данных на сервер
+        const result = await addTool(toolData) // Вызов API для добавления инструмента
+        console.log('Результат добавления инструмента:', result) // Отладка: результат добавления
+
+        if (result) {
+          dispatch('fetchToolsByFilter') // Обновляем список инструментов
+          localStorage.setItem('lastSavedToolModel', JSON.stringify(toolModel)) // Сохраняем модель в localStorage
+          console.log('Инструмент сохранен')
+        }
+      } catch (error) {
+        console.error('Ошибка при сохранении инструмента:', error)
+        console.log('Ошибка:', error) // Отладка: ошибка
       }
     },
   },
