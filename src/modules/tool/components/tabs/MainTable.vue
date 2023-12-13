@@ -40,8 +40,8 @@
         <span style="white-space: nowrap">{{ item.name }}</span>
       </template>
 
-      <!--      TODO: параметр будет автоматически генерироваться из paramsList метода getTools()-->
-      <!--      TODO: в данном случае "paramsList": [{"key": "1","label": "Тип"},{"key": "2","label": "Группа"... {"key": "13","label": "Геометрия"}],-->
+      <!-- TODO: параметр будет автоматически генерироваться из paramsList метода getTools()-->
+      <!-- TODO: в данном случае "paramsList": [{"key": "1","label": "Тип"},{"key": "2","label": "Группа"... {"key": "13","label": "Геометрия"}],-->
 
       <template
         v-for="param in paramsList"
@@ -49,11 +49,11 @@
       >
         <td>{{ item.properties[param.key] }}</td>
       </template>
-      <!--      <template v-slot:item.param="{ item }">-->
-      <!--        <div v-for="(prop, key) in item.property" :key="key">-->
-      <!--          {{ prop.info }}: {{ prop.value }}-->
-      <!--        </div>-->
-      <!--      </template>-->
+      <template v-slot:item.param="{ item }">
+        <div v-for="(prop, key) in item.property" :key="key">
+          {{ prop.info }}: {{ prop.value }}
+        </div>
+      </template>
     </v-data-table-server>
   </v-container>
 </template>
@@ -98,7 +98,7 @@ export default {
           this.ToolTableHeaders = [
             { title: '№', key: 'index', sortable: false },
             { title: 'Маркировка', key: 'name', sortable: true },
-            { title: 'Маркировка123', key: 'name123', sortable: true },
+            { title: 'Характеристики', key: 'param', sortable: true },
             ...newVal.map((param) => ({
               title: param.label,
               key: param.key,
