@@ -28,12 +28,11 @@
               return-object
             />
             <h2 class="text-h6">Размеры:</h2>
-            <!-- динамические параметры -->
             <div v-for="param in selectedParamsInfo" :key="param.id">
               <v-combobox
                 density="compact"
                 :label="param.info"
-                v-model="toolModel.properties[param.id]"
+                v-model="toolModel[param.id]"
                 required
               />
             </div>
@@ -108,7 +107,12 @@ export default {
     selectedParams: [],
     geometryOptions: [],
     toolParams: [],
-    toolModel: { name: '', properties: {} },
+    toolModel: {
+      type: '',
+      group: '',
+      mat: '',
+      name: '',
+    },
     typeOptions: [],
     groupOptions: [],
     materialOptions: [],
@@ -125,38 +129,34 @@ export default {
     tool: {
       immediate: true,
       handler(tool) {
-        // const { mat, group, type } = tool
+        const { mat, group, type } = tool
         this.toolModel = {
-          name: '', // Общее свойство для имени инструмента
-          properties: {}, // Свойства для каждого параметра
-          // ...tool,
-          // mat: mat?.name === null ? null : mat?.name,
-          // group: group?.name === null ? null : group?.name,
-          // type: type?.name === null ? null : type?.name,
+          ...tool,
+          mat: mat?.name === null ? null : mat?.name,
+          group: group?.name === null ? null : group?.name,
+          type: type?.name === null ? null : type?.name,
         }
       },
     },
   },
-  // data - используется для определения реактивных данных компонента, которые непосредственно управляют состоянием и поведением этого компонента.
-  // watch - используется для отслеживания изменений в этих данных (или в других реактивных источниках) и выполнения дополнительных действий или логики в ответ на эти изменения.
+  //data - используется для определения реактивных данных компонента, которые непосредственно управляют состоянием и поведением этого компонента.
+  //watch - используется для отслеживания изменений в этих данных (или в других реактивных источниках) и выполнения дополнительных действий или логики в ответ на эти изменения.
   async mounted() {
+    this.loadLastSavedData()
+    const rawData = await getLibraries()
+    this.typeOptions = rawData.types.map((type) => type.name)
+    this.groupOptions = rawData.groups.map((group) => group.name)
+    this.materialOptions = rawData.materials.map((material) => material.name)
+
     const rawToolParams = await getToolParams()
     this.toolParams = rawToolParams.map((param) => param.info)
-
-    this.toolModel.properties = {}
-    rawToolParams.forEach((param) => {
-      this.toolModel.properties[param.id] = '' // Прямое присваивание
-    })
   },
-
   computed: {
     selectedParamsInfo() {
-      return this.selectedParams
-        .map((info) => {
-          const param = this.toolParams.find((p) => p.info === info)
-          return param ? { id: param.id, info } : null
-        })
-        .filter((p) => p !== null) // Убираем null значения
+      return this.selectedParams.map((info) => {
+        const param = this.toolParams.find((p) => p.info === info)
+        return param ? { id: param.id, info } : { id: null, info }
+      })
     },
     ...mapGetters('tool', [
       'widthOptions',
@@ -171,12 +171,6 @@ export default {
     },
   },
   methods: {
-    logModelValue(paramId) {
-      console.log(
-        `Значение для paramId ${paramId}:`,
-        this.toolModel.properties[paramId]
-      )
-    },
     ...mapActions('tool', ['fetchUniqueToolSpecs']),
     loadLastSavedData() {
       const lastSavedData = localStorage.getItem('lastSavedToolModel')
@@ -188,15 +182,16 @@ export default {
 
     prependLastSavedData(data) {
       if (!data) return
-      // this.prependOptionIfNeeded(data.type, this.typeOptions, 'type')
-      // this.prependOptionIfNeeded(data.group, this.groupOptions, 'group')
-      // this.prependOptionIfNeeded(data.mat, this.materialOptions, 'mat')
+      this.prependOptionIfNeeded(data.type, this.typeOptions, 'type')
+      this.prependOptionIfNeeded(data.group, this.groupOptions, 'group')
+      this.prependOptionIfNeeded(data.mat, this.materialOptions, 'mat')
       this.prependOptionIfNeeded(data.name, this.nameOptions, 'name')
     },
 
     prependOptionIfNeeded(value, optionsList, propName) {
-      if (value && !optionsList.some((option) => option.value === value))
+      if (value && !optionsList.some((option) => option.value === value)) {
         optionsList.unshift(value)
+      }
     },
 
     parseToFloat(value) {
@@ -222,13 +217,7 @@ export default {
       this.$emit('canceled')
     },
     async onSave() {
-      // Формирование данных для отправки
-      const toolData = {
-        name: this.toolModel.name,
-        property: this.toolModel.properties,
-      }
-      // Отправка данных
-      await this.$store.dispatch('tool/onSaveToolModel', toolData)
+      this.$store.dispatch('tool/onSaveToolModel', this.toolModel)
       this.$emit('changes-saved')
     },
   },
