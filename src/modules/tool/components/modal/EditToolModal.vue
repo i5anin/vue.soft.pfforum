@@ -135,13 +135,7 @@ export default {
   async mounted() {
     this.loadLastSavedData()
     const rawToolParams = await getToolParams()
-    rawToolParams.forEach((param) => {
-      this.toolModel.properties[param.id] = '' // Используйте id параметра в качестве ключа
-    })
-
-    // Сохраняем идентификаторы и описания параметров
     this.toolParams = rawToolParams.map((param) => param.info)
-    this.toolParamsId = rawToolParams.map((param) => param.id)
   },
   computed: {
     selectedParamsInfo() {
@@ -164,8 +158,6 @@ export default {
   },
   methods: {
     logModelValue(paramId) {
-      console.log(this.toolModel)
-
       if (this.toolModel.properties[paramId] !== undefined) {
         console.log(
           `Значение для paramId ${paramId}:`,
