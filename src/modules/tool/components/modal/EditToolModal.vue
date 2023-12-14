@@ -22,14 +22,13 @@
             <v-combobox
               :chips="true"
               multiple
-              v-model="selectedParams"
               :items="toolParams"
               label="Параметры"
               return-object
             />
             <h2 class="text-h6">Размеры:</h2>
             <!-- динамические параметры -->
-            <div v-for="param in selectedParamsInfo" :key="param.id">
+            <div v-for="param in selectedParams" :key="param.id">
               <v-combobox
                 density="compact"
                 :label="param.info"
@@ -88,28 +87,19 @@ import { mapActions, mapGetters } from 'vuex'
 export default {
   name: 'EditToolModal',
   emits: ['canceled', 'changes-saved'], // объявления пользовательских событий
-  //props контракт общение что использовать и что передавать от родительского компонента к дочернему
   props: {
     persistent: { type: Boolean, default: false },
     tool: {
       type: Object,
-      default: () => ({
-        id: null,
-        typeOptions: ['Step', 'Dimensions', 'Projection'],
-      }),
+      default: () => ({ id: null }),
     },
-    radiusOptions: { type: Array },
   },
   components: { DeleteConfirmationDialog, Modal },
   //реактивные данные
   data: () => ({
     selectedParams: [],
-    geometryOptions: [],
     toolParams: [],
     toolModel: { name: '', properties: {} },
-    typeOptions: [],
-    groupOptions: [],
-    materialOptions: [],
     confirmDeleteDialog: false,
     typeSelected: false,
     selectedType: '',
@@ -118,18 +108,18 @@ export default {
       (v) => (v && v.length >= 3) || 'Минимальная длина: 3 символа',
     ],
   }),
-  //Наблюдатель вызывает определенную функцию при изменении
-  watch: {
-    tool: {
-      immediate: true,
-      handler(tool) {
-        this.toolModel = { name: '', properties: {} }
-      },
-    },
-  },
-  // data - используется для определения реактивных данных компонента, которые непосредственно управляют состоянием и поведением этого компонента.
-  // watch - используется для отслеживания изменений в этих данных (или в других реактивных источниках) и выполнения дополнительных действий или логики в ответ на эти изменения.
+
+  watch: { tool: { immediate: true } },
   async mounted() {
+    try {
+      const rawToolParams = await getToolParams()
+      this.toolParams = rawToolParams
+      rawToolParams.forEach((param) => {
+        this.toolModel.properties[param.id] = '' // Инициализация
+      })
+    } catch (error) {
+      console.error('Ошибка при загрузке toolParams:', error)
+    }
     this.loadLastSavedData()
     const rawToolParams = await getToolParams()
     rawToolParams.forEach((param) => {
@@ -139,21 +129,9 @@ export default {
     // Сохраняем идентификаторы и описания параметров
     this.toolParams = rawToolParams.map((param) => param.info)
     this.toolParamsId = rawToolParams.map((param) => param.id)
-    console.log('console.log(rawToolParams):')
     console.log(rawToolParams)
   },
   computed: {
-    selectedParamsInfo() {
-      this.errorMessage = null
-      return this.selectedParams.map((info) => {
-        const param = this.toolParams.find((p) => p.info === info)
-        if (!param) {
-          this.errorMessage = `Ошибка: параметр с информацией '${info}' не найден`
-          return { id: null, info: null }
-        }
-        return { id: param.id, info: param.info }
-      })
-    },
     ...mapGetters('tool', [
       'widthOptions',
       'shagOptions',
