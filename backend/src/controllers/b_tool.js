@@ -118,41 +118,13 @@ async function addTool(req, res) {
 
 async function editTool(req, res) {
   const { id } = req.params
-  const {
-    name,
-    group_id,
-    mat_id,
-    type_id,
-    kolvo_sklad,
-    norma,
-    zakaz,
-    radius,
-    shag,
-    gabarit,
-    width,
-    diam,
-    geometry,
-  } = req.body
+  const { name, group_id, mat_id, type_id, kolvo_sklad, norma, zakaz } =
+    req.body
 
   try {
     const result = await pool.query(
       'UPDATE dbo.tool_nom SET name=$1, group_id=$2, mat_id=$3, type_id=$4, kolvo_sklad=$5, norma=$6, zakaz=$7, radius=$8, shag=$9, gabarit=$10, width=$11, diam=$12, geometry=$13 WHERE id=$14 RETURNING *',
-      [
-        name,
-        group_id,
-        mat_id,
-        type_id,
-        kolvo_sklad,
-        norma,
-        zakaz,
-        radius,
-        shag,
-        gabarit,
-        width,
-        diam,
-        geometry,
-        id,
-      ] // Add geometry here
+      [name, group_id, mat_id, type_id, kolvo_sklad, norma, zakaz, id] // Add geometry here
     )
 
     if (result.rowCount > 0) {

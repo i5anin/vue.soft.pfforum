@@ -122,12 +122,13 @@ async function getTools(req, res) {
 
 async function getToolParams(req, res) {
   try {
-    const query = 'SELECT id, info FROM dbo.tool_params'
+    // Query modified to include ORDER BY clause for sorting by id in ascending order
+    const query = 'SELECT id, info FROM dbo.tool_params ORDER BY id ASC'
     const result = await pool.query(query)
-    res.json(result.rows) // Отправляем результат запроса обратно клиенту
+    res.json(result.rows) // Send the query result back to the client
   } catch (error) {
     console.error('Error fetching tool parameters:', error)
-    res.status(500).send('Internal Server Error') // Отправляем сообщение об ошибке
+    res.status(500).send('Internal Server Error') // Send error message
   }
 }
 

@@ -139,13 +139,17 @@ export default {
     // Сохраняем идентификаторы и описания параметров
     this.toolParams = rawToolParams.map((param) => param.info)
     this.toolParamsId = rawToolParams.map((param) => param.id)
+    console.log('console.log(rawToolParams):')
+    console.log(rawToolParams)
   },
   computed: {
     selectedParamsInfo() {
+      this.errorMessage = null
       return this.selectedParams.map((info) => {
         const param = this.toolParams.find((p) => p.info === info)
         if (!param) {
-          throw new Error(`Ошибка: параметр с информацией '${info}' не найден`)
+          this.errorMessage = `Ошибка: параметр с информацией '${info}' не найден`
+          return { id: null, info: null }
         }
         return { id: param.id, info: param.info }
       })
