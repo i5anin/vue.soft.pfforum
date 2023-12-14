@@ -95,9 +95,6 @@ export default {
       type: Object,
       default: () => ({
         id: null,
-        group_name: '',
-        type_name: '',
-        mat_name: '',
         typeOptions: ['Step', 'Dimensions', 'Projection'],
       }),
     },
