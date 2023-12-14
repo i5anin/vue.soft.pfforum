@@ -1,3 +1,6 @@
+import axios from 'axios'
+
+const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:4000/api'
 export async function addToWarehouse(toolId, kolvo_sklad, norma, zakaz) {
   try {
     const response = await axios.post(

@@ -25,7 +25,7 @@
       :items="tools"
       :itemsLength="totalTools"
       :items-per-page="itemsPerPage"
-      :page.sync="currentPage"
+      v-model:page="currentPage"
       :loading="loading"
       :items-per-page-options="[15, 50, 100, 300]"
       density="compact"
@@ -35,28 +35,11 @@
       class="elevation-1"
       hover
       fixed-header
-      headers
       width
     >
       <!--      <template class='gray' v-slot:item.index='{ index }'>-->
       <!--        <span style='color: gray; font-size: 0.7em;'>{{ index + 1 }}</span>-->
       <!--      </template>-->
-      <template v-slot:item.type_name="{ item }">
-        <span :style="item.type.name === '[нет данных]' ? 'color: red;' : ''">{{
-          item.type.name
-        }}</span>
-      </template>
-      <template v-slot:item.group_name="{ item }">
-        <span
-          :style="item.group.name === '[нет данных]' ? 'color: red;' : ''"
-          >{{ item.group.name }}</span
-        >
-      </template>
-      <template v-slot:item.mat_name="{ item }">
-        <span :style="item.mat.name === '[нет данных]' ? 'color: red;' : ''">{{
-          item.mat.name
-        }}</span>
-      </template>
       <template v-slot:item.kolvo_sklad="{ item }">
         <td class="narrow-column">{{ item.kolvo_sklad }}</td>
       </template>

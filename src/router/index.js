@@ -9,15 +9,15 @@ export const Routes = {
   LOGIN: '/Login',
 }
 
-const authGuard = {
-  Home(to, from, next) {
-    if (localStorage.getItem('user')) {
-      next()
-    } else {
-      next('/Login')
-    }
-  },
-}
+// const authGuard = {
+//   Home(to, from, next) {
+//     if (localStorage.getItem('user')) {
+//       next()
+//     } else {
+//       next('/Login')
+//     }
+//   },
+// }
 
 const routes = [
   {
