@@ -33,7 +33,7 @@
               <v-combobox
                 density="compact"
                 :label="param.info"
-                v-model="toolModel.properties[param.id]"
+                v-model="param.id"
                 @input="logModelValue(param.id)"
                 required
               />
@@ -95,9 +95,6 @@ export default {
       type: Object,
       default: () => ({
         id: null,
-        group_name: '',
-        type_name: '',
-        mat_name: '',
         typeOptions: ['Step', 'Dimensions', 'Projection'],
       }),
     },
@@ -135,21 +132,29 @@ export default {
   async mounted() {
     this.loadLastSavedData()
     const rawToolParams = await getToolParams()
-    rawToolParams.forEach((param) => {
-      this.toolModel.properties[param.id] = '' // Используйте id параметра в качестве ключа
-    })
-
-    // Сохраняем идентификаторы и описания параметров
-    this.toolParams = rawToolParams.map((param) => param.info)
-    this.toolParamsId = rawToolParams.map((param) => param.id)
+    console.log('Начальные toolParams:', rawToolParams)
+    this.toolParams = rawToolParams
   },
   computed: {
     selectedParamsInfo() {
-      return this.selectedParams.map((info) => {
-        const param = this.toolParams.find((p) => p.info === info)
-        return param ? { id: param.id, info } : { id: null, info }
-      })
+      return this.selectedParams
+        .map((info) => {
+          const param = this.toolParams.find((p) => p.info === info)
+          if (!param) {
+            console.error(`Ошибка: параметр ${info} не найден`)
+            return null
+          }
+          console.log(
+            'Processed param:',
+            param,
+            'Type of info:',
+            typeof param.info
+          )
+          return { id: param.id, info: param.info }
+        })
+        .filter((item) => item !== null)
     },
+
     ...mapGetters('tool', [
       'widthOptions',
       'shagOptions',
@@ -164,7 +169,10 @@ export default {
   },
   methods: {
     logModelValue(paramId) {
-      console.log(this.toolModel)
+      console.log(
+        `Текущее значение для paramId ${paramId}:`,
+        this.toolModel.properties[paramId]
+      )
 
       if (this.toolModel.properties[paramId] !== undefined) {
         console.log(
