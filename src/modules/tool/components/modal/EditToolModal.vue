@@ -81,7 +81,7 @@
 
 <script>
 import Modal from '@/components/shared/Modal.vue'
-import { deleteTool, getLibraries, getToolParams } from '@/api'
+import { deleteTool, getToolParams } from '@/api'
 import DeleteConfirmationDialog from '@/modules/tool/components/modal/DeleteConfirmationDialog.vue'
 import { mapActions, mapGetters } from 'vuex'
 
@@ -144,7 +144,10 @@ export default {
     selectedParamsInfo() {
       return this.selectedParams.map((info) => {
         const param = this.toolParams.find((p) => p.info === info)
-        return param ? { id: param.id, info } : { id: null, info }
+        if (!param) {
+          throw new Error(`Ошибка: параметр с информацией '${info}' не найден`)
+        }
+        return { id: param.id, info }
       })
     },
     ...mapGetters('tool', [
