@@ -39,7 +39,8 @@
         <v-row>
           <v-col cols="12">
             <!-- Интеграция хлебных крошек -->
-            <div class="breadcrumbs">
+            <!-- <div class="breadcrumbs">-->
+            <div>
               <span v-for="(item, index) in history" :key="index">
                 <span :class="getBreadcrumbClass(index)" @click="goTo(index)">
                   {{ item.label }}
@@ -85,12 +86,12 @@
 </template>
 
 <script>
-import { addFolder, deleteFolder, getTree, renameFolder } from '@/api'
 import TabMainTable from '@/modules/tool/components/tabs/MainTable.vue'
+import { addFolder, deleteFolder, getTree, renameFolder } from '@/api'
 import { normSpaces } from '@/modules/tool/components/normSpaces'
 
 export default {
-  name: 'TabCatalog',
+  name: 'Catalog',
   components: { TabMainTable },
 
   data() {
@@ -297,9 +298,9 @@ export default {
 
 <style>
 /* Стили для хлебных крошек */
-.breadcrumbs-item {
+/*.breadcrumbs-item {
   cursor: pointer;
-}
+} */
 
 .breadcrumbs {
   margin-bottom: 8px;
