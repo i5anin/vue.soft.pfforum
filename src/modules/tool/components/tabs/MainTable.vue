@@ -113,7 +113,7 @@ export default {
     await this.$store.dispatch('tool/fetchParamsList')
     await this.fetchToolsByFilter()
     this.isDataLoaded = true
-    console.log('Содержимое paramsList на момент монтажа:', this.paramsList)
+    // console.log('Содержимое paramsList на момент монтажа:', this.paramsList)
   },
   methods: {
     ...mapActions('tool', ['fetchToolsByFilter']),
