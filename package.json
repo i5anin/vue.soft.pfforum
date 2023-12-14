@@ -7,7 +7,8 @@
     "pm": "pm2 start ecosystem.config.js",
     "build": "vite build",
     "build_debug": "vite build --debug",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint . --ext .js,.vue"
   },
   "dependencies": {
     "@fontsource/nunito": "^5.0.15",
@@ -34,6 +35,8 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.0.0",
+    "eslint": "^8.55.0",
+    "eslint-plugin-vue": "^9.19.2",
     "vite": "^4.2.0",
     "vite-plugin-vuetify": "^1.0.0"
   }

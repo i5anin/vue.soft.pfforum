@@ -1,5 +1,4 @@
 <template>
-  <!--  <form @submit.prevent='onSubmit'>-->
   <Modal :title="popupTitle">
     <template #content>
       <v-container>
@@ -19,22 +18,22 @@
               />
             </div>
             <!-- правый столбец -->
-            <v-combobox
-              :chips="true"
-              multiple
-              v-model="selectedParams"
-              :items="toolParams"
-              label="Параметры"
-              return-object
-            />
+            <!--            <v-combobox-->
+            <!--            :chips="true"-->
+            <!--            multiple-->
+            <!--            v-model="selectedParams"-->
+            <!--            :items="toolParams"-->
+            <!--            label="Параметры"-->
+            <!--            return-object-->
+            <!--          />-->
             <h2 class="text-h6">Размеры:</h2>
-            <!-- динамические параметры -->
-            <div v-for="param in selectedParamsInfo" :key="param.id">
+            <!-- Вывод всех комбобоксов с параметрами -->
+            {{ console.log(toolParams) }}
+            <div v-for="param in toolParams" :key="param.id">
               <v-combobox
                 density="compact"
                 :label="param.info"
                 v-model="toolModel.properties[param.id]"
-                @input="logModelValue(param.id)"
                 required
               />
             </div>
@@ -72,7 +71,6 @@
       </v-btn>
     </template>
   </Modal>
-  <!--  </form> -->
   <DeleteConfirmationDialog
     :confirmDeleteDialog="confirmDeleteDialog"
     :onDelete="onDelete"
@@ -87,8 +85,7 @@ import { mapActions, mapGetters } from 'vuex'
 
 export default {
   name: 'EditToolModal',
-  emits: ['canceled', 'changes-saved'], // объявления пользовательских событий
-  //props контракт общение что использовать и что передавать от родительского компонента к дочернему
+  emits: ['canceled', 'changes-saved'],
   props: {
     persistent: { type: Boolean, default: false },
     tool: {
@@ -101,24 +98,15 @@ export default {
     radiusOptions: { type: Array },
   },
   components: { DeleteConfirmationDialog, Modal },
-  //реактивные данные
   data: () => ({
     selectedParams: [],
-    geometryOptions: [],
     toolParams: [],
     toolModel: { name: '', properties: {} },
-    typeOptions: [],
-    groupOptions: [],
-    materialOptions: [],
-    confirmDeleteDialog: false,
-    typeSelected: false,
-    selectedType: '',
     typeRules: [
       (v) => !!v || 'Поле обязательно для заполнения',
       (v) => (v && v.length >= 3) || 'Минимальная длина: 3 символа',
     ],
   }),
-  //Наблюдатель вызывает определенную функцию при изменении
   watch: {
     tool: {
       immediate: true,
@@ -127,33 +115,21 @@ export default {
       },
     },
   },
-  // data - используется для определения реактивных данных компонента, которые непосредственно управляют состоянием и поведением этого компонента.
-  // watch - используется для отслеживания изменений в этих данных (или в других реактивных источниках) и выполнения дополнительных действий или логики в ответ на эти изменения.
   async mounted() {
-    this.loadLastSavedData()
     const rawToolParams = await getToolParams()
-    rawToolParams.forEach((param) => {
-      this.toolModel.properties[param.id] = '' // Используйте id параметра в качестве ключа
+    this.toolParams = rawToolParams.map((param) => {
+      // Убедитесь, что каждый param имеет уникальный id
+      return {
+        id: param.id,
+        info: param.info,
+      }
     })
 
-    // Сохраняем идентификаторы и описания параметров
-    this.toolParams = rawToolParams.map((param) => param.info)
-    this.toolParamsId = rawToolParams.map((param) => param.id)
-    console.log('console.log(rawToolParams):')
-    console.log(rawToolParams)
+    this.toolParams.forEach((param) => {
+      this.toolModel.properties[param.id] = null
+    })
   },
   computed: {
-    selectedParamsInfo() {
-      this.errorMessage = null
-      return this.selectedParams.map((info) => {
-        const param = this.toolParams.find((p) => p.info === info)
-        if (!param) {
-          this.errorMessage = `Ошибка: параметр с информацией '${info}' не найден`
-          return { id: null, info: null }
-        }
-        return { id: param.id, info: param.info }
-      })
-    },
     ...mapGetters('tool', [
       'widthOptions',
       'shagOptions',
@@ -167,42 +143,7 @@ export default {
     },
   },
   methods: {
-    logModelValue(paramId) {
-      console.log(this.toolModel)
-
-      if (this.toolModel.properties[paramId] !== undefined) {
-        console.log(
-          `Значение для paramId ${paramId}:`,
-          this.toolModel.properties[paramId]
-        )
-      } else {
-        console.log(`Значение для paramId ${paramId} не определено`)
-      }
-    },
     ...mapActions('tool', ['fetchUniqueToolSpecs']),
-    loadLastSavedData() {
-      const lastSavedData = localStorage.getItem('lastSavedToolModel')
-      if (lastSavedData) {
-        const lastSavedToolModel = JSON.parse(lastSavedData)
-        this.prependLastSavedData(lastSavedToolModel)
-      }
-    },
-
-    prependLastSavedData(data) {
-      if (!data) return
-      this.prependOptionIfNeeded(data.name, this.nameOptions, 'name')
-    },
-
-    prependOptionIfNeeded(value, optionsList, propName) {
-      if (value && !optionsList.some((option) => option.value === value))
-        optionsList.unshift(value)
-    },
-
-    parseToFloat(value) {
-      if (value === null) return 0
-      return parseFloat(value.toString().replace(',', '.'))
-    },
-
     confirmDelete() {
       this.confirmDeleteDialog = true
     },
@@ -221,6 +162,7 @@ export default {
       this.$emit('canceled')
     },
     async onSave() {
+      console.log('Отправляемые данные:', this.toolModel)
       this.$store.dispatch('tool/onSaveToolModel', this.toolModel)
       this.$emit('changes-saved')
     },
