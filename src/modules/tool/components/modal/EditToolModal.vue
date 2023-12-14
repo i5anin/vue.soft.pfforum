@@ -147,7 +147,7 @@ export default {
         if (!param) {
           throw new Error(`Ошибка: параметр с информацией '${info}' не найден`)
         }
-        return { id: param.id, info }
+        return { id: param.id, info: param.info }
       })
     },
     ...mapGetters('tool', [
