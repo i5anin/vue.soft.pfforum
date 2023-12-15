@@ -1,4 +1,4 @@
-import { addTool, getLibraries, getToolParams, getTools } from '@/api'
+import { addTool, getToolParams, getTools } from '@/api'
 // import { foundSomeIdItemInArrayByName } from '@/modules/tool/utils'
 
 export const store = {
@@ -96,26 +96,26 @@ export const store = {
     },
     async initFilterOptions({ commit }) {
       const [{ types, groups, materials }, paramsData] = await Promise.all([
-        getLibraries(),
+        // getLibraries(),
         getToolParams(),
       ])
 
-      commit(
-        'setTypeOptions',
-        types.map(({ name }) => name)
-      )
-      commit(
-        'setGroupOptions',
-        groups.map(({ name }) => name)
-      )
-      commit(
-        'setMaterialOptions',
-        materials.map(({ name }) => name)
-      )
-      commit(
-        'setParamsOptions',
-        paramsData.map(({ info }) => info)
-      )
+      // commit(
+      //   'setTypeOptions',
+      //   types.map(({ name }) => name)
+      // )
+      // commit(
+      //   'setGroupOptions',
+      //   groups.map(({ name }) => name)
+      // )
+      // commit(
+      //   'setMaterialOptions',
+      //   materials.map(({ name }) => name)
+      // )
+      // commit(
+      //   'setParamsOptions',
+      //   paramsData.map(({ info }) => info)
+      // )
     },
     async fetchToolsByFilter({ commit, state }, payload) {
       commit('setIsLoading', true)

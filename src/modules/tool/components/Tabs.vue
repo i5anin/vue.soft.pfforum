@@ -38,7 +38,7 @@
 import { ref } from 'vue'
 
 import TabMainTable from '@/modules/tool/components/tabs/MainTable.vue'
-import ToolTabLibrary from '@/modules/tool/components/tabs/Library.vue'
+import ToolTabLibrary from '@/modules/tool/components/tabs/Param.vue'
 import ToolTabInventory from '@/modules/tool/components/tabs/Sklad.vue'
 import TabCatalog from '@/modules/tool/components/tabs/Catalog.vue'
 import ToolTabTree from '@/modules/tool/components/tabs/Tree.vue'
