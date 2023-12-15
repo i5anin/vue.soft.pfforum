@@ -34,15 +34,17 @@
         <v-table>
           <thead>
             <tr>
-              <th class="text-left">ID</th>
+              <th class="text-left">№</th>
               <th class="text-left">Информация</th>
+              <!--<th class="text-left">ID</th>-->
               <th class="text-left">Действия</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="param in toolParams" :key="param.id">
-              <td>{{ param.id }}</td>
+            <tr v-for="(param, index) in toolParams" :key="param.id">
+              <td>{{ index + 1 }}</td>
               <td>{{ param.info }}</td>
+              <!--<td>{{ param.id }}</td>-->
               <td>
                 <v-btn icon @click="startEditing(param)">
                   <v-icon>mdi-pencil</v-icon>
