@@ -66,6 +66,7 @@ import {
   addToolParam,
   deleteToolParam,
 } from '@/api'
+import { normSpaces } from '@/modules/tool/components/normSpaces'
 
 export default {
   data() {
@@ -99,13 +100,41 @@ export default {
     },
     async saveParam() {
       if (this.paramInfo) {
+        // Обработка ввода и нормализация данных
+        const normalizedParamInfo = normSpaces(this.paramInfo)
+
+        // Проверка на дублирование параметров
+        if (
+          this.toolParams.some(
+            (param) =>
+              param.info.toLowerCase() === normalizedParamInfo.toLowerCase() &&
+              param.id !== this.editingParam?.id
+          )
+        ) {
+          alert('Такой параметр уже существует')
+          return
+        }
+
         try {
           if (this.editingParam) {
-            const updatedParam = { ...this.editingParam, info: this.paramInfo }
-            await updateToolParam(this.editingParam.id, updatedParam)
-            this.editingParam.info = this.paramInfo
+            // Обновление существующего параметра
+            const updatedParam = { info: normalizedParamInfo }
+            const result = await updateToolParam(
+              this.editingParam.id,
+              updatedParam
+            )
+
+            if (result) {
+              // Обновление данных в массиве toolParams
+              this.toolParams = this.toolParams.map((param) =>
+                param.id === this.editingParam.id
+                  ? { ...param, info: normalizedParamInfo }
+                  : param
+              )
+            }
           } else {
-            const newParam = await addToolParam({ info: this.paramInfo })
+            // Добавление нового параметра
+            const newParam = await addToolParam({ info: normalizedParamInfo })
             if (newParam && newParam.id) {
               this.toolParams.push(newParam)
             } else {
@@ -115,8 +144,11 @@ export default {
         } catch (error) {
           console.error('Error saving tool parameter:', error)
         }
+
+        // Сброс данных формы
         this.paramInfo = ''
         this.showDialog = false
+        this.editingParam = null
       } else {
         alert('Пожалуйста, введите информацию для инструмента')
       }
