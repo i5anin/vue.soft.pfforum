@@ -78,7 +78,7 @@
 
 <script>
 import Modal from '@/components/shared/Modal.vue'
-import { deleteTool, getToolParams } from '@/api'
+import { deleteTool, getToolById, getToolParams } from '@/api'
 import DeleteConfirmationDialog from '@/modules/tool/components/modal/DeleteConfirmationDialog.vue'
 import { mapActions, mapGetters } from 'vuex'
 
@@ -109,12 +109,25 @@ export default {
   watch: {
     tool: {
       immediate: true,
-      handler() {
-        this.toolModel = { name: null, properties: {} }
+      async handler(newValue) {
+        if (newValue && newValue.id) {
+          try {
+            const toolData = await getToolById(newValue.id)
+            this.toolModel = { ...toolData }
+          } catch (error) {
+            console.error('Ошибка при получении данных инструмента:', error)
+          }
+        } else {
+          this.toolModel = { name: null, properties: {} }
+        }
       },
     },
   },
   async mounted() {
+    if (this.tool.id) {
+      const toolData = await getToolById(this.tool.id)
+      this.fillToolModel(toolData)
+    }
     const rawToolParams = await getToolParams()
     this.toolParams = rawToolParams.map((param) => {
       // Убедитесь, что каждый param имеет уникальный id
@@ -142,6 +155,15 @@ export default {
     },
   },
   methods: {
+    fillToolModel(toolData) {
+      this.toolModel.name = toolData.name;
+      // Заполнение свойств инструмента
+      for (const key in toolData.property) {
+        if (this.toolModel.properties.hasOwnProperty(key)) {
+          this.toolModel.properties[key] = toolData.property[key];
+        }
+      }
+    }
     ...mapActions('tool', ['fetchUniqueToolSpecs']),
     confirmDelete() {
       this.confirmDeleteDialog = true

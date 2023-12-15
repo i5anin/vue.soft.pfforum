@@ -190,9 +190,7 @@ async function getToolById(req, res) {
   const { id } = req.params // Получение ID инструмента из параметров маршрута
 
   try {
-    // Здесь должен быть SQL-запрос для получения данных инструмента по его ID
-    // Пример: 'SELECT * FROM tools WHERE id = $1'
-    const query = 'SELECT * FROM tool_nom WHERE id = $1'
+    const query = 'SELECT * FROM dbo.tool_nom WHERE id = $1'
     const result = await pool.query(query, [id])
 
     if (result.rows.length > 0) {
