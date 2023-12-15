@@ -103,9 +103,6 @@ export default {
           return item
         })
     },
-    processMenuItems(items) {
-      // Этот метод больше не нужен, так как логика была интегрирована в filterForHohlov
-    },
   },
 }
 </script>

@@ -94,29 +94,29 @@ export const store = {
         console.error('Ошибка при загрузке параметров:', error)
       }
     },
-    async initFilterOptions({ commit }) {
-      const [{ types, groups, materials }, paramsData] = await Promise.all([
-        // getLibraries(),
-        getToolParams(),
-      ])
-
-      // commit(
-      //   'setTypeOptions',
-      //   types.map(({ name }) => name)
-      // )
-      // commit(
-      //   'setGroupOptions',
-      //   groups.map(({ name }) => name)
-      // )
-      // commit(
-      //   'setMaterialOptions',
-      //   materials.map(({ name }) => name)
-      // )
-      // commit(
-      //   'setParamsOptions',
-      //   paramsData.map(({ info }) => info)
-      // )
-    },
+    // async initFilterOptions({ commit }) {
+    //   const [{ types, groups, materials }, paramsData] = await Promise.all([
+    //     // getLibraries(),
+    //     getToolParams(),
+    //   ])
+    //
+    //   // commit(
+    //   //   'setTypeOptions',
+    //   //   types.map(({ name }) => name)
+    //   // )
+    //   // commit(
+    //   //   'setGroupOptions',
+    //   //   groups.map(({ name }) => name)
+    //   // )
+    //   // commit(
+    //   //   'setMaterialOptions',
+    //   //   materials.map(({ name }) => name)
+    //   // )
+    //   // commit(
+    //   //   'setParamsOptions',
+    //   //   paramsData.map(({ info }) => info)
+    //   // )
+    // },
     async fetchToolsByFilter({ commit, state }, payload) {
       commit('setIsLoading', true)
       const {

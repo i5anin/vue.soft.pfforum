@@ -8,7 +8,7 @@
     "build": "vite build",
     "build_debug": "vite build --debug",
     "preview": "vite preview",
-    "lint": "eslint . --ext .js,.vue"
+    "lint": "eslint src --ext .js,.vue"
   },
   "dependencies": {
     "@fontsource/nunito": "^5.0.15",

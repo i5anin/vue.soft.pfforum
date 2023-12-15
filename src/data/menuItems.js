@@ -117,7 +117,7 @@ export const plotsMenuItems = [
     items: [
       {
         title: 'Токарный участок',
-        path:  '/*',
+        path: '/*',
       },
       {
         title: 'Фрезерный участок',

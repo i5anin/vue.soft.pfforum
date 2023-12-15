@@ -20,7 +20,7 @@ export default {
   },
   methods: {
     checkAuth() {
-      const authUser = localStorage.getItem('user')
+      // const authUser = localStorage.getItem('user')
       // if (authUser == null) {
       //    this.$router.push(Routes.LOGIN)
       // }

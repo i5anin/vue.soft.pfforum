@@ -7,9 +7,9 @@
             <v-toolbar-title>Вход в систему</v-toolbar-title>
           </v-toolbar>
           <v-card-text>
-            <v-form ref="form" >
+            <v-form ref="form">
               <v-text-field
-                v-model='login'
+                v-model="login"
                 label="Логин"
                 name="login"
                 prepend-icon="mdi-account"
@@ -17,7 +17,7 @@
                 required
               ></v-text-field>
               <v-text-field
-                v-model='password'
+                v-model="password"
                 label="Пароль"
                 name="password"
                 prepend-icon="mdi-lock"
@@ -26,7 +26,9 @@
               ></v-text-field>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn type='submit' color="primary" @click.prevent="submit">Войти</v-btn>
+                <v-btn type="submit" color="primary" @click.prevent="submit"
+                  >Войти</v-btn
+                >
               </v-card-actions>
             </v-form>
           </v-card-text>
@@ -40,7 +42,7 @@
 export default {
   data: () => ({
     login: '',
-    password: ''
+    password: '',
   }),
   methods: {
     submit() {
@@ -49,8 +51,8 @@ export default {
       const formData = {
         login: this.login,
         password: this.password,
-      };
-      console.log(formData); // Замените эту часть на реальный запрос к серверу
+      }
+      console.log(formData) // Замените эту часть на реальный запрос к серверу
       // Пример с axios (не забудьте установить axios через npm и импортировать его):
       // axios.post('/api/login', formData).then(response => {
       //   // Обработка успешного входа
@@ -59,5 +61,5 @@ export default {
       // });
     },
   },
-};
+}
 </script>

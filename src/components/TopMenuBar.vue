@@ -1,16 +1,15 @@
 <template>
-  <v-app-bar app color='primary' dark>
+  <v-app-bar app color="primary" dark>
     <!-- Левая кнопка -->
     <v-btn icon @click="$emit('toggle-drawer', $event)">
       <v-icon>mdi-menu</v-icon>
     </v-btn>
     <!-- Название -->
-    <v-toolbar-title>
-      PF-FORUM APP
-    </v-toolbar-title>
+    <v-toolbar-title> PF-FORUM APP </v-toolbar-title>
     <v-spacer />
     <!-- Поле поиска не работает -->
-    <v-text-field class='red'
+    <v-text-field
+      class="red"
       v-model="search"
       label="Поиск"
       v-if="showSearch"
@@ -33,14 +32,13 @@
 </template>
 
 <script setup>
-import { ref, defineEmits } from 'vue'
+import { ref } from 'vue'
+// import { ref, defineEmits } from 'vue'
 
-const drawer = ref(false)
-const emit = defineEmits(['update:drawer'])
+// const drawer = ref(false)
+// const emit = defineEmits(['update:drawer'])
 
 // Добавьте эти строки для функции поиска
 const search = ref('')
-const showSearch = ref(false)  // Переменная для управления видимостью поля поиска
+const showSearch = ref(false) // Переменная для управления видимостью поля поиска
 </script>
-
-
