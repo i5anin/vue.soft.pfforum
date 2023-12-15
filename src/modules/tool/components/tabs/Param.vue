@@ -60,7 +60,12 @@
 </template>
 
 <script>
-import { getToolParams } from '@/api'
+import {
+  getToolParams,
+  updateToolParam,
+  addToolParam,
+  deleteToolParam,
+} from '@/api'
 
 export default {
   data() {
@@ -92,31 +97,43 @@ export default {
       this.editingParam = param
       this.showDialog = true
     },
-    saveParam() {
+    async saveParam() {
       if (this.paramInfo) {
-        if (this.editingParam) {
-          // Редактирование существующего параметра
-          this.editingParam.info = this.paramInfo
-        } else {
-          // Добавление нового параметра
-          const newParam = {
-            id: this.toolParams.length + 1, // или любой другой уникальный ID
-            info: this.paramInfo,
+        try {
+          if (this.editingParam) {
+            const updatedParam = { ...this.editingParam, info: this.paramInfo }
+            await updateToolParam(this.editingParam.id, updatedParam)
+            this.editingParam.info = this.paramInfo
+          } else {
+            const newParam = await addToolParam({ info: this.paramInfo })
+            if (newParam && newParam.id) {
+              this.toolParams.push(newParam)
+            } else {
+              throw new Error('Failed to retrieve new param data')
+            }
           }
-          this.toolParams.push(newParam)
+        } catch (error) {
+          console.error('Error saving tool parameter:', error)
         }
-        // Сброс формы после сохранения
         this.paramInfo = ''
         this.showDialog = false
       } else {
         alert('Пожалуйста, введите информацию для инструмента')
       }
     },
-    deleteParam(param) {
-      if (confirm(`Вы уверены, что хотите удалить параметр: ${param.info}?`)) {
-        const index = this.toolParams.indexOf(param)
-        if (index > -1) {
-          this.toolParams.splice(index, 1)
+    async deleteParam(param) {
+      const confirmDelete = confirm(
+        `Вы уверены, что хотите удалить параметр: ${param.info}?`
+      )
+      if (confirmDelete) {
+        try {
+          await deleteToolParam(param.id)
+          const index = this.toolParams.indexOf(param)
+          if (index > -1) {
+            this.toolParams.splice(index, 1)
+          }
+        } catch (error) {
+          console.error('Error deleting tool parameter:', error)
         }
       }
     },

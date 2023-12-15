@@ -28,7 +28,15 @@ router.post('/add-to-warehouse/:id', toolController.addToWarehouse)
 router.get('/tool-library', toolController.getLibrary)
 router.get('/unique-tool-specs', toolController.getUniqueToolSpecs)
 
-router.get('/tools-params', paramController.getToolParams)
+router
+  .route('/tools-params')
+  .get(paramController.getToolParams)
+  .post(paramController.addToolParam)
+
+router
+  .route('/tools-params/:id')
+  .put(paramController.updateToolParam)
+  .delete(paramController.deleteToolParam)
 
 // Добавление и удаление материалов, типов и групп
 router.post('/add-material', toolController.addMaterial)
