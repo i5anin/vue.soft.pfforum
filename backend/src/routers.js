@@ -5,6 +5,7 @@ const loginController = require('./controllers/b_login')
 const toolController = require('./controllers/b_tool')
 const treeController = require('./controllers/b_tool_tree')
 const filterController = require('./controllers/b_tool_filter')
+const paramController = require('./controllers/b_tool_param')
 
 // Authentication Routes
 router.post('/validate-user', loginController.validateUser)
@@ -27,7 +28,7 @@ router.post('/add-to-warehouse/:id', toolController.addToWarehouse)
 router.get('/tool-library', toolController.getLibrary)
 router.get('/unique-tool-specs', toolController.getUniqueToolSpecs)
 
-router.get('/tools-params', filterController.getToolParams)
+router.get('/tools-params', paramController.getToolParams)
 
 // Добавление и удаление материалов, типов и групп
 router.post('/add-material', toolController.addMaterial)
