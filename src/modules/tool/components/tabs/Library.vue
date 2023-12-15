@@ -1,74 +1,102 @@
 <template>
   <v-container>
     <v-row>
-      <v-col class="pa-3 text-right">
-        <v-btn color="green" @click="getData">Обновить данные</v-btn>
-      </v-col>
-    </v-row>
+      <v-col cols="12">
+        <div class="flex">
+          <h2 class="text-h5">Параметры Инструмента</h2>
+          <v-spacer />
+          <v-btn color="primary" class="mb-2" @click="showAddDialog = true">
+            Добавить параметр
+          </v-btn>
+        </div>
+        <v-dialog v-model="showAddDialog" persistent max-width="600px">
+          <v-card>
+            <v-card-title>Новый Инструмент</v-card-title>
+            <v-card-text>
+              <v-text-field
+                label="Информация"
+                v-model="newParamInfo"
+                required
+              ></v-text-field>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn
+                lable="Отмена"
+                color="blue darken-1"
+                @click="showAddDialog = false"
+              />
+              <v-btn lable="Добавить" color="blue darken-1" @click="addParam" />
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
 
-    <v-row>
-      <v-col cols="4" v-for="(items, title) in tables" :key="title">
-        <h2 class="text-h4">{{ title }}</h2>
-        <data-table
-          :items="items"
-          @deleteItem="(item) => deleteItem(item, items, title)"
-        />
+        <v-table>
+          <thead>
+            <tr>
+              <th class="text-left">ID</th>
+              <th class="text-left">Информация</th>
+              <th class="text-left">Действия</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(param, index) in toolParams" :key="param.id">
+              <td>{{ param.id }}</td>
+              <td>{{ param.info }}</td>
+              <td>
+                <v-btn icon @click="renameParam(param)">
+                  <v-icon>mdi-pencil</v-icon>
+                </v-btn>
+                <v-btn icon @click="deleteParam(param)">
+                  <v-icon>mdi-delete</v-icon>
+                </v-btn>
+              </td>
+            </tr>
+          </tbody>
+        </v-table>
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
-import { deleteGroup, deleteMaterial, deleteType, getLibraries } from '@/api'
-import DataTable from '../LibraryData.vue'
+import { getToolParams } from '@/api'
 
 export default {
-  components: { DataTable },
   data() {
-    return { tables: { Группы: [], Материалы: [], Типы: [] } }
+    return {
+      toolParams: [],
+      showAddDialog: false,
+      newParamInfo: '',
+    }
   },
   methods: {
     async getData() {
       try {
-        const response = await getLibraries()
-        this.tables['Группы'] = response.groups.sort((a, b) =>
-          (a.name || '').localeCompare(b.name || '')
-        )
-        this.tables['Материалы'] = response.materials.sort((a, b) =>
-          (a.name || '').localeCompare(b.name || '')
-        )
-        this.tables['Типы'] = response.types.sort((a, b) =>
-          (a.name || '').localeCompare(b.name || '')
-        )
+        this.toolParams = await getToolParams()
       } catch (error) {
         console.error('Error fetching data:', error)
       }
     },
-
-    async deleteItem(item, list, type) {
-      if (confirm('Вы уверены, что хотите удалить этот элемент?')) {
-        try {
-          switch (type) {
-            case 'Материалы':
-              await deleteMaterial(item.id)
-              break
-            case 'Типы':
-              await deleteType(item.id)
-              break
-            case 'Группы':
-              await deleteGroup(item.id)
-              break
-            default:
-              throw new Error(`Неизвестный тип: ${type}`)
-          }
-          const index = list.indexOf(item)
-          list.splice(index, 1)
-        } catch (error) {
-          console.error(
-            'There has been a problem with your delete operation:',
-            error
-          )
-        }
+    renameParam(param) {
+      // Логика для переименования параметра
+      console.log(`Переименовать параметр: ${param.id}`)
+    },
+    deleteParam(param) {
+      if (confirm(`Вы уверены, что хотите удалить параметр: ${param.info}?`)) {
+        // Логика для удаления параметра
+        console.log(`Удалить параметр: ${param.id}`)
+      }
+    },
+    addParam() {
+      if (this.newParamInfo) {
+        // Добавьте здесь логику для добавления нового инструмента
+        console.log(`Добавить новый инструмент: ${this.newParamInfo}`)
+        // Сброс формы после добавления
+        this.newParamInfo = ''
+        this.showAddDialog = false
+      } else {
+        alert('Пожалуйста, введите информацию для нового инструмента')
       }
     },
   },
@@ -77,33 +105,3 @@ export default {
   },
 }
 </script>
-
-<style scoped>
-.styled-table thead tr {
-  background-color: #005b98;
-  color: #ffffff;
-  text-align: left;
-}
-
-.styled-table th,
-.styled-table td {
-  padding: 12px 15px;
-}
-
-.styled-table tbody tr {
-  border-bottom: 1px solid #dddddd;
-}
-
-.styled-table tbody tr:nth-of-type(even) {
-  //background-color: #848484;
-}
-
-.styled-table tbody tr:last-of-type {
-  border-bottom: 2px solid #005b98;
-}
-
-.styled-table tbody {
-  font-weight: bold;
-  color: #005b98;
-}
-</style>
