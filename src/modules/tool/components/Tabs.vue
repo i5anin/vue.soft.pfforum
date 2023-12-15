@@ -3,7 +3,7 @@
     <v-tabs v-model="tab">
       <v-tab value="Catalog"> Каталог </v-tab>
       <v-tab value="Tree"> Дерево </v-tab>
-      <v-tab value="Param"> Характеристики </v-tab>
+      <v-tab value="Param"> Параметры </v-tab>
       <v-tab value="Inventory"> Склад </v-tab>
     </v-tabs>
 
