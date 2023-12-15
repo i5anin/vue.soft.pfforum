@@ -100,7 +100,7 @@ export default {
   data: () => ({
     selectedParams: [],
     toolParams: [],
-    toolModel: { name: '', properties: {} },
+    toolModel: { name: null, properties: {} },
     typeRules: [
       (v) => !!v || 'Поле обязательно для заполнения',
       (v) => (v && v.length >= 3) || 'Минимальная длина: 3 символа',
@@ -110,7 +110,7 @@ export default {
     tool: {
       immediate: true,
       handler() {
-        this.toolModel = { name: '', properties: {} }
+        this.toolModel = { name: null, properties: {} }
       },
     },
   },
