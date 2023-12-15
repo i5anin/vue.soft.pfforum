@@ -110,7 +110,7 @@ export default {
   watch: {
     tool: {
       immediate: true,
-      handler(tool) {
+      handler() {
         this.toolModel = { name: '', properties: {} }
       },
     },

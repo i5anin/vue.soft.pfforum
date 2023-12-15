@@ -1,47 +1,47 @@
 <template>
   <header>
     <v-navigation-drawer
-      class='header'
-      location='left'
-      width='330'
+      class="header"
+      location="left"
+      width="330"
       expand-on-hover
       permanent
-      :rail='isRail'
+      :rail="isRail"
     >
       <v-list>
-        <v-list-item prepend-avatar='@/assets/logoWhite.svg' title='СОФТ 2.0' />
+        <v-list-item prepend-avatar="@/assets/logoWhite.svg" title="СОФТ 2.0" />
       </v-list>
       <v-divider />
       <v-list>
         <v-list-item
-          prepend-avatar='@/assets/avatar.png'
-          title='Пользователь'
-          subtitle='Тестирование'
+          prepend-avatar="@/assets/avatar.png"
+          title="Пользователь"
+          subtitle="Тестирование"
         />
         <!-- title='Исанин Сергей' subtitle='Администратор'-->
       </v-list>
       <v-divider />
       <!--  -->
       <menu-list
-        :menu-items='originalMenuItemsComputed'
-        :group-states='groupStates'
+        :menu-items="originalMenuItemsComputed"
+        :group-states="groupStates"
       />
       <v-divider />
-      <v-list-item v-if='isHovered'>
+      <v-list-item v-if="isHovered">
         <v-list-item-title>Участки</v-list-item-title>
       </v-list-item>
       <!-- Участки -->
       <menu-list
-        :menu-items='plotsMenuItemsComputed'
-        :group-states='groupStates'
+        :menu-items="plotsMenuItemsComputed"
+        :group-states="groupStates"
       />
     </v-navigation-drawer>
 
-    <v-app-bar color='primary' sticky prominent dark>
+    <v-app-bar color="primary" sticky prominent dark>
       <!-- Левая кнопка -->
       <v-app-bar-nav-icon
-        variant='text'
-        @click.stop='isRail = !isRail'
+        variant="text"
+        @click.stop="isRail = !isRail"
       ></v-app-bar-nav-icon>
       <!-- Название -->
       <v-toolbar-title>PF-FORUM</v-toolbar-title>
@@ -68,7 +68,7 @@ import MenuList from '@/components/SidebarMenuList.vue'
 import { originalMenuItems, plotsMenuItems } from '@/data/menuItems'
 
 export default {
-  name: 'Header',
+  name: 'AppHeader',
   components: { MenuList },
   data: () => ({
     isRail: true,
@@ -88,18 +88,20 @@ export default {
   },
   methods: {
     filterForHohlov(items) {
-      return items.filter(item => item.access && item.access.includes('hohlov')).map(item => {
-        // Задаем иконку по умолчанию, если не задана
-        if (!item.icon) item.icon = 'mdi-circle-outline'
-        // Проверяем подпункты
-        if (item.items) {
-          item.items = item.items.map(subItem => {
-            if (!subItem.icon) subItem.icon = 'mdi-circle-outline'
-            return subItem
-          })
-        }
-        return item
-      })
+      return items
+        .filter((item) => item.access && item.access.includes('hohlov'))
+        .map((item) => {
+          // Задаем иконку по умолчанию, если не задана
+          if (!item.icon) item.icon = 'mdi-circle-outline'
+          // Проверяем подпункты
+          if (item.items) {
+            item.items = item.items.map((subItem) => {
+              if (!subItem.icon) subItem.icon = 'mdi-circle-outline'
+              return subItem
+            })
+          }
+          return item
+        })
     },
     processMenuItems(items) {
       // Этот метод больше не нужен, так как логика была интегрирована в filterForHohlov
@@ -108,8 +110,7 @@ export default {
 }
 </script>
 
-
-<style scoped lang='css'>
+<style scoped lang="css">
 ::v-deep .v-navigation-drawer__content::-webkit-scrollbar {
   width: 0;
 }

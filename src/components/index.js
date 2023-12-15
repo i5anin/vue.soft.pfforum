@@ -1,5 +1,5 @@
-import Header from '@/components/Header.vue'
-import Content from '@/components/Content.vue'
-import Footer from '@/components/Footer.vue'
+import AppHeader from '@/components/AppHeader.vue'
+import AppContent from '@/components/AppContent.vue'
+import AppFooter from '@/components/AppFooter.vue'
 
-export { Header, Content, Footer }
+export { AppHeader, AppContent, AppFooter }

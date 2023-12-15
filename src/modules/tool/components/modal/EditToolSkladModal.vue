@@ -210,7 +210,7 @@ export default {
       this.$emit('canceled')
     },
     async onSave() {
-      const { id, group, type, mat, name } = this.toolModel
+      const { id, group, type, mat } = this.toolModel
 
       const rawData = await getLibraries()
       const groups = rawData.groups

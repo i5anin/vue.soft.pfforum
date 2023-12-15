@@ -19,7 +19,7 @@
       :items="tools"
       :itemsLength="toolsTotalCount"
       :items-per-page="filters.itemsPerPage"
-      :page.sync="filters.currentPage"
+      :page="filters.currentPage"
       :loading="isLoading"
       :items-per-page-options="[15, 50, 100, 300]"
       density="compact"
@@ -29,7 +29,6 @@
       class="elevation-1"
       hover
       fixed-header
-      headers
       width
     >
       <template v-slot:item.index="{ index }">

@@ -1,7 +1,5 @@
 <template>
-  <v-footer
-    v-if='databaseInfo'
-    class='container'>
+  <v-footer v-if="databaseInfo" class="container">
     Все права защищены 2023
     <v-spacer />
     <span :class="{ 'text-red': isBuildDatabase }">
@@ -14,7 +12,7 @@
 import { getDatabaseInfo } from '@/api'
 
 export default {
-  name: 'Footer',
+  name: 'AppFooter',
   data() {
     return {
       databaseInfo: null,
@@ -22,9 +20,7 @@ export default {
   },
   computed: {
     isBuildDatabase() {
-      return this.databaseInfo
-        && this.databaseInfo.databaseType
-        === 'build'
+      return this.databaseInfo && this.databaseInfo.databaseType === 'build'
     },
   },
   async mounted() {
@@ -37,7 +33,7 @@ export default {
 }
 </script>
 
-<style scoped lang='css'>
+<style scoped lang="css">
 .text-red {
   color: red;
 }

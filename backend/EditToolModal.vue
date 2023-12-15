@@ -122,7 +122,8 @@ export default {
   watch: {
     tool: {
       immediate: true,
-      handler(tool) {
+      handler() {
+        // handler(tool)
         this.toolModel = { name: '', properties: {} }
       },
     },
@@ -144,11 +145,9 @@ export default {
   },
   computed: {
     selectedParamsInfo() {
-      this.errorMessage = null
       return this.selectedParams.map((info) => {
         const param = this.toolParams.find((p) => p.info === info)
         if (!param) {
-          this.errorMessage = `Ошибка: параметр с информацией '${info}' не найден`
           return { id: null, info: null }
         }
         return { id: param.id, info: param.info }
@@ -193,7 +192,7 @@ export default {
       this.prependOptionIfNeeded(data.name, this.nameOptions, 'name')
     },
 
-    prependOptionIfNeeded(value, optionsList, propName) {
+    prependOptionIfNeeded(value, optionsList) {
       if (value && !optionsList.some((option) => option.value === value))
         optionsList.unshift(value)
     },
