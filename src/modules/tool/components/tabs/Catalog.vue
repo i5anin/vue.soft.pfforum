@@ -86,7 +86,7 @@
 </template>
 
 <script>
-import TabMainTable from '@/modules/tool/components/tabs/MainTable.vue'
+import TabMainTable from '@/modules/tool/components/MainTable.vue'
 import { addFolder, deleteFolder, getTree, renameFolder } from '@/api'
 import { normSpaces } from '@/modules/tool/components/normSpaces'
 
