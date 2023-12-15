@@ -1,17 +1,18 @@
 <template>
-  <v-dialog persistent :model-value='true' v-bind='modalProps' width='500'>
-    <template v-slot:activator='{ props }'>
-      <slot name='default' v-bind='props' />
+  <v-dialog persistent :model-value="true" v-bind="modalProps" width="500">
+    <template v-slot:activator="{ props }">
+      <slot name="default" v-bind="props" />
     </template>
 
-    <template v-slot:default='{ isActive }'>
+    <!-- Удалено '{ isActive }' из объявления слота -->
+    <template v-slot:default>
       <v-card>
         <v-card-title> {{ title }}</v-card-title>
         <v-spacer />
-        <slot name='content' />
+        <slot name="content" />
         <v-spacer />
         <v-card-actions>
-          <slot name='action' />
+          <slot name="action" />
         </v-card-actions>
       </v-card>
     </template>
