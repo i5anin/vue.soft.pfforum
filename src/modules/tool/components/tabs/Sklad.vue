@@ -1,138 +1,123 @@
 <template>
   <v-container>
-    <v-row>
-      <v-col class="pa-3">
-        <v-text-field
-          v-model="searchQuery"
-          label="Поиск"
-          outlined
-          :clearable="true"
-          @input="onSearch"
-        ></v-text-field>
-      </v-col>
-    </v-row>
-    <edit-tool-sklad-modal
+    <edit-tool-modal
       v-if="openDialog"
       :tool="editingTool"
+      :persistent="true"
       @canceled="onClosePopup"
       @changes-saved="onSaveChanges"
     />
     <v-data-table-server
+      v-if="isDataLoaded"
       noDataText="Нет данных"
       itemsPerPageText="Пункты на странице:"
       loadingText="Загрузка данных"
-      :headers="headers"
+      :headers="ToolTableHeaders"
       :items="tools"
-      :itemsLength="totalTools"
-      :items-per-page="itemsPerPage"
-      v-model:page="currentPage"
-      :loading="loading"
+      :itemsLength="toolsTotalCount"
+      :items-per-page="filters.itemsPerPage"
+      :page="filters.currentPage"
+      :loading="isLoading"
       :items-per-page-options="[15, 50, 100, 300]"
       density="compact"
-      @update:page="getToolsTab"
-      @update:items-per-page="updateItemsPerPage"
+      @update:page="onChangePage"
+      @update:items-per-page="onUpdateItemsPerPage"
       @click:row="onEditRow"
       class="elevation-1"
       hover
       fixed-header
       width
     >
-      <!--      <template class='gray' v-slot:item.index='{ index }'>-->
-      <!--        <span style='color: gray; font-size: 0.7em;'>{{ index + 1 }}</span>-->
-      <!--      </template>-->
-      <template v-slot:item.kolvo_sklad="{ item }">
-        <td class="narrow-column">{{ item.kolvo_sklad }}</td>
+      <template v-slot:item.index="{ index }">
+        <td class="index">{{ index + 1 }}</td>
       </template>
-      <template v-slot:item.norma="{ item }">
-        <td class="narrow-column">{{ item.norma }}</td>
-      </template>
-      <template v-slot:item.zakaz="{ item }">
-        <td class="narrow-column">{{ item.zakaz }}</td>
-      </template>
-
+      <!--name-->
       <template v-slot:item.name="{ item }">
         <span style="white-space: nowrap">{{ item.name }}</span>
+      </template>
+      <template v-slot:item.param="{ item }">
+        <div v-for="(prop, key) in item.property" :key="key">
+          {{ prop.info }}: {{ prop.value }}
+        </div>
       </template>
     </v-data-table-server>
   </v-container>
 </template>
 
 <script>
-import EditToolSkladModal from '@/modules/tool/components/modal/EditToolSkladModal.vue'
+import EditToolModal from '@/modules/tool/components/modal/EditToolModal.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
-import { getToolsWithInventoryInfo } from '@/api'
+import { mapActions, mapMutations, mapGetters } from 'vuex'
+import ToolFilter from '@/modules/tool/components/ToolFilter.vue'
 
 export default {
   emits: ['changes-saved', 'canceled'],
-  components: { VDataTableServer, EditToolSkladModal },
+  components: {
+    VDataTableServer,
+    EditToolModal,
+    ToolFilter,
+  },
+  props: {
+    parentId: {
+      type: Number,
+      default: null,
+    },
+  },
   data() {
     return {
       openDialog: false,
       editingTool: null,
-      tools: [],
-      headers: [
-        // { title: '№', key: 'index', sortable: false },
-
-        { title: 'Название(Тип)', key: 'type_name', sortable: true },
-        { title: 'Группа', key: 'group_name', sortable: true },
-        { title: 'Применяемость материала', key: 'mat_name', sortable: true },
-        { title: 'Маркировка', key: 'name', sortable: true },
-
-        { title: 'Склад', key: 'kolvo_sklad', sortable: true },
-        { title: 'Норма', key: 'norma', sortable: true },
-        { title: 'Заказ', key: 'zakaz', sortable: true },
-      ],
-      totalTools: 0,
-      spec: 0,
-      itemsPerPage: 15,
-      currentPage: 1,
-      loading: false,
-      searchQuery: '',
+      isDataLoaded: false,
     }
   },
+  computed: {
+    ...mapGetters('tool', ['toolsTotalCount', 'tools', 'filters', 'isLoading']),
+    paramsList() {
+      return this.$store.state.tool.paramsList
+    },
+  },
+  watch: {
+    paramsList: {
+      immediate: true,
+      handler(newVal) {
+        if (newVal && newVal.length > 0) {
+          this.ToolTableHeaders = [
+            { title: '№', key: 'index', sortable: false },
+            { title: 'Маркировка', key: 'name', sortable: true },
+            { title: 'Характеристики', key: 'param', sortable: true },
+            { title: 'Норма', key: 'norm', sortable: true },
+            { title: 'Склад', key: 'sklad', sortable: true },
+          ]
+        }
+      },
+    },
+  },
   async mounted() {
-    await this.getToolsTab()
+    await this.$store.dispatch('tool/fetchParamsList')
+    await this.fetchToolsByFilter()
+    this.isDataLoaded = true
+    // console.log('Содержимое paramsList на момент монтажа:', this.paramsList)
   },
   methods: {
-    async getToolsTab(
-      page = this.currentPage,
-      itemsPerPage = this.itemsPerPage,
-      search = this.searchQuery
-    ) {
-      this.loading = true
-      try {
-        const response = await getToolsWithInventoryInfo(
-          search,
-          page,
-          itemsPerPage
-        ) // Обновленный вызов функции
-        this.currentPage = page
-        this.tools = response.tools
-        this.totalTools = response.totalCount
+    ...mapActions('tool', ['fetchToolsByFilter']),
+    ...mapMutations({
+      setCurrentPage: 'tool/setCurrentPage',
+      setItemsPerPage: 'tool/setItemsPerPage',
+    }),
 
-        console.log(response)
-      } catch (error) {
-        console.error(
-          'There has been a problem with your fetch operation:',
-          error
-        )
-      } finally {
-        this.loading = false
-      }
+    async onChangePage(page) {
+      this.setCurrentPage(page)
+      await this.fetchToolsByFilter()
     },
-    onSearch() {
-      this.getToolsTab()
-    },
-    updateItemsPerPage(itemsPerPage) {
-      this.itemsPerPage = itemsPerPage
-      this.getToolsTab()
+    async onUpdateItemsPerPage(itemsPerPage) {
+      this.setItemsPerPage(itemsPerPage)
+      await this.fetchToolsByFilter()
     },
     onClosePopup() {
       this.openDialog = false
     },
-    async onSaveChanges() {
+    onSaveChanges() {
       this.openDialog = false
-      await this.getToolsTab()
     },
     onAddTool() {
       this.editingTool = {
@@ -141,16 +126,11 @@ export default {
         type_name: '',
         mat_name: '',
         name: '',
-        radius: 0,
-        shag: 0,
-        gabarit: 0,
-        width: 0,
-        diam: 0,
       }
       this.openDialog = true
     },
     onEditRow(event, { item: tool }) {
-      this.editingTool = { ...tool } // Копируйте объект tool в editingTool
+      this.editingTool = tool
       this.openDialog = true
     },
   },
@@ -161,5 +141,11 @@ export default {
 .narrow-column {
   max-width: 100px !important;
   font-size: 0.9em;
+}
+
+.index {
+  max-width: 40px !important;
+  font-size: 0.9em;
+  color: grey;
 }
 </style>
