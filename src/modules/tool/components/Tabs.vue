@@ -1,11 +1,10 @@
 <template>
   <v-card>
     <v-tabs v-model="tab">
-      <v-tab value="Catalog">Каталог</v-tab>
-      <v-tab value="Tree">Дерево</v-tab>
-      <!--<v-tab value="ToolTable">Инструмент</v-tab>-->
-      <v-tab value="Param">Параметры</v-tab>
-      <v-tab value="Inventory">Склад</v-tab>
+      <v-tab value="Catalog"> Каталог </v-tab>
+      <v-tab value="Tree"> Дерево </v-tab>
+      <v-tab value="Param"> Характеристики </v-tab>
+      <v-tab value="Inventory"> Склад </v-tab>
     </v-tabs>
 
     <v-card-text>
@@ -16,9 +15,6 @@
         <v-window-item value="Tree">
           <ToolTabTree />
         </v-window-item>
-        <!-- <v-window-item value="ToolTable">-->
-        <!-- <TabMainTable />-->
-        <!-- </v-window-item>-->
         <v-window-item value="Param">
           <ToolTabParam />
         </v-window-item>
