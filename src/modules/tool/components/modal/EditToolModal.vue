@@ -98,6 +98,7 @@ export default {
   },
   components: { DeleteConfirmationDialog, Modal },
   data: () => ({
+    confirmDeleteDialog: false,
     selectedParams: [],
     toolParams: [],
     toolModel: { name: null, properties: {} },
@@ -156,14 +157,21 @@ export default {
   },
   methods: {
     fillToolModel(toolData) {
-      this.toolModel.name = toolData.name;
+      this.toolModel.name = toolData.name
+      // Инициализируем свойства, если они еще не инициализированы
+      this.toolParams.forEach((param) => {
+        if (!this.toolModel.properties[param.id]) {
+          this.toolModel.properties[param.id] = ''
+        }
+      })
+
       // Заполнение свойств инструмента
       for (const key in toolData.property) {
         if (this.toolModel.properties.hasOwnProperty(key)) {
-          this.toolModel.properties[key] = toolData.property[key];
+          this.toolModel.properties[key] = toolData.property[key]
         }
       }
-    }
+    },
     ...mapActions('tool', ['fetchUniqueToolSpecs']),
     confirmDelete() {
       this.confirmDeleteDialog = true
