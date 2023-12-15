@@ -28,7 +28,6 @@
             <!--          />-->
             <h2 class="text-h6">Размеры:</h2>
             <!-- Вывод всех комбобоксов с параметрами -->
-            {{ console.log(toolParams) }}
             <div v-for="param in toolParams" :key="param.id">
               <v-combobox
                 density="compact"

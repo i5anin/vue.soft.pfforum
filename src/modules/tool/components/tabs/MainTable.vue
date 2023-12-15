@@ -45,6 +45,7 @@
       <template
         v-for="param in paramsList"
         v-slot:[`item.${param.key}`]="{ item }"
+        :key="param.key"
       >
         <td>{{ item.properties[param.key] }}</td>
       </template>

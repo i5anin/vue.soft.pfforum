@@ -1,11 +1,19 @@
 <template>
-  <v-dialog :modelValue='confirmDeleteDialog' @update:modelValue='updateModelValue' persistent max-width='290' class="v-dialog-delete">
+  <v-dialog
+    :modelValue="confirmDeleteDialog"
+    @update:modelValue="updateModelValue"
+    persistent
+    max-width="290"
+    class="v-dialog-delete"
+  >
     <v-card>
-      <v-card-title class='headline'>Удалить инструмент?</v-card-title>
+      <v-card-title class="headline">Удалить инструмент?</v-card-title>
       <v-card-actions>
         <v-spacer />
-        <v-btn color='blue darken-1' text @click='confirmDeleteDialog = false'>Отмена</v-btn>
-        <v-btn color='blue darken-1' text @click='onDelete'>Удалить</v-btn>
+        <v-btn color="blue darken-1" text @click="confirmDeleteDialog = false"
+          >Отмена</v-btn
+        >
+        <v-btn color="blue darken-1" text @click="onDelete">Удалить</v-btn>
         <v-spacer />
       </v-card-actions>
     </v-card>
@@ -20,13 +28,13 @@ export default {
   },
   methods: {
     updateModelValue(newValue) {
-      this.$emit('update:confirmDeleteDialog', newValue);
+      this.$emit('update:confirmDeleteDialog', newValue)
     },
   },
-};
+}
 </script>
 
-<style scoped lang='css'>
+<style scoped lang="css">
 .v-dialog-delete .v-card-title {
   font-size: 20px;
   color: red;

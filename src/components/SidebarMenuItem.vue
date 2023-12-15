@@ -1,25 +1,23 @@
 <template>
   <v-list-item
-    v-if='!item.items'
-    :prepend-icon='item.icon'
-    :title='item.title'
-    @click.native='navigate'
-  >
-  </v-list-item>
-  <v-list-group v-else :value='item.title'>
-    <template v-slot:activator='{ props }'>
+    v-if="!item.items"
+    :prepend-icon="item.icon"
+    :title="item.title"
+    @click="navigate"
+  />
+  <v-list-group v-else :value="item.title">
+    <template v-slot:activator="{ props }">
       <v-list-item
-        v-bind='props'
-        :prepend-icon='item.icon'
-        :title='item.title'
-        @click.native='navigate'
-      >
-      </v-list-item>
+        v-bind="props"
+        :prepend-icon="item.icon"
+        :title="item.title"
+        @click="navigate"
+      />
     </template>
     <sidebar-menu-item
-      v-for='(subItem, subIndex) in item.items'
-      :key='subIndex'
-      :item='subItem'
+      v-for="(subItem, subIndex) in item.items"
+      :key="subIndex"
+      :item="subItem"
     />
   </v-list-group>
 </template>
