@@ -93,3 +93,13 @@ export async function getUniqueToolSpecs() {
     throw error
   }
 }
+
+export async function getToolById(id) {
+  try {
+    const response = await axios.get(`${BASE_URL}/tool/${id}`)
+    return response.data // предполагается, что API возвращает данные в указанном формате
+  } catch (error) {
+    console.error('Error fetching tool by ID:', error)
+    return null
+  }
+}

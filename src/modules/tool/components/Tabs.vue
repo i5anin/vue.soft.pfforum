@@ -29,7 +29,6 @@
 <script setup>
 import { ref } from 'vue'
 
-// import TabMainTable from '@/modules/tool/components/MainTable.vue'
 import ToolTabParam from '@/modules/tool/components/tabs/Param.vue'
 import ToolTabInventory from '@/modules/tool/components/tabs/Sklad.vue'
 import TabCatalog from '@/modules/tool/components/tabs/Catalog.vue'
