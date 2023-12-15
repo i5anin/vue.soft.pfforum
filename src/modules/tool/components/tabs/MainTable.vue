@@ -38,16 +38,13 @@
       <template v-slot:item.name="{ item }">
         <span style="white-space: nowrap">{{ item.name }}</span>
       </template>
-
       <template v-slot:item.param="{ item }">
         <div v-for="(prop, key) in item.property" :key="key">
           {{ prop.info }}: {{ prop.value }}
         </div>
       </template>
-
       <!-- TODO: параметр будет автоматически генерироваться из paramsList метода getTools()-->
       <!-- TODO: в данном случае "paramsList": [{"key": "1","label": "Тип"},{"key": "2","label": "Группа"... {"key": "13","label": "Геометрия"}],-->
-
       <!--      <template-->
       <!--        v-for="param in paramsList"-->
       <!--        v-slot:[`item.${param.key}`]="{ item }"-->
