@@ -109,11 +109,8 @@ export default {
       },
     },
   },
-  created() {
-    this.initFilterOptions()
-  },
   methods: {
-    ...mapActions('tool', ['fetchToolsByFilter', 'initFilterOptions']),
+    ...mapActions('tool', ['fetchToolsByFilter']),
     ...mapMutations('tool', ['setFilters']),
   },
 }

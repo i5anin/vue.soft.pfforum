@@ -142,20 +142,6 @@ export const store = {
     },
     async onSaveToolModel({ dispatch }, toolModel) {
       try {
-        // const paramsData = await getToolParams()
-        // const paramsMap = new Map(
-        //   paramsData.map((param) => [param.info, param.id.toString()])
-        // )
-
-        // Собираем свойства инструмента
-        // const properties = {}
-        // Object.entries(toolModel.properties).forEach(([key, value]) => {
-        //   const paramId = paramsMap.get(key)
-        //   if (paramId && value !== undefined && value !== '') {
-        //     properties[paramId] = value
-        //   }
-        // })
-
         // Отправка данных на сервер
         const result = await addTool({
           name: toolModel.name,

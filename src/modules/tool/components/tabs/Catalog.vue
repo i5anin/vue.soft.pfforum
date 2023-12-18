@@ -307,7 +307,7 @@ export default {
 }
 
 .breadcrumbs-item-final {
-  color: gray;
+  color: grey;
 }
 
 .custom-container > div {

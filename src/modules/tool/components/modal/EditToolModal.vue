@@ -158,6 +158,13 @@ export default {
     },
   },
   methods: {
+    ...mapActions('tool', [
+      'fetchUniqueToolSpecs',
+      'fetchToolsByFilter',
+      'onSaveToolModel',
+      'fetchToolById',
+    ]),
+    ...mapMutations('tool', ['setTool']),
     logModelValue(paramId) {
       console.log(this.toolModel)
 
@@ -170,8 +177,7 @@ export default {
         console.log(`Значение для paramId ${paramId} не определено`)
       }
     },
-    ...mapActions('tool', ['fetchUniqueToolSpecs', 'fetchToolById']),
-    ...mapMutations('tool', ['setTool']),
+
     loadLastSavedData() {
       const lastSavedData = localStorage.getItem('lastSavedToolModel')
       if (lastSavedData) {
@@ -203,7 +209,10 @@ export default {
       if (id != null) {
         try {
           const { result } = await deleteTool(id)
-          if (result) this.$emit('changes-saved')
+          if (result) {
+            this.$emit('changes-saved')
+            this.fetchToolsByFilter()
+          }
         } catch (error) {
           console.error('Ошибка при удалении инструмента:', error)
         }
@@ -213,7 +222,7 @@ export default {
       this.$emit('canceled')
     },
     async onSave() {
-      this.$store.dispatch('tool/onSaveToolModel', this.toolModel)
+      this.onSaveToolModel(this.toolModel)
       this.$emit('changes-saved')
     },
   },
