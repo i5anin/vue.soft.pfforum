@@ -56,7 +56,7 @@ export default {
 }
 
 .node-id {
-  color: gray;
+  color: grey;
 }
 
 .child-node::after {
