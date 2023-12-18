@@ -48,14 +48,12 @@
 import EditToolModal from '@/modules/tool/components/modal/EditToolModal.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
-import ToolFilter from '@/modules/tool/components/ToolFilter.vue'
 
 export default {
   emits: ['changes-saved', 'canceled'],
   components: {
     VDataTableServer,
     EditToolModal,
-    ToolFilter,
   },
   props: {
     parentId: {
@@ -93,10 +91,8 @@ export default {
     },
   },
   async mounted() {
-    await this.$store.dispatch('tool/fetchParamsList')
     await this.fetchToolsByFilter()
     this.isDataLoaded = true
-    // console.log('Содержимое paramsList на момент монтажа:', this.paramsList)
   },
   methods: {
     ...mapActions('tool', ['fetchToolsByFilter']),

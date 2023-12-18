@@ -1,4 +1,4 @@
-import { addTool, getToolParams, getTools } from '@/api'
+import { addTool, getToolParams, getTools, getToolById } from '@/api'
 // import { foundSomeIdItemInArrayByName } from '@/modules/tool/utils'
 
 export const store = {
@@ -11,6 +11,7 @@ export const store = {
     widthOptions: [],
     nameOptions: [],
 
+    tool: null,
     tools: [],
     toolsTotalCount: 0,
     filters: {
@@ -59,8 +60,10 @@ export const store = {
       state.filters = { ...filters }
     },
     setIncludeNull(state, includeNull) {
-      console.log(state, includeNull)
       state.filters.includeNull = includeNull
+    },
+    setTool(state, tool) {
+      state.tool = tool
     },
 
     setItemsPerPage(state, itemsPerPage) {
@@ -86,37 +89,23 @@ export const store = {
     },
   },
   actions: {
+    async fetchToolById({ commit }, id) {
+      try {
+        const tool = await getToolById(id)
+        commit('setTool', tool)
+      } catch (error) {
+        console.error('Ошибка при загрузке инструмента:', error)
+      }
+    },
+
     async fetchParamsList({ commit }) {
       try {
-        const paramsData = await getToolParams() // замените на ваш API-запрос
+        const paramsData = await getToolParams()
         commit('setParamsList', paramsData)
       } catch (error) {
         console.error('Ошибка при загрузке параметров:', error)
       }
     },
-    // async initFilterOptions({ commit }) {
-    //   const [{ types, groups, materials }, paramsData] = await Promise.all([
-    //     // getLibraries(),
-    //     getToolParams(),
-    //   ])
-    //
-    //   // commit(
-    //   //   'setTypeOptions',
-    //   //   types.map(({ name }) => name)
-    //   // )
-    //   // commit(
-    //   //   'setGroupOptions',
-    //   //   groups.map(({ name }) => name)
-    //   // )
-    //   // commit(
-    //   //   'setMaterialOptions',
-    //   //   materials.map(({ name }) => name)
-    //   // )
-    //   // commit(
-    //   //   'setParamsOptions',
-    //   //   paramsData.map(({ info }) => info)
-    //   // )
-    // },
     async fetchToolsByFilter({ commit, state }, payload) {
       commit('setIsLoading', true)
       const {
@@ -187,6 +176,7 @@ export const store = {
   },
   getters: {
     filters: (state) => ({ ...state.filters }),
+    tool: (state) => ({ ...state.tool, properties: state.tool.property }),
     tools: (state) => [...state.tools],
     formattedTools: (state) =>
       state.tools.map((tool) => ({

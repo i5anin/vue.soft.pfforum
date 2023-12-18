@@ -83,7 +83,7 @@
 import Modal from '@/components/shared/Modal.vue'
 import { deleteTool, getToolParams } from '@/api'
 import DeleteConfirmationDialog from '@/modules/tool/components/modal/DeleteConfirmationDialog.vue'
-import { mapActions, mapGetters } from 'vuex'
+import { mapActions, mapGetters, mapMutations } from 'vuex'
 
 export default {
   name: 'EditToolModal',
@@ -91,13 +91,7 @@ export default {
   //props контракт общение что использовать и что передавать от родительского компонента к дочернему
   props: {
     persistent: { type: Boolean, default: false },
-    tool: {
-      type: Object,
-      default: () => ({
-        id: null,
-        typeOptions: ['Step', 'Dimensions', 'Projection'],
-      }),
-    },
+    toolId: { type: Number, default: null },
     radiusOptions: { type: Array },
   },
   components: { DeleteConfirmationDialog, Modal },
@@ -107,7 +101,7 @@ export default {
     selectedParams: [],
     geometryOptions: [],
     toolParams: [],
-    toolModel: { name: '', properties: {} },
+    toolModel: { name: null, properties: {} },
     typeOptions: [],
     groupOptions: [],
     materialOptions: [],
@@ -119,29 +113,28 @@ export default {
       (v) => (v && v.length >= 3) || 'Минимальная длина: 3 символа',
     ],
   }),
-  //Наблюдатель вызывает определенную функцию при изменении
-  watch: {
-    tool: {
-      immediate: true,
-      handler(tool) {
-        this.toolModel = { name: '', properties: {} }
-      },
-    },
-  },
   // data - используется для определения реактивных данных компонента, которые непосредственно управляют состоянием и поведением этого компонента.
   // watch - используется для отслеживания изменений в этих данных (или в других реактивных источниках) и выполнения дополнительных действий или логики в ответ на эти изменения.
-  async mounted() {
+  async created() {
     this.loadLastSavedData()
-    const rawToolParams = await getToolParams()
-    rawToolParams.forEach((param) => {
-      this.toolModel.properties[param.id] = null // Используйте id параметра в качестве ключа
-    })
 
-    // Сохраняем идентификаторы и описания параметров
+    if (this.toolId == null) {
+      this.setTool({
+        id: null,
+        name: null,
+        property: {},
+      })
+    } else {
+      await this.fetchToolById(this.toolId)
+    }
+    const rawToolParams = await getToolParams()
     this.toolParams = [...rawToolParams]
+    this.toolModel = JSON.parse(JSON.stringify(this.tool))
+    const propertyIds = Object.keys(this.toolModel.properties).map((key) => key)
+    this.selectedParams = this.toolParams
+      .filter(({ id }) => propertyIds.includes(String(id)))
+      .map(({ info }) => info)
     this.toolParamOptions = rawToolParams.map((param) => param.info)
-    this.toolParamsId = rawToolParams.map((param) => param.id)
-    console.log(rawToolParams)
   },
   computed: {
     selectedParamsInfo() {
@@ -156,6 +149,7 @@ export default {
       'shagOptions',
       'gabaritOptions',
       'nameOptions',
+      'tool',
     ]),
     popupTitle() {
       return this.tool?.id != null
@@ -176,7 +170,8 @@ export default {
         console.log(`Значение для paramId ${paramId} не определено`)
       }
     },
-    ...mapActions('tool', ['fetchUniqueToolSpecs']),
+    ...mapActions('tool', ['fetchUniqueToolSpecs', 'fetchToolById']),
+    ...mapMutations('tool', ['setTool']),
     loadLastSavedData() {
       const lastSavedData = localStorage.getItem('lastSavedToolModel')
       if (lastSavedData) {
@@ -190,7 +185,7 @@ export default {
       this.prependOptionIfNeeded(data.name, this.nameOptions, 'name')
     },
 
-    prependOptionIfNeeded(value, optionsList, propName) {
+    prependOptionIfNeeded(value, optionsList) {
       if (value && !optionsList.some((option) => option.value === value))
         optionsList.unshift(value)
     },

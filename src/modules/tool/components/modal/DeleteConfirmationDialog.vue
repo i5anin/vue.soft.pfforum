@@ -10,7 +10,7 @@
       <v-card-title class="headline">Удалить инструмент?</v-card-title>
       <v-card-actions>
         <v-spacer />
-        <v-btn color="blue darken-1" text @click="confirmDeleteDialog = false"
+        <v-btn color="blue darken-1" text @click="updateModelValue(false)"
           >Отмена</v-btn
         >
         <v-btn color="blue darken-1" text @click="onDelete">Удалить</v-btn>

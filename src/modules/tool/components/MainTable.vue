@@ -5,8 +5,8 @@
     </tool-filter>
     <edit-tool-modal
       v-if="openDialog"
-      :tool="editingTool"
       :persistent="true"
+      :tool-id="editingToolId"
       @canceled="onClosePopup"
       @changes-saved="onSaveChanges"
     />
@@ -38,19 +38,6 @@
       <template v-slot:item.name="{ item }">
         <span style="white-space: nowrap">{{ item.name }}</span>
       </template>
-
-      <!-- TODO: параметр будет автоматически генерироваться из paramsList метода getTools()-->
-      <!-- TODO: в данном случае "paramsList": [{"key": "1","label": "Тип"},{"key": "2","label": "Группа"... {"key": "13","label": "Геометрия"}],-->
-      <!--      <template-->
-      <!--        v-for="param in paramsList"-->
-      <!--        v-slot:[`item.${param.id}`]="{ item }"-->
-      <!--        :key="param.key"-->
-      <!--      >-->
-      <!--        <td>{{ item.properties[param.key] }}</td>-->
-      <!--        <div v-for="(prop, key) in item.property" :key="key">-->
-      <!--          {{ prop.info }}: {{ prop.value }}-->
-      <!--        </div>-->
-      <!--      </template>-->
     </v-data-table-server>
   </v-container>
 </template>
@@ -77,8 +64,8 @@ export default {
   data() {
     return {
       openDialog: false,
-      editingTool: null,
       isDataLoaded: false,
+      editingToolId: null,
       toolTableHeaders: [],
     }
   },
@@ -136,17 +123,11 @@ export default {
       this.openDialog = false
     },
     onAddTool() {
-      this.editingTool = {
-        id: null,
-        group_name: '',
-        type_name: '',
-        mat_name: '',
-        name: '',
-      }
+      this.editingToolId = null
       this.openDialog = true
     },
     onEditRow(event, { item: tool }) {
-      this.editingTool = tool
+      this.editingToolId = tool.id
       this.openDialog = true
     },
   },
