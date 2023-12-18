@@ -131,7 +131,7 @@ export const store = {
       } = state.filters
       const parentId = payload?.parentId || null
       try {
-        const { tools, totalCount } = await getTools(
+        const { tools, totalCount, paramsList } = await getTools(
           search,
           currentPage,
           itemsPerPage,
@@ -142,6 +142,7 @@ export const store = {
           groups,
           types
         )
+        commit('setParamsList', paramsList)
         commit('setTools', tools)
         commit('setToolsTotalCount', totalCount)
       } catch (error) {
@@ -152,27 +153,29 @@ export const store = {
     },
     async onSaveToolModel({ dispatch }, toolModel) {
       try {
-        const paramsData = await getToolParams()
-        const paramsMap = new Map(
-          paramsData.map((param) => [param.info, param.id.toString()])
-        )
+        // const paramsData = await getToolParams()
+        // const paramsMap = new Map(
+        //   paramsData.map((param) => [param.info, param.id.toString()])
+        // )
 
         // Собираем свойства инструмента
-        const properties = {}
-        Object.entries(toolModel.properties).forEach(([key, value]) => {
-          const paramId = paramsMap.get(key)
-          if (paramId && value !== undefined && value !== '') {
-            properties[paramId] = value
-          }
-        })
-
-        const toolData = {
-          name: toolModel.name,
-          property: properties,
-        }
+        // const properties = {}
+        // Object.entries(toolModel.properties).forEach(([key, value]) => {
+        //   const paramId = paramsMap.get(key)
+        //   if (paramId && value !== undefined && value !== '') {
+        //     properties[paramId] = value
+        //   }
+        // })
 
         // Отправка данных на сервер
-        const result = await addTool(toolData)
+        const result = await addTool({
+          name: toolModel.name,
+          property: Object.fromEntries(
+            Object.entries(toolModel.properties).filter(
+              ([, value]) => value != null
+            ) // {name: 'her',} -> ['name', 'her']
+          ),
+        })
         if (result) {
           dispatch('fetchToolsByFilter')
           localStorage.setItem('lastSavedToolModel', JSON.stringify(toolModel))
@@ -185,6 +188,17 @@ export const store = {
   getters: {
     filters: (state) => ({ ...state.filters }),
     tools: (state) => [...state.tools],
+    formattedTools: (state) =>
+      state.tools.map((tool) => ({
+        ...tool,
+        ...Object.entries(tool.property).reduce(
+          (acc, [key, { value }]) => ({
+            ...acc,
+            [key]: value,
+          }),
+          {}
+        ),
+      })),
     isLoading: (state) => state.isLoading,
 
     // filter options
@@ -192,6 +206,7 @@ export const store = {
     groupOptions: (state) => state.groupOptions,
     materialOptions: (state) => state.materialOptions,
     paramsOptions: (state) => state.paramsOptions,
+    paramsList: (state) => state.paramsList,
 
     // gabaritOptions: (state) => state.gabaritOptions,
     // widthOptions: (state) => state.widthOptions,

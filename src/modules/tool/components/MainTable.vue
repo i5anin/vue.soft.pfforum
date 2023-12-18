@@ -15,8 +15,8 @@
       noDataText="Нет данных"
       itemsPerPageText="Пункты на странице:"
       loadingText="Загрузка данных"
-      :headers="ToolTableHeaders"
-      :items="tools"
+      :headers="toolTableHeaders"
+      :items="formattedTools"
       :itemsLength="toolsTotalCount"
       :items-per-page="filters.itemsPerPage"
       :page="filters.currentPage"
@@ -38,21 +38,15 @@
       <template v-slot:item.name="{ item }">
         <span style="white-space: nowrap">{{ item.name }}</span>
       </template>
-      <template v-slot:item.param="{ item }">
-        <div v-for="(prop, key) in item.property" :key="key">
-          {{ prop.info }}: {{ prop.value }}
-        </div>
-      </template>
+
       <!-- TODO: параметр будет автоматически генерироваться из paramsList метода getTools()-->
       <!-- TODO: в данном случае "paramsList": [{"key": "1","label": "Тип"},{"key": "2","label": "Группа"... {"key": "13","label": "Геометрия"}],-->
       <!--      <template-->
       <!--        v-for="param in paramsList"-->
-      <!--        v-slot:[`item.${param.key}`]="{ item }"-->
+      <!--        v-slot:[`item.${param.id}`]="{ item }"-->
       <!--        :key="param.key"-->
       <!--      >-->
       <!--        <td>{{ item.properties[param.key] }}</td>-->
-      <!--      </template>-->
-      <!--      <template v-slot:item.param="{ item }">-->
       <!--        <div v-for="(prop, key) in item.property" :key="key">-->
       <!--          {{ prop.info }}: {{ prop.value }}-->
       <!--        </div>-->
@@ -85,23 +79,26 @@ export default {
       openDialog: false,
       editingTool: null,
       isDataLoaded: false,
+      toolTableHeaders: [],
     }
   },
   computed: {
-    ...mapGetters('tool', ['toolsTotalCount', 'tools', 'filters', 'isLoading']),
-    paramsList() {
-      return this.$store.state.tool.paramsList
-    },
+    ...mapGetters('tool', [
+      'toolsTotalCount',
+      'formattedTools',
+      'filters',
+      'isLoading',
+      'paramsList',
+    ]),
   },
   watch: {
     paramsList: {
       immediate: true,
       handler(newVal) {
         if (newVal && newVal.length > 0) {
-          this.ToolTableHeaders = [
+          this.toolTableHeaders = [
             { title: '№', key: 'index', sortable: false },
             { title: 'Маркировка', key: 'name', sortable: true },
-            { title: 'Характеристики', key: 'param', sortable: true },
             ...newVal.map((param) => ({
               title: param.label,
               key: param.key,
@@ -113,7 +110,6 @@ export default {
     },
   },
   async mounted() {
-    await this.$store.dispatch('tool/fetchParamsList')
     await this.fetchToolsByFilter()
     this.isDataLoaded = true
     // console.log('Содержимое paramsList на момент монтажа:', this.paramsList)

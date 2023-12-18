@@ -1,4 +1,5 @@
 <template>
+  <!--  <form @submit.prevent='onSubmit'>-->
   <Modal :title="popupTitle">
     <template #content>
       <v-container>
@@ -18,21 +19,22 @@
               />
             </div>
             <!-- правый столбец -->
-            <!--            <v-combobox-->
-            <!--            :chips="true"-->
-            <!--            multiple-->
-            <!--            v-model="selectedParams"-->
-            <!--            :items="toolParams"-->
-            <!--            label="Параметры"-->
-            <!--            return-object-->
-            <!--          />-->
+            <v-combobox
+              :chips="true"
+              multiple
+              v-model="selectedParams"
+              :items="toolParamOptions"
+              label="Параметры"
+              return-object
+            />
             <h2 class="text-h6">Размеры:</h2>
-            <!-- Вывод всех комбобоксов с параметрами -->
-            <div v-for="param in toolParams" :key="param.id">
+            <!-- динамические параметры -->
+            <div v-for="param in selectedParamsInfo" :key="param.id">
               <v-combobox
                 density="compact"
                 :label="param.info"
                 v-model="toolModel.properties[param.id]"
+                @input="logModelValue(param.id)"
                 required
               />
             </div>
@@ -70,6 +72,7 @@
       </v-btn>
     </template>
   </Modal>
+  <!--  </form> -->
   <DeleteConfirmationDialog
     :confirmDeleteDialog="confirmDeleteDialog"
     :onDelete="onDelete"
@@ -78,13 +81,14 @@
 
 <script>
 import Modal from '@/components/shared/Modal.vue'
-import { deleteTool, getToolById, getToolParams } from '@/api'
+import { deleteTool, getToolParams } from '@/api'
 import DeleteConfirmationDialog from '@/modules/tool/components/modal/DeleteConfirmationDialog.vue'
 import { mapActions, mapGetters } from 'vuex'
 
 export default {
   name: 'EditToolModal',
-  emits: ['canceled', 'changes-saved'],
+  emits: ['canceled', 'changes-saved'], // объявления пользовательских событий
+  //props контракт общение что использовать и что передавать от родительского компонента к дочернему
   props: {
     persistent: { type: Boolean, default: false },
     tool: {
@@ -97,52 +101,56 @@ export default {
     radiusOptions: { type: Array },
   },
   components: { DeleteConfirmationDialog, Modal },
+  //реактивные данные
   data: () => ({
-    confirmDeleteDialog: false,
+    toolParamOptions: [],
     selectedParams: [],
+    geometryOptions: [],
     toolParams: [],
-    toolModel: { name: null, properties: {} },
+    toolModel: { name: '', properties: {} },
+    typeOptions: [],
+    groupOptions: [],
+    materialOptions: [],
+    confirmDeleteDialog: false,
+    typeSelected: false,
+    selectedType: '',
     typeRules: [
       (v) => !!v || 'Поле обязательно для заполнения',
       (v) => (v && v.length >= 3) || 'Минимальная длина: 3 символа',
     ],
   }),
+  //Наблюдатель вызывает определенную функцию при изменении
   watch: {
     tool: {
       immediate: true,
-      async handler(newValue) {
-        if (newValue && newValue.id) {
-          try {
-            const toolData = await getToolById(newValue.id)
-            this.toolModel = { ...toolData }
-          } catch (error) {
-            console.error('Ошибка при получении данных инструмента:', error)
-          }
-        } else {
-          this.toolModel = { name: null, properties: {} }
-        }
+      handler(tool) {
+        this.toolModel = { name: '', properties: {} }
       },
     },
   },
+  // data - используется для определения реактивных данных компонента, которые непосредственно управляют состоянием и поведением этого компонента.
+  // watch - используется для отслеживания изменений в этих данных (или в других реактивных источниках) и выполнения дополнительных действий или логики в ответ на эти изменения.
   async mounted() {
-    if (this.tool.id) {
-      const toolData = await getToolById(this.tool.id)
-      this.fillToolModel(toolData)
-    }
+    this.loadLastSavedData()
     const rawToolParams = await getToolParams()
-    this.toolParams = rawToolParams.map((param) => {
-      // Убедитесь, что каждый param имеет уникальный id
-      return {
-        id: param.id,
-        info: param.info,
-      }
+    rawToolParams.forEach((param) => {
+      this.toolModel.properties[param.id] = null // Используйте id параметра в качестве ключа
     })
 
-    this.toolParams.forEach((param) => {
-      this.toolModel.properties[param.id] = null
-    })
+    // Сохраняем идентификаторы и описания параметров
+    this.toolParams = [...rawToolParams]
+    this.toolParamOptions = rawToolParams.map((param) => param.info)
+    this.toolParamsId = rawToolParams.map((param) => param.id)
+    console.log(rawToolParams)
   },
   computed: {
+    selectedParamsInfo() {
+      return this.selectedParams
+        .map((paramName) =>
+          this.toolParams.find(({ info }) => info === paramName)
+        )
+        .filter((selectedParam) => selectedParam != null)
+    },
     ...mapGetters('tool', [
       'widthOptions',
       'shagOptions',
@@ -156,23 +164,42 @@ export default {
     },
   },
   methods: {
-    fillToolModel(toolData) {
-      this.toolModel.name = toolData.name
-      // Инициализируем свойства, если они еще не инициализированы
-      this.toolParams.forEach((param) => {
-        if (!this.toolModel.properties[param.id]) {
-          this.toolModel.properties[param.id] = ''
-        }
-      })
+    logModelValue(paramId) {
+      console.log(this.toolModel)
 
-      // Заполнение свойств инструмента
-      for (const key in toolData.property) {
-        if (this.toolModel.properties.hasOwnProperty(key)) {
-          this.toolModel.properties[key] = toolData.property[key]
-        }
+      if (this.toolModel.properties[paramId] !== undefined) {
+        console.log(
+          `Значение для paramId ${paramId}:`,
+          this.toolModel.properties[paramId]
+        )
+      } else {
+        console.log(`Значение для paramId ${paramId} не определено`)
       }
     },
     ...mapActions('tool', ['fetchUniqueToolSpecs']),
+    loadLastSavedData() {
+      const lastSavedData = localStorage.getItem('lastSavedToolModel')
+      if (lastSavedData) {
+        const lastSavedToolModel = JSON.parse(lastSavedData)
+        this.prependLastSavedData(lastSavedToolModel)
+      }
+    },
+
+    prependLastSavedData(data) {
+      if (!data) return
+      this.prependOptionIfNeeded(data.name, this.nameOptions, 'name')
+    },
+
+    prependOptionIfNeeded(value, optionsList, propName) {
+      if (value && !optionsList.some((option) => option.value === value))
+        optionsList.unshift(value)
+    },
+
+    parseToFloat(value) {
+      if (value === null) return 0
+      return parseFloat(value.toString().replace(',', '.'))
+    },
+
     confirmDelete() {
       this.confirmDeleteDialog = true
     },
@@ -191,7 +218,6 @@ export default {
       this.$emit('canceled')
     },
     async onSave() {
-      console.log('Отправляемые данные:', this.toolModel)
       this.$store.dispatch('tool/onSaveToolModel', this.toolModel)
       this.$emit('changes-saved')
     },
