@@ -6,6 +6,7 @@ const nomController = require('./controllers/b_tool_nom')
 const paramController = require('./controllers/b_tool_param')
 const treeController = require('./controllers/b_tool_tree')
 const skladController = require('./controllers/b_tool_sklad')
+const operController = require('./controllers/b_tool_oper')
 
 // Маршруты для аутентификации
 router.post('/validate-user', loginController.validateUser)
@@ -30,5 +31,7 @@ router.get('/tools-tree', treeController.getToolsTree)
 router.post('/tools-tree', treeController.addBranch)
 router.put('/tools-tree', treeController.updateFolderTree)
 router.delete('/tools-tree/:id', treeController.dellFolderTree)
+
+router.get('/custom-query', operController.customQuery)
 
 module.exports = router
