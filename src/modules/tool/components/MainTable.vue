@@ -39,10 +39,13 @@
         <span style="white-space: nowrap">{{ item.name }}</span>
       </template>
       <template v-slot:item.sklad="{ item }">
-        <span style="white-space: nowrap">{{ item.sklad }}</span>
+        <span style="white-space: nowrap">{{ item.kolvo_sklad }}</span>
       </template>
       <template v-slot:item.norma="{ item }">
         <span style="white-space: nowrap">{{ item.norma }}</span>
+      </template>
+      <template v-slot:item.zakaz="{ item }">
+        <span style="white-space: nowrap">{{ item.zakaz }}</span>
       </template>
     </v-data-table-server>
   </v-container>
@@ -97,8 +100,6 @@ export default {
               key: param.key,
               sortable: true,
             })),
-            { title: 'Склад', key: 'sklad', sortable: false }, //TODO: ДОБАВЛЯТЬ ПО ЧЕКБОКСУ СКЛАД
-            { title: 'Норма', key: 'norma', sortable: false }, //TODO: ДОБАВЛЯТЬ ПО ЧЕКБОКСУ СКЛАД
           ]
         }
       },

@@ -22,13 +22,11 @@ async function getParamsMapping() {
 
 async function getTools(req, res) {
   try {
-    // Получение параметров запроса
     const { search, parent_id } = req.query
     const page = parseInt(req.query.page || 1, 10)
     const limit = parseInt(req.query.limit || 15, 10)
     const offset = (page - 1) * limit
 
-    // Формирование условия поиска
     const searchCondition = search
       ? `WHERE tool_nom.name ILIKE '%${search.replace(/'/g, "''")}%'`
       : ''
@@ -36,25 +34,25 @@ async function getTools(req, res) {
       ? `AND tool_nom.parent_id = ${parent_id}`
       : ''
 
-    // Запрос на подсчет общего количества записей
     const countQuery = `
       SELECT COUNT(*)
       FROM dbo.tool_nom as tool_nom
       ${searchCondition} ${parentIdCondition}
     `
 
-    // Запрос на получение инструментов
     const toolQuery = `
       SELECT tool_nom.id,
              tool_nom.name,
-             tool_nom.property
+             tool_nom.property,
+             tool_nom.kolvo_sklad,
+             tool_nom.norma,
+             tool_nom.zakaz
       FROM dbo.tool_nom as tool_nom
       ${searchCondition} ${parentIdCondition}
       ORDER BY tool_nom.id DESC
       LIMIT ${limit} OFFSET ${offset}
     `
 
-    // Выполнение запросов
     const [countResult, toolsResult, paramsMapping] = await Promise.all([
       pool.query(countQuery),
       pool.query(toolQuery),
@@ -63,7 +61,6 @@ async function getTools(req, res) {
 
     const totalCount = parseInt(countResult.rows[0].count, 10)
 
-    // Форматирование данных инструментов
     const formattedTools = toolsResult.rows.map((tool) => {
       let formattedProperty = {}
 
@@ -88,10 +85,12 @@ async function getTools(req, res) {
         id: tool.id,
         name: tool.name,
         property: formattedProperty,
+        kolvo_sklad: tool.kolvo_sklad,
+        norma: tool.norma,
+        zakaz: tool.zakaz,
       }
     })
 
-    // Сбор уникальных ключей параметров
     const uniqueParams = new Set()
     toolsResult.rows.forEach((tool) => {
       if (tool.property) {
@@ -99,13 +98,11 @@ async function getTools(req, res) {
       }
     })
 
-    // Получение дополнительных данных для параметров
     const paramsList = Array.from(uniqueParams).map((key) => ({
       key: key,
       label: paramsMapping[key]?.info || key,
     }))
 
-    // Формирование и отправка ответа
     res.json({
       currentPage: page,
       itemsPerPage: limit,

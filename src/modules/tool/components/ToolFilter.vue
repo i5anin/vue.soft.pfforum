@@ -99,7 +99,6 @@ export default {
         if (this.filterModel != null) {
           return
         }
-
         this.filterModel = filters
       },
     },
