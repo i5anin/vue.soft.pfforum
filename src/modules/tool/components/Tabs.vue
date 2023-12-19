@@ -4,7 +4,7 @@
       <v-tab value="Catalog"> Каталог </v-tab>
       <v-tab value="Tree"> Дерево </v-tab>
       <v-tab value="Param"> Параметры </v-tab>
-      <v-tab value="Inventory"> Склад </v-tab>
+      <v-tab value="GiveTool"> Получить инструмент </v-tab>
     </v-tabs>
 
     <v-card-text>
@@ -18,8 +18,8 @@
         <v-window-item value="Param">
           <ToolTabParam />
         </v-window-item>
-        <v-window-item value="Inventory">
-          <ToolTabInventory />
+        <v-window-item value="GiveTool">
+          <GiveTool />
         </v-window-item>
       </v-window>
     </v-card-text>
@@ -30,7 +30,7 @@
 import { ref } from 'vue'
 
 import ToolTabParam from '@/modules/tool/components/tabs/Param.vue'
-import ToolTabInventory from '@/modules/tool/components/tabs/Sklad.vue'
+import GiveTool from '@/modules/tool/components/tabs/GiveTool.vue'
 import TabCatalog from '@/modules/tool/components/tabs/Catalog.vue'
 import ToolTabTree from '@/modules/tool/components/tabs/Tree.vue'
 
