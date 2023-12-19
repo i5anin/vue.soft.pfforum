@@ -33,7 +33,11 @@ export async function getTools(
   page = 1,
   limit = 10,
   includeNull = false,
-  parentId = null
+  parentId = null,
+  selectedParams,
+  materials,
+  groups,
+  types
 ) {
   const params = { search, page, limit, includeNull }
   if (parentId !== null) {
