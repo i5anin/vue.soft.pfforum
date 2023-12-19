@@ -10,7 +10,7 @@
     <v-card-text>
       <v-window v-model="tab">
         <v-window-item value="Catalog">
-          <TabCatalog />
+          <TabCatalog :parentId="parentId" />
         </v-window-item>
         <v-window-item value="Tree">
           <ToolTabTree />
@@ -34,5 +34,14 @@ import ToolTabInventory from '@/modules/tool/components/tabs/Sklad.vue'
 import TabCatalog from '@/modules/tool/components/tabs/Catalog.vue'
 import ToolTabTree from '@/modules/tool/components/tabs/Tree.vue'
 
+// Получаем parentId как prop
+const props = defineProps({
+  parentId: String,
+})
+
 const tab = ref('Catalog') // Начальное значение
+
+// export default {
+//   name: 'Tabs',
+// }
 </script>
