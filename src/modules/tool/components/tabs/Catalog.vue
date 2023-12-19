@@ -104,66 +104,24 @@ export default {
       editableLabel: '',
     }
   },
-  watch: {
-    treeData(newVal, oldVal) {
-      if (newVal && newVal.length > 0) {
-        this.someId = 1123
-        this.selectItem(this.someId) // замените `this.someId` на актуальный ID
-      }
-    },
-  },
   methods: {
-    findItemInTree(parentId, currentNode = null) {
-      console.log('Поиск элемента в дереве', parentId)
-
-      if (!currentNode) {
-        console.log('Начинаем поиск с корня дерева', this.treeData)
-        if (!this.treeData || !Array.isArray(this.treeData)) {
-          console.error('Дерево данных не определено или не является массивом')
-          return null
-        }
-        for (let rootNode of this.treeData) {
-          const foundNode = this.findItemInTree(parentId, rootNode)
-          if (foundNode) return foundNode
-        }
-        console.log('Корневой узел не найден')
-        return null
-      }
-
-      console.log(
-        `Сравниваем: искомый ID ${parentId} с текущим узлом ID ${currentNode.id}`
-      )
-      if (currentNode.id == parentId) {
-        console.log('Найденный узел:', currentNode)
-        return currentNode
-      }
-
-      if (currentNode.nodes && currentNode.nodes.length > 0) {
-        for (let node of currentNode.nodes) {
-          const foundNode = this.findItemInTree(parentId, node)
-          if (foundNode) return foundNode
-        }
-      }
-      return null
-    },
-
-    async selectItem(itemId) {
-      console.log('Метод selectItem вызван с ID:', itemId)
+    async selectItem(parentId) {
       try {
-        const folderDetails = this.findItemInTree(itemId)
+        // Assuming you have a method to find an item by ID in your tree data
+        const folderDetails = this.findItemInTree(parentId)
         if (folderDetails) {
           this.currentItem = folderDetails
           this.addToHistory(folderDetails)
         } else {
-          console.error('Не удалось найти детали папки для ID:', itemId)
+          console.error('Folder details not found for ID:', parentId)
         }
       } catch (error) {
-        console.error('Ошибка при поиске деталей папки:', error)
+        console.error('Error finding folder details:', error)
       }
     },
 
     addToHistory(item) {
-      console.log('Добавление элемента в историю:', item)
+      // Check if item already exists in history to avoid duplicates
       const exists = this.history.some(
         (historyItem) => historyItem.id === item.id
       )
@@ -316,6 +274,21 @@ export default {
       }
     },
 
+    async selectItem(item) {
+      try {
+        // Предполагая, что 'getFolderById' - это вызов API для получения сведений о папке по идентификатору
+        const folderDetails = await getFolderById(item.id)
+        if (folderDetails) {
+          // Обновите состояние с помощью сведений о выбранной папке
+          this.currentItem = folderDetails
+          this.addToHistory(folderDetails)
+        } else {
+          console.error('Folder details not found for ID:', item.id)
+        }
+      } catch (error) {
+        console.error('Error fetching folder details:', error)
+      }
+    },
     startEditing() {
       this.isEditing = true
       this.editableLabel = this.currentItem ? this.currentItem.label : ''
@@ -340,31 +313,20 @@ export default {
     },
     goTo(index) {
       this.history = this.history.slice(0, index + 1)
-      const selectedItem = this.history[index]
-      this.currentItem = selectedItem
-      this.$router.push(`/Tool/${selectedItem.id}`).catch((err) => {
-        // Обработка ошибки, если такой же маршрут уже активен
-        if (err.name !== 'NavigationDuplicated') {
-          throw err
-        }
-      })
+      this.currentItem = this.history[index]
     },
   },
   async created() {
-    try {
+    const parentId = this.$route.params.parentId
+    if (parentId) {
+      await this.selectItem(parentId)
+    } else {
+      // Load the default or initial data
       const toolsTree = await getTree()
       if (toolsTree && toolsTree.length > 0) {
-        this.treeData = toolsTree
-        const parentId = parseInt(this.$route.params.parentId)
-        if (parentId) {
-          await this.selectItem(parentId)
-        } else {
-          this.currentItem = toolsTree[0]
-          this.history.push(this.currentItem)
-        }
+        this.currentItem = toolsTree[0]
+        this.history.push(this.currentItem)
       }
-    } catch (error) {
-      console.error('Ошибка при загрузке дерева:', error)
     }
   },
 }
