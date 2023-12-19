@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <edit-tool-modal
+    <edit-tool-modal-sklad
       v-if="openDialog"
       :tool="editingTool"
       :persistent="true"
@@ -45,7 +45,7 @@
 </template>
 
 <script>
-import EditToolModal from '@/modules/tool/components/modal/EditToolModal.vue'
+import EditToolModalSklad from '@/modules/tool/components/modal/EditToolModalSklad.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
 
@@ -53,7 +53,7 @@ export default {
   emits: ['changes-saved', 'canceled'],
   components: {
     VDataTableServer,
-    EditToolModal,
+    EditToolModalSklad,
   },
   props: {
     parentId: {

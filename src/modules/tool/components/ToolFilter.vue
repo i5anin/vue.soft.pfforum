@@ -56,15 +56,18 @@
     </v-col>
   </v-row>
   <v-row>
-    <!--    <v-col cols="12" md="3">-->
-    <!--      <v-checkbox-->
-    <!--        label="Незаполненные данные"-->
-    <!--        v-model="filterModel.includeNull"-->
-    <!--        :color="checkboxColor"-->
-    <!--      />-->
-    <!--    </v-col>-->
+    <v-col cols="12" md="3">
+      <v-checkbox
+        label="Незаполненные данные"
+        v-model="filterModel.includeNull"
+        :color="checkboxColor"
+      />
+    </v-col>
+    <v-col cols="12" md="3">
+      <v-checkbox label="Склад" v-model="Sklad" :color="checkboxSklad" />
+    </v-col>
     <v-col class="pa-3 text-right">
-      <slot name="default"></slot>
+      <slot name="default" />
     </v-col>
   </v-row>
 </template>
@@ -85,9 +88,9 @@ export default {
       'typeOptions',
       'paramsOptions',
     ]),
-    // checkboxColor() {
-    //   return this.filters.includeNull ? 'red' : ''
-    // },
+    checkboxColor() {
+      return this.filters.includeNull ? 'red' : ''
+    },
   },
   watch: {
     filters: {

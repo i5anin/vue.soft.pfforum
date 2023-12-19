@@ -7,49 +7,9 @@
           <v-col>
             <!--левый столбец -->
             <div>
-              <v-combobox
-                density="compact"
-                label="Маркировка"
-                v-model="toolModel.name"
-                :items="nameOptions"
-                item-text="text"
-                item-value="value"
-                required
-                :rules="typeRules"
-              />
+              {{ toolModel.name }}
             </div>
-            <!-- правый столбец -->
-            <v-combobox
-              :chips="true"
-              multiple
-              v-model="selectedParams"
-              :items="toolParamOptions"
-              label="Параметры"
-              return-object
-            />
-            <h2 class="text-h6">Размеры:</h2>
-            <!-- динамические параметры -->
-            <div v-for="param in selectedParamsInfo" :key="param.id">
-              <v-combobox
-                density="compact"
-                :label="param.info"
-                v-model="toolModel.properties[param.id]"
-                @input="logModelValue(param.id)"
-                required
-              />
-            </div>
-            <v-expansion-panels>
-              <v-expansion-panel>
-                <v-expansion-panel-title>Склад:</v-expansion-panel-title>
-                <v-expansion-panel-text>
-                  <v-text-field density="compact" label="Норма" required />
-                  <v-text-field density="compact" label="Склад" required />
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-            </v-expansion-panels>
-
-            <h2 class="text-h6"></h2>
-            <div></div>
+            <h2 class="text-h6">Склад:</h2>
           </v-col>
         </v-row>
       </v-container>
@@ -136,7 +96,6 @@ export default {
         name: null,
         property: {},
       })
-      // TODO: this.selectedParams = [1, 2, 3]
     } else {
       await this.fetchToolById(this.toolId)
     }
@@ -166,7 +125,7 @@ export default {
     ]),
     popupTitle() {
       return this.tool?.id != null
-        ? `Редактировать инструмент ID: ${this.tool.id}`
+        ? `Редактировать склад ID: ${this.tool.id}`
         : 'Добавить инструмент'
     },
   },
