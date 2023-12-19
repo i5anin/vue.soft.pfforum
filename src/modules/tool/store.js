@@ -1,5 +1,4 @@
 import { addTool, getToolParams, getTools, getToolById } from '@/api'
-// import { foundSomeIdItemInArrayByName } from '@/modules/tool/utils'
 
 export const store = {
   namespaced: true,
@@ -38,34 +37,15 @@ export const store = {
     setIsLoading(state, isLoading) {
       state.isLoading = isLoading
     },
-    setShagOptions(state, options) {
-      state.shagOptions = options
-    },
-    setGabaritOptions(state, options) {
-      state.gabaritOptions = options
-    },
-    setWidthOptions(state, options) {
-      state.widthOptions = options
-    },
-    setNameOptions(state, options) {
-      state.nameOptions = options
-    },
     setCurrentPage(state, page) {
       state.filters.currentPage = page
-    },
-    setSearch(state, search) {
-      state.filters.search = search
     },
     setFilters(state, filters) {
       state.filters = { ...filters }
     },
-    setIncludeNull(state, includeNull) {
-      state.filters.includeNull = includeNull
-    },
     setTool(state, tool) {
       state.tool = tool
     },
-
     setItemsPerPage(state, itemsPerPage) {
       state.filters.itemsPerPage = itemsPerPage
     },
@@ -75,17 +55,14 @@ export const store = {
     setTools(state, tools) {
       state.tools = tools
     },
-    setTypeOptions(state, typeOptions) {
-      state.typeOptions = typeOptions
+    setNameOptions(state, options) {
+      state.nameOptions = options
     },
-    setGroupOptions(state, groupOptions) {
-      state.groupOptions = groupOptions
+    setSearch(state, search) {
+      state.filters.search = search
     },
-    setParamsOptions(state, paramsOptions) {
-      state.paramsOptions = paramsOptions
-    },
-    setMaterialOptions(state, materialOptions) {
-      state.materialOptions = materialOptions
+    setIncludeNull(state, includeNull) {
+      state.filters.includeNull = includeNull
     },
   },
   actions: {
@@ -98,14 +75,6 @@ export const store = {
       }
     },
 
-    async fetchParamsList({ commit }) {
-      try {
-        const paramsData = await getToolParams()
-        commit('setParamsList', paramsData)
-      } catch (error) {
-        console.error('Ошибка при загрузке параметров:', error)
-      }
-    },
     async fetchToolsByFilter({ commit, state }, payload) {
       commit('setIsLoading', true)
       const {
@@ -148,7 +117,7 @@ export const store = {
           property: Object.fromEntries(
             Object.entries(toolModel.property).filter(
               ([, value]) => value != null
-            ) // {name: 'her',} -> ['name', 'her']
+            ) // {name: 'her',} -> ['name', 'her'] - преобразование данных
           ),
         })
         if (result) {
@@ -177,16 +146,12 @@ export const store = {
       })),
     isLoading: (state) => state.isLoading,
 
-    // filter options
+    // параметры фильтра
     typeOptions: (state) => state.typeOptions,
     groupOptions: (state) => state.groupOptions,
     materialOptions: (state) => state.materialOptions,
     paramsOptions: (state) => state.paramsOptions,
     paramsList: (state) => state.paramsList,
-
-    // gabaritOptions: (state) => state.gabaritOptions,
-    // widthOptions: (state) => state.widthOptions,
-    // shagOptions: (state) => state.shagOptions,
     nameOptions: (state) => state.nameOptions,
     toolsTotalCount: (state) => state.toolsTotalCount,
   },
