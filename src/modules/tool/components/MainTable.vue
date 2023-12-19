@@ -74,8 +74,8 @@ export default {
     return {
       openDialog: false,
       isDataLoaded: false,
-      editingToolId: null,
-      toolTableHeaders: [],
+      editingToolId: null, //редактирование идентификатора инструмента
+      toolTableHeaders: [], //заголовки таблиц инструментов
     }
   },
   computed: {
@@ -108,7 +108,6 @@ export default {
   async mounted() {
     await this.fetchToolsByFilter()
     this.isDataLoaded = true
-    // console.log('Содержимое paramsList на момент монтажа:', this.paramsList)
   },
   methods: {
     ...mapActions('tool', ['fetchToolsByFilter']),
@@ -144,11 +143,6 @@ export default {
 </script>
 
 <style scoped>
-/*.narrow-column {
-  max-width: 100px !important;
-  font-size: 0.9em;
-}*/
-
 .index {
   max-width: 40px !important;
   font-size: 0.9em;
