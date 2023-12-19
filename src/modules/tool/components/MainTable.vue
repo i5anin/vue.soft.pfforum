@@ -144,10 +144,10 @@ export default {
 </script>
 
 <style scoped>
-.narrow-column {
+/*.narrow-column {
   max-width: 100px !important;
   font-size: 0.9em;
-}
+}*/
 
 .index {
   max-width: 40px !important;
