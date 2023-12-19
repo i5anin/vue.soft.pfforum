@@ -40,8 +40,12 @@ const props = defineProps({
 })
 
 const tab = ref('Catalog') // Начальное значение
+</script>
 
-// export default {
-//   name: 'Tabs',
-// }
+<script>
+import { defineComponent } from 'vue'
+
+export default defineComponent({
+  name: 'TabsTools',
+})
 </script>
