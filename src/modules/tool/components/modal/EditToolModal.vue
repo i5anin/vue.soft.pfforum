@@ -33,7 +33,7 @@
               <v-combobox
                 density="compact"
                 :label="param.info"
-                v-model="toolModel.properties[param.id]"
+                v-model="toolModel.property[param.id]"
                 @input="logModelValue(param.id)"
                 required
               />
@@ -113,7 +113,7 @@ export default {
     selectedParams: [],
     geometryOptions: [],
     toolParams: [],
-    toolModel: { name: null, properties: {} },
+    toolModel: { name: null, property: {} },
     typeOptions: [],
     groupOptions: [],
     materialOptions: [],
@@ -143,7 +143,7 @@ export default {
     const rawToolParams = await getToolParams()
     this.toolParams = [...rawToolParams]
     this.toolModel = JSON.parse(JSON.stringify(this.tool))
-    const propertyIds = Object.keys(this.toolModel.properties).map((key) => key)
+    const propertyIds = Object.keys(this.toolModel.property).map((key) => key)
     this.selectedParams = this.toolParams
       .filter(({ id }) => propertyIds.includes(String(id)))
       .map(({ info }) => info)
@@ -181,10 +181,10 @@ export default {
     logModelValue(paramId) {
       console.log(this.toolModel)
 
-      if (this.toolModel.properties[paramId] !== undefined) {
+      if (this.toolModel.property[paramId] !== undefined) {
         console.log(
           `Значение для paramId ${paramId}:`,
-          this.toolModel.properties[paramId]
+          this.toolModel.property[paramId]
         )
       } else {
         console.log(`Значение для paramId ${paramId} не определено`)

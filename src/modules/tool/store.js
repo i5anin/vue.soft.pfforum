@@ -146,7 +146,7 @@ export const store = {
         const result = await addTool({
           name: toolModel.name,
           property: Object.fromEntries(
-            Object.entries(toolModel.properties).filter(
+            Object.entries(toolModel.property).filter(
               ([, value]) => value != null
             ) // {name: 'her',} -> ['name', 'her']
           ),
@@ -162,7 +162,7 @@ export const store = {
   },
   getters: {
     filters: (state) => ({ ...state.filters }),
-    tool: (state) => ({ ...state.tool, properties: state.tool.property }),
+    tool: (state) => ({ ...state.tool, property: state.tool.property }),
     tools: (state) => [...state.tools],
     formattedTools: (state) =>
       state.tools.map((tool) => ({
