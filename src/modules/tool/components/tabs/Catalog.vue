@@ -133,7 +133,7 @@ export default {
       console.log(
         `Сравниваем: искомый ID ${parentId} с текущим узлом ID ${currentNode.id}`
       )
-      if (currentNode.id === parentId) {
+      if (currentNode.id == parentId) {
         console.log('Найденный узел:', currentNode)
         return currentNode
       }
@@ -147,18 +147,15 @@ export default {
       return null
     },
 
-    async selectItem(parentId) {
-      console.log('Метод selectItem вызван с ID:', parentId)
+    async selectItem(itemId) {
+      console.log('Метод selectItem вызван с ID:', itemId)
       try {
-        console.log('Выбор элемента с ID:', parentId)
-        const folderDetails = this.findItemInTree(parentId)
+        const folderDetails = this.findItemInTree(itemId)
         if (folderDetails) {
-          console.log('Узел найден:', folderDetails)
           this.currentItem = folderDetails
           this.addToHistory(folderDetails)
-          console.log('Текущий элемент установлен:', this.currentItem)
         } else {
-          console.error('Не удалось найти детали папки для ID:', parentId)
+          console.error('Не удалось найти детали папки для ID:', itemId)
         }
       } catch (error) {
         console.error('Ошибка при поиске деталей папки:', error)
@@ -343,20 +340,26 @@ export default {
     },
     goTo(index) {
       this.history = this.history.slice(0, index + 1)
-      this.currentItem = this.history[index]
+      const selectedItem = this.history[index]
+      this.currentItem = selectedItem
+      this.$router.push(`/Tool/${selectedItem.id}`).catch((err) => {
+        // Обработка ошибки, если такой же маршрут уже активен
+        if (err.name !== 'NavigationDuplicated') {
+          throw err
+        }
+      })
     },
   },
   async created() {
     try {
       const toolsTree = await getTree()
       if (toolsTree && toolsTree.length > 0) {
-        this.treeData = toolsTree // Устанавливаем данные дерева
-
-        const parentId = this.$route.params.parentId
+        this.treeData = toolsTree
+        const parentId = parseInt(this.$route.params.parentId)
         if (parentId) {
-          await this.selectItem(parentId) // Выбираем элемент, если есть parentId
+          await this.selectItem(parentId)
         } else {
-          this.currentItem = toolsTree[0] // Или устанавливаем первый элемент в качестве текущего
+          this.currentItem = toolsTree[0]
           this.history.push(this.currentItem)
         }
       }
