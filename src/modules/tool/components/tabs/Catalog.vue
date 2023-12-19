@@ -105,7 +105,7 @@ export default {
     }
   },
   watch: {
-    treeData(newVal, oldVal) {
+    treeData(newVal) {
       if (newVal && newVal.length > 0) {
         this.someId = 1123
         this.selectItem(this.someId) // замените `this.someId` на актуальный ID

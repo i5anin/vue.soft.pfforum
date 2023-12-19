@@ -27,6 +27,7 @@ import GiveTool from '@/modules/tool/components/tabs/GiveTool.vue'
 import TabCatalog from '@/modules/tool/components/tabs/Catalog.vue'
 import ToolTabTree from '@/modules/tool/components/tabs/Tree.vue'
 
+// eslint-disable-next-line no-unused-vars
 const props = defineProps({
   parentId: String,
 })

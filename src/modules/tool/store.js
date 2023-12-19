@@ -1,4 +1,4 @@
-import { addTool, getToolParams, getTools, getToolById } from '@/api'
+import { addTool, getTools, getToolById } from '@/api'
 
 export const store = {
   namespaced: true,
