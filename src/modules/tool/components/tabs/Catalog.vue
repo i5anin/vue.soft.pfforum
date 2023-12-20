@@ -87,6 +87,7 @@
 
 <script>
 import TabMainTable from '@/modules/tool/components/MainTable.vue'
+import { mapMutations } from 'vuex'
 import { addFolder, deleteFolder, getTree, renameFolder } from '@/api'
 import { normSpaces } from '@/modules/tool/components/normSpaces'
 
@@ -103,7 +104,22 @@ export default {
       editableLabel: '',
     }
   },
+  props: {
+    item: Object,
+  },
+
+  watch: {
+    idParent: {
+      deep: true,
+      handler(newVal) {
+        console.log('Watch: idParent updated in Modal', newVal)
+        this.idParent = newVal
+      },
+    },
+  },
+
   methods: {
+    ...mapMutations(['setIdParent']),
     async renameCurrentItem() {
       if (!this.currentItem || !this.editableLabel) {
         return alert(
@@ -249,7 +265,14 @@ export default {
     },
 
     async selectItem(item) {
-      // Выводим parent_id выбранной папки
+      console.log('SelectItem: idParent before modal', {
+        id: this.currentItem.id,
+        label: this.currentItem.label,
+      })
+      this.setIdParent({
+        id: this.currentItem.id,
+        label: this.currentItem.label,
+      })
       console.log(
         'Выбранная папка каталога:',
         this.currentItem.id,
@@ -259,6 +282,10 @@ export default {
       if (!this.history.includes(item)) this.history.push(item)
       await this.$store.dispatch('tool/fetchToolsByFilter', {
         parentId: item.id,
+      })
+      this.$store.dispatch('tool/updateIdParent', {
+        id: item.id,
+        label: item.label,
       })
     },
 

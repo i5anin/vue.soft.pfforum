@@ -3,6 +3,7 @@ import { addTool, getTools, getToolById } from '@/api'
 export const store = {
   namespaced: true,
   state: {
+    idParent: { id: null, label: null },
     isLoading: false,
     paramsList: [],
     shagOptions: [],
@@ -31,6 +32,10 @@ export const store = {
     paramsOptions: [],
   },
   mutations: {
+    updateIdParent(state, idParentData) {
+      console.log('Mutating idParent:', idParentData)
+      state.idParent = idParentData
+    },
     setParamsList(state, params) {
       state.paramsList = params
     },
@@ -66,6 +71,10 @@ export const store = {
     },
   },
   actions: {
+    updateIdParent({ commit }, idParentData) {
+      console.log('Updating idParent in Vuex:', idParentData)
+      commit('updateIdParent', idParentData)
+    },
     async fetchToolById({ commit }, id) {
       try {
         const tool = await getToolById(id)
@@ -130,6 +139,7 @@ export const store = {
     },
   },
   getters: {
+    idParent: (state) => state.idParent,
     filters: (state) => ({ ...state.filters }),
     tool: (state) => ({ ...state.tool, property: state.tool.property }),
     tools: (state) => [...state.tools],

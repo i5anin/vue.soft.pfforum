@@ -5,6 +5,22 @@
       <v-container>
         <v-row>
           <v-col>
+            <div class="flex">
+              <v-text-field
+                disabled
+                label="ID родителя"
+                :value="idParent.id"
+                type="number"
+                required
+              />
+              <v-text-field
+                disabled
+                label="Папка"
+                :value="idParent.label"
+                type="number"
+                required
+              />
+            </div>
             <!--левый столбец -->
             <div>
               <v-combobox
@@ -27,7 +43,7 @@
               label="Параметры"
               return-object
             />
-            <h2 class="text-h6">Размеры:</h2>
+            <h2 class="text-h6">Характеристики:</h2>
             <!-- динамические параметры -->
             <div v-for="param in selectedParamsInfo" :key="param.id">
               <v-combobox
@@ -120,6 +136,7 @@ export default {
     confirmDeleteDialog: false,
     typeSelected: false,
     selectedType: '',
+    idParent: { id: null, label: '' },
     typeRules: [
       (v) => !!v || 'Поле обязательно для заполнения',
       (v) => (v && v.length >= 3) || 'Минимальная длина: 3 символа',
@@ -127,6 +144,16 @@ export default {
   }),
   // data - используется для определения реактивных данных компонента, которые непосредственно управляют состоянием и поведением этого компонента.
   // watch - используется для отслеживания изменений в этих данных (или в других реактивных источниках) и выполнения дополнительных действий или логики в ответ на эти изменения.
+
+  watch: {
+    idParent: {
+      immediate: true,
+      handler(newValue) {
+        console.log('Watch: idParent updated in Modal', newValue)
+        this.idParent = newValue
+      },
+    },
+  },
   async created() {
     this.loadLastSavedData()
 
@@ -150,13 +177,7 @@ export default {
     this.toolParamOptions = rawToolParams.map((param) => param.info)
   },
   computed: {
-    selectedParamsInfo() {
-      return this.selectedParams
-        .map((paramName) =>
-          this.toolParams.find(({ info }) => info === paramName)
-        )
-        .filter((selectedParam) => selectedParam != null)
-    },
+    ...mapGetters(['idParent']),
     ...mapGetters('tool', [
       'widthOptions',
       'shagOptions',
@@ -164,6 +185,14 @@ export default {
       'nameOptions',
       'tool',
     ]),
+    selectedParamsInfo() {
+      return this.selectedParams
+        .map((paramName) =>
+          this.toolParams.find(({ info }) => info === paramName)
+        )
+        .filter((selectedParam) => selectedParam != null)
+    },
+
     popupTitle() {
       return this.tool?.id != null
         ? `Редактировать инструмент ID: ${this.tool.id}`
@@ -171,6 +200,7 @@ export default {
     },
   },
   methods: {
+    ...mapActions(['updateIdParent']),
     ...mapActions('tool', [
       'fetchUniqueToolSpecs',
       'fetchToolsByFilter',
