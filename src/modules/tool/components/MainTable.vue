@@ -1,8 +1,8 @@
 <template>
   <v-container>
-    <!--    <tool-filter>-->
-    <!--      <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>-->
-    <!--    </tool-filter>-->
+    <tool-filter>
+      <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>
+    </tool-filter>
     <edit-tool-modal
       v-if="openDialog"
       :persistent="true"
