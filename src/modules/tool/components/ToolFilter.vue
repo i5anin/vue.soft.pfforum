@@ -6,6 +6,7 @@
         label="Маркировка"
         outlined
         :clearable="true"
+        @input="fetchToolsByFilter"
       />
     </v-col>
     <v-col cols="12" md="2">
@@ -114,6 +115,14 @@ export default {
   methods: {
     ...mapActions('tool', ['fetchToolsByFilter']),
     ...mapMutations('tool', ['setFilters']),
+    updateFilters(newFilters) {
+      this.setFilters({
+        ...this.filterModel,
+        ...newFilters,
+        parent_id: this.filterModel.parent_id,
+      })
+      this.fetchToolsByFilter()
+    },
   },
 }
 </script>
