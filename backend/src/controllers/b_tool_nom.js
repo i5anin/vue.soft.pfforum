@@ -27,17 +27,24 @@ async function getTools(req, res) {
     const limit = parseInt(req.query.limit || 15, 10)
     const offset = (page - 1) * limit
 
-    const searchCondition = search
-      ? `WHERE tool_nom.name ILIKE '%${search.replace(/'/g, "''")}%'`
-      : ''
-    const parentIdCondition = parent_id
-      ? `AND tool_nom.parent_id = ${parent_id}`
+    let conditions = []
+
+    if (search) {
+      conditions.push(`tool_nom.name ILIKE '%${search.replace(/'/g, "''")}%'`)
+    }
+
+    if (parent_id) {
+      conditions.push(`tool_nom.parent_id = ${parent_id}`)
+    }
+
+    const whereClause = conditions.length
+      ? `WHERE ${conditions.join(' AND ')}`
       : ''
 
     const countQuery = `
       SELECT COUNT(*)
       FROM dbo.tool_nom as tool_nom
-      ${searchCondition} ${parentIdCondition}
+      ${whereClause}
     `
 
     const toolQuery = `
@@ -48,7 +55,7 @@ async function getTools(req, res) {
              tool_nom.norma,
              tool_nom.zakaz
       FROM dbo.tool_nom as tool_nom
-      ${searchCondition} ${parentIdCondition}
+      ${whereClause}
       ORDER BY tool_nom.id DESC
       LIMIT ${limit} OFFSET ${offset}
     `
