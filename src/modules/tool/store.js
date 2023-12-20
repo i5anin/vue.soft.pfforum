@@ -141,7 +141,8 @@ export const store = {
   getters: {
     idParent: (state) => state.idParent,
     filters: (state) => ({ ...state.filters }),
-    tool: (state) => ({ ...state.tool, property: state.tool.property }),
+    tool: (state) =>
+      state.tool ? { ...state.tool, property: state.tool.property } : null,
     tools: (state) => [...state.tools],
     formattedTools: (state) =>
       state.tools.map((tool) => ({
