@@ -8,17 +8,17 @@
             <div class="flex">
               <v-text-field
                 label="ID родителя"
-                :value="idParent.id"
                 required
-                disabled
-                active
+                :value="idParent.id"
+                :disabled="true"
+                :active="true"
               />
               <v-text-field
                 label="Папка"
-                :value="idParent.label"
                 required
-                disabled
-                active
+                :value="idParent.label"
+                :disabled="true"
+                :active="true"
               />
             </div>
             <!--левый столбец -->
@@ -146,7 +146,7 @@ export default {
   // watch - используется для отслеживания изменений в этих данных (или в других реактивных источниках) и выполнения дополнительных действий или логики в ответ на эти изменения.
 
   watch: {
-    idParent(newVal, oldVal) {
+    idParent: function (newVal, oldVal) {
       console.log(
         'idParent обновлен. Старое значение:',
         oldVal,
@@ -155,6 +155,7 @@ export default {
       )
     },
   },
+
   async created() {
     this.loadLastSavedData()
 
