@@ -119,7 +119,8 @@ export default {
   },
 
   methods: {
-    ...mapMutations(['setIdParent']),
+    ...mapMutations('tool', ['updateIdParent']),
+
     async renameCurrentItem() {
       if (!this.currentItem || !this.editableLabel) {
         return alert(
@@ -265,13 +266,9 @@ export default {
     },
 
     async selectItem(item) {
-      console.log('SelectItem: idParent before modal', {
-        id: this.currentItem.id,
-        label: this.currentItem.label,
-      })
-      this.setIdParent({
-        id: this.currentItem.id,
-        label: this.currentItem.label,
+      this.updateIdParent({
+        id: item.id,
+        label: item.label,
       })
       console.log(
         'Выбранная папка каталога:',
@@ -282,10 +279,6 @@ export default {
       if (!this.history.includes(item)) this.history.push(item)
       await this.$store.dispatch('tool/fetchToolsByFilter', {
         parentId: item.id,
-      })
-      this.$store.dispatch('tool/updateIdParent', {
-        id: item.id,
-        label: item.label,
       })
     },
 

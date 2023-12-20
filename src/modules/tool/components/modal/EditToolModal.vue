@@ -7,18 +7,18 @@
           <v-col>
             <div class="flex">
               <v-text-field
-                disabled
                 label="ID родителя"
                 :value="idParent.id"
-                type="number"
                 required
+                disabled
+                active
               />
               <v-text-field
-                disabled
                 label="Папка"
                 :value="idParent.label"
-                type="number"
                 required
+                disabled
+                active
               />
             </div>
             <!--левый столбец -->
@@ -111,7 +111,7 @@
 import Modal from '@/components/shared/Modal.vue'
 import { deleteTool, getToolParams } from '@/api'
 import DeleteConfirmationDialog from '@/modules/tool/components/modal/DeleteConfirmationDialog.vue'
-import { mapActions, mapGetters, mapMutations } from 'vuex'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 
 export default {
   name: 'EditToolModal',
@@ -136,7 +136,7 @@ export default {
     confirmDeleteDialog: false,
     typeSelected: false,
     selectedType: '',
-    idParent: { id: null, label: '' },
+    idParent: { id: 1000, label: '' },
     typeRules: [
       (v) => !!v || 'Поле обязательно для заполнения',
       (v) => (v && v.length >= 3) || 'Минимальная длина: 3 символа',
@@ -146,12 +146,13 @@ export default {
   // watch - используется для отслеживания изменений в этих данных (или в других реактивных источниках) и выполнения дополнительных действий или логики в ответ на эти изменения.
 
   watch: {
-    idParent: {
-      immediate: true,
-      handler(newValue) {
-        console.log('Watch: idParent updated in Modal', newValue)
-        this.idParent = newValue
-      },
+    idParent(newVal, oldVal) {
+      console.log(
+        'idParent обновлен. Старое значение:',
+        oldVal,
+        'Новое значение:',
+        newVal
+      )
     },
   },
   async created() {
@@ -177,7 +178,7 @@ export default {
     this.toolParamOptions = rawToolParams.map((param) => param.info)
   },
   computed: {
-    ...mapGetters(['idParent']),
+    ...mapState('tool', ['idParent']),
     ...mapGetters('tool', [
       'widthOptions',
       'shagOptions',
@@ -200,26 +201,14 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['updateIdParent']),
+    ...mapState('tool', ['idParent']),
+    ...mapMutations('tool', ['setTool']),
     ...mapActions('tool', [
       'fetchUniqueToolSpecs',
       'fetchToolsByFilter',
       'onSaveToolModel',
       'fetchToolById',
     ]),
-    ...mapMutations('tool', ['setTool']),
-    logModelValue(paramId) {
-      console.log(this.toolModel)
-
-      if (this.toolModel.property[paramId] !== undefined) {
-        console.log(
-          `Значение для paramId ${paramId}:`,
-          this.toolModel.property[paramId]
-        )
-      } else {
-        console.log(`Значение для paramId ${paramId} не определено`)
-      }
-    },
 
     loadLastSavedData() {
       const lastSavedData = localStorage.getItem('lastSavedToolModel')
