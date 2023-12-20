@@ -249,6 +249,8 @@ export default {
     },
 
     async selectItem(item) {
+      // Выводим parent_id выбранной папки
+      console.log('Выбранная папка каталога:', item.id)
       this.currentItem = item
       if (!this.history.includes(item)) this.history.push(item)
       try {
@@ -259,6 +261,7 @@ export default {
         console.error('Ошибка при получении данных:', error)
       }
     },
+
     startEditing() {
       this.isEditing = true
       this.editableLabel = this.currentItem ? this.currentItem.label : ''
@@ -279,9 +282,11 @@ export default {
       if (this.history.length > 1) {
         this.history.pop() // Удаляем последний элемент истории
         this.currentItem = this.history[this.history.length - 1] // Обновляем currentItem на предыдущий элемент
+        console.log('Кнопка возврат:', this.currentItem.id)
       }
     },
     goTo(index) {
+      console.log('Хлебные крошки. Выбранный элемент:', this.history[index].id)
       this.history = this.history.slice(0, index + 1)
       this.currentItem = this.history[index]
     },
