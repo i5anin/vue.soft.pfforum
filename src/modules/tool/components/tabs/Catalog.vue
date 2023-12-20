@@ -250,16 +250,16 @@ export default {
 
     async selectItem(item) {
       // Выводим parent_id выбранной папки
-      console.log('Выбранная папка каталога:', item.id, item.label)
+      console.log(
+        'Выбранная папка каталога:',
+        this.currentItem.id,
+        this.currentItem.label
+      )
       this.currentItem = item
       if (!this.history.includes(item)) this.history.push(item)
-      try {
-        await this.$store.dispatch('tool/fetchToolsByFilter', {
-          parentId: item.id,
-        })
-      } catch (error) {
-        console.error('Ошибка при получении данных:', error)
-      }
+      await this.$store.dispatch('tool/fetchToolsByFilter', {
+        parentId: item.id,
+      })
     },
 
     startEditing() {
@@ -292,8 +292,8 @@ export default {
     goTo(index) {
       console.log(
         'Хлебные крошки. Выбранный элемент:',
-        this.history[index].id,
-        this.history[index].label
+        this.currentItem.id,
+        this.currentItem.label
       )
       this.history = this.history.slice(0, index + 1)
       this.currentItem = this.history[index]
