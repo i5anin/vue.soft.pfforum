@@ -250,7 +250,7 @@ export default {
 
     async selectItem(item) {
       // Выводим parent_id выбранной папки
-      console.log('Выбранная папка каталога:', item.id)
+      console.log('Выбранная папка каталога:', item.id, item.label)
       this.currentItem = item
       if (!this.history.includes(item)) this.history.push(item)
       try {
@@ -282,11 +282,19 @@ export default {
       if (this.history.length > 1) {
         this.history.pop() // Удаляем последний элемент истории
         this.currentItem = this.history[this.history.length - 1] // Обновляем currentItem на предыдущий элемент
-        console.log('Кнопка возврат:', this.currentItem.id)
+        console.log(
+          'Кнопка возврат:',
+          this.currentItem.id,
+          this.currentItem.label
+        )
       }
     },
     goTo(index) {
-      console.log('Хлебные крошки. Выбранный элемент:', this.history[index].id)
+      console.log(
+        'Хлебные крошки. Выбранный элемент:',
+        this.history[index].id,
+        this.history[index].label
+      )
       this.history = this.history.slice(0, index + 1)
       this.currentItem = this.history[index]
     },
