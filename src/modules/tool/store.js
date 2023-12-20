@@ -32,6 +32,9 @@ export const store = {
     paramsOptions: [],
   },
   mutations: {
+    setIdParent(state, payload) {
+      state.idParent = payload
+    },
     updateIdParent(state, idParentData) {
       console.log('Mutating idParent:', idParentData)
       state.idParent = idParentData
@@ -141,7 +144,8 @@ export const store = {
   getters: {
     idParent: (state) => state.idParent,
     filters: (state) => ({ ...state.filters }),
-    tool: (state) => ({ ...state.tool, property: state.tool.property }),
+    tool: (state) =>
+      state.tool ? { ...state.tool, property: state.tool.property } : null,
     tools: (state) => [...state.tools],
     formattedTools: (state) =>
       state.tools.map((tool) => ({
