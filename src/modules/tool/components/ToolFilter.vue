@@ -6,6 +6,7 @@
         label="Маркировка"
         outlined
         :clearable="true"
+        @input="updateFilters({ search: $event })"
       />
     </v-col>
     <v-col cols="12" md="2">
@@ -114,6 +115,10 @@ export default {
   methods: {
     ...mapActions('tool', ['fetchToolsByFilter']),
     ...mapMutations('tool', ['setFilters']),
+    updateFilters(newFilters) {
+      this.setFilters({ ...this.filters, ...newFilters })
+      this.fetchToolsByFilter()
+    },
   },
 }
 </script>
