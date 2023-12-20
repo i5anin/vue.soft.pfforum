@@ -92,7 +92,6 @@ import { normSpaces } from '@/modules/tool/components/normSpaces'
 
 export default {
   name: 'Catalog',
-  props: { parentId: String },
   components: { TabMainTable },
 
   data() {
@@ -104,74 +103,7 @@ export default {
       editableLabel: '',
     }
   },
-  watch: {
-    treeData(newVal) {
-      if (newVal && newVal.length > 0) {
-        this.someId = 1123
-        this.selectItem(this.someId) // замените `this.someId` на актуальный ID
-      }
-    },
-  },
   methods: {
-    findItemInTree(parentId, currentNode = null) {
-      console.log('Поиск элемента в дереве', parentId)
-
-      if (!currentNode) {
-        console.log('Начинаем поиск с корня дерева', this.treeData)
-        if (!this.treeData || !Array.isArray(this.treeData)) {
-          console.error('Дерево данных не определено или не является массивом')
-          return null
-        }
-        for (let rootNode of this.treeData) {
-          const foundNode = this.findItemInTree(parentId, rootNode)
-          if (foundNode) return foundNode
-        }
-        console.log('Корневой узел не найден')
-        return null
-      }
-
-      console.log(
-        `Сравниваем: искомый ID ${parentId} с текущим узлом ID ${currentNode.id}`
-      )
-      if (currentNode.id == parentId) {
-        console.log('Найденный узел:', currentNode)
-        return currentNode
-      }
-
-      if (currentNode.nodes && currentNode.nodes.length > 0) {
-        for (let node of currentNode.nodes) {
-          const foundNode = this.findItemInTree(parentId, node)
-          if (foundNode) return foundNode
-        }
-      }
-      return null
-    },
-
-    async selectItem(itemId) {
-      console.log('Метод selectItem вызван с ID:', itemId)
-      try {
-        const folderDetails = this.findItemInTree(itemId)
-        if (folderDetails) {
-          this.currentItem = folderDetails
-          this.addToHistory(folderDetails)
-        } else {
-          console.error('Не удалось найти детали папки для ID:', itemId)
-        }
-      } catch (error) {
-        console.error('Ошибка при поиске деталей папки:', error)
-      }
-    },
-
-    addToHistory(item) {
-      console.log('Добавление элемента в историю:', item)
-      const exists = this.history.some(
-        (historyItem) => historyItem.id === item.id
-      )
-      if (!exists) {
-        this.history.push(item)
-      }
-    },
-
     async renameCurrentItem() {
       if (!this.currentItem || !this.editableLabel) {
         return alert(
@@ -316,6 +248,17 @@ export default {
       }
     },
 
+    async selectItem(item) {
+      this.currentItem = item
+      if (!this.history.includes(item)) this.history.push(item)
+      try {
+        await this.$store.dispatch('tool/fetchToolsByFilter', {
+          parentId: item.id,
+        })
+      } catch (error) {
+        console.error('Ошибка при получении данных:', error)
+      }
+    },
     startEditing() {
       this.isEditing = true
       this.editableLabel = this.currentItem ? this.currentItem.label : ''
@@ -340,31 +283,14 @@ export default {
     },
     goTo(index) {
       this.history = this.history.slice(0, index + 1)
-      const selectedItem = this.history[index]
-      this.currentItem = selectedItem
-      this.$router.push(`/Tool/${selectedItem.id}`).catch((err) => {
-        // Обработка ошибки, если такой же маршрут уже активен
-        if (err.name !== 'NavigationDuplicated') {
-          throw err
-        }
-      })
+      this.currentItem = this.history[index]
     },
   },
   async created() {
-    try {
-      const toolsTree = await getTree()
-      if (toolsTree && toolsTree.length > 0) {
-        this.treeData = toolsTree
-        const parentId = parseInt(this.$route.params.parentId)
-        if (parentId) {
-          await this.selectItem(parentId)
-        } else {
-          this.currentItem = toolsTree[0]
-          this.history.push(this.currentItem)
-        }
-      }
-    } catch (error) {
-      console.error('Ошибка при загрузке дерева:', error)
+    const toolsTree = await getTree()
+    if (toolsTree && toolsTree.length > 0) {
+      this.currentItem = toolsTree[0]
+      this.history.push(this.currentItem)
     }
   },
 }
