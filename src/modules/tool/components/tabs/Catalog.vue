@@ -120,7 +120,6 @@ export default {
 
   methods: {
     ...mapMutations(['setIdParent']),
-
     async renameCurrentItem() {
       if (!this.currentItem || !this.editableLabel) {
         return alert(
@@ -266,8 +265,11 @@ export default {
     },
 
     async selectItem(item) {
-      this.setIdParent({ id: item.id, label: item.label })
       console.log('SelectItem: idParent before modal', {
+        id: this.currentItem.id,
+        label: this.currentItem.label,
+      })
+      this.setIdParent({
         id: this.currentItem.id,
         label: this.currentItem.label,
       })
