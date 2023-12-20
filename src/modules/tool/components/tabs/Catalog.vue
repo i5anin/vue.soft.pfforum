@@ -277,9 +277,6 @@ export default {
       )
       this.currentItem = item
       if (!this.history.includes(item)) this.history.push(item)
-      await this.$store.dispatch('tool/fetchToolsByFilter', {
-        parentId: item.id,
-      })
     },
 
     startEditing() {

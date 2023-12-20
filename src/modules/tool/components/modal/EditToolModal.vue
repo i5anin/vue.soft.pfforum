@@ -157,6 +157,10 @@ export default {
   },
 
   async created() {
+    console.log(
+      'Компонент создан. Проверка idParent из Vuex перед mapState:',
+      this.idParent
+    )
     this.loadLastSavedData()
 
     if (this.toolId == null) {
@@ -178,6 +182,7 @@ export default {
       .map(({ info }) => info)
     this.toolParamOptions = rawToolParams.map((param) => param.info)
   },
+
   computed: {
     ...mapState('tool', ['idParent']),
     ...mapGetters('tool', [
@@ -201,8 +206,14 @@ export default {
         : 'Добавить инструмент'
     },
   },
+  mounted() {
+    console.log(
+      'Компонент смонтирован. Проверка idParent из Vuex после mapState:',
+      this.idParent
+    )
+  },
   methods: {
-    ...mapState('tool', ['idParent']),
+    ...mapState('tool', ['idParent']), // !!! TODO: ПОЛУЧИТЬ ДАННЫЕ ИЗ VUEX
     ...mapMutations('tool', ['setTool']),
     ...mapActions('tool', [
       'fetchUniqueToolSpecs',
