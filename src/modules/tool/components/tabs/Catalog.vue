@@ -82,12 +82,12 @@
       </v-container>
     </v-main>
   </v-app>
-  <TabMainTable :parentId="parentId" />
+  <TabMainTable />
 </template>
 
 <script>
-import TabMainTable from '@/modules/tool/components/MainTable.vue'
 import { mapMutations } from 'vuex'
+import TabMainTable from '@/modules/tool/components/MainTable.vue'
 import { addFolder, deleteFolder, getTree, renameFolder } from '@/api'
 import { normSpaces } from '@/modules/tool/components/normSpaces'
 
@@ -107,20 +107,8 @@ export default {
   props: {
     item: Object,
   },
-
-  watch: {
-    idParent: {
-      deep: true,
-      handler(newVal) {
-        console.log('Watch: idParent updated in Modal', newVal)
-        this.idParent = newVal
-      },
-    },
-  },
-
   methods: {
     ...mapMutations('tool', ['updateIdParent']),
-
     async renameCurrentItem() {
       if (!this.currentItem || !this.editableLabel) {
         return alert(
@@ -270,8 +258,14 @@ export default {
       console.log('Выбранная папка каталога:', item.id, item.label)
       this.currentItem = item
       if (!this.tree.includes(item)) this.tree.push(item)
+      try {
+        await this.$store.dispatch('tool/fetchToolsByFilter', {
+          parentId: item.id,
+        })
+      } catch (error) {
+        console.error('Ошибка при получении данных:', error)
+      }
     },
-
     startEditing() {
       this.isEditing = true
       this.editableLabel = this.currentItem ? this.currentItem.label : ''
@@ -315,6 +309,7 @@ export default {
         label: this.currentItem.label,
       })
       this.tree = this.tree.slice(0, index + 1)
+      this.currentItem = this.tree[index]
     },
   },
   async created() {
