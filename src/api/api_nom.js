@@ -12,22 +12,6 @@ export async function getDatabaseInfo() {
   }
 }
 
-export async function getToolsWithInventoryInfo(
-  search = '',
-  page = 1,
-  limit = 10
-) {
-  try {
-    const response = await axios.get(`${BASE_URL}/tools-inventory`, {
-      params: { search, page, limit },
-    })
-    response.data.totalCount = parseInt(response.data.totalCount, 10)
-    return response.data
-  } catch (error) {
-    console.error('There has been a problem with your fetch operation:', error)
-    return null
-  }
-}
 export async function getTools(
   search = '',
   page = 1,
