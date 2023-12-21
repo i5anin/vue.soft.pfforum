@@ -149,6 +149,16 @@ async function addTool(req, res) {
   const { name, parent_id, property } = req.body
 
   try {
+    // Проверка наличия parent_id в таблице tool_tree
+    const parentCheckResult = await pool.query(
+      'SELECT id FROM dbo.tool_tree WHERE id = $1',
+      [parent_id]
+    )
+
+    if (parentCheckResult.rowCount === 0) {
+      return res.status(400).send('Указанный parent_id не существует.')
+    }
+
     const propertyString = JSON.stringify(property)
 
     // Вставка данных инструмента
@@ -184,8 +194,19 @@ async function editTool(req, res) {
   const { name, parent_id, property } = req.body
 
   try {
+    // Проверка наличия parent_id в таблице tool_tree
+    const parentCheckResult = await pool.query(
+      'SELECT id FROM dbo.tool_tree WHERE id = $1',
+      [parent_id]
+    )
+
+    if (parentCheckResult.rowCount === 0) {
+      return res.status(400).send('Указанный parent_id не существует.')
+    }
+
     const propertyString = JSON.stringify(property)
 
+    // Обновление данных инструмента
     const result = await pool.query(
       'UPDATE dbo.tool_nom SET name=$1, parent_id=$2, property=$3 WHERE id=$4 RETURNING *',
       [name, parent_id, propertyString, id]
@@ -201,7 +222,6 @@ async function editTool(req, res) {
     }
   } catch (err) {
     console.error('Error:', err.message)
-    console.error('Stack:', err.stack)
     res.status(500).send(err.message)
   }
 }

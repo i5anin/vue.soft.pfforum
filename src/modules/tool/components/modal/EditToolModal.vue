@@ -207,6 +207,9 @@ export default {
       'onSaveToolModel',
       'fetchToolById',
     ]),
+    logModelValue(paramId) {
+      console.log('Value changed for param ID:', paramId)
+    },
 
     loadLastSavedData() {
       const lastSavedData = localStorage.getItem('lastSavedToolModel')
@@ -252,13 +255,10 @@ export default {
       this.$emit('canceled')
     },
     async onSave() {
-      console.log(this) // Проверка контекста
-      this.updateTool() // Вызов метода
+      this.toolModel.parent_id = this.idParent.id
       if (this.toolId) {
-        console.log('updateTool', this.toolId)
-        await this.updateTool(this.toolModel)
+        await updateTool(this.toolId, this.toolModel)
       } else {
-        console.log('addTool', this.toolId)
         await this.addTool(this.toolModel)
       }
       this.$emit('changes-saved')

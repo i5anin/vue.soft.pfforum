@@ -15,10 +15,10 @@ const pool = new Pool(dbConfig)
 async function buildTreeData(parentId = 0) {
   try {
     const { rows } = await pool.query(
-      `SELECT t.id, t.id_parent, t.name,
+      `SELECT t.id, t.parent_id, t.name,
         (SELECT COUNT(*) FROM dbo.tool_nom n WHERE n.parent_id = t.id) as element_count
       FROM dbo.tool_tree t
-      WHERE t.id_parent = $1`,
+      WHERE t.parent_id = $1`,
       [parentId]
     )
 
@@ -68,7 +68,7 @@ const addBranch = async (req, res) => {
 
     // Execute SQL query to insert the new branch
     const result = await pool.query(
-      `INSERT INTO dbo.tool_tree (name, id_parent)
+      `INSERT INTO dbo.tool_tree (name, parent_id)
        VALUES ($1, $2)
        RETURNING id`,
       [name, parentId]
@@ -110,7 +110,7 @@ async function dellFolderTree(req, res) {
 
     // Проверка существования папки
     const folderExistResult = await pool.query(
-      'SELECT id, id_parent FROM dbo.tool_tree WHERE id = $1',
+      'SELECT id, parent_id FROM dbo.tool_tree WHERE id = $1',
       [itemId]
     )
 
@@ -121,7 +121,7 @@ async function dellFolderTree(req, res) {
       })
     }
 
-    const idParent = folderExistResult.rows[0].id_parent
+    const idParent = folderExistResult.rows[0].parent_id
 
     // Запрет на удаление корневой папки
     if (idParent === 0) {
@@ -133,7 +133,7 @@ async function dellFolderTree(req, res) {
 
     // Проверка наличия дочерних элементов
     const childCheckResult = await pool.query(
-      'SELECT id FROM dbo.tool_tree WHERE id_parent = $1',
+      'SELECT id FROM dbo.tool_tree WHERE parent_id = $1',
       [itemId]
     )
 
@@ -180,9 +180,9 @@ async function updateFolderTree(req, res) {
         .json({ message: 'Необходимы ID и новое имя папки' })
     }
 
-    // Получение текущего id_parent для данной записи
+    // Получение текущего parent_id для данной записи
     const parentCheckResult = await pool.query(
-      'SELECT id_parent FROM dbo.tool_tree WHERE id = $1',
+      'SELECT parent_id FROM dbo.tool_tree WHERE id = $1',
       [id]
     )
 
@@ -190,9 +190,9 @@ async function updateFolderTree(req, res) {
       return res.status(400).json({ message: 'Запись не найдена.' })
     }
 
-    const currentParentId = parentCheckResult.rows[0].id_parent
+    const currentParentId = parentCheckResult.rows[0].parent_id
 
-    // Проверка, чтобы не разрешать обновление для id_parent равного 0
+    // Проверка, чтобы не разрешать обновление для parent_id равного 0
     if (currentParentId === 0) {
       return res
         .status(400)

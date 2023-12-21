@@ -129,6 +129,7 @@ export default {
     },
     onSaveChanges() {
       this.openDialog = false
+      this.fetchToolsByFilter() //возможно не верно
     },
     onAddTool() {
       this.editingToolId = null
