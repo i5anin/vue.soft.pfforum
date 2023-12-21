@@ -10,7 +10,6 @@
                 label="ID родителя"
                 required
                 :value="idParent.id"
-                :disabled="true"
                 :active="true"
               />
               <v-text-field
@@ -136,7 +135,6 @@ export default {
     confirmDeleteDialog: false,
     typeSelected: false,
     selectedType: '',
-    // idParent: { id: 0, label: 'Главная' },
     typeRules: [
       (v) => !!v || 'Поле обязательно для заполнения',
       (v) => (v && v.length >= 3) || 'Минимальная длина: 3 символа',
@@ -157,12 +155,7 @@ export default {
   },
 
   async created() {
-    console.log(
-      'Компонент создан. Проверка idParent из Vuex перед mapState:',
-      this.idParent
-    )
     this.loadLastSavedData()
-
     if (this.toolId == null) {
       this.setTool({
         id: null,
@@ -205,12 +198,6 @@ export default {
         ? `Редактировать инструмент ID: ${this.tool.id}`
         : 'Добавить инструмент'
     },
-  },
-  mounted() {
-    console.log(
-      'Компонент смонтирован. Проверка idParent из Vuex после mapState:',
-      this.idParent
-    )
   },
   methods: {
     ...mapMutations('tool', ['setTool']),

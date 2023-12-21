@@ -64,7 +64,7 @@
       />
     </v-col>
     <v-col cols="12" md="3">
-      <v-checkbox label="Склад" v-model="Sklad" :color="checkboxSklad" />
+      <!--      <v-checkbox label="Склад" v-model="Sklad" :color="checkboxSklad" />-->
     </v-col>
     <v-col class="pa-3 text-right">
       <slot name="default" />
