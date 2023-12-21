@@ -83,6 +83,7 @@ async function getTools(req, res) {
 
     const totalCount = parseInt(countResult.rows[0].count, 10)
 
+    const uniqueParams = new Set()
     const formattedTools = toolsResult.rows.map((tool) => {
       let formattedProperty = {}
 
@@ -91,11 +92,12 @@ async function getTools(req, res) {
 
         formattedProperty = Object.entries(propertyObj).reduce(
           (acc, [key, value]) => {
-            if (value !== '' && paramsMapping[key]) {
+            if (value !== '' && value !== null && paramsMapping[key]) {
               acc[key] = {
                 info: paramsMapping[key].info,
                 value: value,
               }
+              uniqueParams.add(key) // Add parameter key to uniqueParams only if it has a valid value
             }
             return acc
           },
@@ -110,15 +112,6 @@ async function getTools(req, res) {
         kolvo_sklad: tool.kolvo_sklad,
         norma: tool.norma,
         zakaz: tool.zakaz,
-      }
-    })
-
-    const uniqueParams = new Set()
-    toolsResult.rows.forEach((tool) => {
-      if (tool.property) {
-        Object.entries(tool.property).forEach(([key, property]) => {
-          if (property.value !== null) uniqueParams.add(key)
-        })
       }
     })
 
