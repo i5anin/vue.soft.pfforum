@@ -213,7 +213,6 @@ export default {
     )
   },
   methods: {
-    ...mapState('tool', ['idParent']), // !!! TODO: ПОЛУЧИТЬ ДАННЫЕ ИЗ VUEX
     ...mapMutations('tool', ['setTool']),
     ...mapActions('tool', [
       'fetchUniqueToolSpecs',
