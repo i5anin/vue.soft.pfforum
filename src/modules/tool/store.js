@@ -86,16 +86,8 @@ export const store = {
 
     async fetchToolsByFilter({ commit, state }, payload) {
       commit('setIsLoading', true)
-      const {
-        currentPage,
-        itemsPerPage,
-        search,
-        includeNull,
-        selectedParams,
-        materials,
-        groups,
-        types,
-      } = state.filters
+      const { currentPage, itemsPerPage, search, includeNull, selectedParams } =
+        state.filters
       const parentId = payload?.parentId || null
       try {
         const { tools, totalCount, paramsList } = await getTools(
@@ -104,10 +96,7 @@ export const store = {
           itemsPerPage,
           includeNull,
           parentId,
-          selectedParams,
-          materials,
-          groups,
-          types
+          selectedParams
         )
         commit('setParamsList', paramsList)
         commit('setTools', tools)

@@ -66,8 +66,8 @@ export default {
   },
   props: {
     parentId: {
-      type: Number,
-      default: null,
+      type: Object,
+      default: () => ({ id: null, label: null }),
     },
   },
   data() {

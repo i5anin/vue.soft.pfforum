@@ -82,7 +82,7 @@
       </v-container>
     </v-main>
   </v-app>
-  <TabMainTable />
+  <TabMainTable :parentId="parentId" />
 </template>
 
 <script>

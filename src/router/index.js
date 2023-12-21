@@ -31,18 +31,18 @@ const routes = [
     name: 'Login',
     component: Login,
   },
-  {
-    path: '/Tool/:parentId',
-    name: 'ToolWithParentId',
-    component: Tool,
-    props: true,
-  },
+  // {
+  //   path: '/Tool/:parentId',
+  //   name: 'ToolWithParentId',
+  //   component: Tool,
+  //   props: true,
+  // },
   // Маршрут без параметра parentId
   {
     path: '/Tool',
     name: 'Tool',
     component: Tool,
-    props: { parentId: 0 }, // Здесь мы устанавливаем parentId по умолчанию
+    // props: { parentId: 0 }, // Здесь мы устанавливаем parentId по умолчанию
   },
   {
     path: '/:catchAll(.*)',

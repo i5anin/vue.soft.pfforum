@@ -57,8 +57,8 @@ export default {
   },
   props: {
     parentId: {
-      type: Number,
-      default: null,
+      type: Object,
+      default: () => ({}),
     },
   },
   data() {
