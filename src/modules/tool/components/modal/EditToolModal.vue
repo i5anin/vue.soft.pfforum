@@ -259,7 +259,8 @@ export default {
       if (this.toolId) {
         await updateTool(this.toolId, this.toolModel)
       } else {
-        await this.addTool(this.toolModel)
+        console.log(this.toolModel)
+        await addTool(this.toolModel)
       }
       this.$emit('changes-saved')
     },
