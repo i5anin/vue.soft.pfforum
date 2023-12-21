@@ -20,6 +20,15 @@ async function getParamsMapping() {
   }, {})
 }
 
+function removeNullProperties(obj) {
+  Object.keys(obj).forEach((key) => {
+    if (obj[key] === null) {
+      delete obj[key]
+    }
+  })
+  return obj
+}
+
 async function getTools(req, res) {
   try {
     const { search, parent_id, includeNull } = req.query
@@ -159,7 +168,8 @@ async function addTool(req, res) {
       return res.status(400).send('Указанный parent_id не существует.')
     }
 
-    const propertyString = JSON.stringify(property)
+    const propertyWithoutNull = removeNullProperties(property)
+    const propertyString = JSON.stringify(propertyWithoutNull)
 
     // Вставка данных инструмента
     const toolInsertResult = await pool.query(
@@ -204,7 +214,8 @@ async function editTool(req, res) {
       return res.status(400).send('Указанный parent_id не существует.')
     }
 
-    const propertyString = JSON.stringify(property)
+    const propertyWithoutNull = removeNullProperties(property)
+    const propertyString = JSON.stringify(propertyWithoutNull)
 
     // Обновление данных инструмента
     const result = await pool.query(
