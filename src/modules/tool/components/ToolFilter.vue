@@ -57,11 +57,11 @@
   </v-row>
   <v-row>
     <v-col cols="12" md="3">
-      <v-checkbox
-        label="Незаполненные данные"
-        v-model="filterModel.includeNull"
-        :color="checkboxColor"
-      />
+      <!--      <v-checkbox-->
+      <!--        label="Незаполненные данные"-->
+      <!--        v-model="filterModel.includeNull"-->
+      <!--        :color="checkboxColor"-->
+      <!--      />-->
     </v-col>
     <v-col cols="12" md="3">
       <!-- <v-checkbox label="Склад" v-model="Sklad" :color="checkboxSklad" />-->

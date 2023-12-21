@@ -120,7 +120,7 @@ export const store = {
         })
         if (result) {
           dispatch('fetchToolsByFilter')
-          localStorage.setItem('lastSavedToolModel', JSON.stringify(toolModel))
+          // localStorage.setItem('lastSavedToolModel', JSON.stringify(toolModel))
         }
       } catch (error) {
         console.error('Ошибка при сохранении инструмента:', error)

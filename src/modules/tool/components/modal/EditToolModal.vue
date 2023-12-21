@@ -155,7 +155,7 @@ export default {
   },
 
   async created() {
-    this.loadLastSavedData()
+    // this.loadLastSavedData()
     if (this.toolId == null) {
       this.setTool({
         id: null,
@@ -211,13 +211,13 @@ export default {
       console.log('Value changed for param ID:', paramId)
     },
 
-    loadLastSavedData() {
-      const lastSavedData = localStorage.getItem('lastSavedToolModel')
-      if (lastSavedData) {
-        const lastSavedToolModel = JSON.parse(lastSavedData)
-        this.prependLastSavedData(lastSavedToolModel)
-      }
-    },
+    // loadLastSavedData() {
+    //   // const lastSavedData = localStorage.getItem('lastSavedToolModel')
+    //   // if (lastSavedData) {
+    //   //   const lastSavedToolModel = JSON.parse(lastSavedData)
+    //   //   this.prependLastSavedData(lastSavedToolModel)
+    //   // }
+    // },
 
     prependLastSavedData(data) {
       if (!data) return

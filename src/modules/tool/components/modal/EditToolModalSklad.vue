@@ -88,7 +88,7 @@ export default {
   // data - используется для определения реактивных данных компонента, которые непосредственно управляют состоянием и поведением этого компонента.
   // watch - используется для отслеживания изменений в этих данных (или в других реактивных источниках) и выполнения дополнительных действий или логики в ответ на эти изменения.
   async created() {
-    this.loadLastSavedData()
+    // this.loadLastSavedData()
 
     if (this.toolId == null) {
       this.setTool({
@@ -150,13 +150,13 @@ export default {
       }
     },
 
-    loadLastSavedData() {
-      const lastSavedData = localStorage.getItem('lastSavedToolModel')
-      if (lastSavedData) {
-        const lastSavedToolModel = JSON.parse(lastSavedData)
-        this.prependLastSavedData(lastSavedToolModel)
-      }
-    },
+    // loadLastSavedData() {
+    //   const lastSavedData = localStorage.getItem('lastSavedToolModel')
+    //   if (lastSavedData) {
+    //     const lastSavedToolModel = JSON.parse(lastSavedData)
+    //     this.prependLastSavedData(lastSavedToolModel)
+    //   }
+    // },
 
     prependLastSavedData(data) {
       if (!data) return
