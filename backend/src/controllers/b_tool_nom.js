@@ -116,7 +116,9 @@ async function getTools(req, res) {
     const uniqueParams = new Set()
     toolsResult.rows.forEach((tool) => {
       if (tool.property) {
-        Object.keys(tool.property).forEach((key) => uniqueParams.add(key))
+        Object.entries(tool.property).forEach(([key, property]) => {
+          if (property.value !== null) uniqueParams.add(key)
+        })
       }
     })
 
