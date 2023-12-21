@@ -9,8 +9,8 @@
               <v-text-field
                 label="ID родителя"
                 required
-                :value="idParent.id"
-                :active="true"
+                type="Number"
+                v-model="idParent.id"
               />
               <v-text-field
                 label="Папка"
@@ -108,7 +108,7 @@
 
 <script>
 import Modal from '@/components/shared/Modal.vue'
-import { deleteTool, getToolParams } from '@/api'
+import { addTool, deleteTool, getToolParams, updateTool } from '@/api'
 import DeleteConfirmationDialog from '@/modules/tool/components/modal/DeleteConfirmationDialog.vue'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 
@@ -252,7 +252,15 @@ export default {
       this.$emit('canceled')
     },
     async onSave() {
-      this.onSaveToolModel(this.toolModel)
+      console.log(this) // Проверка контекста
+      this.updateTool() // Вызов метода
+      if (this.toolId) {
+        console.log('updateTool', this.toolId)
+        await this.updateTool(this.toolModel)
+      } else {
+        console.log('addTool', this.toolId)
+        await this.addTool(this.toolModel)
+      }
       this.$emit('changes-saved')
     },
   },
