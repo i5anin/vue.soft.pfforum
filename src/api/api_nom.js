@@ -68,16 +68,6 @@ export async function updateTool(id, toolData) {
   }
 }
 
-export async function getUniqueToolSpecs() {
-  try {
-    const response = await axios.get(`${BASE_URL}/unique-tool-specs`)
-    return response.data
-  } catch (error) {
-    console.error('There has been a problem with your fetch operation:', error)
-    throw error
-  }
-}
-
 export async function getToolById(id) {
   try {
     const response = await axios.get(`${BASE_URL}/tool/${id}`)
