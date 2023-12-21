@@ -146,39 +146,49 @@ async function deleteTool(req, res) {
 }
 
 async function addTool(req, res) {
-  const { name, property } = req.body
+  const { name, parent_id, property } = req.body
 
   try {
-    // Преобразование объекта property в строку JSON для хранения в базе данных
     const propertyString = JSON.stringify(property)
 
     // Вставка данных инструмента
     const toolInsertResult = await pool.query(
-      'INSERT INTO dbo.tool_nom (name, property) VALUES ($1, $2) RETURNING id',
-      [name, propertyString]
+      'INSERT INTO dbo.tool_nom (name, parent_id, property) VALUES ($1, $2, $3) RETURNING id',
+      [name, parent_id, propertyString]
     )
 
     const toolId = toolInsertResult.rows[0].id
 
-    // Дополнительная логика обработки параметров, если необходимо
-    // ...
+    // Получение всех данных вновь добавленного инструмента
+    const newToolResult = await pool.query(
+      'SELECT * FROM dbo.tool_nom WHERE id = $1',
+      [toolId]
+    )
 
-    res.json({ toolId })
+    if (newToolResult.rowCount > 0) {
+      res.json({
+        message: 'Инструмент успешно добавлен.',
+        tool: newToolResult.rows[0],
+      })
+    } else {
+      res.status(404).send('Не удалось найти добавленный инструмент.')
+    }
   } catch (err) {
-    console.error(err)
+    console.error('Error:', err.message)
     res.status(500).send(err.message)
   }
 }
 
 async function editTool(req, res) {
   const { id } = req.params
-  const { name, group_id, mat_id, type_id, kolvo_sklad, norma, zakaz } =
-    req.body
+  const { name, parent_id, property } = req.body
 
   try {
+    const propertyString = JSON.stringify(property)
+
     const result = await pool.query(
-      'UPDATE dbo.tool_nom SET name=$1, group_id=$2, mat_id=$3, type_id=$4, kolvo_sklad=$5, norma=$6, zakaz=$7, radius=$8, shag=$9, gabarit=$10, width=$11, diam=$12, geometry=$13 WHERE id=$14 RETURNING *',
-      [name, group_id, mat_id, type_id, kolvo_sklad, norma, zakaz, id] // Add geometry here
+      'UPDATE dbo.tool_nom SET name=$1, parent_id=$2, property=$3 WHERE id=$4 RETURNING *',
+      [name, parent_id, propertyString, id]
     )
 
     if (result.rowCount > 0) {
