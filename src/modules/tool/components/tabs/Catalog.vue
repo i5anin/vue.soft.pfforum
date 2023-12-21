@@ -41,14 +41,14 @@
             <!-- Интеграция хлебных крошек -->
             <!-- <div class="breadcrumbs">-->
             <div>
-              <span v-for="(item, index) in history" :key="index">
+              <span v-for="(item, index) in tree" :key="index">
                 <span :class="getBreadcrumbClass(index)" @click="goTo(index)">
                   {{ item.label }}
                   <span v-if="item.elements !== 0">
                     ({{ item.elements }})
                   </span>
                 </span>
-                <span v-if="index < history.length - 1">
+                <span v-if="index < tree.length - 1">
                   &nbsp;&nbsp;/&nbsp;&nbsp;
                 </span>
               </span>
@@ -97,7 +97,7 @@ export default {
 
   data() {
     return {
-      history: [],
+      tree: [],
       currentItem: null,
       selectedItem: null,
       isEditing: false,
@@ -140,7 +140,7 @@ export default {
           this.currentItem.label = newName
 
           // Необходимо обновить элемент в истории, если он там есть
-          const historyItem = this.history.find((item) => item.id === itemId)
+          const historyItem = this.tree.find((item) => item.id === itemId)
           if (historyItem) {
             historyItem.label = newName
           }
@@ -166,9 +166,9 @@ export default {
           await deleteFolder(itemId)
           alert('Элемент успешно удален.')
 
-          if (this.history.length > 1) {
-            this.history.pop()
-            this.currentItem = this.history[this.history.length - 1]
+          if (this.tree.length > 1) {
+            this.tree.pop()
+            this.currentItem = this.tree[this.tree.length - 1]
           }
 
           // Вызываем refreshTree для обновления дерева и currentItem
@@ -182,8 +182,8 @@ export default {
 
     getBreadcrumbClass(index) {
       return {
-        'breadcrumbs-item': index < this.history.length - 1,
-        'breadcrumbs-item-final': index === this.history.length - 1,
+        'breadcrumbs-item': index < this.tree.length - 1,
+        'breadcrumbs-item-final': index === this.tree.length - 1,
       }
     },
 
@@ -226,7 +226,7 @@ export default {
           this.currentItem = newFolder
 
           // Добавляем новую папку в историю для навигации
-          this.history.push(newFolder)
+          this.tree.push(newFolder)
         } catch (error) {
           console.error('Ошибка при добавлении новой ветки:', error)
           alert('Произошла ошибка при добавлении ветки.')
@@ -276,7 +276,7 @@ export default {
         this.currentItem.label
       )
       this.currentItem = item
-      if (!this.history.includes(item)) this.history.push(item)
+      if (!this.tree.includes(item)) this.tree.push(item)
     },
 
     startEditing() {
@@ -296,9 +296,9 @@ export default {
     },
 
     goBack() {
-      if (this.history.length > 1) {
-        this.history.pop() // Удаляем последний элемент истории
-        this.currentItem = this.history[this.history.length - 1] // Обновляем currentItem на предыдущий элемент
+      if (this.tree.length > 1) {
+        this.tree.pop() // Удаляем последний элемент истории
+        this.currentItem = this.tree[this.tree.length - 1] // Обновляем currentItem на предыдущий элемент
         console.log(
           'Кнопка возврат:',
           this.currentItem.id,
@@ -312,15 +312,15 @@ export default {
         this.currentItem.id,
         this.currentItem.label
       )
-      this.history = this.history.slice(0, index + 1)
-      this.currentItem = this.history[index]
+      this.tree = this.tree.slice(0, index + 1)
+      this.currentItem = this.tree[index]
     },
   },
   async created() {
     const toolsTree = await getTree()
     if (toolsTree && toolsTree.length > 0) {
       this.currentItem = toolsTree[0]
-      this.history.push(this.currentItem)
+      this.tree.push(this.currentItem)
     }
   },
 }
