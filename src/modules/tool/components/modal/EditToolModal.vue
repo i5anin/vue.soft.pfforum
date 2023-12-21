@@ -136,7 +136,7 @@ export default {
     confirmDeleteDialog: false,
     typeSelected: false,
     selectedType: '',
-    idParent: { id: 1000, label: '' },
+    // idParent: { id: 0, label: 'Главная' },
     typeRules: [
       (v) => !!v || 'Поле обязательно для заполнения',
       (v) => (v && v.length >= 3) || 'Минимальная длина: 3 символа',
@@ -184,7 +184,6 @@ export default {
   },
 
   computed: {
-    ...mapState('tool', ['idParent']),
     ...mapGetters('tool', [
       'widthOptions',
       'shagOptions',
@@ -192,6 +191,7 @@ export default {
       'nameOptions',
       'tool',
     ]),
+    ...mapState('tool', ['idParent']),
     selectedParamsInfo() {
       return this.selectedParams
         .map((paramName) =>
