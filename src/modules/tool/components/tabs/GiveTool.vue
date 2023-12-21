@@ -82,9 +82,15 @@ export default {
           this.ToolTableHeaders = [
             { title: '№', key: 'index', sortable: false },
             { title: 'Маркировка', key: 'name', sortable: true },
-            { title: 'Характеристики', key: 'param', sortable: true },
-            { title: 'Норма', key: 'norm', sortable: true },
-            { title: 'Склад', key: 'sklad', sortable: true },
+            // { title: 'Характеристики', key: 'param', sortable: true },
+            { title: 'Наименование', key: 'title', sortable: true },
+            { title: 'Обозначение', key: 'description', sortable: true },
+            { title: 'Номер', key: 'no', sortable: true },
+            { title: 'Тип операции', key: 'cnc', sortable: true },
+            { title: 'Кому выдана', key: 'user', sortable: true },
+            // { title: 'Дата прихода', key: 'date_p', sortable: true },
+            // { title: 'Дата ухода', key: 'date_u', sortable: true },
+            { title: 'Склад доступно', key: 'sklad', sortable: true },
           ]
         }
       },
