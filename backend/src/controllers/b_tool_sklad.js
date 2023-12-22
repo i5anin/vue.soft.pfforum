@@ -1,97 +1,71 @@
-// Импорт зависимостей
 const { Pool } = require('pg')
 const { getNetworkDetails } = require('../db_type')
 const config = require('../config')
 
+// Получение конфигурации для соединения с базой данных
 const networkDetails = getNetworkDetails()
 const dbConfig =
   networkDetails.databaseType === 'build'
     ? config.dbConfig
     : config.dbConfigTest
+
 // Создание пула подключений к БД
 const pool = new Pool(dbConfig)
 
+// Функция для получения истории инструментов
 async function getToolHistory(req, res) {
   try {
-    const { search, parent_id, includeNull } = req.query
-    const page = parseInt(req.query.page || 1, 10)
-    const limit = parseInt(req.query.limit || 15, 10)
-    const offset = (page - 1) * limit
-
-    let conditions = []
-
-    if (search) {
-      conditions.push(`tool_nom.name ILIKE '%${search.replace(/'/g, "''")}%'`)
-    }
-
-    if (parent_id) {
-      conditions.push(`tool_nom.parent_id = ${parent_id}`)
-    }
-
-    if (!includeNull || includeNull === 'false') {
-      conditions.push(
-        `(tool_nom.name IS NOT NULL AND tool_nom.name != '' AND tool_nom.property IS NOT NULL)`
-      )
-    }
-
-    const whereClause = conditions.length
-      ? `WHERE ${conditions.join(' AND ')}`
-      : ''
-
-    const countQuery = `
-      SELECT COUNT(*)
-      FROM dbo.tool_history_nom
-      INNER JOIN dbo.tool_nom ON tool_history_nom.id_nom = tool_nom.id
-      ${whereClause}
+    const sqlQuery = `
+      SELECT
+        thn.id_oper AS specs_op_id,
+        sn.ID AS id_oper,
+        sn.NAME,
+        sn.description,
+        oon.no AS no_oper,
+        dbo.get_full_cnc_type(dbo.get_op_type_code(sno.ID)) AS type_oper,
+        thn.quantity,
+        o.fio AS user_fio,
+        thn.id_user,
+        thn.date_p,
+        thn.date_u,
+        thn.id_nom,
+        tn.name AS name_tool,
+        tn.property
+      FROM
+        dbo.tool_history_nom thn
+      INNER JOIN
+        dbo.specs_nom_operations sno ON thn.id_oper = sno.id
+      INNER JOIN
+        dbo.specs_nom sn ON sno.specs_nom_id = sn.id
+      INNER JOIN
+        dbo.operations_ordersnom oon ON oon.op_id = sno.ordersnom_op_id
+      INNER JOIN
+        dbo.operators o ON thn.id_user = o.id
+      INNER JOIN
+        dbo.tool_nom tn ON thn.id_nom = tn.id
+      WHERE
+        sn.status_p = 'П'
+        AND NOT sn.status_otgruzka
+        AND (POSITION('ЗАПРЕТ' IN UPPER(sn.comments)) = 0 OR sn.comments IS NULL)
+        AND (T OR dmc OR hision OR f OR f4 OR fg OR tf)
+      ORDER BY
+        sn.NAME,
+        sn.description,
+        oon.no::INT;
     `
 
-    const historyQuery = `
-      SELECT tool_history_nom.id_oper,
-             tool_history_nom.id_user,
-             tool_history_nom.id_nom,
-             tool_nom.name,
-             tool_history_nom.quantity,
-             tool_history_nom.date_p,
-             tool_history_nom.date_u
-      FROM dbo.tool_history_nom
-      INNER JOIN dbo.tool_nom ON tool_history_nom.id_nom = tool_nom.id
-      ${whereClause}
-      ORDER BY tool_history_nom.id_oper DESC
-      LIMIT ${limit} OFFSET ${offset}
-    `
+    // Выполнение запроса к базе данных
+    const result = await pool.query(sqlQuery)
 
-    const [countResult, historyResult] = await Promise.all([
-      pool.query(countQuery),
-      pool.query(historyQuery),
-    ])
-
-    const totalCount = parseInt(countResult.rows[0].count, 10)
-
-    const formattedHistory = historyResult.rows.map((history) => {
-      return {
-        id_oper: history.id_oper,
-        id_user: history.id_user,
-        id_nom: history.id_nom,
-        name: history.name,
-        quantity: history.quantity,
-        date_p: history.date_p,
-        date_u: history.date_u,
-      }
-    })
-
-    res.json({
-      currentPage: page,
-      itemsPerPage: limit,
-      totalCount,
-      history: formattedHistory,
-    })
+    // Отправка результата
+    res.json(result.rows)
   } catch (err) {
-    console.error(err)
-    res.status(500).send(err.message)
+    // Обработка возможных ошибок
+    console.error('Error executing query', err.stack)
+    res.status(500).send('Ошибка при выполнении запроса')
   }
 }
 
-// Экспорт контроллеров
 module.exports = {
   getToolHistory,
 }
