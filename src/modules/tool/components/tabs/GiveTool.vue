@@ -1,68 +1,77 @@
 <template>
   <v-container>
-    <v-data-table
-      v-if="toolHistory.length > 0"
-      :headers="headers"
-      :items="toolHistory"
+    <!-- Остальные компоненты -->
+    <v-data-table-server
+      v-if="isDataLoaded"
+      noDataText="Нет данных"
+      itemsPerPageText="Пункты на странице:"
+      loadingText="Загрузка данных"
+      :headers="ToolTableHeaders"
+      :items="tools"
+      :itemsLength="toolsTotalCount"
+      :items-per-page="filters.itemsPerPage"
+      :page="filters.currentPage"
+      :loading="isLoading"
+      :items-per-page-options="[15, 50, 100, 300]"
+      density="compact"
+      @update:page="onChangePage"
+      @update:items-per-page="onUpdateItemsPerPage"
+      @click:row="onEditRow"
       class="elevation-1"
       hover
+      fixed-header
+      width
     >
-      <template v-slot:item="{ item }">
-        <tr>
-          <td>{{ item.specs_op_id }}</td>
-          <td>{{ item.name }}</td>
-          <td>{{ item.description }}</td>
-          <td>{{ item.no_oper }}</td>
-          <td>{{ item.type_oper }}</td>
-          <td>{{ item.quantity }}</td>
-          <td>{{ item.user_fio }}</td>
-          <td>{{ formatDate(item.date_p) }}</td>
-          <td>{{ formatDate(item.date_u) }}</td>
-          <td>{{ item.name_tool }}</td>
-          <td v-if="item.property">
-            <div v-for="(value, key) in item.property" :key="key">
-              {{ key }}: {{ value }}
-            </div>
-          </td>
-        </tr>
-      </template>
-    </v-data-table>
+      <!-- Конфигурация слотов -->
+    </v-data-table-server>
   </v-container>
 </template>
 
 <script>
-import { fetchToolHistory } from '@/api' // Убедитесь, что путь к файлу API корректен
+// Импорты
+import EditToolModalSklad from '@/modules/tool/components/modal/EditToolModalSklad.vue'
+import { VDataTableServer } from 'vuetify/labs/VDataTable'
+import { mapActions, mapMutations, mapGetters } from 'vuex'
+import GetTool from '@/modules/tool/components/GetTool.vue'
+import { fetchToolHistory } from '@/api'
 
 export default {
+  // Конфигурация компонента
   data() {
     return {
-      item: [],
-      toolHistory: [], // Данные истории инструментов
-      headers: [
-        // Заголовки для таблицы
-        { text: 'ID Операции', value: 'specs_op_id' },
-        { text: 'Название', value: 'name' },
-        { text: 'Описание', value: 'description' },
-        { text: 'Номер операции', value: 'no_oper' },
-        { text: 'Тип операции', value: 'type_oper' },
-        { text: 'Количество', value: 'quantity' },
-        { text: 'Кому выдана', value: 'user_fio' },
-        { text: 'Дата получения', value: 'date_p' },
-        { text: 'Дата возврата', value: 'date_u' },
-        { text: 'Инструмент', value: 'name_tool' },
-        { text: 'Свойства', value: 'property' },
-      ],
+      // Остальные свойства данных
+      tools: [], // Сюда будут загружаться данные
     }
   },
+  // Вычисляемые свойства, методы и т.д.
   async mounted() {
-    this.toolHistory = await fetchToolHistory()
-    console.log(this.toolHistory)
+    await this.fetchToolsByFilter() // Загрузка данных при монтировании
+    this.isDataLoaded = true
+    console.log('Данные загружены:', this.isDataLoaded)
   },
+
   methods: {
-    formatDate(date) {
-      if (!date) return ''
-      return new Date(date).toLocaleDateString()
+    ...mapActions('tool', ['fetchToolsByFilter']),
+    // Остальные методы
+
+    async fetchToolsByFilter() {
+      try {
+        const response = await fetchToolHistory()
+        if (response) {
+          this.tools = response
+          console.log('Загруженные инструменты:', this.tools)
+          this.toolsTotalCount = response.length
+        }
+      } catch (error) {
+        console.error('Ошибка при загрузке данных:', error)
+      }
     },
+
+    // Остальные методы
   },
 }
 </script>
+
+<style scoped>
+/* Стили */
+</style>
