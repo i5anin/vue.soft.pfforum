@@ -1,156 +1,68 @@
 <template>
   <v-container>
-    <edit-tool-modal-sklad
-      v-if="openDialog"
-      :tool="editingTool"
-      :persistent="true"
-      @canceled="onClosePopup"
-      @changes-saved="onSaveChanges"
-    />
-    <get-tool />
-    <v-data-table-server
-      v-if="isDataLoaded"
-      noDataText="Нет данных"
-      itemsPerPageText="Пункты на странице:"
-      loadingText="Загрузка данных"
-      :headers="ToolTableHeaders"
-      :items="tools"
-      :itemsLength="toolsTotalCount"
-      :items-per-page="filters.itemsPerPage"
-      :page="filters.currentPage"
-      :loading="isLoading"
-      :items-per-page-options="[15, 50, 100, 300]"
-      density="compact"
-      @update:page="onChangePage"
-      @update:items-per-page="onUpdateItemsPerPage"
-      @click:row="onEditRow"
+    <v-data-table
+      v-if="toolHistory.length > 0"
+      :headers="headers"
+      :items="toolHistory"
       class="elevation-1"
       hover
-      fixed-header
-      width
     >
-      <template v-slot:item.index="{ index }">
-        <td class="index">{{ index + 1 }}</td>
+      <template v-slot:item="{ item }">
+        <tr>
+          <td>{{ item.specs_op_id }}</td>
+          <td>{{ item.name }}</td>
+          <td>{{ item.description }}</td>
+          <td>{{ item.no_oper }}</td>
+          <td>{{ item.type_oper }}</td>
+          <td>{{ item.quantity }}</td>
+          <td>{{ item.user_fio }}</td>
+          <td>{{ formatDate(item.date_p) }}</td>
+          <td>{{ formatDate(item.date_u) }}</td>
+          <td>{{ item.name_tool }}</td>
+          <td v-if="item.property">
+            <div v-for="(value, key) in item.property" :key="key">
+              {{ key }}: {{ value }}
+            </div>
+          </td>
+        </tr>
       </template>
-      <!--name-->
-      <template v-slot:item.name="{ item }">
-        <span style="white-space: nowrap">{{ item.name }}</span>
-      </template>
-      <template v-slot:item.param="{ item }">
-        <div v-for="(prop, key) in item.property" :key="key">
-          {{ prop.info }}: {{ prop.value }}
-        </div>
-      </template>
-    </v-data-table-server>
+    </v-data-table>
   </v-container>
 </template>
 
 <script>
-import EditToolModalSklad from '@/modules/tool/components/modal/EditToolModalSklad.vue'
-import { VDataTableServer } from 'vuetify/labs/VDataTable'
-import { mapActions, mapMutations, mapGetters } from 'vuex'
-import GetTool from '@/modules/tool/components/GetTool.vue'
+import { fetchToolHistory } from '@/api' // Убедитесь, что путь к файлу API корректен
 
 export default {
-  emits: ['changes-saved', 'canceled'],
-  components: {
-    GetTool,
-    VDataTableServer,
-    EditToolModalSklad,
-  },
-  props: {
-    parentId: {
-      type: Object,
-      default: () => ({}),
-    },
-  },
   data() {
     return {
-      openDialog: false,
-      editingTool: null,
-      isDataLoaded: false,
+      item: [],
+      toolHistory: [], // Данные истории инструментов
+      headers: [
+        // Заголовки для таблицы
+        { text: 'ID Операции', value: 'specs_op_id' },
+        { text: 'Название', value: 'name' },
+        { text: 'Описание', value: 'description' },
+        { text: 'Номер операции', value: 'no_oper' },
+        { text: 'Тип операции', value: 'type_oper' },
+        { text: 'Количество', value: 'quantity' },
+        { text: 'Кому выдана', value: 'user_fio' },
+        { text: 'Дата получения', value: 'date_p' },
+        { text: 'Дата возврата', value: 'date_u' },
+        { text: 'Инструмент', value: 'name_tool' },
+        { text: 'Свойства', value: 'property' },
+      ],
     }
   },
-  computed: {
-    ...mapGetters('tool', ['toolsTotalCount', 'tools', 'filters', 'isLoading']),
-    paramsList() {
-      return this.$store.state.tool.paramsList
-    },
-  },
-  watch: {
-    paramsList: {
-      immediate: true,
-      handler(newVal) {
-        if (newVal && newVal.length > 0) {
-          this.ToolTableHeaders = [
-            { title: '№', key: 'index', sortable: false },
-            { title: 'Маркировка', key: 'name', sortable: true },
-            // { title: 'Характеристики', key: 'param', sortable: true },
-            { title: 'Наименование', key: 'title', sortable: true },
-            { title: 'Обозначение', key: 'description', sortable: true },
-            { title: 'Номер', key: 'no', sortable: true },
-            { title: 'Тип операции', key: 'cnc', sortable: true },
-            { title: 'Кому выдана', key: 'user', sortable: true },
-            // { title: 'Дата прихода', key: 'date_p', sortable: true },
-            // { title: 'Дата ухода', key: 'date_u', sortable: true },
-            { title: 'Склад доступно', key: 'sklad', sortable: true },
-          ]
-        }
-      },
-    },
-  },
   async mounted() {
-    await this.fetchToolsByFilter()
-    this.isDataLoaded = true
+    this.toolHistory = await fetchToolHistory()
+    console.log(this.toolHistory)
   },
   methods: {
-    ...mapActions('tool', ['fetchToolsByFilter']),
-    ...mapMutations({
-      setCurrentPage: 'tool/setCurrentPage',
-      setItemsPerPage: 'tool/setItemsPerPage',
-    }),
-
-    async onChangePage(page) {
-      this.setCurrentPage(page)
-      await this.fetchToolsByFilter()
-    },
-    async onUpdateItemsPerPage(itemsPerPage) {
-      this.setItemsPerPage(itemsPerPage)
-      await this.fetchToolsByFilter()
-    },
-    onClosePopup() {
-      this.openDialog = false
-    },
-    onSaveChanges() {
-      this.openDialog = false
-    },
-    onAddTool() {
-      this.editingTool = {
-        id: null,
-        group_name: '',
-        type_name: '',
-        mat_name: '',
-        name: '',
-      }
-      this.openDialog = true
-    },
-    onEditRow(event, { item: tool }) {
-      this.editingTool = tool
-      this.openDialog = true
+    formatDate(date) {
+      if (!date) return ''
+      return new Date(date).toLocaleDateString()
     },
   },
 }
 </script>
-
-<style scoped>
-.narrow-column {
-  max-width: 100px !important;
-  font-size: 0.9em;
-}
-
-.index {
-  max-width: 40px !important;
-  font-size: 0.9em;
-  color: grey;
-}
-</style>
