@@ -7,6 +7,7 @@
       @canceled="onClosePopup"
       @changes-saved="onSaveChanges"
     />
+    <get-tool />
     <v-data-table-server
       v-if="isDataLoaded"
       noDataText="Нет данных"
@@ -48,10 +49,12 @@
 import EditToolModalSklad from '@/modules/tool/components/modal/EditToolModalSklad.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
+import GetTool from '@/modules/tool/components/GetTool.vue'
 
 export default {
   emits: ['changes-saved', 'canceled'],
   components: {
+    GetTool,
     VDataTableServer,
     EditToolModalSklad,
   },
