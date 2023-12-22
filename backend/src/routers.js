@@ -34,4 +34,9 @@ router.delete('/tools-tree/:id', treeController.dellFolderTree)
 
 router.get('/custom-query', operController.customQuery)
 
+router.get('/sklad', skladController.getToolHistory)
+// router.post('/sklad', skladController.addSkladItem)
+// router.put('/sklad/:id', skladController.updateSkladItem)
+// router.delete('/sklad/:id', skladController.deleteSkladItem)
+
 module.exports = router
