@@ -108,14 +108,10 @@ export default {
     item: Object,
   },
   methods: {
+    // обновить IdParent
     ...mapMutations('tool', ['updateIdParent']),
+    //переименовать текущий элемент
     async renameCurrentItem() {
-      if (!this.currentItem || !this.editableLabel) {
-        return alert(
-          'Не выбран элемент для переименования или не введено новое имя.'
-        )
-      }
-
       const itemId = this.currentItem.id
       const newName = this.editableLabel
 
@@ -123,15 +119,9 @@ export default {
         const response = await renameFolder(itemId, newName)
         if (response && response.message) {
           alert('Элемент успешно переименован.')
-
-          // Обновляем название текущего элемента без перестроения всего дерева
-          this.currentItem.label = newName
-
-          // Необходимо обновить элемент в истории, если он там есть
-          const historyItem = this.tree.find((item) => item.id === itemId)
-          if (historyItem) {
-            historyItem.label = newName
-          }
+          this.currentItem.label = newName // Обновляем название текущего элемента без перестроения всего дерева
+          const historyItem = this.tree.find((item) => item.id === itemId) // Необходимо обновить элемент в истории, если он там есть
+          if (historyItem) historyItem.label = newName
         } else {
           alert('Произошла ошибка при переименовании.')
         }
@@ -142,14 +132,9 @@ export default {
     },
 
     async deleteItem() {
-      if (!this.currentItem) {
-        return alert('Не выбран элемент для удаления.')
-      }
-
+      if (!this.currentItem) return alert('Не выбран элемент для удаления.')
       const itemId = this.currentItem.id
-      if (
-        confirm(`Вы уверены, что хотите удалить ${this.currentItem.label}?`)
-      ) {
+      if (confirm(`Уверены, что хотите удалить ${this.currentItem.label}?`)) {
         try {
           await deleteFolder(itemId)
           alert('Элемент успешно удален.')
@@ -191,14 +176,7 @@ export default {
         console.log(`Введенное название папки: ${branchName}`) // Логирование введенного названия
 
         try {
-          console.log(
-            `Попытка добавления папки '${branchName}' в категорию с ID: ${this.currentItem.id}`
-          )
           const newBranch = await addFolder(branchName, this.currentItem.id)
-          console.log(
-            `Папка добавлена успешно. ID новой папки: ${newBranch.newBranchId}`
-          )
-
           // Создаем объект новой папки
           const newFolder = {
             id: newBranch.newBranchId,
@@ -206,51 +184,26 @@ export default {
             elements: 0,
             nodes: [],
           }
-
-          // Добавляем новую папку в список дочерних элементов текущего элемента
-          this.currentItem.nodes.push(newFolder)
-
-          // Обновляем текущий элемент, чтобы отображать новую папку
-          this.currentItem = newFolder
-
-          // Добавляем новую папку в историю для навигации
-          this.tree.push(newFolder)
+          this.currentItem.nodes.push(newFolder) // Добавляем новую папку в список дочерних элементов текущего элемента
+          this.currentItem = newFolder // Обновляем текущий элемент, чтобы отображать новую папку
+          this.tree.push(newFolder) // Добавляем новую папку в историю для навигации
         } catch (error) {
-          console.error('Ошибка при добавлении новой ветки:', error)
           alert('Произошла ошибка при добавлении ветки.')
         }
-      } else {
-        console.log('Добавление папки отменено пользователем')
       }
     },
 
     async refreshTree() {
-      console.log('Начало обновления дерева')
-      try {
-        const updatedTree = await getTree()
-        console.log('Дерево получено:', updatedTree)
-        this.treeData = updatedTree
-
-        // Проверяем, если текущий элемент присутствует в обновленном дереве
-        const updatedCurrentItem = updatedTree.find(
-          (item) => item.id === this.currentItem.id
-        )
-
-        if (updatedCurrentItem) {
-          // Обновляем текущий элемент, если он найден
-          this.currentItem = updatedCurrentItem
-          console.log('Текущий элемент обновлен:', this.currentItem)
-        } else {
-          // Если текущий элемент не найден, обновляем его на первый элемент из дерева
-          // или на null, если дерево пустое
-          this.currentItem = updatedTree.length > 0 ? updatedTree[0] : null
-          console.log(
-            'Текущий элемент обновлен на первый элемент дерева или null'
-          )
-        }
-      } catch (error) {
-        console.error('Ошибка при обновлении дерева:', error)
-      }
+      const updatedTree = await getTree()
+      this.treeData = updatedTree
+      const updatedCurrentItem = updatedTree.find(
+        (item) => item.id === this.currentItem.id // Проверяем, если текущий элемент присутствует в обновленном дереве
+      )
+      this.currentItem = updatedCurrentItem // Если текущий элемент не найден, обновляем его на первый элемент из дерева или на null, если дерево пустое
+        ? updatedCurrentItem
+        : updatedTree.length > 0
+        ? updatedTree[0]
+        : null
     },
 
     async selectItem(item) {
@@ -258,13 +211,9 @@ export default {
       console.log('Выбранная папка каталога:', item.id, item.label)
       this.currentItem = item
       if (!this.tree.includes(item)) this.tree.push(item)
-      try {
-        await this.$store.dispatch('tool/fetchToolsByFilter', {
-          parentId: item.id,
-        })
-      } catch (error) {
-        console.error('Ошибка при получении данных:', error)
-      }
+      await this.$store.dispatch('tool/fetchToolsByFilter', {
+        parentId: item.id,
+      })
     },
     startEditing() {
       this.isEditing = true
@@ -324,14 +273,10 @@ export default {
 
 <style>
 /* Стили для хлебных крошек */
-/*.breadcrumbs-item {
-  cursor: pointer;
-} */
-
 .breadcrumbs {
   margin-bottom: 8px;
 }
-
+/* Стили для хлебных крошек */
 .breadcrumbs-item-final {
   color: grey;
 }
