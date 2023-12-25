@@ -15,7 +15,24 @@ const pool = new Pool(dbConfig)
 // Функция для получения истории инструментов
 async function getToolHistory(req, res) {
   try {
-    const sqlQuery = `
+    // Параметры пагинации
+    const page = parseInt(req.query.page || 1, 10)
+    const limit = parseInt(req.query.limit || 15, 10)
+    const offset = (page - 1) * limit
+
+    // Запрос для подсчета общего количества записей
+    const countQuery = `
+      SELECT COUNT(*)
+      FROM dbo.tool_history_nom thn
+      INNER JOIN dbo.specs_nom_operations sno ON thn.id_oper = sno.id
+      INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
+      WHERE sn.status_p = 'П'
+        AND NOT sn.status_otgruzka
+        AND (POSITION('ЗАПРЕТ' IN UPPER(sn.comments)) = 0 OR sn.comments IS NULL);
+    `
+
+    // Запрос для получения истории инструментов с учетом пагинации
+    const dataQuery = `
       SELECT
         thn.id_oper AS specs_op_id,
         sn.ID AS id_oper,
@@ -31,36 +48,31 @@ async function getToolHistory(req, res) {
         thn.id_nom,
         tn.name AS name_tool,
         tn.property
-      FROM
-        dbo.tool_history_nom thn
-      INNER JOIN
-        dbo.specs_nom_operations sno ON thn.id_oper = sno.id
-      INNER JOIN
-        dbo.specs_nom sn ON sno.specs_nom_id = sn.id
-      INNER JOIN
-        dbo.operations_ordersnom oon ON oon.op_id = sno.ordersnom_op_id
-      INNER JOIN
-        dbo.operators o ON thn.id_user = o.id
-      INNER JOIN
-        dbo.tool_nom tn ON thn.id_nom = tn.id
-      WHERE
-        sn.status_p = 'П'
+      FROM dbo.tool_history_nom thn
+      INNER JOIN dbo.specs_nom_operations sno ON thn.id_oper = sno.id
+      INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
+      INNER JOIN dbo.operations_ordersnom oon ON oon.op_id = sno.ordersnom_op_id
+      INNER JOIN dbo.operators o ON thn.id_user = o.id
+      INNER JOIN dbo.tool_nom tn ON thn.id_nom = tn.id
+      WHERE sn.status_p = 'П'
         AND NOT sn.status_otgruzka
         AND (POSITION('ЗАПРЕТ' IN UPPER(sn.comments)) = 0 OR sn.comments IS NULL)
-        AND (T OR dmc OR hision OR f OR f4 OR fg OR tf)
-      ORDER BY
-        sn.NAME,
-        sn.description,
-        oon.no::INT;
+      ORDER BY sn.NAME, sn.description, oon.no::INT
+      LIMIT ${limit} OFFSET ${offset};
     `
 
-    // Выполнение запроса к базе данных
-    const result = await pool.query(sqlQuery)
+    // Выполнение запросов
+    const countResult = await pool.query(countQuery)
+    const dataResult = await pool.query(dataQuery)
 
     // Отправка результата
-    res.json(result.rows)
+    res.json({
+      currentPage: page,
+      itemsPerPage: limit,
+      totalCount: parseInt(countResult.rows[0].count, 10),
+      toolsHistory: dataResult.rows,
+    })
   } catch (err) {
-    // Обработка возможных ошибок
     console.error('Error executing query', err.stack)
     res.status(500).send('Ошибка при выполнении запроса')
   }
