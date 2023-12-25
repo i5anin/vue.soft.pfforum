@@ -100,8 +100,13 @@ export default {
       editableLabel: '',
     }
   },
+
   props: {
     item: Object,
+    parentId: {
+      type: Object,
+      default: () => ({ id: null, label: null }),
+    },
   },
   methods: {
     // обновить IdParent
