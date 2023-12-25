@@ -41,10 +41,13 @@ export default {
     }
   },
   async mounted() {
-    await this.loadToolHistory()
+    await this.fetchAndFormatToolHistory()
   },
   methods: {
-    async loadToolHistory() {
+    formatDate(date) {
+      return format(parseISO(date), 'dd.MM.yyyy')
+    },
+    async fetchAndFormatToolHistory() {
       try {
         const response = await fetchToolHistory()
         this.toolsHistory = response.toolsHistory.map((tool) => ({
@@ -57,18 +60,6 @@ export default {
         console.error('Ошибка при загрузке истории инструментов:', error)
       }
     },
-    formatDate(date) {
-      return format(parseISO(date), 'dd.MM.yyyy')
-    },
-  },
-  async loadToolHistory() {
-    try {
-      const response = await fetchToolHistory()
-      this.toolsHistory = response.toolsHistory
-      this.totalCount = response.totalCount
-    } catch (error) {
-      console.error('Ошибка при загрузке истории инструментов:', error)
-    }
   },
 }
 </script>
