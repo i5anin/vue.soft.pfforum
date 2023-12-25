@@ -47,6 +47,11 @@
       <template v-slot:item.zakaz="{ item }">
         <span style="white-space: nowrap">{{ item.zakaz }}</span>
       </template>
+      <template v-slot:item.actions="{ item }">
+        <v-btn color="primary" @click="(event) => onIssueTool(event, item)"
+          >Выдать</v-btn
+        >
+      </template>
     </v-data-table-server>
   </v-container>
 </template>
@@ -100,6 +105,7 @@ export default {
               key: param.key,
               sortable: true,
             })),
+            { title: 'Действие', key: 'actions', sortable: false },
           ]
         }
       },
@@ -110,6 +116,10 @@ export default {
     this.isDataLoaded = true
   },
   methods: {
+    onIssueTool(event, item) {
+      event.stopPropagation() // Предотвратить всплытие события
+      console.log('Выдать инструмент:', item)
+    },
     ...mapActions('tool', ['fetchToolsByFilter']),
     ...mapMutations({
       setCurrentPage: 'tool/setCurrentPage',
