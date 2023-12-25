@@ -32,10 +32,15 @@ export default {
         { title: 'Номер операции', key: 'no_oper', sortable: true },
         { title: 'Тип операции', key: 'type_oper', sortable: true },
         { title: 'Кол-во', key: 'quantity', sortable: true },
-        { title: 'ФИО', key: 'user_fio', sortable: true },
+        { title: 'ФИО', key: 'user_fio', sortable: true, width: '150px' },
         { title: 'Дата приход', key: 'date_p', sortable: true },
         { title: 'Дата уход', key: 'date_u', sortable: true },
-        { title: 'Название инструмента', key: 'name_tool', sortable: true },
+        {
+          title: 'Название инструмента',
+          key: 'name_tool',
+          sortable: true,
+          width: '180px',
+        },
         { title: 'Характеристики', key: 'property', sortable: true },
       ],
     }
