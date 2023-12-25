@@ -9,14 +9,14 @@
         </v-btn>
 
         <!-- Рекурсивное отображение дерева -->
-        <v-list-item-group class="mt-3">
+        <v-list-item class="mt-3">
           <tree-node
             v-for="node in treeData"
             :key="node.id"
             :node="node"
             @refresh-node="refreshTreeData"
           />
-        </v-list-item-group>
+        </v-list-item>
       </v-container>
     </v-main>
   </v-app>

@@ -1,7 +1,7 @@
 <template>
   <v-list-item>
     <div className="tree-node">
-      <v-list-item-content className="node-content">
+      <div className="node-content">
         <v-icon color="info">mdi-folder</v-icon>
         <span>
           {{ node.label }}
@@ -10,15 +10,15 @@
           </span>
           <span class="node-id">id: {{ node.id }} </span>
         </span>
-      </v-list-item-content>
-      <v-list-item-content v-if="node.nodes && node.nodes.length">
+      </div>
+      <div v-if="node.nodes && node.nodes.length">
         <tree-node
           v-for="child in node.nodes"
           :key="child.id"
           :node="child"
           class="child-node"
         />
-      </v-list-item-content>
+      </div>
     </div>
   </v-list-item>
 </template>

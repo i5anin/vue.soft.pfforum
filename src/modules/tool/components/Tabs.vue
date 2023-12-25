@@ -29,7 +29,10 @@ import ToolTabTree from '@/modules/tool/components/tabs/Tree.vue'
 
 // eslint-disable-next-line no-unused-vars
 const props = defineProps({
-  parentId: String,
+  parentId: {
+    type: Object,
+    default: () => ({ id: null, label: null }),
+  },
 })
 
 const tab = ref('Catalog')

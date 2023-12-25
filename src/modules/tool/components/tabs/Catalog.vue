@@ -55,18 +55,14 @@
             </div>
 
             <!-- Отображение списка элементов -->
-            <v-list-item-group
-              v-if="currentItem && currentItem.nodes"
-              v-model="selectedItem"
-              active-class="deep-purple--text text--accent-4"
-            >
+            <div v-if="currentItem && currentItem.nodes">
               <v-list-item
                 v-for="item in currentItem.nodes"
                 :key="item.id"
                 @click="selectItem(item)"
-                class="d-flex align-center"
+                class="align-center"
               >
-                <v-list-item-content class="flex">
+                <div class="flex">
                   <v-icon color="info" icon="mdi-folder" class="icon" />
                   <v-list-item-title>
                     {{ item.label }}
@@ -74,9 +70,9 @@
                       ({{ item.elements }})
                     </span>
                   </v-list-item-title>
-                </v-list-item-content>
+                </div>
               </v-list-item>
-            </v-list-item-group>
+            </div>
           </v-col>
         </v-row>
       </v-container>
