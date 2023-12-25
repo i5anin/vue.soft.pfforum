@@ -1,20 +1,22 @@
 <template>
   <v-container>
     <v-data-table-server
-      v-if="isDataLoaded"
+      v-if="toolsHistory && toolsHistory.length > 0"
       noDataText="Нет данных"
       itemsPerPageText="Пункты на странице:"
       loadingText="Загрузка данных"
+      item-value="name"
       :headers="headers"
-      :items="toolsHistory"
       :items-length="totalCount"
+      :items="toolsHistory"
       :items-per-page-options="[15, 50, 100, 300]"
-      density="compact"
-      class="elevation-1"
-      fixed-header
-      :hover="true"
     >
-      <!-- Здесь можно добавить дополнительные слоты и конфигурации, если нужно -->
+      <template v-slot:item.name="{ item }">
+        <span style="white-space: nowrap">{{ item.name }}</span>
+      </template>
+      <template v-slot:item.description="{ item }">
+        <span style="white-space: nowrap">{{ item.description }}</span>
+      </template>
     </v-data-table-server>
   </v-container>
 </template>
@@ -29,28 +31,29 @@ export default {
     return {
       toolsHistory: [],
       totalCount: 0,
-      isDataLoaded: false,
       headers: [
-        { title: 'ID Операции', key: 'id_oper', sortable: false },
         { title: 'Название', key: 'name', sortable: true },
-        // Дополнительные заголовки...
+        { title: 'description', key: 'description', sortable: true },
+        { title: 'no_oper', key: 'no_oper', sortable: true },
+        { title: 'type_oper', key: 'type_oper', sortable: true },
+        { title: 'quantity', key: 'quantity', sortable: true },
+        { title: 'user_fio', key: 'user_fio', sortable: true },
+        { title: 'date_p', key: 'date_p', sortable: true },
+        { title: 'date_u', key: 'date_u', sortable: true },
+        { title: 'name_tool', key: 'name_tool', sortable: true },
+        { title: 'Характеристики', key: 'property', sortable: true },
       ],
     }
   },
   async mounted() {
-    console.log('Монтирование компонента...')
     await this.loadToolHistory()
-    this.isDataLoaded = true
-    console.log('Монтирование завершено. isDataLoaded:', this.isDataLoaded)
   },
   methods: {
     async loadToolHistory() {
       try {
         const response = await fetchToolHistory()
-        if (response && response.data) {
-          this.toolsHistory = response.data.toolsHistory
-          this.totalCount = response.data.totalCount
-        }
+        this.toolsHistory = response.toolsHistory
+        this.totalCount = response.totalCount
       } catch (error) {
         console.error('Ошибка при загрузке истории инструментов:', error)
       }
