@@ -4,6 +4,19 @@
     <template #content>
       <v-container>
         <v-row>
+          <v-text-field
+            label="Название обозначение"
+            required
+            type="Number"
+            v-model="idParent.id"
+          />
+          <v-text-field
+            label="Обозначение"
+            required
+            :value="idParent.label"
+            :disabled="true"
+            :active="true"
+          />
           <v-col>
             <!--левый столбец -->
             <div>
@@ -71,12 +84,8 @@ export default {
   data: () => ({
     toolParamOptions: [],
     selectedParams: [],
-    geometryOptions: [],
     toolParams: [],
     toolModel: { name: null, property: {} },
-    typeOptions: [],
-    groupOptions: [],
-    materialOptions: [],
     confirmDeleteDialog: false,
     typeSelected: false,
     selectedType: '',
@@ -85,11 +94,7 @@ export default {
       (v) => (v && v.length >= 3) || 'Минимальная длина: 3 символа',
     ],
   }),
-  // data - используется для определения реактивных данных компонента, которые непосредственно управляют состоянием и поведением этого компонента.
-  // watch - используется для отслеживания изменений в этих данных (или в других реактивных источниках) и выполнения дополнительных действий или логики в ответ на эти изменения.
   async created() {
-    // this.loadLastSavedData()
-
     if (this.toolId == null) {
       this.setTool({
         id: null,

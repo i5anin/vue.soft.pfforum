@@ -13,7 +13,6 @@
         :chips="true"
         multiple
         v-model="filterModel.types"
-        :items="typeOptions"
         item-text="name"
         item-value="id"
         label="Тип"
@@ -25,7 +24,6 @@
         :chips="true"
         multiple
         v-model="filterModel.groups"
-        :items="groupOptions"
         item-text="name"
         item-value="id"
         label="Группа"
@@ -37,7 +35,6 @@
         :chips="true"
         multiple
         v-model="filterModel.materials"
-        :items="materialOptions"
         item-text="name"
         item-value="id"
         label="Материал"
@@ -81,13 +78,7 @@ export default {
     filterModel: null,
   }),
   computed: {
-    ...mapGetters('tool', [
-      'filters',
-      'groupOptions',
-      'materialOptions',
-      'typeOptions',
-      'paramsOptions',
-    ]),
+    ...mapGetters('tool', ['filters', 'paramsOptions']),
     checkboxColor() {
       return this.filters.includeNull ? 'red' : ''
     },

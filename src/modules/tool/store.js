@@ -24,12 +24,6 @@ export const store = {
       selectedParams: [],
       includeNull: false,
     },
-
-    // filter options
-    typeOptions: [],
-    groupOptions: [],
-    materialOptions: [],
-    paramsOptions: [],
   },
   mutations: {
     updateIdParent(state, idParentData) {
@@ -98,11 +92,11 @@ export const store = {
           parentId,
           selectedParams
         )
-        commit('setParamsList', paramsList)
-        commit('setTools', tools)
-        commit('setToolsTotalCount', totalCount)
+        commit('setParamsList', paramsList) // Это данные, которые передаются в мутацию. Полученный из функции getTools
+        commit('setTools', tools) // Инструменты
+        commit('setToolsTotalCount', totalCount) // Счетчик
       } catch (error) {
-        console.error('Ошибка при получении данных:', error)
+        console.error('getTools. Ошибка при получении данных:', error)
       } finally {
         commit('setIsLoading', false)
       }
@@ -147,9 +141,6 @@ export const store = {
     isLoading: (state) => state.isLoading,
 
     // параметры фильтра
-    typeOptions: (state) => state.typeOptions,
-    groupOptions: (state) => state.groupOptions,
-    materialOptions: (state) => state.materialOptions,
     paramsOptions: (state) => state.paramsOptions,
     paramsList: (state) => state.paramsList,
     nameOptions: (state) => state.nameOptions,

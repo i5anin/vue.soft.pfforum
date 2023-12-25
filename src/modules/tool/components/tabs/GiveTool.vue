@@ -1,5 +1,7 @@
 <template>
   <v-container>
+    <Modal :title="popupTitle" v-if="showModal" />
+    <v-btn color="primary" @click="openModal">Открыть модальное окно</v-btn>
     <v-data-table-server
       v-if="toolsHistory && toolsHistory.length > 0"
       noDataText="Нет данных"
@@ -16,14 +18,16 @@
 </template>
 
 <script>
-import { fetchToolHistory } from '@/api'
 import { VDataTableServer } from 'vuetify/labs/components'
 import { format, parseISO } from 'date-fns'
+import { fetchToolHistory } from '@/api'
+import Modal from '@/modules/tool/components/modal/AddSkladToolModal.vue'
 
 export default {
-  components: { VDataTableServer },
+  components: { Modal, VDataTableServer },
   data() {
     return {
+      showModal: false,
       toolsHistory: [],
       totalCount: 0,
       headers: [
@@ -49,6 +53,9 @@ export default {
     await this.fetchAndFormatToolHistory()
   },
   methods: {
+    openModal() {
+      this.showModal = true // Установите переменную, контролирующую видимость модального окна
+    },
     formatDate(date) {
       return format(parseISO(date), 'dd.MM.yyyy')
     },
