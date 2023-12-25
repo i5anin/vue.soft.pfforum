@@ -18,6 +18,7 @@
 <script>
 import { fetchToolHistory } from '@/api'
 import { VDataTableServer } from 'vuetify/labs/components'
+import { format, parseISO } from 'date-fns'
 
 export default {
   components: { VDataTableServer },
@@ -30,8 +31,8 @@ export default {
         { title: 'Обозначение', key: 'description', sortable: true },
         { title: 'Номер операции', key: 'no_oper', sortable: true },
         { title: 'Тип операции', key: 'type_oper', sortable: true },
-        { title: 'Количество', key: 'quantity', sortable: true },
-        { title: 'user_fio', key: 'user_fio', sortable: true },
+        { title: 'Кол-во', key: 'quantity', sortable: true },
+        { title: 'ФИО', key: 'user_fio', sortable: true },
         { title: 'Дата приход', key: 'date_p', sortable: true },
         { title: 'Дата уход', key: 'date_u', sortable: true },
         { title: 'Название инструмента', key: 'name_tool', sortable: true },
@@ -46,12 +47,28 @@ export default {
     async loadToolHistory() {
       try {
         const response = await fetchToolHistory()
-        this.toolsHistory = response.toolsHistory
+        this.toolsHistory = response.toolsHistory.map((tool) => ({
+          ...tool,
+          date_p: this.formatDate(tool.date_p),
+          date_u: this.formatDate(tool.date_u),
+        }))
         this.totalCount = response.totalCount
       } catch (error) {
         console.error('Ошибка при загрузке истории инструментов:', error)
       }
     },
+    formatDate(date) {
+      return format(parseISO(date), 'dd.MM.yyyy')
+    },
+  },
+  async loadToolHistory() {
+    try {
+      const response = await fetchToolHistory()
+      this.toolsHistory = response.toolsHistory
+      this.totalCount = response.totalCount
+    } catch (error) {
+      console.error('Ошибка при загрузке истории инструментов:', error)
+    }
   },
 }
 </script>
