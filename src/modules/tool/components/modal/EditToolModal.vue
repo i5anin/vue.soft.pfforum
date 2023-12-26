@@ -225,14 +225,6 @@ export default {
       console.log('Value changed for param ID:', paramId)
     },
 
-    // loadLastSavedData() {
-    //   // const lastSavedData = localStorage.getItem('lastSavedToolModel')
-    //   // if (lastSavedData) {
-    //   //   const lastSavedToolModel = JSON.parse(lastSavedData)
-    //   //   this.prependLastSavedData(lastSavedToolModel)
-    //   // }
-    // },
-
     prependLastSavedData(data) {
       if (!data) return
       this.prependOptionIfNeeded(data.name, this.nameOptions, 'name')
