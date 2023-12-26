@@ -236,11 +236,34 @@ async function getToolById(req, res) {
   const { id } = req.params // Получение ID инструмента из параметров маршрута
 
   try {
-    const query = 'SELECT * FROM dbo.tool_nom WHERE id = $1'
+    // Измененный запрос для получения данных инструмента и названия папки
+    const query = `
+      SELECT t.*, tt.name as folder_name
+      FROM dbo.tool_nom t
+      LEFT JOIN dbo.tool_tree tt ON t.parent_id = tt.id AND t.parent_id = 1
+      WHERE t.id = $1`
+
     const result = await pool.query(query, [id])
 
     if (result.rows.length > 0) {
-      res.json(result.rows[0]) // Отправка данных инструмента
+      const toolData = result.rows[0]
+
+      // Создание JSON-ответа с данными инструмента и названием папки
+      const jsonResponse = {
+        id: toolData.id,
+        type_id: toolData.type_id,
+        mat_id: toolData.mat_id,
+        name: toolData.name,
+        group_id: toolData.group_id,
+        kolvo_sklad: toolData.kolvo_sklad,
+        norma: toolData.norma,
+        zakaz: toolData.zakaz,
+        parent_id: toolData.parent_id,
+        folder_name: toolData.folder_name, // Добавление названия папки
+        property: toolData.property,
+      }
+
+      res.json(jsonResponse)
     } else {
       res.status(404).send('Инструмент не найден')
     }
