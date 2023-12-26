@@ -153,21 +153,20 @@ async function addTool(req, res) {
   const { name, parent_id, property } = req.body
 
   try {
-    // Проверка наличия parent_id в таблице tool_tree
     const parentCheckResult = await pool.query(
       'SELECT id FROM dbo.tool_tree WHERE id = $1',
       [parent_id]
     )
 
-    if (parentCheckResult.rowCount === 0)
+    if (parentCheckResult.rowCount === 0) {
       return res
         .status(400)
-        .send(`addTool. Указанный parent_id=${parent_id} не существует.`)
+        .json({ error: 'Specified parent_id does not exist.' })
+    }
 
     const propertyWithoutNull = removeNullProperties(property)
     const propertyString = JSON.stringify(propertyWithoutNull)
 
-    // Вставка данных инструмента
     const toolInsertResult = await pool.query(
       'INSERT INTO dbo.tool_nom (name, parent_id, property) VALUES ($1, $2, $3) RETURNING id',
       [name, parent_id, propertyString]
@@ -175,23 +174,20 @@ async function addTool(req, res) {
 
     const toolId = toolInsertResult.rows[0].id
 
-    // Получение всех данных вновь добавленного инструмента
+    // Получение полной информации о добавленном инструменте
     const newToolResult = await pool.query(
       'SELECT * FROM dbo.tool_nom WHERE id = $1',
       [toolId]
     )
 
     if (newToolResult.rowCount > 0) {
-      res.json({
-        message: 'Инструмент успешно добавлен.',
-        tool: newToolResult.rows[0],
-      })
+      res.status(200).json({ success: 'OK', data: newToolResult.rows[0] })
     } else {
-      res.status(404).send('Не удалось найти добавленный инструмент.')
+      res.status(404).json({ error: 'Tool added, but not found.' })
     }
   } catch (err) {
     console.error('Error:', err.message)
-    res.status(500).send(err.message)
+    res.status(500).json({ error: 'Error adding tool: ' + err.message })
   }
 }
 
@@ -200,39 +196,33 @@ async function editTool(req, res) {
   const { name, parent_id, property } = req.body
 
   try {
-    // Проверка наличия parent_id в таблице tool_tree
     const parentCheckResult = await pool.query(
       'SELECT id FROM dbo.tool_tree WHERE id = $1',
       [parent_id]
     )
 
     if (parentCheckResult.rowCount === 0) {
-      console.log(parentCheckResult)
       return res
         .status(400)
-        .send(`editTool. Указанный parent_id=${parent_id} не существует.`)
+        .json({ error: 'Specified parent_id does not exist.' })
     }
 
     const propertyWithoutNull = removeNullProperties(property)
     const propertyString = JSON.stringify(propertyWithoutNull)
 
-    // Обновление данных инструмента
     const result = await pool.query(
       'UPDATE dbo.tool_nom SET name=$1, parent_id=$2, property=$3 WHERE id=$4 RETURNING *',
       [name, parent_id, propertyString, id]
     )
 
     if (result.rowCount > 0) {
-      res.json({
-        message: 'Инструмент успешно обновлен.',
-        tool: result.rows[0],
-      })
+      res.status(200).json({ success: 'OK', data: result.rows[0] })
     } else {
-      res.status(404).send('Инструмент с указанным ID не найден.')
+      res.status(404).json({ error: 'Tool with the specified ID not found.' })
     }
   } catch (err) {
     console.error('Error:', err.message)
-    res.status(500).send(err.message)
+    res.status(500).json({ error: 'Error updating tool: ' + err.message })
   }
 }
 
