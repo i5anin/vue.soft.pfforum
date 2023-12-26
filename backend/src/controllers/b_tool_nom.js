@@ -46,12 +46,6 @@ async function getTools(req, res) {
       conditions.push(`tool_nom.parent_id = ${parent_id}`)
     }
 
-    // if (!includeNull || includeNull === 'false') {
-    //   conditions.push(
-    //     `(tool_nom.name IS NOT NULL AND tool_nom.name != '' AND tool_nom.property IS NOT NULL)`
-    //   )
-    // }
-
     const whereClause = conditions.length
       ? `WHERE ${conditions.join(' AND ')}`
       : ''
@@ -84,6 +78,8 @@ async function getTools(req, res) {
     const totalCount = parseInt(countResult.rows[0].count, 10)
 
     const uniqueParams = new Set()
+    const propertyValues = {} // Объект для хранения уникальных значений свойств
+
     const formattedTools = toolsResult.rows.map((tool) => {
       let formattedProperty = {}
 
@@ -97,7 +93,13 @@ async function getTools(req, res) {
                 info: paramsMapping[key].info,
                 value: value,
               }
-              uniqueParams.add(key) // Add parameter key to uniqueParams only if it has a valid value
+              uniqueParams.add(key) // Добавление ключа свойства в uniqueParams
+
+              // Добавление уникальных значений для каждого свойства
+              if (!propertyValues[key]) {
+                propertyValues[key] = new Set()
+              }
+              propertyValues[key].add(value)
             }
             return acc
           },
@@ -115,10 +117,25 @@ async function getTools(req, res) {
       }
     })
 
-    const paramsList = Array.from(uniqueParams).map((key) => ({
-      key: key,
-      label: paramsMapping[key]?.info || key,
-    }))
+    // Преобразование Set в массив для каждого свойства
+    Object.keys(propertyValues).forEach((key) => {
+      propertyValues[key] = Array.from(propertyValues[key])
+    })
+
+    const paramsList = Array.from(uniqueParams)
+      .map((key) => {
+        // Фильтрация параметров, имеющих более одного значения
+        const values = propertyValues[key]
+        if (values && values.length > 1) {
+          return {
+            key: key,
+            label: paramsMapping[key]?.info || key,
+            values: values,
+          }
+        }
+        return null
+      })
+      .filter((item) => item != null) // Исключение null значений после фильтрации
 
     res.json({
       currentPage: page,
