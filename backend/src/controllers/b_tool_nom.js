@@ -153,6 +153,14 @@ async function addTool(req, res) {
   const { name, parent_id, property } = req.body
 
   try {
+    // Проверка, что parent_id больше 1
+    if (parent_id <= 1) {
+      return res
+        .status(400)
+        .json({ error: 'parent_id must be greater than 1.' })
+    }
+
+    // Проверка существования parent_id в таблице dbo.tool_tree
     const parentCheckResult = await pool.query(
       'SELECT id FROM dbo.tool_tree WHERE id = $1',
       [parent_id]
@@ -196,6 +204,14 @@ async function editTool(req, res) {
   const { name, parent_id, property } = req.body
 
   try {
+    // Проверка, что parent_id больше 1
+    if (parent_id <= 1) {
+      return res
+        .status(400)
+        .json({ error: 'parent_id must be greater than 1.' })
+    }
+
+    // Проверка существования parent_id в таблице dbo.tool_tree
     const parentCheckResult = await pool.query(
       'SELECT id FROM dbo.tool_tree WHERE id = $1',
       [parent_id]
