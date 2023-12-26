@@ -11,6 +11,7 @@
                 required
                 type="Number"
                 v-model="localParentId"
+                :rules="parentIdRules"
               />
               <v-text-field
                 label="Папка"
@@ -132,6 +133,11 @@ export default {
     confirmDeleteDialog: false,
     typeSelected: false,
     selectedType: '',
+    parentIdRules: [
+      (v) => !!v || 'ID папки обязательно',
+      (v) => v > 0 || 'ID папки должен быть больше 0',
+      (v) => v !== '' || 'ID папки не должен быть пустым',
+    ],
     typeRules: [
       (v) => !!v || 'Поле обязательно для заполнения',
       (v) => (v && v.length >= 3) || 'Минимальная длина: 3 символа',
@@ -266,14 +272,30 @@ export default {
       const toolDataToSend = {
         ...this.toolModel,
         parent_id: this.localParentId,
-        // Другие данные...
       }
-      if (this.toolId) {
-        updateTool(this.toolId, toolDataToSend)
-      } else {
-        addTool(toolDataToSend)
+
+      try {
+        let response
+        if (this.toolId) {
+          response = await updateTool(this.toolId, toolDataToSend)
+        } else {
+          response = await addTool(toolDataToSend)
+        }
+        console.log(response, response.status)
+        if (response.success === 'OK') {
+          this.$emit('changes-saved')
+          this.fetchToolsByFilter()
+        } else {
+          console.error('Ошибка при сохранении: ', response.data)
+          // Оставляем форму открытой для всех ошибок, кроме 200
+        }
+      } catch (error) {
+        console.error(
+          'Ошибка при сохранении: ',
+          error.response ? error.response.data : error
+        )
+        // Оставляем форму открытой для всех ошибок
       }
-      this.$emit('changes-saved')
     },
   },
 }
