@@ -41,6 +41,8 @@ const tabs = [
   { name: 'Каталог', component: TabCatalog },
   { name: 'Дерево', component: ToolTabTree },
   { name: 'Параметры', component: ToolTabParam },
-  { name: 'Получить инструмент', component: GiveTool },
+  { name: 'Выдача' },
+  { name: 'Склад' },
+  { name: 'История', component: GiveTool },
 ]
 </script>
