@@ -7,17 +7,16 @@
           <v-col>
             <div class="flex">
               <v-text-field
-                label="ID родителя"
+                label="ID папки"
                 required
                 type="Number"
-                v-model="currentParentId"
+                v-model="localParentId"
               />
               <v-text-field
                 label="Папка"
                 required
                 :value="currentFolderName"
                 :disabled="true"
-                :active="true"
               />
             </div>
             <!--левый столбец -->
@@ -124,11 +123,12 @@ export default {
   components: { DeleteConfirmationDialog, Modal },
   //реактивные данные
   data: () => ({
+    localParentId: null,
+    toolModel: { name: null, property: {} },
     toolParamOptions: [],
     selectedParams: [],
     geometryOptions: [],
     toolParams: [],
-    toolModel: { name: null, property: {} },
     confirmDeleteDialog: false,
     typeSelected: false,
     selectedType: '',
@@ -143,20 +143,21 @@ export default {
   watch: {
     tool: {
       deep: true,
-      handler() {
-        this.setCurrentParentId()
-      },
-    },
-    idParent: {
-      deep: true,
-      handler() {
-        this.setCurrentParentId()
+      immediate: true,
+      handler(newTool) {
+        if (newTool) {
+          this.localParentId = newTool.parent_id
+          this.currentFolderName = newTool.folder_name
+        } else {
+          this.localParentId = this.idParent.id
+          this.currentFolderName = this.idParent.label
+        }
       },
     },
   },
 
   async created() {
-    // this.loadLastSavedData()
+    this.initializeLocalState()
     if (this.toolId == null) {
       this.setTool({
         id: null,
@@ -214,11 +215,12 @@ export default {
       'onSaveToolModel',
       'fetchToolById',
     ]),
-    setCurrentParentId() {
-      if (this.tool && this.tool.parent_id) {
-        this.currentParentId = this.tool.parent_id
+    initializeLocalState() {
+      if (this.toolId) {
+        this.fetchToolById(this.toolId)
       } else {
-        this.currentParentId = this.idParent.id
+        this.localParentId = this.idParent.id
+        this.currentFolderName = this.idParent.label
       }
     },
     logModelValue(paramId) {
@@ -261,16 +263,15 @@ export default {
       this.$emit('canceled')
     },
     async onSave() {
-      // Устанавливаем parent_id для модели, которую сохраняем
-      this.toolModel.parent_id = this.currentParentId
-
+      const toolDataToSend = {
+        ...this.toolModel,
+        parent_id: this.localParentId,
+        // Другие данные...
+      }
       if (this.toolId) {
-        // Редактирование существующей номенклатуры
-        await updateTool(this.toolId, this.toolModel)
+        updateTool(this.toolId, toolDataToSend)
       } else {
-        // Создание новой номенклатуры
-        console.log(this.toolModel)
-        await addTool(this.toolModel)
+        addTool(toolDataToSend)
       }
       this.$emit('changes-saved')
     },
