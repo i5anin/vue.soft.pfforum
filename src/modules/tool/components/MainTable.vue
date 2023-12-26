@@ -96,21 +96,22 @@ export default {
     paramsList: {
       immediate: true,
       handler(newVal) {
-        if (newVal && newVal.length > 0) {
-          this.toolTableHeaders = [
-            { title: '№', key: 'index', sortable: false },
-            { title: 'Маркировка', key: 'name', sortable: true },
-            ...newVal.map((param) => ({
-              title: param.label,
-              key: param.key,
-              sortable: true,
-            })),
-            { title: 'Действие', key: 'actions', sortable: false },
-          ]
-        }
+        this.toolTableHeaders = [
+          { title: '№', key: 'index', sortable: false },
+          { title: 'Маркировка', key: 'name', sortable: true },
+          ...(newVal && newVal.length > 0
+            ? newVal.map((param) => ({
+                title: param.label,
+                key: param.key,
+                sortable: true,
+              }))
+            : []),
+          { title: 'Действие', key: 'actions', sortable: false },
+        ]
       },
     },
   },
+
   async mounted() {
     await this.fetchToolsByFilter()
     this.isDataLoaded = true
