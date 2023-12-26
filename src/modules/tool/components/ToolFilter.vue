@@ -3,54 +3,54 @@
     <v-col cols="12" md="3">
       <v-text-field
         v-model="filterModel.search"
-        label="Маркировка"
+        label="Маркировка (поиск по всем)"
         outlined
         :clearable="true"
       />
     </v-col>
-    <v-col cols="12" md="2">
-      <v-combobox
-        :chips="true"
-        multiple
-        v-model="filterModel.types"
-        item-text="name"
-        item-value="id"
-        label="Тип"
-        return-object
-      />
-    </v-col>
-    <v-col cols="12" md="2">
-      <v-combobox
-        :chips="true"
-        multiple
-        v-model="filterModel.groups"
-        item-text="name"
-        item-value="id"
-        label="Группа"
-        return-object
-      />
-    </v-col>
-    <v-col cols="12" md="2">
-      <v-combobox
-        :chips="true"
-        multiple
-        v-model="filterModel.materials"
-        item-text="name"
-        item-value="id"
-        label="Материал"
-        return-object
-      />
-    </v-col>
-    <v-col cols="12" md="3">
-      <v-combobox
-        :chips="true"
-        multiple
-        v-model="filterModel.selectedParams"
-        :items="paramsOptions"
-        label="Параметры"
-        return-object
-      />
-    </v-col>
+    <!--    <v-col cols="12" md="2">-->
+    <!--      <v-combobox-->
+    <!--        :chips="true"-->
+    <!--        multiple-->
+    <!--        v-model="filterModel.types"-->
+    <!--        item-text="name"-->
+    <!--        item-value="id"-->
+    <!--        label="Тип"-->
+    <!--        return-object-->
+    <!--      />-->
+    <!--    </v-col>-->
+    <!--    <v-col cols="12" md="2">-->
+    <!--      <v-combobox-->
+    <!--        :chips="true"-->
+    <!--        multiple-->
+    <!--        v-model="filterModel.groups"-->
+    <!--        item-text="name"-->
+    <!--        item-value="id"-->
+    <!--        label="Группа"-->
+    <!--        return-object-->
+    <!--      />-->
+    <!--    </v-col>-->
+    <!--    <v-col cols="12" md="2">-->
+    <!--      <v-combobox-->
+    <!--        :chips="true"-->
+    <!--        multiple-->
+    <!--        v-model="filterModel.materials"-->
+    <!--        item-text="name"-->
+    <!--        item-value="id"-->
+    <!--        label="Материал"-->
+    <!--        return-object-->
+    <!--      />-->
+    <!--    </v-col>-->
+    <!--    <v-col cols="12" md="3">-->
+    <!--      <v-combobox-->
+    <!--        :chips="true"-->
+    <!--        multiple-->
+    <!--        v-model="filterModel.selectedParams"-->
+    <!--        :items="paramsOptions"-->
+    <!--        label="Параметры"-->
+    <!--        return-object-->
+    <!--      />-->
+    <!--    </v-col>-->
   </v-row>
   <v-row>
     <v-col cols="12" md="3">
