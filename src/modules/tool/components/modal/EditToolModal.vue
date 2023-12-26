@@ -164,9 +164,12 @@ export default {
         name: null,
         property: {},
       })
-      // TODO: this.selectedParams = [1, 2, 3]
     } else {
       await this.fetchToolById(this.toolId)
+      // Если property равно null, установите его в {}
+      if (this.tool.property === null) {
+        this.tool.property = {}
+      }
     }
     const rawToolParams = await getToolParams()
     this.toolParams = [...rawToolParams]
