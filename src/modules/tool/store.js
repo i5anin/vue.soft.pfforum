@@ -124,8 +124,17 @@ export const store = {
   getters: {
     idParent: (state) => state.idParent,
     filters: (state) => ({ ...state.filters }),
-    tool: (state) =>
-      state.tool ? { ...state.tool, property: state.tool.property } : null,
+    tool: (state) => {
+      if (state.tool) {
+        return {
+          ...state.tool,
+          property: state.tool.property,
+          parent_id: state.tool.parent_id,
+          folder_name: state.tool.folder_name,
+        }
+      }
+      return null
+    },
     tools: (state) => [...state.tools],
     formattedTools: (state) =>
       state.tools.map((tool) => ({

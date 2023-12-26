@@ -10,12 +10,12 @@
                 label="ID родителя"
                 required
                 type="Number"
-                v-model="idParent.id"
+                v-model="currentParentId"
               />
               <v-text-field
                 label="Папка"
                 required
-                :value="idParent.label"
+                :value="currentFolderName"
                 :disabled="true"
                 :active="true"
               />
@@ -141,13 +141,17 @@ export default {
   // [watch] - используется для отслеживания изменений в этих данных (или в других реактивных источниках) и выполнения дополнительных действий или логики в ответ на эти изменения.
 
   watch: {
-    idParent: function (newVal, oldVal) {
-      console.log(
-        'idParent обновлен. Старое значение:',
-        oldVal,
-        'Новое значение:',
-        newVal
-      )
+    tool: {
+      deep: true,
+      handler() {
+        this.setCurrentParentId()
+      },
+    },
+    idParent: {
+      deep: true,
+      handler() {
+        this.setCurrentParentId()
+      },
     },
   },
 
@@ -182,6 +186,12 @@ export default {
       'tool',
     ]),
     ...mapState('tool', ['idParent']),
+    currentParentId() {
+      return this.toolId === null ? this.idParent.id : this.tool.parent_id
+    },
+    currentFolderName() {
+      return this.toolId === null ? this.idParent.label : this.tool.folder_name
+    },
     selectedParamsInfo() {
       return this.selectedParams
         .map((paramName) =>
@@ -204,6 +214,13 @@ export default {
       'onSaveToolModel',
       'fetchToolById',
     ]),
+    setCurrentParentId() {
+      if (this.tool && this.tool.parent_id) {
+        this.currentParentId = this.tool.parent_id
+      } else {
+        this.currentParentId = this.idParent.id
+      }
+    },
     logModelValue(paramId) {
       console.log('Value changed for param ID:', paramId)
     },
@@ -252,10 +269,14 @@ export default {
       this.$emit('canceled')
     },
     async onSave() {
-      this.toolModel.parent_id = this.idParent.id
+      // Устанавливаем parent_id для модели, которую сохраняем
+      this.toolModel.parent_id = this.currentParentId
+
       if (this.toolId) {
+        // Редактирование существующей номенклатуры
         await updateTool(this.toolId, this.toolModel)
       } else {
+        // Создание новой номенклатуры
         console.log(this.toolModel)
         await addTool(this.toolModel)
       }
