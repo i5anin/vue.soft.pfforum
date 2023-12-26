@@ -212,9 +212,57 @@ async function updateFolderTree(req, res) {
   }
 }
 
+// "unlinkedNomenclatures": {
+//   "count": "517",
+//     "label": "Непривязанные номенклатуры"
+// },
+// "linkedToNonExistentFolders": {
+//   "count": "3",
+//     "label": "Привязанные к несуществующим папкам",
+//     "nonexistentIds": [
+//     13,
+//     21,
+//     22
+//   ]
+// }
+
+async function countNomenclatureStatuses(req, res) {
+  try {
+    const query = `
+      SELECT
+        (SELECT COUNT(*) FROM dbo.tool_nom WHERE parent_id IS NULL) AS unlinked_count,
+        (SELECT COUNT(DISTINCT n.parent_id) FROM dbo.tool_nom n LEFT JOIN dbo.tool_tree t ON n.parent_id = t.id WHERE t.id IS NULL) AS nonexistent_count,
+        ARRAY_AGG(DISTINCT n.parent_id) FILTER (WHERE t.id IS NULL) AS nonexistent_ids
+      FROM dbo.tool_nom n
+      LEFT JOIN dbo.tool_tree t ON n.parent_id = t.id
+    `
+
+    const { rows } = await pool.query(query)
+    const result = rows[0]
+
+    const response = {
+      unlinkedNomenclatures: {
+        count: result.unlinked_count,
+        label: 'Непривязанные номенклатуры',
+      },
+      linkedToNonExistentFolders: {
+        count: result.nonexistent_count,
+        label: 'Привязанные к несуществующим папкам',
+        nonexistentIds: result.nonexistent_ids.filter((id) => id !== null), // Фильтрация null значений
+      },
+    }
+
+    res.json(response)
+  } catch (error) {
+    console.error('Ошибка при подсчете статусов номенклатур:', error)
+    res.status(500).send('Ошибка сервера')
+  }
+}
+
 module.exports = {
   updateFolderTree,
   dellFolderTree,
   getToolsTree,
   addBranch,
+  countNomenclatureStatuses,
 }

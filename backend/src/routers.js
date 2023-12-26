@@ -32,6 +32,8 @@ router.post('/tools-tree', treeController.addBranch)
 router.put('/tools-tree', treeController.updateFolderTree)
 router.delete('/tools-tree/:id', treeController.dellFolderTree)
 
+router.get('/tools-statuses', treeController.countNomenclatureStatuses)
+
 router.get('/custom-query', operController.customQuery)
 
 router.get('/sklad', skladController.getToolHistory)
