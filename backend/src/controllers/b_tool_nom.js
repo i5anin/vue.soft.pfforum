@@ -159,9 +159,10 @@ async function addTool(req, res) {
       [parent_id]
     )
 
-    if (parentCheckResult.rowCount === 0) {
-      return res.status(400).send('Указанный parent_id не существует.')
-    }
+    if (parentCheckResult.rowCount === 0)
+      return res
+        .status(400)
+        .send(`addTool. Указанный parent_id=${parent_id} не существует.`)
 
     const propertyWithoutNull = removeNullProperties(property)
     const propertyString = JSON.stringify(propertyWithoutNull)
@@ -206,7 +207,10 @@ async function editTool(req, res) {
     )
 
     if (parentCheckResult.rowCount === 0) {
-      return res.status(400).send('Указанный parent_id не существует.')
+      console.log(parentCheckResult)
+      return res
+        .status(400)
+        .send(`editTool. Указанный parent_id=${parent_id} не существует.`)
     }
 
     const propertyWithoutNull = removeNullProperties(property)
