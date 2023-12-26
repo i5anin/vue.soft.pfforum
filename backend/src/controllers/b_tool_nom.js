@@ -46,11 +46,11 @@ async function getTools(req, res) {
       conditions.push(`tool_nom.parent_id = ${parent_id}`)
     }
 
-    if (!includeNull || includeNull === 'false') {
-      conditions.push(
-        `(tool_nom.name IS NOT NULL AND tool_nom.name != '' AND tool_nom.property IS NOT NULL)`
-      )
-    }
+    // if (!includeNull || includeNull === 'false') {
+    //   conditions.push(
+    //     `(tool_nom.name IS NOT NULL AND tool_nom.name != '' AND tool_nom.property IS NOT NULL)`
+    //   )
+    // }
 
     const whereClause = conditions.length
       ? `WHERE ${conditions.join(' AND ')}`
