@@ -43,8 +43,7 @@ async function getToolHistory(req, res) {
         thn.quantity,
         o.fio AS user_fio,
         thn.id_user,
-        thn.date_p,
-        thn.date_u,
+        thn.date,
         thn.id_nom,
         tn.name AS name_tool,
         tn.property

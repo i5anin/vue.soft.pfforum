@@ -37,14 +37,8 @@ export default {
         { title: 'Тип операции', key: 'type_oper', sortable: true },
         { title: 'Кол-во', key: 'quantity', sortable: true },
         { title: 'ФИО', key: 'user_fio', sortable: true, width: '150px' },
-        { title: 'Дата приход', key: 'date_p', sortable: true },
-        { title: 'Дата уход', key: 'date_u', sortable: true },
-        {
-          title: 'Название инструмента',
-          key: 'name_tool',
-          sortable: true,
-          width: '180px',
-        },
+        { title: 'Дата', key: 'date', sortable: true },
+        { title: 'Инструмент', key: 'name_tool', sortable: true },
         { title: 'Характеристики', key: 'property', sortable: true },
       ],
     }
@@ -64,8 +58,7 @@ export default {
         const response = await fetchToolHistory()
         this.toolsHistory = response.toolsHistory.map((tool) => ({
           ...tool,
-          date_p: this.formatDate(tool.date_p),
-          date_u: this.formatDate(tool.date_u),
+          date: this.formatDate(tool.date),
         }))
         this.totalCount = response.totalCount
       } catch (error) {

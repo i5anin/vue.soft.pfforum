@@ -33,7 +33,7 @@
         <mxCell id="H89CtR_7_FJdbOzeVn2_-5" value="date_p" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="460" y="200" width="90" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="H89CtR_7_FJdbOzeVn2_-6" value="date_u" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="H89CtR_7_FJdbOzeVn2_-6" value="date" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="560" y="200" width="90" height="50" as="geometry" />
         </mxCell>
         <mxCell id="H89CtR_7_FJdbOzeVn2_-7" value="НАЗВАНИЕ" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
