@@ -54,21 +54,8 @@ export const store = {
     setTools(state, tools) {
       state.tools = tools
     },
-    setNameOptions(state, options) {
-      state.nameOptions = options
-    },
-    setSearch(state, search) {
-      state.filters.search = search
-    },
-    setIncludeNull(state, includeNull) {
-      state.filters.includeNull = includeNull
-    },
   },
   actions: {
-    updateIdParent({ commit }, idParentData) {
-      console.log('Updating idParent in Vuex:', idParentData)
-      commit('updateIdParent', idParentData)
-    },
     async fetchToolById({ commit }, id) {
       try {
         const tool = await getToolById(id)
