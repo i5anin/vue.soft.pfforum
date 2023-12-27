@@ -1,0 +1,170 @@
+<template>
+  <v-container>
+    <tool-filter>
+      <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>
+    </tool-filter>
+    <edit-tool-modal
+      v-if="openDialog"
+      :persistent="true"
+      :tool-id="editingToolId"
+      @canceled="onClosePopup"
+      @changes-saved="onSaveChanges"
+    />
+    <v-data-table-server
+      v-if="isDataLoaded"
+      noDataText="Нет данных"
+      itemsPerPageText="Пункты на странице:"
+      loadingText="Загрузка данных"
+      :headers="toolTableHeaders"
+      :items="formattedTools"
+      :itemsLength="toolsTotalCount"
+      :items-per-page="filters.itemsPerPage"
+      :page="filters.currentPage"
+      :loading="isLoading"
+      :items-per-page-options="[15, 50, 100, 300]"
+      density="compact"
+      @update:page="onChangePage"
+      @update:items-per-page="onUpdateItemsPerPage"
+      @click:row="onEditRow"
+      class="elevation-1"
+      hover
+      fixed-header
+      width
+    >
+      <template v-slot:item.index="{ index }">
+        <td class="index">{{ index + 1 }}</td>
+      </template>
+      <!--name-->
+      <template v-slot:item.name="{ item }">
+        <span style="white-space: nowrap">{{ item.name }}</span>
+      </template>
+      <template v-slot:item.sklad="{ item }">
+        <span style="white-space: nowrap">{{ item.sklad }}</span>
+      </template>
+      <template v-slot:item.norma="{ item }">
+        <span style="white-space: nowrap">{{ item.norma }}</span>
+      </template>
+      <template v-slot:item.zakaz="{ item }">
+        <span style="white-space: nowrap">{{ calculateOrder(item) }}</span>
+      </template>
+      <template v-slot:item.actions="{ item }">
+        <v-btn color="primary" @click="(event) => onIssueTool(event, item)">
+          Выдать
+        </v-btn>
+      </template>
+    </v-data-table-server>
+  </v-container>
+</template>
+
+<script>
+import EditToolModal from '@/modules/tool/components/modal/EditToolModal.vue'
+import ToolFilter from '@/modules/tool/components/ToolFilter.vue'
+import { mapActions, mapMutations, mapGetters } from 'vuex'
+import { VDataTableServer } from 'vuetify/labs/VDataTable'
+
+export default {
+  emits: ['changes-saved', 'canceled'],
+  components: {
+    VDataTableServer,
+    EditToolModal,
+    ToolFilter,
+  },
+  props: {
+    parentId: {
+      type: Object,
+      default: () => ({ id: null, label: null }),
+    },
+  },
+  data() {
+    return {
+      activeTabType: 'Catalog', // Например, 'Catalog', 'Sklad', 'Give' и т.д.
+      openDialog: false,
+      isDataLoaded: false,
+      editingToolId: null, //редактирование идентификатора инструмента
+      toolTableHeaders: [], //заголовки таблиц инструментов
+    }
+  },
+  computed: {
+    ...mapGetters('storageCatalogTool', [
+      'toolsTotalCount',
+      'formattedTools',
+      'filters',
+      'isLoading',
+      'paramsList',
+    ]),
+  },
+  watch: {
+    paramsList: {
+      immediate: true,
+      handler(newVal) {
+        this.toolTableHeaders = [
+          { title: '№', key: 'index', sortable: false },
+          { title: 'Маркировка', key: 'name', sortable: true },
+          ...(newVal && newVal.length > 0
+            ? newVal.map((param) => ({
+                title: param.label,
+                key: param.key,
+                sortable: true,
+              }))
+            : []),
+          { title: 'Действие', key: 'actions', sortable: false },
+          { title: 'Норма', key: 'norma', sortable: false },
+          { title: 'Склад', key: 'sklad', sortable: false },
+          { title: 'Заказ', key: 'zakaz', sortable: false },
+        ]
+      },
+    },
+  },
+
+  async mounted() {
+    await this.fetchToolsByFilter()
+    this.isDataLoaded = true
+  },
+  methods: {
+    ...mapActions('storageCatalogTool', ['fetchToolsByFilter']),
+    ...mapMutations({
+      setCurrentPage: 'storageCatalogTool/setCurrentPage',
+      setItemsPerPage: 'storageCatalogTool/setItemsPerPage',
+    }),
+    onIssueTool(event, item) {
+      event.stopPropagation() // Предотвратить всплытие события
+      console.log('Выдать инструмент:', item)
+    },
+    calculateOrder(tool) {
+      if (tool.norma || tool.sklad) return tool.norma - tool.sklad
+    },
+
+    async onChangePage(page) {
+      this.setCurrentPage(page)
+      await this.fetchToolsByFilter()
+    },
+    async onUpdateItemsPerPage(itemsPerPage) {
+      this.setItemsPerPage(itemsPerPage)
+      await this.fetchToolsByFilter()
+    },
+    onClosePopup() {
+      this.openDialog = false
+    },
+    onSaveChanges() {
+      this.openDialog = false
+      this.fetchToolsByFilter()
+    },
+    onAddTool() {
+      this.editingToolId = null
+      this.openDialog = true
+    },
+    onEditRow(event, { item: tool }) {
+      this.editingToolId = tool.id
+      this.openDialog = true
+    },
+  },
+}
+</script>
+
+<style scoped>
+.index {
+  max-width: 40px !important;
+  font-size: 0.9em;
+  color: grey;
+}
+</style>

@@ -53,10 +53,10 @@
 
 <script>
 import { mapActions, mapMutations } from 'vuex'
-import TabMainTable from '@/modules/tool/components/MainTable.vue'
+import TabMainTable from '@/modules/issue-tool/components/MainTable.vue'
 import { addFolder, deleteFolder, getTree, renameFolder } from '@/api'
-import { normSpaces } from '@/modules/tool/components/normSpaces'
-import CatalogBreadcrumbs from '@/modules/tool/components/CatalogBreadcrumbs.vue'
+import { normSpaces } from '@/modules/issue-tool/components/normSpaces'
+import CatalogBreadcrumbs from '@/modules/issue-tool/components/CatalogBreadcrumbs.vue'
 
 export default {
   name: 'Catalog',
@@ -92,8 +92,8 @@ export default {
   },
   methods: {
     // обновить IdParent
-    ...mapMutations('tool', ['updateIdParent']),
-    ...mapActions('tool', ['fetchToolsByFilter']),
+    ...mapMutations('issueTool', ['updateIdParent']),
+    ...mapActions('issueTool', ['fetchToolsByFilter']),
     //переименовать текущий элемент
     async renameCurrentItem() {
       const itemId = this.currentItem.id

@@ -13,8 +13,6 @@ export const store = {
 
     tool: null,
     tools: [],
-    issueTools: [],
-    issueFilter: {},
     toolsTotalCount: 0,
     filters: {
       currentPage: 1,
@@ -44,12 +42,6 @@ export const store = {
     setFilters(state, filters) {
       state.filters = { ...filters }
     },
-    setIssueFilters(state, filters) {
-      state.issueFilter = { ...filters }
-    },
-    setIssueTools(state, issueTools) {
-      state.issueTools = issueTools
-    },
     setTool(state, tool) {
       state.tool = tool
     },
@@ -72,29 +64,7 @@ export const store = {
         console.error('Ошибка при загрузке инструмента:', error)
       }
     },
-    async fetchIssueTools({ commit, state }) {
-      commit('setIsLoading', true)
-      const { currentPage, itemsPerPage, search, includeNull, selectedParams } =
-        state.issueFilters
-      const { id: parentId } = state.idParent
-      try {
-        const { tools, totalCount, paramsList } = await getTools(
-          search,
-          currentPage,
-          itemsPerPage,
-          includeNull,
-          parentId,
-          selectedParams
-        )
-        commit('setParamsList', paramsList) // Это данные, которые передаются в мутацию. Полученный из функции getTools
-        commit('setTools', tools) // Инструменты
-        commit('setToolsTotalCount', totalCount) // Счетчик
-      } catch (error) {
-        console.error('getTools. Ошибка при получении данных:', error)
-      } finally {
-        commit('setIsLoading', false)
-      }
-    },
+
     async fetchToolsByFilter({ commit, state }) {
       commit('setIsLoading', true)
       const { currentPage, itemsPerPage, search, includeNull, selectedParams } =
