@@ -53,16 +53,19 @@
                 required
               />
             </div>
-            <v-expansion-panels>
-              <v-expansion-panel>
-                <v-expansion-panel-title>Склад:</v-expansion-panel-title>
-                <v-expansion-panel-text>
-                  <v-text-field density="compact" label="Норма" required />
-                  <v-text-field density="compact" label="Склад" required />
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-            </v-expansion-panels>
-
+            <h2 class="text-h6">Склад:</h2>
+            <v-text-field
+              density="compact"
+              label="Норма"
+              required
+              v-model="toolModel.norma"
+            />
+            <v-text-field
+              density="compact"
+              label="Склад"
+              required
+              v-model="toolModel.sklad"
+            />
             <h2 class="text-h6"></h2>
             <div></div>
           </v-col>
@@ -223,7 +226,10 @@ export default {
     ]),
     initializeLocalState() {
       if (this.toolId) {
-        this.fetchToolById(this.toolId)
+        this.fetchToolById(this.toolId).then(() => {
+          this.toolModel.sklad = this.tool.sklad
+          this.toolModel.norma = this.tool.norma
+        })
       } else {
         this.localParentId = this.idParent.id
         this.currentFolderName = this.idParent.label
