@@ -48,18 +48,23 @@
       </v-container>
     </v-main>
   </v-app>
-  <TabMainTable />
+  <TabMainTable
+    v-bind="{ toolsTotalCount, formattedTools, filters, isLoading, paramsList }"
+    @page-changed="onPageChanged"
+    @page-limit-changed="onUpdateItemsPerPage"
+    @changes-saved="fetchToolsByFilter"
+  />
 </template>
 
 <script>
-import { mapActions, mapMutations } from 'vuex'
+import { mapActions, mapGetters, mapMutations } from 'vuex'
 import TabMainTable from '@/modules/tool/components/MainTable.vue'
 import { addFolder, deleteFolder, getTree, renameFolder } from '@/api'
 import { normSpaces } from '@/modules/tool/components/normSpaces'
 import CatalogBreadcrumbs from '@/modules/tool/components/CatalogBreadcrumbs.vue'
 
 export default {
-  name: 'Catalog',
+  name: 'CatalogTab',
   components: { TabMainTable, CatalogBreadcrumbs },
 
   data() {
@@ -90,10 +95,31 @@ export default {
       },
     },
   },
+  computed: {
+    ...mapGetters('tool', [
+      'toolsTotalCount',
+      'formattedTools',
+      'filters',
+      'isLoading',
+      'paramsList',
+    ]),
+  },
   methods: {
     // обновить IdParent
-    ...mapMutations('tool', ['updateIdParent']),
+    ...mapMutations('tool', [
+      'updateIdParent',
+      'setCurrentPage',
+      'setItemsPerPage',
+    ]),
     ...mapActions('tool', ['fetchToolsByFilter']),
+    async onPageChanged(page) {
+      this.setCurrentPage(page)
+      await this.fetchToolsByFilter()
+    },
+    async onUpdateItemsPerPage(itemsPerPage) {
+      this.setItemsPerPage(itemsPerPage)
+      await this.fetchToolsByFilter()
+    },
     //переименовать текущий элемент
     async renameCurrentItem() {
       const itemId = this.currentItem.id

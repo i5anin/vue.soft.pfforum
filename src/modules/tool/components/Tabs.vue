@@ -25,6 +25,7 @@ import { ref } from 'vue'
 import ToolTabParam from '@/modules/tool/components/tabs/Param.vue'
 import GiveTool from '@/modules/tool/components/tabs/GiveTool.vue'
 import TabCatalog from '@/modules/tool/components/tabs/Catalog.vue'
+import TabIssueCatalog from '@/modules/tool/components/tabs/IssueCatalog.vue'
 import ToolTabTree from '@/modules/tool/components/tabs/Tree.vue'
 
 const props = defineProps({
@@ -40,7 +41,7 @@ const tabs = [
   { name: 'Каталог', component: TabCatalog, type: 'Catalog' },
   { name: 'Дерево', component: ToolTabTree },
   { name: 'Параметры', component: ToolTabParam },
-  { name: 'Выдача', component: TabCatalog, type: 'Get' },
+  { name: 'Выдача', component: TabIssueCatalog, type: 'Get' },
   { name: 'Склад', component: TabCatalog, type: 'Sklad' },
   { name: 'История', component: GiveTool },
 ]

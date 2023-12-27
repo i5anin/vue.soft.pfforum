@@ -70,15 +70,25 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapMutations } from 'vuex'
-
 export default {
   name: 'ToolFilter',
+  props: {
+    namespace: {
+      type: String,
+      required: true,
+    },
+  },
   data: () => ({
     filterModel: null,
   }),
   computed: {
-    ...mapGetters('tool', ['filters', 'paramsOptions']),
+    filters() {
+      console.log(this.$store.getters)
+      return this.$store.getters[`${this.namespace}/filters`]
+    },
+    paramsOptions() {
+      return this.$store.getters[`${this.namespace}/paramsOptions`]
+    },
     checkboxColor() {
       return this.filters.includeNull ? 'red' : ''
     },
@@ -96,15 +106,18 @@ export default {
     filterModel: {
       deep: true,
       handler(filters) {
-        // console.log(filters)
         this.setFilters({ ...filters })
         this.fetchToolsByFilter()
       },
     },
   },
   methods: {
-    ...mapActions('tool', ['fetchToolsByFilter']),
-    ...mapMutations('tool', ['setFilters']),
+    fetchToolsByFilter() {
+      this.$store.actions[`${this.namespace}/fetchToolsByFilter`]()
+    },
+    setFilters(filters) {
+      this.$store.mutations[`${this.namespace}/setFilters`](filters)
+    },
   },
 }
 </script>
