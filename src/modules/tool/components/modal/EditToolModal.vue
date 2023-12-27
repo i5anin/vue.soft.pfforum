@@ -196,9 +196,6 @@ export default {
       'tool',
     ]),
     ...mapState('tool', ['idParent']),
-    currentParentId() {
-      return this.toolId === null ? this.idParent.id : this.tool.parent_id
-    },
     currentFolderName() {
       return this.toolId === null ? this.idParent.label : this.tool.folder_name
     },
@@ -264,7 +261,7 @@ export default {
           const { result } = await deleteTool(id)
           if (result) {
             this.$emit('changes-saved')
-            this.fetchToolsByFilter()
+            await this.fetchToolsByFilter()
           }
         } catch (error) {
           console.error('Ошибка при удалении инструмента:', error)
