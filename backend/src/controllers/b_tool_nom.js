@@ -60,9 +60,8 @@ async function getTools(req, res) {
       SELECT tool_nom.id,
              tool_nom.name,
              tool_nom.property,
-             tool_nom.kolvo_sklad,
-             tool_nom.norma,
-             tool_nom.zakaz
+             tool_nom.sklad,
+             tool_nom.norma
       FROM dbo.tool_nom as tool_nom
       ${whereClause}
       ORDER BY tool_nom.id DESC
@@ -111,9 +110,8 @@ async function getTools(req, res) {
         id: tool.id,
         name: tool.name,
         property: formattedProperty,
-        kolvo_sklad: tool.kolvo_sklad,
+        sklad: tool.sklad,
         norma: tool.norma,
-        zakaz: tool.zakaz,
       }
     })
 
@@ -167,10 +165,9 @@ async function deleteTool(req, res) {
 }
 
 async function addTool(req, res) {
-  const { name, parent_id, property } = req.body
+  const { name, parent_id, property, sklad, norma } = req.body
 
   try {
-    // Проверка, что parent_id больше 1
     if (parent_id <= 1) {
       return res
         .status(400)
@@ -192,9 +189,10 @@ async function addTool(req, res) {
     const propertyWithoutNull = removeNullProperties(property)
     const propertyString = JSON.stringify(propertyWithoutNull)
 
+    // Добавляем поля sklad и norma в запрос
     const toolInsertResult = await pool.query(
-      'INSERT INTO dbo.tool_nom (name, parent_id, property) VALUES ($1, $2, $3) RETURNING id',
-      [name, parent_id, propertyString]
+      'INSERT INTO dbo.tool_nom (name, parent_id, property, sklad, norma) VALUES ($1, $2, $3, $4, $5) RETURNING id',
+      [name, parent_id, propertyString, sklad, norma]
     )
 
     const toolId = toolInsertResult.rows[0].id
@@ -218,7 +216,7 @@ async function addTool(req, res) {
 
 async function editTool(req, res) {
   const { id } = req.params
-  const { name, parent_id, property } = req.body
+  const { name, parent_id, property, sklad, norma } = req.body
 
   try {
     // Проверка, что parent_id больше 1
@@ -243,9 +241,10 @@ async function editTool(req, res) {
     const propertyWithoutNull = removeNullProperties(property)
     const propertyString = JSON.stringify(propertyWithoutNull)
 
+    // Обновляем поля sklad и norma в запросе
     const result = await pool.query(
-      'UPDATE dbo.tool_nom SET name=$1, parent_id=$2, property=$3 WHERE id=$4 RETURNING *',
-      [name, parent_id, propertyString, id]
+      'UPDATE dbo.tool_nom SET name=$1, parent_id=$2, property=$3, sklad=$4, norma=$5 WHERE id=$6 RETURNING *',
+      [name, parent_id, propertyString, sklad, norma, id]
     )
 
     if (result.rowCount > 0) {
@@ -282,9 +281,8 @@ async function getToolById(req, res) {
         mat_id: toolData.mat_id,
         name: toolData.name,
         group_id: toolData.group_id,
-        kolvo_sklad: toolData.kolvo_sklad,
+        sklad: toolData.sklad,
         norma: toolData.norma,
-        zakaz: toolData.zakaz,
         parent_id: toolData.parent_id,
         folder_name: toolData.folder_name, // Добавление названия папки
         property: toolData.property,
