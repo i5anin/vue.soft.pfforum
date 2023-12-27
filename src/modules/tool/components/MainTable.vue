@@ -91,12 +91,6 @@ export default {
       'isLoading',
       'paramsList',
     ]),
-    toolsWithOrder() {
-      return this.formattedTools.map((tool) => ({
-        ...tool,
-        zakaz: tool.norma - tool.sklad,
-      }))
-    },
   },
   watch: {
     paramsList: {
@@ -152,7 +146,7 @@ export default {
     },
     onSaveChanges() {
       this.openDialog = false
-      this.fetchToolsByFilter() //возможно не верно
+      this.fetchToolsByFilter()
     },
     onAddTool() {
       this.editingToolId = null
