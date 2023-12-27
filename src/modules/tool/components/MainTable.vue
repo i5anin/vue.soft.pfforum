@@ -39,18 +39,18 @@
         <span style="white-space: nowrap">{{ item.name }}</span>
       </template>
       <template v-slot:item.sklad="{ item }">
-        <span style="white-space: nowrap">{{ item.kolvo_sklad }}</span>
+        <span style="white-space: nowrap">{{ item.sklad }}</span>
       </template>
       <template v-slot:item.norma="{ item }">
         <span style="white-space: nowrap">{{ item.norma }}</span>
       </template>
       <template v-slot:item.zakaz="{ item }">
-        <span style="white-space: nowrap">{{ item.zakaz }}</span>
+        <span style="white-space: nowrap">{{ calculateOrder(item) }}</span>
       </template>
       <template v-slot:item.actions="{ item }">
-        <v-btn color="primary" @click="(event) => onIssueTool(event, item)"
-          >Выдать</v-btn
-        >
+        <v-btn color="primary" @click="(event) => onIssueTool(event, item)">
+          Выдать
+        </v-btn>
       </template>
     </v-data-table-server>
   </v-container>
@@ -58,9 +58,9 @@
 
 <script>
 import EditToolModal from '@/modules/tool/components/modal/EditToolModal.vue'
-import { VDataTableServer } from 'vuetify/labs/VDataTable'
-import { mapActions, mapMutations, mapGetters } from 'vuex'
 import ToolFilter from '@/modules/tool/components/ToolFilter.vue'
+import { mapActions, mapMutations, mapGetters } from 'vuex'
+import { VDataTableServer } from 'vuetify/labs/VDataTable'
 
 export default {
   emits: ['changes-saved', 'canceled'],
@@ -91,6 +91,12 @@ export default {
       'isLoading',
       'paramsList',
     ]),
+    toolsWithOrder() {
+      return this.formattedTools.map((tool) => ({
+        ...tool,
+        zakaz: tool.norma - tool.sklad,
+      }))
+    },
   },
   watch: {
     paramsList: {
@@ -107,6 +113,9 @@ export default {
               }))
             : []),
           { title: 'Действие', key: 'actions', sortable: false },
+          { title: 'Норма', key: 'norma', sortable: false },
+          { title: 'Склад', key: 'sklad', sortable: false },
+          { title: 'Заказ', key: 'zakaz', sortable: false },
         ]
       },
     },
@@ -117,15 +126,18 @@ export default {
     this.isDataLoaded = true
   },
   methods: {
-    onIssueTool(event, item) {
-      event.stopPropagation() // Предотвратить всплытие события
-      console.log('Выдать инструмент:', item)
-    },
     ...mapActions('tool', ['fetchToolsByFilter']),
     ...mapMutations({
       setCurrentPage: 'tool/setCurrentPage',
       setItemsPerPage: 'tool/setItemsPerPage',
     }),
+    onIssueTool(event, item) {
+      event.stopPropagation() // Предотвратить всплытие события
+      console.log('Выдать инструмент:', item)
+    },
+    calculateOrder(tool) {
+      if (tool.norma || tool.sklad) return tool.norma - tool.sklad
+    },
 
     async onChangePage(page) {
       this.setCurrentPage(page)
