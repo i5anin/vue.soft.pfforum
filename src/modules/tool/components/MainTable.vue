@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <tool-filter :namespace="namespace">
+    <tool-filter>
       <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>
     </tool-filter>
     <edit-tool-modal
@@ -59,39 +59,20 @@
 <script>
 import EditToolModal from '@/modules/tool/components/modal/EditToolModal.vue'
 import ToolFilter from '@/modules/tool/components/ToolFilter.vue'
+import { mapActions, mapMutations, mapGetters } from 'vuex'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 
 export default {
-  emits: ['changes-saved', 'canceled', 'page-changed', 'page-limit-changed'],
+  emits: ['changes-saved', 'canceled'],
   components: {
     VDataTableServer,
     EditToolModal,
     ToolFilter,
   },
   props: {
-    toolsTotalCount: {
-      type: Number,
-      default: 0,
-    },
-    formattedTools: {
-      type: Array,
-      default: () => [],
-    },
-    filters: {
+    parentId: {
       type: Object,
-      required: true,
-    },
-    isLoading: {
-      type: Boolean,
-      default: false,
-    },
-    paramsList: {
-      type: Array,
-      default: () => [],
-    },
-    namespace: {
-      type: String,
-      default: 'tool',
+      default: () => ({ id: null, label: null }),
     },
   },
   data() {
@@ -102,6 +83,15 @@ export default {
       editingToolId: null, //редактирование идентификатора инструмента
       toolTableHeaders: [], //заголовки таблиц инструментов
     }
+  },
+  computed: {
+    ...mapGetters('tool', [
+      'toolsTotalCount',
+      'formattedTools',
+      'filters',
+      'isLoading',
+      'paramsList',
+    ]),
   },
   watch: {
     paramsList: {
@@ -127,9 +117,15 @@ export default {
   },
 
   async mounted() {
+    await this.fetchToolsByFilter()
     this.isDataLoaded = true
   },
   methods: {
+    ...mapActions('tool', ['fetchToolsByFilter']),
+    ...mapMutations({
+      setCurrentPage: 'tool/setCurrentPage',
+      setItemsPerPage: 'tool/setItemsPerPage',
+    }),
     onIssueTool(event, item) {
       event.stopPropagation() // Предотвратить всплытие события
       console.log('Выдать инструмент:', item)
@@ -139,17 +135,19 @@ export default {
     },
 
     async onChangePage(page) {
-      this.$emit('page-changed', page)
+      this.setCurrentPage(page)
+      await this.fetchToolsByFilter()
     },
     async onUpdateItemsPerPage(itemsPerPage) {
-      this.$emit('page-limit-changed', itemsPerPage)
+      this.setItemsPerPage(itemsPerPage)
+      await this.fetchToolsByFilter()
     },
     onClosePopup() {
       this.openDialog = false
     },
     onSaveChanges() {
       this.openDialog = false
-      this.$emit('changes-saved')
+      this.fetchToolsByFilter()
     },
     onAddTool() {
       this.editingToolId = null
