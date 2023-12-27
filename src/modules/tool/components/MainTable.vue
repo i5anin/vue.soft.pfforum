@@ -77,6 +77,7 @@ export default {
   },
   data() {
     return {
+      activeTabType: 'Catalog', // Например, 'Catalog', 'Sklad', 'Give' и т.д.
       openDialog: false,
       isDataLoaded: false,
       editingToolId: null, //редактирование идентификатора инструмента
