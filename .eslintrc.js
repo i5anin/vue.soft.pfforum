@@ -3,6 +3,9 @@ module.exports = {
     browser: true,
     es2021: true,
   },
+  globals: {
+    process: 'readonly', // Добавление process как глобальной переменной
+  },
   extends: [
     'eslint:recommended',
     'plugin:vue/vue3-essential',
