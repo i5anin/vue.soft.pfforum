@@ -9,20 +9,6 @@ export const Routes = {
   LOGIN: '/Login',
 }
 
-const routes = [
-  { path: '/', name: 'Home', component: Home },
-  { path: Routes.LOGIN, name: 'Login', component: Login },
-  { path: '/Tool', name: 'Tool', component: Tool },
-  { path: '/:catchAll(.*)', name: 'Error404', component: Error404 },
-]
-
-const router = createRouter({
-  history: createWebHistory(),
-  routes,
-})
-
-export default router
-
 // const authGuard = {
 //   Home(to, from, next) {
 //     if (localStorage.getItem('user')) {
@@ -33,10 +19,41 @@ export default router
 //   },
 // }
 
-// {
-//   path: '/Tool/:parentId',
-//   name: 'ToolWithParentId',
-//   component: Tool,
-//   props: true,
-// },
-// Маршрут без параметра parentId
+const routes = [
+  {
+    path: '/',
+    name: 'Home',
+    component: Home,
+    // beforeEnter: authGuard.Home
+  },
+  {
+    path: Routes.LOGIN,
+    name: 'Login',
+    component: Login,
+  },
+  // {
+  //   path: '/Tool/:parentId',
+  //   name: 'ToolWithParentId',
+  //   component: Tool,
+  //   props: true,
+  // },
+  // Маршрут без параметра parentId
+  {
+    path: '/Tool',
+    name: 'Tool',
+    component: Tool,
+    // props: { parentId: 0 }, // Здесь мы устанавливаем parentId по умолчанию
+  },
+  {
+    path: '/:catchAll(.*)',
+    name: 'Error404',
+    component: Error404,
+  },
+]
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
+})
+
+export default router
