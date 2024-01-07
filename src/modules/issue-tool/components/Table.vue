@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <tool-filter :namespace="namespace">
-      <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>
+      <!--      <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>-->
     </tool-filter>
     <edit-tool-modal
       v-if="openDialog"

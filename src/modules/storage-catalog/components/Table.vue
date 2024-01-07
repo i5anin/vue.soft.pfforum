@@ -1,9 +1,9 @@
 <template>
   <v-container>
     <tool-filter :namespace="namespace">
-      <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>
+      <!--      <v-btn color="blue" @click="onAddTool">Редактировать склад</v-btn>-->
     </tool-filter>
-    <edit-tool-modal
+    <storage-tool-modal
       v-if="openDialog"
       :persistent="true"
       :tool-id="editingToolId"
@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import EditToolModal from '@/modules/tool/components/modal/EditToolModal.vue'
+import StorageToolModal from './Modal.vue'
 import ToolFilter from '@/modules/tool/components/ToolFilter.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 
@@ -65,7 +65,7 @@ export default {
   emits: ['changes-saved', 'canceled', 'page-changed', 'page-limit-changed'],
   components: {
     VDataTableServer,
-    EditToolModal,
+    StorageToolModal,
     ToolFilter,
   },
   props: {
