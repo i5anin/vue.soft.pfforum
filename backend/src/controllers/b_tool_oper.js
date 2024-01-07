@@ -12,6 +12,67 @@ const dbConfig =
 // Создание соединения с базой данных
 const pool = new Pool(dbConfig)
 
+async function getDetailNames(req, res) {
+  try {
+    const query = `
+      SELECT DISTINCT
+        TRIM(BOTH ' ' FROM dbo.specs_nom.NAME) AS trimmed_name
+      FROM
+        dbo.specs_nom
+        INNER JOIN dbo.specs_nom_operations ON specs_nom_operations.specs_nom_id = specs_nom.id
+        INNER JOIN dbo.operations_ordersnom ON operations_ordersnom.op_id = specs_nom_operations.ordersnom_op_id
+      WHERE
+        specs_nom.status_p = 'П'
+        AND NOT specs_nom.status_otgruzka
+        AND (POSITION('ЗАПРЕТ' IN UPPER(specs_nom.comments)) = 0 OR specs_nom.comments IS NULL)
+        AND (T OR dmc OR hision OR f OR f4 OR fg OR tf)
+      ORDER BY
+        trimmed_name;
+    `
+    const result = await pool.query(query)
+    // Преобразование результатов в массив имен
+    const namesArray = result.rows.map((row) => row.trimmed_name)
+
+    res.json(namesArray)
+  } catch (error) {
+    console.error('Ошибка при выполнении запроса:', error)
+    res.status(500).send('Внутренняя ошибка сервера')
+  }
+}
+
+async function getDetailDescriptions(req, res) {
+  console.log(req.query.name)
+
+  try {
+    const query = `
+      SELECT DISTINCT
+        TRIM(BOTH ' ' FROM dbo.specs_nom.description) AS trimmed_description
+      FROM
+        dbo.specs_nom
+        INNER JOIN dbo.specs_nom_operations ON specs_nom_operations.specs_nom_id = specs_nom.id
+        INNER JOIN dbo.operations_ordersnom ON operations_ordersnom.op_id = specs_nom_operations.ordersnom_op_id
+      WHERE
+        LOWER(TRIM(BOTH ' ' FROM dbo.specs_nom.name)) = '${req.query.name
+          .toLowerCase()
+          .trim()}'
+        AND specs_nom.status_p = 'П'
+        AND NOT specs_nom.status_otgruzka
+        AND ( POSITION('ЗАПРЕТ' IN UPPER(specs_nom.comments)) = 0 OR specs_nom.comments IS NULL )
+        AND (T OR dmc OR hision OR f OR f4 OR fg OR tf)
+      ORDER BY
+        trimmed_description;
+    `
+    const result = await pool.query(query)
+    // Преобразование результатов в массив имен
+    const namesArray = result.rows.map((row) => row.trimmed_description)
+
+    res.json(namesArray)
+  } catch (error) {
+    console.error('Ошибка при выполнении запроса:', error)
+    res.status(500).send('Внутренняя ошибка сервера')
+  }
+}
+
 async function customQuery(req, res) {
   try {
     const query = `
@@ -43,4 +104,4 @@ async function customQuery(req, res) {
   }
 }
 
-module.exports = { customQuery }
+module.exports = { customQuery, getDetailNames, getDetailDescriptions }

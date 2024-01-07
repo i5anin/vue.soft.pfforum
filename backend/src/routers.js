@@ -34,7 +34,11 @@ router.delete('/tools-tree/:id', treeController.dellFolderTree)
 
 router.get('/tools-statuses', treeController.countNomenclatureStatuses)
 
-router.get('/custom-query', operController.customQuery)
+router.get('/detail/names', operController.getDetailNames)
+router.get('/detail/descriptions', operController.getDetailDescriptions)
+router.get('/detail/no', operController.customQuery)
+router.get('/detail/operation-types', operController.customQuery)
+router.get('/detail', operController.customQuery)
 
 router.get('/sklad', skladController.getToolHistory)
 // router.post('/sklad', skladController.addSkladItem)

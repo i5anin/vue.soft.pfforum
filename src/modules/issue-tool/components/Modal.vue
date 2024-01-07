@@ -45,17 +45,40 @@
               />
             </div>
             <h2 class="text-h6">Производство:</h2>
-            <v-text-field
+            <v-select
               density="compact"
-              label="Номер операции"
+              label="Название"
               required
-              v-model="toolModel.norma"
+              v-model="toolModel.detailName"
+              :items="detailNameOptions"
+              @update:model-value="onToolNameChanged"
             />
-            <v-text-field
+            <v-select
               density="compact"
-              label="Деталь"
+              label="Обозначение"
               required
-              v-model="toolModel.norma"
+              v-model="toolModel.detailDescription"
+              :disabled="!toolModel.detailName"
+              :items="detailDescriptionOptions"
+              @change="onToolDescriptionChanged"
+            />
+            <v-select
+              density="compact"
+              label="Номер"
+              required
+              v-model="toolModel.no"
+              :disabled="!toolModel.detailDescription"
+              :items="noOptions"
+              @change="onToolNoChanged"
+            />
+            <v-select
+              density="compact"
+              label="Тип"
+              required
+              v-model="toolModel.operationType"
+              :disabled="!toolModel.no"
+              :items="operationTypeOptions"
+              @change="onToolOperationTypeChanged"
             />
             <h2 class="text-h6">Сколько выдать:</h2>
             <v-text-field
@@ -112,6 +135,7 @@ import Modal from '@/components/shared/Modal.vue'
 import { addTool, deleteTool, getToolParams, updateTool } from '@/api'
 import DeleteConfirmationDialog from '@/modules/tool/components/modal/DeleteConfirmationDialog.vue'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import { detailApi } from '@/modules/issue-tool/api/detail'
 
 export default {
   name: 'EditToolModal',
@@ -143,6 +167,8 @@ export default {
       (v) => !!v || 'Поле обязательно для заполнения',
       (v) => (v && v.length >= 3) || 'Минимальная длина: 3 символа',
     ],
+    detailNameOptions: [],
+    detailDescriptionOptions: [],
   }),
   // [data] - используется для определения реактивных данных компонента, которые непосредственно управляют состоянием и поведением этого компонента.
   // [watch] - используется для отслеживания изменений в этих данных (или в других реактивных источниках) и выполнения дополнительных действий или логики в ответ на эти изменения.
@@ -164,6 +190,7 @@ export default {
   },
 
   async created() {
+    this.detailNameOptions = await detailApi.getDetailNames()
     this.initializeLocalState()
     if (this.toolId == null) {
       this.setTool({
@@ -229,6 +256,28 @@ export default {
         this.localParentId = this.idParent.id
         this.currentFolderName = this.idParent.label
       }
+    },
+    async onToolNameChanged(value) {
+      console.log('onToolNameChanged', value)
+      // fetch description options by name
+      this.detailDescriptionOptions =
+        await detailApi.getDetailDescriptions(value)
+      // reset selected desc, no, operation type
+    },
+    async onToolDescriptionChanged(value) {
+      console.log('onToolDescriptionChanged', value)
+      // fetch no options by name and desc
+      // reset selected no, operation type
+    },
+    async onToolNoChanged(value) {
+      console.log('onToolNoChanged', value)
+      // fetch operation type options by name and desc and no
+      // reset selected operation type
+    },
+    async onToolOperationTypeChanged(value) {
+      console.log('onToolOperationTypeChanged', value)
+      // fetch id by name and desc and no and operation type
+      // this.toolModel.id ??
     },
     logModelValue(paramId) {
       console.log('Value changed for param ID:', paramId)
