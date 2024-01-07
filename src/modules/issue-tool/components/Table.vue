@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import EditToolModal from '@/modules/tool/components/modal/EditToolModal.vue'
+import EditToolModal from './Modal.vue'
 import ToolFilter from '@/modules/tool/components/ToolFilter.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 

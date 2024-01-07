@@ -5,6 +5,7 @@
       <v-container>
         <v-row>
           <v-col>
+            <!--левый столбец -->
             <div>
               <v-combobox
                 density="compact"
@@ -15,6 +16,8 @@
                 item-value="value"
                 required
                 :rules="typeRules"
+                readonly="true"
+                disabled="true"
               />
             </div>
             <!-- правый столбец -->
@@ -25,6 +28,8 @@
               :items="toolParamOptions"
               label="Параметры"
               return-object
+              readonly="true"
+              disabled="true"
             />
             <h2 class="text-h6">Характеристики:</h2>
             <!-- динамические параметры -->
@@ -35,6 +40,8 @@
                 v-model="toolModel.property[param.id]"
                 @input="logModelValue(param.id)"
                 required
+                readonly="true"
+                disabled="true"
               />
             </div>
             <h2 class="text-h6">Склад:</h2>

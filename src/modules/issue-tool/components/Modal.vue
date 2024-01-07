@@ -5,21 +5,6 @@
       <v-container>
         <v-row>
           <v-col>
-            <div class="flex">
-              <v-text-field
-                label="ID папки"
-                required
-                type="Number"
-                v-model="localParentId"
-                :rules="parentIdRules"
-              />
-              <v-text-field
-                label="Папка"
-                required
-                :value="currentFolderName"
-                :disabled="true"
-              />
-            </div>
             <!--левый столбец -->
             <div>
               <v-combobox
@@ -31,6 +16,8 @@
                 item-value="value"
                 required
                 :rules="typeRules"
+                readonly="true"
+                disabled="true"
               />
             </div>
             <!-- правый столбец -->
@@ -41,6 +28,8 @@
               :items="toolParamOptions"
               label="Параметры"
               return-object
+              readonly="true"
+              disabled="true"
             />
             <h2 class="text-h6">Характеристики:</h2>
             <!-- динамические параметры -->
@@ -51,20 +40,29 @@
                 v-model="toolModel.property[param.id]"
                 @input="logModelValue(param.id)"
                 required
+                readonly="true"
+                disabled="true"
               />
             </div>
-            <h2 class="text-h6">Склад:</h2>
+            <h2 class="text-h6">Производство:</h2>
             <v-text-field
               density="compact"
-              label="Норма"
+              label="Номер операции"
               required
               v-model="toolModel.norma"
             />
             <v-text-field
               density="compact"
-              label="Склад"
+              label="Деталь"
               required
-              v-model="toolModel.sklad"
+              v-model="toolModel.norma"
+            />
+            <h2 class="text-h6">Сколько выдать:</h2>
+            <v-text-field
+              density="compact"
+              label="Норма"
+              required
+              v-model="toolModel.norma"
             />
             <h2 class="text-h6"></h2>
             <div></div>
