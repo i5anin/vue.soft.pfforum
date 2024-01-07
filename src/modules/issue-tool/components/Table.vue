@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <tool-filter>
+    <tool-filter :namespace="namespace">
       <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>
     </tool-filter>
     <edit-tool-modal
@@ -59,20 +59,39 @@
 <script>
 import EditToolModal from '@/modules/tool/components/modal/EditToolModal.vue'
 import ToolFilter from '@/modules/tool/components/ToolFilter.vue'
-import { mapActions, mapMutations, mapGetters } from 'vuex'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 
 export default {
-  emits: ['changes-saved', 'canceled'],
+  emits: ['changes-saved', 'canceled', 'page-changed', 'page-limit-changed'],
   components: {
     VDataTableServer,
     EditToolModal,
     ToolFilter,
   },
   props: {
-    parentId: {
+    toolsTotalCount: {
+      type: Number,
+      default: 0,
+    },
+    formattedTools: {
+      type: Array,
+      default: () => [],
+    },
+    filters: {
       type: Object,
-      default: () => ({ id: null, label: null }),
+      required: true,
+    },
+    isLoading: {
+      type: Boolean,
+      default: false,
+    },
+    paramsList: {
+      type: Array,
+      default: () => [],
+    },
+    namespace: {
+      type: String,
+      default: 'tool',
     },
   },
   data() {
@@ -83,15 +102,6 @@ export default {
       editingToolId: null, //редактирование идентификатора инструмента
       toolTableHeaders: [], //заголовки таблиц инструментов
     }
-  },
-  computed: {
-    ...mapGetters('issueTool', [
-      'toolsTotalCount',
-      'formattedTools',
-      'filters',
-      'isLoading',
-      'paramsList',
-    ]),
   },
   watch: {
     paramsList: {
@@ -108,24 +118,18 @@ export default {
               }))
             : []),
           { title: 'Действие', key: 'actions', sortable: false },
-          { title: 'Норма', key: 'norma', sortable: false },
+          // { title: 'Норма', key: 'norma', sortable: false },
           { title: 'Склад', key: 'sklad', sortable: false },
-          { title: 'Заказ', key: 'zakaz', sortable: false },
+          // { title: 'Заказ', key: 'zakaz', sortable: false },
         ]
       },
     },
   },
 
   async mounted() {
-    await this.fetchToolsByFilter()
     this.isDataLoaded = true
   },
   methods: {
-    ...mapActions('issueTool', ['fetchToolsByFilter']),
-    ...mapMutations({
-      setCurrentPage: 'issueTool/setCurrentPage',
-      setItemsPerPage: 'issueTool/setItemsPerPage',
-    }),
     onIssueTool(event, item) {
       event.stopPropagation() // Предотвратить всплытие события
       console.log('Выдать инструмент:', item)
@@ -135,19 +139,17 @@ export default {
     },
 
     async onChangePage(page) {
-      this.setCurrentPage(page)
-      await this.fetchToolsByFilter()
+      this.$emit('page-changed', page)
     },
     async onUpdateItemsPerPage(itemsPerPage) {
-      this.setItemsPerPage(itemsPerPage)
-      await this.fetchToolsByFilter()
+      this.$emit('page-limit-changed', itemsPerPage)
     },
     onClosePopup() {
       this.openDialog = false
     },
     onSaveChanges() {
       this.openDialog = false
-      this.fetchToolsByFilter()
+      this.$emit('changes-saved')
     },
     onAddTool() {
       this.editingToolId = null

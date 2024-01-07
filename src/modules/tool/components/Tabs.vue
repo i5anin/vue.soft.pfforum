@@ -27,8 +27,9 @@ import GiveTool from '@/modules/tool/components/tabs/GiveTool.vue'
 import ToolTabTree from '@/modules/tool/components/tabs/Tree.vue'
 
 import TabCatalog from '@/modules/tool/components/tabs/Catalog.vue'
-import StorageCatalog from '@/modules/tool/components/tabs/StorageCatalog.vue'
-import TabIssueCatalog from '@/modules/tool/components/tabs/IssueCatalog.vue'
+
+import StorageCatalog from '@/modules/storage-catalog/components/Catalog.vue'
+import TabIssueCatalog from '@/modules/issue-tool/components/Catalog.vue'
 
 // Определение пропсов
 const props = defineProps({
