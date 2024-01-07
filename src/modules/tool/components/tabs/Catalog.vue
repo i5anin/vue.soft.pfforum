@@ -78,6 +78,7 @@ export default {
   },
 
   props: {
+    type: String,
     item: Object,
     parentId: {
       type: Object,
@@ -85,6 +86,9 @@ export default {
     },
   },
   watch: {
+    type(newValue) {
+      console.log('Тип вкладки изменен:', newValue)
+    },
     currentItem: {
       handler(currentItem) {
         this.updateIdParent({

@@ -1,7 +1,7 @@
 <template>
   <v-app class="custom-container">
     <v-app-bar app dark
-      >IssueCatalog
+      >StorageCatalog
       <v-toolbar-title>
         <div class="text-h6">
           <v-text-field
