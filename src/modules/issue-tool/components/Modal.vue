@@ -78,7 +78,7 @@
               v-model="toolModel.operationType"
               :disabled="!toolModel.no"
               :items="options.type"
-              @update:model-value="onToolOperationId"
+              @change="onToolOperationId"
             />
             <h2 class="text-h6">Кому выдать:</h2>
             <v-select
@@ -86,9 +86,6 @@
               label="ФИО"
               required
               v-model="toolModel.norma"
-              :items="fioOptions"
-              item-text="text"
-              item-value="value"
             />
             <h2 class="text-h6">Сколько выдать:</h2>
             <v-text-field
@@ -159,7 +156,6 @@ export default {
   components: { DeleteConfirmationDialog, Modal },
   //реактивные данные
   data: () => ({
-    fioOptions: [],
     selectedData: {
       name: null,
       description: null,
@@ -210,7 +206,6 @@ export default {
   },
 
   async created() {
-    this.fetchFioData()
     this.options.name = await detailApi.getDetailNames()
     this.initializeLocalState()
     if (this.toolId == null) {
@@ -278,20 +273,6 @@ export default {
         this.currentFolderName = this.idParent.label
       }
     },
-    async fetchFioData() {
-      try {
-        const response = await detailApi.getDetailFio()
-        this.fioOptions = response.map((item) => ({
-          text: item.fio,
-          value: item.id,
-        }))
-      } catch (error) {
-        console.error('Ошибка при получении данных ФИО:', error)
-        // Обработка ошибок
-      }
-      console.log(this.fioOptions)
-    },
-
     //при изменении названия инструмента
     async onToolNameChanged(value) {
       this.selectedData.name = value
@@ -316,21 +297,15 @@ export default {
       )
     },
     async onToolOperationId(value) {
-      this.selectedData.type = value
       console.log('тип', (this.selectedData.type = value))
-
-      // Получаем ID операции на основе выбранного типа
-      const operationId = await detailApi.onToolOperation(
+      // тут по типу узнаём id
+      this.options.no = await detailApi.getDetailNo(
         this.selectedData.name,
         this.selectedData.description,
         this.selectedData.no,
         this.selectedData.type
       )
-
-      console.log('ID операции:', operationId.specs_op_id)
-      this.options.no = operationId.specs_op_id // Предполагается, что здесь нужен именно ID операции
     },
-
     logModelValue(paramId) {
       console.log('Value changed for param ID:', paramId)
     },

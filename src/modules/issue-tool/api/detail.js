@@ -52,9 +52,9 @@ export const detailApi = {
       .then(handleResponse)
       .catch(handleError),
 
-  onToolOperation: async (name, description, no, type) =>
+  onToolOperationId: async (name, description, no) =>
     axiosInstance
-      .get('detail/find-id', {
+      .get('detail/types', {
         params: { name, description, no, type },
       })
       .then(handleResponse)
