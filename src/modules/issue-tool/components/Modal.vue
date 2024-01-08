@@ -21,36 +21,36 @@
               />
             </div>
             <!-- правый столбец -->
-            <v-combobox
-              :chips="true"
-              multiple
-              v-model="selectedParams"
-              :items="toolParamOptions"
-              label="Параметры"
-              return-object
-              readonly="true"
-              disabled="true"
-            />
-            <h2 class="text-h6">Характеристики:</h2>
-            <!-- динамические параметры -->
-            <div v-for="param in selectedParamsInfo" :key="param.id">
-              <v-combobox
-                density="compact"
-                :label="param.info"
-                v-model="toolModel.property[param.id]"
-                @input="logModelValue(param.id)"
-                required
-                readonly="true"
-                disabled="true"
-              />
-            </div>
-            <h2 class="text-h6">Производство:</h2>
+            <!--            <v-combobox-->
+            <!--              :chips="true"-->
+            <!--              multiple-->
+            <!--              v-model="selectedParams"-->
+            <!--              :items="toolParamOptions"-->
+            <!--              label="Параметры"-->
+            <!--              return-object-->
+            <!--              readonly="true"-->
+            <!--              disabled="true"-->
+            <!--            />-->
+            <!--            <h2 class="text-h6">Характеристики:</h2>-->
+            <!--            &lt;!&ndash; динамические параметры &ndash;&gt;-->
+            <!--            <div v-for="param in selectedParamsInfo" :key="param.id">-->
+            <!--              <v-combobox-->
+            <!--                density="compact"-->
+            <!--                :label="param.info"-->
+            <!--                v-model="toolModel.property[param.id]"-->
+            <!--                @input="logModelValue(param.id)"-->
+            <!--                required-->
+            <!--                readonly="true"-->
+            <!--                disabled="true"-->
+            <!--              />-->
+            <!--            </div>-->
+            <h2 class="text-h6">В производство:</h2>
             <v-select
               density="compact"
               label="Название"
               required
               v-model="toolModel.detailName"
-              :items="detailNameOptions"
+              :items="options.name"
               @update:model-value="onToolNameChanged"
             />
             <v-select
@@ -59,8 +59,8 @@
               required
               v-model="toolModel.detailDescription"
               :disabled="!toolModel.detailName"
-              :items="detailDescriptionOptions"
-              @change="onToolDescriptionChanged"
+              :items="options.description"
+              @update:model-value="onToolDescriptionChanged"
             />
             <v-select
               density="compact"
@@ -68,8 +68,8 @@
               required
               v-model="toolModel.no"
               :disabled="!toolModel.detailDescription"
-              :items="noOptions"
-              @change="onToolNoChanged"
+              :items="options.no"
+              @update:model-value="onToolNoChanged"
             />
             <v-select
               density="compact"
@@ -77,13 +77,20 @@
               required
               v-model="toolModel.operationType"
               :disabled="!toolModel.no"
-              :items="operationTypeOptions"
-              @change="onToolOperationTypeChanged"
+              :items="options.type"
+              @change="onToolOperationId"
+            />
+            <h2 class="text-h6">Кому выдать:</h2>
+            <v-select
+              density="compact"
+              label="ФИО"
+              required
+              v-model="toolModel.norma"
             />
             <h2 class="text-h6">Сколько выдать:</h2>
             <v-text-field
               density="compact"
-              label="Норма"
+              label="Количество"
               required
               v-model="toolModel.norma"
             />
@@ -149,11 +156,15 @@ export default {
   components: { DeleteConfirmationDialog, Modal },
   //реактивные данные
   data: () => ({
+    selectedData: {
+      name: null,
+      description: null,
+      no: null,
+      type: null,
+    },
     localParentId: null,
     toolModel: { name: null, property: {} },
-    toolParamOptions: [],
     selectedParams: [],
-    geometryOptions: [],
     toolParams: [],
     confirmDeleteDialog: false,
     typeSelected: false,
@@ -167,8 +178,13 @@ export default {
       (v) => !!v || 'Поле обязательно для заполнения',
       (v) => (v && v.length >= 3) || 'Минимальная длина: 3 символа',
     ],
-    detailNameOptions: [],
-    detailDescriptionOptions: [],
+
+    options: {
+      name: [],
+      description: [],
+      no: [],
+      type: [],
+    },
   }),
   // [data] - используется для определения реактивных данных компонента, которые непосредственно управляют состоянием и поведением этого компонента.
   // [watch] - используется для отслеживания изменений в этих данных (или в других реактивных источниках) и выполнения дополнительных действий или логики в ответ на эти изменения.
@@ -190,7 +206,7 @@ export default {
   },
 
   async created() {
-    this.detailNameOptions = await detailApi.getDetailNames()
+    this.options.name = await detailApi.getDetailNames()
     this.initializeLocalState()
     if (this.toolId == null) {
       this.setTool({
@@ -257,27 +273,38 @@ export default {
         this.currentFolderName = this.idParent.label
       }
     },
+    //при изменении названия инструмента
     async onToolNameChanged(value) {
-      console.log('onToolNameChanged', value)
-      // fetch description options by name
-      this.detailDescriptionOptions =
-        await detailApi.getDetailDescriptions(value)
-      // reset selected desc, no, operation type
+      this.selectedData.name = value
+      console.log('название', (this.selectedData.name = value))
+      this.options.description = await detailApi.getDetailDescriptions(value)
     },
+    //в описании инструмента изменено
     async onToolDescriptionChanged(value) {
-      console.log('onToolDescriptionChanged', value)
-      // fetch no options by name and desc
-      // reset selected no, operation type
+      console.log('обозначение', (this.selectedData.description = value))
+      this.options.no = await detailApi.getDetailNo(
+        this.selectedData.name,
+        this.selectedData.description
+      )
     },
+    //на инструменте №
     async onToolNoChanged(value) {
-      console.log('onToolNoChanged', value)
-      // fetch operation type options by name and desc and no
-      // reset selected operation type
+      console.log('номер', (this.selectedData.no = value))
+      this.options.type = await detailApi.getDetailType(
+        this.selectedData.name,
+        this.selectedData.description,
+        this.selectedData.no
+      )
     },
-    async onToolOperationTypeChanged(value) {
-      console.log('onToolOperationTypeChanged', value)
-      // fetch id by name and desc and no and operation type
-      // this.toolModel.id ??
+    async onToolOperationId(value) {
+      console.log('тип', (this.selectedData.type = value))
+      // тут по типу узнаём id
+      this.options.no = await detailApi.getDetailNo(
+        this.selectedData.name,
+        this.selectedData.description,
+        this.selectedData.no,
+        this.selectedData.type
+      )
     },
     logModelValue(paramId) {
       console.log('Value changed for param ID:', paramId)

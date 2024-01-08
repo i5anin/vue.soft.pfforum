@@ -21,36 +21,42 @@ function handleError(error) {
 }
 
 export const detailApi = {
+  //получить fio
+  getDetailFio: async () =>
+    axiosInstance.get('detail/fio').then(handleResponse).catch(handleError),
+
   //получить название
   getDetailNames: async () =>
     axiosInstance.get('detail/names').then(handleResponse).catch(handleError),
 
   //получить обозначение
-  getDetailDescriptions: async (value) =>
+  getDetailDescriptions: async (name) =>
     axiosInstance
-      .get('detail/descriptions', { params: { name: value } })
+      .get('detail/descriptions', { params: { name } })
       .then(handleResponse)
       .catch(handleError),
 
   //получить номер
-  getDetailNo: async (value) =>
+  getDetailNo: async (name, description) =>
     axiosInstance
-      .get('detail/no', {
-        params: { name: value, description: value },
-      })
+      .get('detail/no', { params: { name, description } })
       .then(handleResponse)
       .catch(handleError),
 
   //получить тип
-  getDetailType: async (value) =>
+  getDetailType: async (name, description, no) =>
     axiosInstance
-      .get('detail/type', {
-        params: { name: value, description: value, no: value },
+      .get('detail/types', {
+        params: { name, description, no },
       })
       .then(handleResponse)
       .catch(handleError),
 
-  //получить fio
-  getDetailFio: async () =>
-    axiosInstance.get('detail/fio').then(handleResponse).catch(handleError),
+  onToolOperationId: async (name, description, no) =>
+    axiosInstance
+      .get('detail/types', {
+        params: { name, description, no, type },
+      })
+      .then(handleResponse)
+      .catch(handleError),
 }
