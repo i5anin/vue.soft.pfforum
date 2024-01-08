@@ -41,8 +41,6 @@ async function getDetailNames(req, res) {
 }
 
 async function getDetailDescriptions(req, res) {
-  console.log(req.query.name)
-
   try {
     const query = `
       SELECT DISTINCT

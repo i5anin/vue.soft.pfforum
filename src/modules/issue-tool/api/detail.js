@@ -49,4 +49,8 @@ export const detailApi = {
       })
       .then(handleResponse)
       .catch(handleError),
+
+  //получить fio
+  getDetailFio: async () =>
+    axiosInstance.get('detail/fio').then(handleResponse).catch(handleError),
 }

@@ -37,6 +37,7 @@ router.get('/tools-statuses', treeController.countNomenclatureStatuses)
 router.get('/detail/names', operController.getDetailNames)
 router.get('/detail/descriptions', operController.getDetailDescriptions)
 router.get('/detail/no', operController.getDetailNo)
+// router.get('/detail/fio', operController.getDetailfio)
 // router.get('/detail/operation-types', operController.getDetailType)
 // router.get('/detail', operController.getDetail)
 
