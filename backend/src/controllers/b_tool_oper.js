@@ -135,7 +135,7 @@ async function getDetailType(req, res) {
   }
 }
 
-async function customQuery(req, res) {
+async function getDetailId(req, res) {
   try {
     // Extracting parameters from the request
     const { name, description, no, type } = req.query
@@ -178,7 +178,7 @@ async function customQuery(req, res) {
 }
 
 module.exports = {
-  customQuery,
+  getDetailId,
   getDetailNames,
   getDetailDescriptions,
   getDetailNo,

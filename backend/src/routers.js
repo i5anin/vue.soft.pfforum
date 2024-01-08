@@ -38,7 +38,7 @@ router.get('/detail/names', operController.getDetailNames)
 router.get('/detail/descriptions', operController.getDetailDescriptions)
 router.get('/detail/no', operController.getDetailNo)
 router.get('/detail/types', operController.getDetailType)
-router.get('/detail/custom', operController.customQuery)
+router.get('/detail/find-id', operController.getDetailId)
 
 // router.get('/detail/fio', operController.getDetailfio)
 // router.get('/detail', operController.getDetail)
