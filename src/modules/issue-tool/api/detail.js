@@ -26,18 +26,16 @@ export const detailApi = {
     axiosInstance.get('detail/names').then(handleResponse).catch(handleError),
 
   //получить обозначение
-  getDetailDescriptions: async (value) =>
+  getDetailDescriptions: async (name) =>
     axiosInstance
-      .get('detail/descriptions', { params: { name: value } })
+      .get('detail/descriptions', { params: { name } })
       .then(handleResponse)
       .catch(handleError),
 
   //получить номер
-  getDetailNo: async (value) =>
+  getDetailNo: async (name, description) =>
     axiosInstance
-      .get('detail/no', {
-        params: { name: value, description: value },
-      })
+      .get('detail/no', { params: { name, description } })
       .then(handleResponse)
       .catch(handleError),
 
