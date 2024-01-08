@@ -169,8 +169,38 @@ async function getDetailId(req, res) {
     // Executing the query
     const result = await pool.query(query)
 
-    // Sending the result as JSON
-    res.json(result.rows)
+    // Проверка, есть ли результаты, и отправка первого результата
+    if (result.rows && result.rows.length > 0) {
+      res.json(result.rows[0])
+    } else {
+      res.status(404).send('Объект не найден')
+    }
+  } catch (error) {
+    console.error('Ошибка при выполнении запроса:', error)
+    res.status(500).send('Внутренняя ошибка сервера')
+  }
+}
+
+async function getAllOperators(req, res) {
+  try {
+    // SQL запрос для получения всех ID и фамилий из таблицы operators, исключая запись с id = 1,
+    // отсортированных по фамилии в алфавитном порядке
+    const query = `
+      SELECT id, fio
+      FROM dbo.operators
+      WHERE id != 1
+      ORDER BY fio ASC;
+    `
+
+    // Выполнение запроса
+    const result = await pool.query(query)
+
+    // Проверка наличия результатов и их отправка
+    if (result.rows && result.rows.length > 0) {
+      res.json(result.rows)
+    } else {
+      res.status(404).send('Операторы не найдены')
+    }
   } catch (error) {
     console.error('Ошибка при выполнении запроса:', error)
     res.status(500).send('Внутренняя ошибка сервера')
@@ -183,4 +213,5 @@ module.exports = {
   getDetailDescriptions,
   getDetailNo,
   getDetailType,
+  getAllOperators,
 }
