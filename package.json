@@ -1,8 +1,8 @@
 {
-  "name": "pfforum",
+  "name": "vue-pfforum",
   "version": "2.0.0",
   "scripts": {
-    "backend": "node backend/src/app.js",
+    "backend": "cd backend && npx nodemon src/app.js",
     "frontend": "vite --host",
     "pm": "pm2 start ecosystem.config.js",
     "build": "vite build",

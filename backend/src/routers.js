@@ -36,9 +36,9 @@ router.get('/tools-statuses', treeController.countNomenclatureStatuses)
 
 router.get('/detail/names', operController.getDetailNames)
 router.get('/detail/descriptions', operController.getDetailDescriptions)
-router.get('/detail/no', operController.customQuery)
-router.get('/detail/operation-types', operController.customQuery)
-router.get('/detail', operController.customQuery)
+router.get('/detail/no', operController.getDetailNo)
+// router.get('/detail/operation-types', operController.getDetailType)
+// router.get('/detail', operController.getDetail)
 
 router.get('/sklad', skladController.getToolHistory)
 // router.post('/sklad', skladController.addSkladItem)
