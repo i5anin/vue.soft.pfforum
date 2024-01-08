@@ -21,6 +21,10 @@ function handleError(error) {
 }
 
 export const detailApi = {
+  //получить fio
+  getDetailFio: async () =>
+    axiosInstance.get('detail/fio').then(handleResponse).catch(handleError),
+
   //получить название
   getDetailNames: async () =>
     axiosInstance.get('detail/names').then(handleResponse).catch(handleError),
@@ -40,15 +44,19 @@ export const detailApi = {
       .catch(handleError),
 
   //получить тип
-  getDetailType: async (value) =>
+  getDetailType: async (name, description, no) =>
     axiosInstance
-      .get('detail/type', {
-        params: { name: value, description: value, no: value },
+      .get('detail/types', {
+        params: { name, description, no },
       })
       .then(handleResponse)
       .catch(handleError),
 
-  //получить fio
-  getDetailFio: async () =>
-    axiosInstance.get('detail/fio').then(handleResponse).catch(handleError),
+  onToolOperationId: async (name, description, no) =>
+    axiosInstance
+      .get('detail/types', {
+        params: { name, description, no, type },
+      })
+      .then(handleResponse)
+      .catch(handleError),
 }

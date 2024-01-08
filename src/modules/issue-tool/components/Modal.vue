@@ -69,7 +69,7 @@
               v-model="toolModel.no"
               :disabled="!toolModel.detailDescription"
               :items="options.no"
-              @change="onToolNoChanged"
+              @update:model-value="onToolNoChanged"
             />
             <v-select
               density="compact"
@@ -77,8 +77,8 @@
               required
               v-model="toolModel.operationType"
               :disabled="!toolModel.no"
-              :items="operationTypeOptions"
-              @change="onToolOperationTypeChanged"
+              :items="options.type"
+              @change="onToolOperationId"
             />
             <h2 class="text-h6">Кому выдать:</h2>
             <v-select
@@ -164,9 +164,7 @@ export default {
     },
     localParentId: null,
     toolModel: { name: null, property: {} },
-    toolParamOptions: [],
     selectedParams: [],
-    geometryOptions: [],
     toolParams: [],
     confirmDeleteDialog: false,
     typeSelected: false,
@@ -292,14 +290,15 @@ export default {
     //на инструменте №
     async onToolNoChanged(value) {
       console.log('номер', (this.selectedData.no = value))
-      this.options.no = await detailApi.getDetailNo(
+      this.options.type = await detailApi.getDetailType(
         this.selectedData.name,
         this.selectedData.description,
         this.selectedData.no
       )
     },
-    async onToolOperationTypeChanged(value) {
+    async onToolOperationId(value) {
       console.log('тип', (this.selectedData.type = value))
+      // тут по типу узнаём id
       this.options.no = await detailApi.getDetailNo(
         this.selectedData.name,
         this.selectedData.description,
