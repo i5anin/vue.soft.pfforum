@@ -301,44 +301,6 @@ export default {
         this.currentFolderName = this.idParent.label
       }
     },
-    //при изменении названия инструмента
-    async onToolNameChanged(value) {
-      this.selectedData.name = value
-      console.log('название', (this.selectedData.name = value))
-      this.options.description = await detailApi.getDetailDescriptions(value)
-    },
-    //в описании инструмента изменено
-    async onToolDescriptionChanged(value) {
-      console.log('обозначение', (this.selectedData.description = value))
-      this.options.no = await detailApi.getDetailNo(
-        this.selectedData.name,
-        this.selectedData.description
-      )
-    },
-    //на инструменте №
-    async onToolNoChanged(value) {
-      console.log('номер', (this.selectedData.no = value))
-      this.options.type = await detailApi.getDetailType(
-        this.selectedData.name,
-        this.selectedData.description,
-        this.selectedData.no
-      )
-    },
-    async onToolOperationId(value) {
-      this.selectedData.type = value
-      console.log('тип', (this.selectedData.type = value))
-
-      // Получаем ID операции на основе выбранного типа
-      const operationId = await detailApi.onToolOperation(
-        this.selectedData.name,
-        this.selectedData.description,
-        this.selectedData.no,
-        this.selectedData.type
-      )
-
-      console.log('ID операции:', operationId.specs_op_id)
-      this.options.no = operationId.specs_op_id // Предполагается, что здесь нужен именно ID операции
-    },
 
     logModelValue(paramId) {
       console.log('Value changed for param ID:', paramId)
