@@ -25,41 +25,7 @@ export const detailApi = {
   getDetailFio: async () =>
     axiosInstance.get('detail/fio').then(handleResponse).catch(handleError),
 
-  //получить название
-  // getDetailNames: async () =>
-  //   axiosInstance.get('detail/names').then(handleResponse).catch(handleError),
-  //
-  // //получить обозначение
-  // getDetailDescriptions: async (name) =>
-  //   axiosInstance
-  //     .get('detail/descriptions', { params: { name } })
-  //     .then(handleResponse)
-  //     .catch(handleError),
-  //
-  // //получить номер
-  // getDetailNo: async (name, description) =>
-  //   axiosInstance
-  //     .get('detail/no', { params: { name, description } })
-  //     .then(handleResponse)
-  //     .catch(handleError),
-  //
-  // //получить тип
-  // getDetailType: async (name, description, no) =>
-  //   axiosInstance
-  //     .get('detail/types', {
-  //       params: { name, description, no },
-  //     })
-  //     .then(handleResponse)
-  //     .catch(handleError),
-  //
-  // onToolOperation: async (name, description, no, type) =>
-  //   axiosInstance
-  //     .get('detail/find-id', {
-  //       params: { name, description, no, type },
-  //     })
-  //     .then(handleResponse)
-  //     .catch(handleError),
-
+  //получить detail по id
   searchById: async (id) =>
     axiosInstance
       .get('detail/id', { params: { id } })

@@ -185,6 +185,14 @@ export default {
   },
 
   async created() {
+    console.log('Вызов getDetailFio')
+    try {
+      const fioData = await this.detailApi.getDetailFio()
+      console.log('Полученные данные ФИО:', fioData)
+      this.fioOptions = this.prepareFioOptions(fioData)
+    } catch (error) {
+      console.error('Ошибка при загрузке данных ФИО:', error)
+    }
     this.initializeLocalState()
     if (this.toolId == null) {
       this.setTool({
@@ -240,6 +248,15 @@ export default {
       'onSaveToolModel',
       'fetchToolById',
     ]),
+
+    prepareFioOptions(fioData) {
+      const options = fioData.map((item) => ({
+        text: item.fio,
+        value: item.id,
+      }))
+      console.log('Опции ФИО:', options)
+      return options
+    },
 
     onOperationSelected(value) {
       const id = this.operationMapping[value]
