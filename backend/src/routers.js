@@ -41,6 +41,8 @@ router.get('/detail/types', operController.getDetailType)
 router.get('/detail/find-id', operController.getDetailId)
 router.get('/detail/fio', operController.getAllOperators)
 
+router.get('/detail/id', operController.getDetailDescriptions)
+
 // router.get('/detail/fio', operController.getDetailfio)
 // router.get('/detail', operController.getDetail)
 
