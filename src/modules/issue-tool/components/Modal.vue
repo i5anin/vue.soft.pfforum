@@ -276,7 +276,7 @@ export default {
     },
 
     async onIdChanged(newId) {
-      console.log('ID изменено:', newId)
+      console.log('onIdChanged. ID изменено:', newId)
       clearTimeout(this.debounceTimeout)
       this.debounceTimeout = setTimeout(async () => {
         try {

@@ -41,7 +41,8 @@ router.get('/tools-statuses', treeController.countNomenclatureStatuses)
 // router.get('/detail/find-id', operController.getDetailId)
 // router.get('/detail/fio', operController.getAllOperators)
 
-router.get('/detail/id', operController.getDetail)
+router.get('/detail/id', operController.findDetail)
+router.get('/detail/fio', operController.getAllOperators)
 
 // router.get('/detail/fio', operController.getDetailfio)
 // router.get('/detail', operController.getDetail)
