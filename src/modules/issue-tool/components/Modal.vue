@@ -20,36 +20,11 @@
                 disabled="true"
               />
             </div>
-            <!-- правый столбец -->
-            <!--            <v-combobox-->
-            <!--              :chips="true"-->
-            <!--              multiple-->
-            <!--              v-model="selectedParams"-->
-            <!--              :items="toolParamOptions"-->
-            <!--              label="Параметры"-->
-            <!--              return-object-->
-            <!--              readonly="true"-->
-            <!--              disabled="true"-->
-            <!--            />-->
-            <!--            <h2 class="text-h6">Характеристики:</h2>-->
-            <!--            &lt;!&ndash; динамические параметры &ndash;&gt;-->
-            <!--            <div v-for="param in selectedParamsInfo" :key="param.id">-->
-            <!--              <v-combobox-->
-            <!--                density="compact"-->
-            <!--                :label="param.info"-->
-            <!--                v-model="toolModel.property[param.id]"-->
-            <!--                @input="logModelValue(param.id)"-->
-            <!--                required-->
-            <!--                readonly="true"-->
-            <!--                disabled="true"-->
-            <!--              />-->
-            <!--            </div>-->
             <h2 class="text-h6">Деталь:</h2>
             <v-text-field
               density="compact"
               label="ID"
               required
-              :items="options.name"
               @update:model-value="onToolNameChanged"
             />
             <v-select
