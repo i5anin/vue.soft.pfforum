@@ -25,27 +25,37 @@
               density="compact"
               label="ID"
               required
-              @update:model-value="onToolNameChanged"
+              @update:model-value="onIdChanged"
             />
             <v-select
               density="compact"
               label="Название Обозначение"
               required
               v-model="toolModel.detailDescription"
-              :disabled="!toolModel.detailName"
-              :items="options.description"
-              @update:model-value="onToolDescriptionChanged"
+              :disabled="!options.idNameDescription.length"
+              :items="options.idNameDescription"
             />
-            <h2 class="text-h6">Операция:</h2>
             <v-select
               density="compact"
-              label="Выберите деталь"
+              label="Номер Тип"
               required
               v-model="toolModel.operationType"
-              :disabled="!toolModel.no"
-              :items="options.type"
-              @update:model-value="onToolOperationId"
+              :disabled="!options.numberType.length"
+              :items="options.numberType"
+              @update:model-value="onOperationSelected"
             />
+
+            <!--            :disabled="!toolModel.detailName"-->
+            <!--            <h2 class="text-h6">Операция:</h2>-->
+            <!--            <v-select-->
+            <!--              density="compact"-->
+            <!--              label="Выберите деталь"-->
+            <!--              required-->
+            <!--              v-model="toolModel.operationType"-->
+            <!--              :disabled="!toolModel.no"-->
+            <!--              :items="options.operation"-->
+            <!--              @update:model-value="onToolOperationId"-->
+            <!--            />-->
             <h2 class="text-h6">Кому выдать:</h2>
             <v-select
               density="compact"
@@ -133,12 +143,13 @@ export default {
       type: null,
     },
     localParentId: null,
-    toolModel: { name: null, property: {} },
+    toolModel: { name: null, property: {}, selectedOperationId: null },
     selectedParams: [],
     toolParams: [],
     confirmDeleteDialog: false,
     typeSelected: false,
     selectedType: '',
+    operationMapping: {},
     parentIdRules: [
       (v) => !!v || 'ID папки обязательно',
       (v) => v > 1 || 'ID папки должен быть больше 1',
@@ -150,10 +161,8 @@ export default {
     ],
 
     options: {
-      name: [],
-      description: [],
-      no: [],
-      type: [],
+      idNameDescription: [],
+      numberType: [],
     },
   }),
   // [data] - используется для определения реактивных данных компонента, которые непосредственно управляют состоянием и поведением этого компонента.
@@ -176,8 +185,6 @@ export default {
   },
 
   async created() {
-    this.fetchFioData()
-    this.options.name = await detailApi.getDetailNames()
     this.initializeLocalState()
     if (this.toolId == null) {
       this.setTool({
@@ -233,6 +240,56 @@ export default {
       'onSaveToolModel',
       'fetchToolById',
     ]),
+
+    onOperationSelected(value) {
+      const id = this.operationMapping[value]
+      this.toolModel.selectedOperationId = id
+      console.log('Выбран specs_op_id:', id)
+    },
+
+    formatToolOptions(data) {
+      const uniqueSet = new Set()
+      return data.reduce((acc, item) => {
+        const formattedItem = item.description
+          ? `${item.id} - ${item.name} - ${item.description}`
+          : `${item.id} - ${item.name}`
+
+        if (!uniqueSet.has(formattedItem)) {
+          uniqueSet.add(formattedItem)
+          acc.push(formattedItem)
+        }
+
+        return acc
+      }, [])
+    },
+
+    formatOperationOptions(data) {
+      const uniqueSet = new Set()
+      data.forEach((item) => {
+        const label = `${item.no} - ${item.cnc_type}`
+        if (!uniqueSet.has(label)) {
+          uniqueSet.add(label)
+          this.operationMapping[label] = item.specs_op_id
+        }
+      })
+      return Array.from(uniqueSet)
+    },
+
+    async onIdChanged(newId) {
+      console.log('ID изменено:', newId)
+      clearTimeout(this.debounceTimeout)
+      this.debounceTimeout = setTimeout(async () => {
+        try {
+          const result = await detailApi.searchById(newId)
+          console.log('Результат поиска:', result)
+          this.options.idNameDescription = this.formatToolOptions(result)
+          this.options.numberType = this.formatOperationOptions(result)
+        } catch (error) {
+          console.error('Ошибка при поиске:', error)
+        }
+      }, 500)
+    },
+
     initializeLocalState() {
       if (this.toolId) {
         this.fetchToolById(this.toolId).then(() => {
@@ -244,20 +301,6 @@ export default {
         this.currentFolderName = this.idParent.label
       }
     },
-    async fetchFioData() {
-      try {
-        const response = await detailApi.getDetailFio()
-        this.fioOptions = response.map((item) => ({
-          text: item.fio,
-          value: item.id,
-        }))
-      } catch (error) {
-        console.error('Ошибка при получении данных ФИО:', error)
-        // Обработка ошибок
-      }
-      console.log(this.fioOptions)
-    },
-
     //при изменении названия инструмента
     async onToolNameChanged(value) {
       this.selectedData.name = value

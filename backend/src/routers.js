@@ -34,14 +34,14 @@ router.delete('/tools-tree/:id', treeController.dellFolderTree)
 
 router.get('/tools-statuses', treeController.countNomenclatureStatuses)
 
-router.get('/detail/names', operController.getDetailNames)
-router.get('/detail/descriptions', operController.getDetailDescriptions)
-router.get('/detail/no', operController.getDetailNo)
-router.get('/detail/types', operController.getDetailType)
-router.get('/detail/find-id', operController.getDetailId)
-router.get('/detail/fio', operController.getAllOperators)
+// router.get('/detail/names', operController.getDetailNames)
+// router.get('/detail/descriptions', operController.getDetailDescriptions)
+// router.get('/detail/no', operController.getDetailNo)
+// router.get('/detail/types', operController.getDetailType)
+// router.get('/detail/find-id', operController.getDetailId)
+// router.get('/detail/fio', operController.getAllOperators)
 
-router.get('/detail/id', operController.getDetailDescriptions)
+router.get('/detail/id', operController.getDetail)
 
 // router.get('/detail/fio', operController.getDetailfio)
 // router.get('/detail', operController.getDetail)

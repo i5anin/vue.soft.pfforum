@@ -39,8 +39,7 @@ async function getDetailNames(req, res) {
     res.status(500).send('Внутренняя ошибка сервера')
   }
 }
-
-async function getDetailDescriptions(req, res) {
+async function getDetail(req, res) {
   try {
     const query = `
       SELECT
@@ -72,7 +71,6 @@ async function getDetailDescriptions(req, res) {
     res.status(500).send('Внутренняя ошибка сервера')
   }
 }
-
 async function getDetailNo(req, res) {
   try {
     const name = req.query.name.toLowerCase().trim()
@@ -103,7 +101,6 @@ async function getDetailNo(req, res) {
     res.status(500).send('Внутренняя ошибка сервера')
   }
 }
-
 async function getDetailType(req, res) {
   try {
     const name = req.query.name.toLowerCase().trim()
@@ -136,7 +133,6 @@ async function getDetailType(req, res) {
     res.status(500).send('Внутренняя ошибка сервера')
   }
 }
-
 async function getDetailId(req, res) {
   try {
     // Extracting parameters from the request
@@ -182,7 +178,6 @@ async function getDetailId(req, res) {
     res.status(500).send('Внутренняя ошибка сервера')
   }
 }
-
 async function getAllOperators(req, res) {
   try {
     // SQL запрос для получения всех ID и фамилий из таблицы operators, исключая запись с id = 1,
@@ -212,8 +207,8 @@ async function getAllOperators(req, res) {
 module.exports = {
   getDetailId,
   getDetailNames,
-  getDetailDescriptions,
   getDetailNo,
   getDetailType,
+  getDetail,
   getAllOperators,
 }
