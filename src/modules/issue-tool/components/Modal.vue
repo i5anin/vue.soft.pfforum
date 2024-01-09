@@ -44,36 +44,27 @@
             <!--                disabled="true"-->
             <!--              />-->
             <!--            </div>-->
-            <h2 class="text-h6">В производство:</h2>
-            <v-select
+            <h2 class="text-h6">Деталь:</h2>
+            <v-text-field
               density="compact"
-              label="Название"
+              label="ID"
               required
-              v-model="toolModel.detailName"
               :items="options.name"
               @update:model-value="onToolNameChanged"
             />
             <v-select
               density="compact"
-              label="Обозначение"
+              label="Название Обозначение"
               required
               v-model="toolModel.detailDescription"
               :disabled="!toolModel.detailName"
               :items="options.description"
               @update:model-value="onToolDescriptionChanged"
             />
+            <h2 class="text-h6">Операция:</h2>
             <v-select
               density="compact"
-              label="Номер"
-              required
-              v-model="toolModel.no"
-              :disabled="!toolModel.detailDescription"
-              :items="options.no"
-              @update:model-value="onToolNoChanged"
-            />
-            <v-select
-              density="compact"
-              label="Тип"
+              label="Выберите деталь"
               required
               v-model="toolModel.operationType"
               :disabled="!toolModel.no"
