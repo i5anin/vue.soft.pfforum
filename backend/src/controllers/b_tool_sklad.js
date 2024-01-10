@@ -44,7 +44,7 @@ async function getToolHistory(req, res) {
         o.fio AS user_fio,
         thn.id_user,
         thn.date,
-        thn.id_nom,
+        thn.id_tool,
         tn.name AS name_tool,
         tn.property
       FROM dbo.tool_history_nom thn
@@ -52,7 +52,7 @@ async function getToolHistory(req, res) {
       INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
       INNER JOIN dbo.operations_ordersnom oon ON oon.op_id = sno.ordersnom_op_id
       INNER JOIN dbo.operators o ON thn.id_user = o.id
-      INNER JOIN dbo.tool_nom tn ON thn.id_nom = tn.id
+      INNER JOIN dbo.tool_nom tn ON thn.id_tool = tn.id
       WHERE sn.status_p = 'П'
         AND NOT sn.status_otgruzka
         AND (POSITION('ЗАПРЕТ' IN UPPER(sn.comments)) = 0 OR sn.comments IS NULL)

@@ -73,16 +73,16 @@ async function getAllOperators(req, res) {
 async function saveToolHistory(req, res) {
   try {
     // Извлекаем данные из тела запроса
-    const { id_operation, id_user, id_tool, quantity, date } = req.body
+    const { id_oper, id_user, id_tool, quantity, date } = req.body
 
     // SQL запрос для вставки данных в таблицу tool_history_nom
     const query = `
-      INSERT INTO dbo.tool_history_nom (id_operation, id_user, id_tool, quantity, date)
+      INSERT INTO dbo.tool_history_nom (id_oper, id_user, id_tool, quantity, date)
       VALUES ($1, $2, $3, $4, $5)
     `
 
     // Выполнение запроса с переданными параметрами
-    await pool.query(query, [id_operation, id_user, id_tool, quantity, date])
+    await pool.query(query, [id_oper, id_user, id_tool, quantity, date])
 
     // Отправка ответа об успешной операции
     res.status(200).json({ message: 'Данные успешно сохранены' })

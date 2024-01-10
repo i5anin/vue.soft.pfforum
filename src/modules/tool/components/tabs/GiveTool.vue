@@ -39,7 +39,7 @@ export default {
         { title: 'ФИО', key: 'user_fio', sortable: true, width: '150px' },
         { title: 'Дата', key: 'date', sortable: true },
         { title: 'Инструмент', key: 'name_tool', sortable: true },
-        { title: 'Характеристики', key: 'property', sortable: true },
+        // { title: 'Характеристики', key: 'property', sortable: true },
       ],
     }
   },
@@ -51,7 +51,7 @@ export default {
       this.showModal = true // Установите переменную, контролирующую видимость модального окна
     },
     formatDate(date) {
-      return format(parseISO(date), 'dd.MM.yyyy')
+      return format(parseISO(date), 'dd.MM.yyyy HH:mm:ss')
     },
     async fetchAndFormatToolHistory() {
       try {
