@@ -135,6 +135,7 @@ export default {
   components: { DeleteConfirmationDialog, Modal },
   //реактивные данные
   data: () => ({
+    isModalOpen: true,
     selectedFio: null,
     fioOptions: [],
     selectedData: {
@@ -384,7 +385,7 @@ export default {
 
         if (response.success === 'OK') {
           this.$emit('changes-saved')
-          this.fetchToolsByFilter()
+          await this.fetchToolsByFilter()
         } else {
           console.error('Ошибка при сохранении: ', response.data)
         }
