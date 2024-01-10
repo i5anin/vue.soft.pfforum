@@ -25,7 +25,6 @@
       density="compact"
       @update:page="onChangePage"
       @update:items-per-page="onUpdateItemsPerPage"
-      @click:row="onEditRow"
       class="elevation-1"
       hover
       fixed-header
@@ -110,6 +109,7 @@ export default {
         this.toolTableHeaders = [
           { title: '№', key: 'index', sortable: false },
           { title: 'Маркировка', key: 'name', sortable: true },
+          { title: 'Действие', key: 'actions', sortable: false },
           ...(newVal && newVal.length > 0
             ? newVal.map((param) => ({
                 title: param.label,
@@ -117,7 +117,6 @@ export default {
                 sortable: true,
               }))
             : []),
-          { title: 'Действие', key: 'actions', sortable: false },
           // { title: 'Норма', key: 'norma', sortable: false },
           { title: 'Склад', key: 'sklad', sortable: false },
           // { title: 'Заказ', key: 'zakaz', sortable: false },
@@ -133,6 +132,8 @@ export default {
     onIssueTool(event, item) {
       event.stopPropagation() // Предотвратить всплытие события
       console.log('Выдать инструмент:', item)
+      this.editingToolId = item.id // Установите ID инструмента для редактирования
+      this.openDialog = true // Открыть модалку
     },
     calculateOrder(tool) {
       if (tool.norma || tool.sklad) return tool.norma - tool.sklad
