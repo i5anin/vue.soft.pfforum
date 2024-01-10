@@ -83,7 +83,7 @@ export default {
   }),
   computed: {
     filters() {
-      console.log(this.$store.getters)
+      // console.log(this.$store.getters)
       return this.$store.getters[`${this.namespace}/filters`]
     },
     paramsOptions() {

@@ -52,8 +52,8 @@ const tabs = [
 // Наблюдатель (watcher) для отслеживания изменений в выбранной вкладке
 watch(tab, (newTabName) => {
   const currentTab = tabs.find((t) => t.name === newTabName)
-  if (currentTab) {
-    console.log('Текущий тип вкладки:', currentTab.type)
-  }
+  // if (currentTab) {
+  //   console.log('Текущий тип вкладки:', currentTab.type)
+  // }
 })
 </script>

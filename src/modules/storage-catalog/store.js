@@ -27,7 +27,7 @@ export const store = {
   },
   mutations: {
     updateIdParent(state, idParentData) {
-      console.log('VueX. Изменяется idParent:', idParentData.id)
+      // console.log('VueX. Изменяется idParent:', idParentData.id)
       state.idParent = { ...idParentData }
     },
     setParamsList(state, params) {
