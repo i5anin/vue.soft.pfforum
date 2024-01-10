@@ -127,15 +127,14 @@ import { detailApi } from '@/modules/issue-tool/api/detail'
 export default {
   name: 'Issue-Modal',
   emits: ['canceled', 'changes-saved'],
-  //props контракт общение что использовать и что передавать от родительского компонента к дочернему
   props: {
     persistent: { type: Boolean, default: false },
     toolId: { type: Number, default: null },
     radiusOptions: { type: Array },
   },
   components: { DeleteConfirmationDialog, Modal },
-  //реактивные данные
   data: () => ({
+    originalData: [],
     idMapping: {},
     isModalOpen: true,
     selectedFio: null,
@@ -164,9 +163,6 @@ export default {
       numberType: [],
     },
   }),
-  // [data] - используется для определения реактивных данных компонента, которые непосредственно управляют состоянием и поведением этого компонента.
-  // [watch] - используется для отслеживания изменений в этих данных (или в других реактивных источниках) и выполнения дополнительных действий или логики в ответ на эти изменения.
-
   watch: {
     tool: {
       deep: true,
@@ -203,14 +199,6 @@ export default {
       await this.fetchToolById(this.toolId)
       if (this.tool.property === null) this.tool.property = {}
     }
-    /*    const rawToolParams = await getToolParams()
-    this.toolParams = [...rawToolParams]
-    this.toolModel = JSON.parse(JSON.stringify(this.tool))
-    const propertyIds = Object.keys(this.toolModel.property).map((key) => key)
-    this.selectedParams = this.toolParams
-      .filter(({ id }) => propertyIds.includes(String(id)))
-      .map(({ info }) => info)
-    this.toolParamOptions = rawToolParams.map((param) => param.info)*/
   },
 
   computed: {
@@ -271,8 +259,8 @@ export default {
     onIdSelected(selectedValue) {
       const id = this.idMapping[selectedValue]
       if (id) {
-        this.toolModel.selectedId = id
-        console.log('Выбран ID:', id)
+        const filteredData = this.originalData.filter((item) => item.id === id)
+        this.options.numberType = this.formatOperationOptions(filteredData)
       } else {
         console.error(
           'Не удалось найти ID для выбранного значения:',
@@ -312,19 +300,13 @@ export default {
     },
 
     async onIdChanged(newId) {
-      // console.log('onIdChanged. ID изменено:', newId)
-      clearTimeout(this.debounceTimeout)
-      this.debounceTimeout = setTimeout(async () => {
-        try {
-          console.log('Выполнение поиска для ID:', newId)
-          const result = await detailApi.searchById(newId)
-          //TODO: console.log('Результат поиска:', result)
-          this.options.idNameDescription = this.formatToolOptions(result)
-          this.options.numberType = this.formatOperationOptions(result)
-        } catch (error) {
-          console.error('Ошибка при поиске:', error)
-        }
-      }, 500)
+      try {
+        const result = await detailApi.searchById(newId)
+        this.originalData = result // Сохраняем исходные данные для последующего использования
+        this.options.idNameDescription = this.formatToolOptions(result)
+      } catch (error) {
+        console.error('Ошибка при поиске:', error)
+      }
     },
 
     initializeLocalState() {
