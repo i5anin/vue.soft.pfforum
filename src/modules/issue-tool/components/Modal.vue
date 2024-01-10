@@ -34,6 +34,7 @@
               v-model="toolModel.detailDescription"
               :disabled="!options.idNameDescription.length"
               :items="options.idNameDescription"
+              @update:model-value="onIdSelected"
             />
             <v-select
               density="compact"
@@ -135,6 +136,7 @@ export default {
   components: { DeleteConfirmationDialog, Modal },
   //реактивные данные
   data: () => ({
+    idMapping: {},
     isModalOpen: true,
     selectedFio: null,
     fioOptions: [],
@@ -207,14 +209,14 @@ export default {
       await this.fetchToolById(this.toolId)
       if (this.tool.property === null) this.tool.property = {}
     }
-    const rawToolParams = await getToolParams()
+    /*    const rawToolParams = await getToolParams()
     this.toolParams = [...rawToolParams]
     this.toolModel = JSON.parse(JSON.stringify(this.tool))
     const propertyIds = Object.keys(this.toolModel.property).map((key) => key)
     this.selectedParams = this.toolParams
       .filter(({ id }) => propertyIds.includes(String(id)))
       .map(({ info }) => info)
-    this.toolParamOptions = rawToolParams.map((param) => param.info)
+    this.toolParamOptions = rawToolParams.map((param) => param.info)*/
   },
 
   computed: {
@@ -272,20 +274,35 @@ export default {
       console.log('Выбран specs_op_id:', id)
     },
 
+    onIdSelected(selectedValue) {
+      const id = this.idMapping[selectedValue]
+      if (id) {
+        this.toolModel.selectedId = id
+        console.log('Выбран ID:', id)
+      } else {
+        console.error(
+          'Не удалось найти ID для выбранного значения:',
+          selectedValue
+        )
+      }
+    },
+
     formatToolOptions(data) {
       const uniqueSet = new Set()
-      return data.reduce((acc, item) => {
+      this.idMapping = {} // очистка предыдущего сопоставления
+
+      data.forEach((item) => {
         const formattedItem = item.description
           ? `${item.id} - ${item.name} - ${item.description}`
           : `${item.id} - ${item.name}`
 
         if (!uniqueSet.has(formattedItem)) {
           uniqueSet.add(formattedItem)
-          acc.push(formattedItem)
+          this.idMapping[formattedItem] = item.id // создание сопоставления
         }
+      })
 
-        return acc
-      }, [])
+      return Array.from(uniqueSet)
     },
 
     formatOperationOptions(data) {
