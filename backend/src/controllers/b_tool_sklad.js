@@ -56,9 +56,9 @@ async function getToolHistory(req, res) {
       WHERE sn.status_p = 'П'
         AND NOT sn.status_otgruzka
         AND (POSITION('ЗАПРЕТ' IN UPPER(sn.comments)) = 0 OR sn.comments IS NULL)
-      ORDER BY sn.NAME, sn.description, oon.no::INT
+      ORDER BY thn.date DESC, sn.NAME, sn.description, oon.no::INT
       LIMIT ${limit} OFFSET ${offset};
-    `
+`
 
     // Выполнение запросов
     const countResult = await pool.query(countQuery)

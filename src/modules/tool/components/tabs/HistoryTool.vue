@@ -1,17 +1,16 @@
 <template>
   <v-container>
-    <Modal :title="popupTitle" v-if="showModal" />
-    <!--    <v-btn color="primary" @click="openModal">Открыть модальное окно</v-btn>-->
     <v-data-table-server
       v-if="toolsHistory && toolsHistory.length > 0"
-      noDataText="Нет данных"
-      itemsPerPageText="Пункты на странице:"
-      loadingText="Загрузка данных"
-      item-value="name"
+      no-data-text="Нет данных"
+      items-per-page-text="Пункты на странице:"
+      loading-text="Загрузка данных"
       :headers="headers"
       :items-length="totalCount"
       :items="toolsHistory"
       :items-per-page-options="[15, 50, 100, 300]"
+      @update:page="onChangePage"
+      @update:items-per-page="onUpdateItemsPerPage"
     >
     </v-data-table-server>
   </v-container>
@@ -21,25 +20,23 @@
 import { VDataTableServer } from 'vuetify/labs/components'
 import { format, parseISO } from 'date-fns'
 import { fetchToolHistory } from '@/api'
-import Modal from '@/modules/tool/components/modal/AddSkladToolModal.vue'
 
 export default {
-  components: { Modal, VDataTableServer },
+  components: { VDataTableServer },
   data() {
     return {
       showModal: false,
       toolsHistory: [],
       totalCount: 0,
       headers: [
-        { title: 'Название', key: 'name', sortable: true },
-        { title: 'Обозначение', key: 'description', sortable: true },
-        { title: 'Номер операции', key: 'no_oper', sortable: true },
-        { title: 'Тип операции', key: 'type_oper', sortable: true },
-        { title: 'Кол-во', key: 'quantity', sortable: true },
-        { title: 'ФИО', key: 'user_fio', sortable: true, width: '150px' },
-        { title: 'Дата', key: 'date', sortable: true },
-        { title: 'Инструмент', key: 'name_tool', sortable: true },
-        // { title: 'Характеристики', key: 'property', sortable: true },
+        { text: 'Название', value: 'name', sortable: true },
+        { text: 'Обозначение', value: 'description', sortable: true },
+        { text: 'Номер операции', value: 'no_oper', sortable: true },
+        { text: 'Тип операции', value: 'type_oper', sortable: true },
+        { text: 'Кол-во', value: 'quantity', sortable: true },
+        { text: 'ФИО', value: 'user_fio', sortable: true, width: '150px' },
+        { text: 'Дата', value: 'date', sortable: true },
+        { text: 'Инструмент', value: 'name_tool', sortable: true },
       ],
     }
   },
@@ -47,8 +44,11 @@ export default {
     await this.fetchAndFormatToolHistory()
   },
   methods: {
-    openModal() {
-      this.showModal = true // Установите переменную, контролирующую видимость модального окна
+    async onChangePage(page) {
+      this.$emit('page-changed', page)
+    },
+    async onUpdateItemsPerPage(itemsPerPage) {
+      this.$emit('page-limit-changed', itemsPerPage)
     },
     formatDate(date) {
       return format(parseISO(date), 'dd.MM.yyyy HH:mm:ss')
