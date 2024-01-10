@@ -187,7 +187,7 @@ export default {
   async created() {
     console.log('Вызов getDetailFio')
     try {
-      const fioData = await this.detailApi.getDetailFio()
+      const fioData = await detailApi.getDetailFio()
       console.log('Полученные данные ФИО:', fioData)
       this.fioOptions = this.prepareFioOptions(fioData)
     } catch (error) {
