@@ -1,35 +1,6 @@
 <template>
   <v-app class="custom-container">
-    <v-app-bar app dark
-      >StorageCatalog
-      <v-toolbar-title>
-        <div class="text-h6">
-          <!--          <v-text-field-->
-          <!--            v-if="isEditing"-->
-          <!--            v-model="editableLabel"-->
-          <!--            @blur="finishEditing"-->
-          <!--            @keyup.enter="finishEditing"-->
-          <!--            dense-->
-          <!--            solo-->
-          <!--            hide-details-->
-          <!--            :flat="true"-->
-          <!--            :autofocus="true"-->
-          <!--          />-->
-          <!--          &lt;!&ndash; Показываем название и иконку, если редактирование не активно &ndash;&gt;-->
-          <!--          <span v-else @click="startEditing">-->
-          <!--            {{ currentItem ? currentItem.label : 'Выберите элемент' }}-->
-          <!--            <v-btn icon small @click.stop="startEditing">-->
-          <!--              <v-icon>mdi-pencil</v-icon>-->
-          <!--            </v-btn>-->
-          <!--            <v-btn icon small @click.stop="addItem">-->
-          <!--              <v-icon>mdi-plus</v-icon>-->
-          <!--            </v-btn>-->
-          <!--            <v-btn icon small @click.stop="deleteItem(currentItem.id)">-->
-          <!--              <v-icon>mdi-delete</v-icon>-->
-          <!--            </v-btn>-->
-          <!--          </span>-->
-        </div>
-      </v-toolbar-title>
+    <v-app-bar app dark>
       <v-spacer />
       <v-btn icon @click="goBack">
         <v-icon>mdi-arrow-left</v-icon>
