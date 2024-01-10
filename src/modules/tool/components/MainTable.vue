@@ -117,7 +117,7 @@ export default {
                 sortable: true,
               }))
             : []),
-          { title: 'Действие', key: 'actions', sortable: false },
+          // { title: 'Действие', key: 'actions', sortable: false },
           { title: 'Норма', key: 'norma', sortable: false },
           { title: 'Склад', key: 'sklad', sortable: false },
           { title: 'Заказ', key: 'zakaz', sortable: false },
