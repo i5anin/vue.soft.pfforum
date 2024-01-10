@@ -297,7 +297,6 @@ export default {
           'Ошибка при сохранении: ',
           error.response ? error.response.data : error
         )
-        // Оставляем форму открытой для всех ошибок
       }
     },
   },

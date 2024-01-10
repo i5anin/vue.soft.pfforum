@@ -125,8 +125,8 @@ import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { detailApi } from '@/modules/issue-tool/api/detail'
 
 export default {
-  name: 'EditToolModal',
-  emits: ['canceled', 'changes-saved'], // объявления пользовательских событий
+  name: 'Issue-Modal',
+  emits: ['canceled', 'changes-saved'],
   //props контракт общение что использовать и что передавать от родительского компонента к дочернему
   props: {
     persistent: { type: Boolean, default: false },
@@ -140,12 +140,7 @@ export default {
     isModalOpen: true,
     selectedFio: null,
     fioOptions: [],
-    selectedData: {
-      name: null,
-      description: null,
-      no: null,
-      type: null,
-    },
+    selectedData: { name: null, description: null, no: null, type: null },
     localParentId: null,
     toolModel: { name: null, property: {}, selectedOperationId: null },
     selectedParams: [],
@@ -197,7 +192,6 @@ export default {
       console.error('Ошибка при загрузке данных ФИО:', error)
     }
     // Дополнительное логирование состояния после обработки
-    // console.log('fioOptions после обработки:', this.fioOptions)
     this.initializeLocalState()
     if (this.toolId == null) {
       this.setTool({
@@ -367,20 +361,6 @@ export default {
     confirmDelete() {
       this.confirmDeleteDialog = true
     },
-    async onDelete() {
-      const { id } = this.toolModel
-      if (id != null) {
-        try {
-          const { result } = await deleteTool(id)
-          if (result) {
-            this.$emit('changes-saved')
-            await this.fetchToolsByFilter()
-          }
-        } catch (error) {
-          console.error('Ошибка при удалении инструмента:', error)
-        }
-      }
-    },
     onCancel() {
       this.$emit('canceled')
     },
@@ -395,20 +375,28 @@ export default {
           date: new Date().toISOString(),
         }
 
-        console.log('Отправка данных инструмента:', toolHistoryData)
+        console.log('Отправка данных инструмента на сервер:', toolHistoryData)
 
         // Отправка данных истории инструмента
         const response = await detailApi.addHistoryTool(toolHistoryData)
+        console.log('Ответ сервера:', response)
 
         if (response.success === 'OK') {
+          console.log('Данные успешно сохранены на сервере')
           this.$emit('changes-saved')
+          console.log('Событие changes-saved отправлено')
+
           await this.fetchToolsByFilter()
+          console.log('Таблица инструментов обновлена')
         } else {
-          console.error('Ошибка при сохранении: ', response.data)
+          console.error(
+            'Ошибка при сохранении данных на сервере: ',
+            response.data
+          )
         }
       } catch (error) {
         console.error(
-          'Ошибка при сохранении: ',
+          'Ошибка при отправке данных на сервер: ',
           error.response ? error.response.data : error
         )
       }

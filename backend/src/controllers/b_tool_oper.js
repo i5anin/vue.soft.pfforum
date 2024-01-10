@@ -85,7 +85,7 @@ async function saveToolHistory(req, res) {
     await pool.query(query, [id_oper, id_user, id_tool, quantity, date])
 
     // Отправка ответа об успешной операции
-    res.status(200).json({ message: 'Данные успешно сохранены' })
+    res.status(200).json({ success: 'OK' })
   } catch (error) {
     console.error('Ошибка при сохранении истории инструмента:', error)
     res.status(500).send('Внутренняя ошибка сервера')
