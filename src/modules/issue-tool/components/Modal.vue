@@ -193,6 +193,8 @@ export default {
     } catch (error) {
       console.error('Ошибка при загрузке данных ФИО:', error)
     }
+    // Дополнительное логирование состояния после обработки
+    console.log('fioOptions после обработки:', this.fioOptions)
     this.initializeLocalState()
     if (this.toolId == null) {
       this.setTool({
@@ -297,10 +299,13 @@ export default {
       clearTimeout(this.debounceTimeout)
       this.debounceTimeout = setTimeout(async () => {
         try {
+          console.log('Выполнение поиска для ID:', newId)
           const result = await detailApi.searchById(newId)
           console.log('Результат поиска:', result)
           this.options.idNameDescription = this.formatToolOptions(result)
           this.options.numberType = this.formatOperationOptions(result)
+          // Логирование после обновления options
+          console.log('options после поиска:', this.options)
         } catch (error) {
           console.error('Ошибка при поиске:', error)
         }
@@ -363,6 +368,7 @@ export default {
         ...this.toolModel,
         parent_id: this.localParentId,
       }
+      console.log('Сохранение данных инструмента:', toolDataToSend)
 
       try {
         let response
