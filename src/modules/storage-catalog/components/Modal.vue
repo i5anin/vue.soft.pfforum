@@ -90,7 +90,6 @@
 <script>
 import Modal from '@/components/shared/Modal.vue'
 import { deleteTool, getToolParams, updateToolInventory } from '@/api'
-import DeleteConfirmationDialog from '@/modules/tool/components/modal/DeleteConfirmationDialog.vue'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 
 export default {
@@ -102,7 +101,7 @@ export default {
     toolId: { type: Number, default: null },
     radiusOptions: { type: Array },
   },
-  components: { DeleteConfirmationDialog, Modal },
+  components: { Modal },
   //реактивные данные
   data: () => ({
     localParentId: null,

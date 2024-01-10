@@ -21,7 +21,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import ToolTabParam from '@/modules/tool/components/tabs/Param.vue'
 import GiveTool from '@/modules/tool/components/tabs/GiveTool.vue'
 import ToolTabTree from '@/modules/tool/components/tabs/Tree.vue'
@@ -32,9 +32,9 @@ import StorageCatalog from '@/modules/storage-catalog/components/Catalog.vue'
 import TabIssueCatalog from '@/modules/issue-tool/components/Catalog.vue'
 
 // Определение пропсов
-const props = defineProps({
-  parentId: { type: Object, default: () => ({ id: null, label: null }) },
-})
+// const props = defineProps({
+//   parentId: { type: Object, default: () => ({ id: null, label: null }) },
+// })
 
 // Ссылка на текущую выбранную вкладку
 const tab = ref('Каталог')
@@ -50,10 +50,10 @@ const tabs = [
 ]
 
 // Наблюдатель (watcher) для отслеживания изменений в выбранной вкладке
-watch(tab, (newTabName) => {
-  const currentTab = tabs.find((t) => t.name === newTabName)
-  // if (currentTab) {
-  //   console.log('Текущий тип вкладки:', currentTab.type)
-  // }
-})
+// watch(tab, (newTabName) => {
+//   const currentTab = tabs.find((t) => t.name === newTabName)
+//   // if (currentTab) {
+//   //   console.log('Текущий тип вкладки:', currentTab.type)
+//   // }
+// })
 </script>
