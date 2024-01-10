@@ -77,6 +77,37 @@ async function getToolHistory(req, res) {
   }
 }
 
+async function updateToolInventory(req, res) {
+  try {
+    // Extracting id, sklad, and norma from the request
+    const { id, sklad, norma } = req.body
+
+    // SQL UPDATE Statement
+    const updateQuery = `
+      UPDATE dbo.tool_nom
+      SET sklad = $1, norma = $2
+      WHERE id = $3;
+    `
+
+    // Parameters for the query
+    const values = [sklad, norma, id]
+
+    // Execute the query
+    const updateResult = await pool.query(updateQuery, values)
+
+    // Check if any row is updated
+    if (updateResult.rowCount > 0) {
+      res.send('Inventory updated successfully.')
+    } else {
+      res.status(404).send('Tool not found.')
+    }
+  } catch (err) {
+    console.error('Error executing update query', err.stack)
+    res.status(500).send('Ошибка при выполнении запроса')
+  }
+}
+
 module.exports = {
   getToolHistory,
+  updateToolInventory,
 }

@@ -64,14 +64,6 @@
       </v-container>
     </template>
     <template #action>
-      <v-btn
-        color="red darken-1"
-        variant="text"
-        @click="confirmDelete"
-        class="text-none text-subtitle-1 ml-3"
-      >
-        Удалить
-      </v-btn>
       <v-spacer />
       <v-btn
         color="red darken-1"
@@ -93,16 +85,11 @@
       </v-btn>
     </template>
   </Modal>
-  <!--  </form> -->
-  <DeleteConfirmationDialog
-    :confirmDeleteDialog="confirmDeleteDialog"
-    :onDelete="onDelete"
-  />
 </template>
 
 <script>
 import Modal from '@/components/shared/Modal.vue'
-import { addTool, deleteTool, getToolParams, updateTool } from '@/api'
+import { deleteTool, getToolParams, updateToolInventory } from '@/api'
 import DeleteConfirmationDialog from '@/modules/tool/components/modal/DeleteConfirmationDialog.vue'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 
@@ -265,33 +252,33 @@ export default {
     async onSave() {
       const toolDataToSend = {
         ...this.toolModel,
-        parent_id: this.localParentId,
         norma: parseFloat(this.toolModel.norma),
         sklad: parseFloat(this.toolModel.sklad),
       }
 
       try {
         let response
-        console.log(this.toolId)
         if (this.toolId) {
-          response = await updateTool(this.toolId, toolDataToSend)
+          response = await updateToolInventory(toolDataToSend)
+          console.log(response)
+          if (response && response.success === 'OK') {
+            this.$emit('changes-saved')
+            await this.fetchToolsByFilter()
+          } else {
+            console.error(
+              'Ошибка при сохранении: ',
+              response ? response.data : 'No response'
+            )
+          }
         } else {
-          response = await addTool(toolDataToSend)
-        }
-        console.log(response, response.status)
-        if (response.success === 'OK') {
-          this.$emit('changes-saved')
-          await this.fetchToolsByFilter()
-        } else {
-          console.error('Ошибка при сохранении: ', response.data)
-          // Оставляем форму открытой для всех ошибок, кроме 200
+          // Handle the case where toolId is not provided if necessary
+          console.error('Tool ID is not provided')
         }
       } catch (error) {
         console.error(
           'Ошибка при сохранении: ',
           error.response ? error.response.data : error
         )
-        // Оставляем форму открытой для всех ошибок
       }
     },
   },
