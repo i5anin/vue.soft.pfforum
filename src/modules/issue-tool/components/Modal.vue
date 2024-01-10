@@ -41,22 +41,10 @@
               label="Номер Тип"
               required
               v-model="toolModel.operationType"
-              :disabled="!options.numberType.length"
-              :items="options.numberType"
+              :disabled="!filteredNumberTypeOptions.length"
+              :items="filteredNumberTypeOptions"
               @update:model-value="onOperationSelected"
             />
-
-            <!--            :disabled="!toolModel.detailName"-->
-            <!--            <h2 class="text-h6">Операция:</h2>-->
-            <!--            <v-select-->
-            <!--              density="compact"-->
-            <!--              label="Выберите деталь"-->
-            <!--              required-->
-            <!--              v-model="toolModel.operationType"-->
-            <!--              :disabled="!toolModel.no"-->
-            <!--              :items="options.operation"-->
-            <!--              @update:model-value="onToolOperationId"-->
-            <!--            />-->
             <h2 class="text-h6">Кому выдать:</h2>
             <v-select
               v-model="selectedFio"
@@ -140,6 +128,7 @@ export default {
     isModalOpen: true,
     selectedFio: null,
     fioOptions: [],
+    originalNumberTypeOptions: [],
     selectedData: {
       name: null,
       description: null,
@@ -237,6 +226,20 @@ export default {
           this.toolParams.find(({ info }) => info === paramName)
         )
         .filter((selectedParam) => selectedParam != null)
+    },
+
+    filteredNumberTypeOptions() {
+      console.log('selectedId:', this.toolModel.selectedId)
+      console.log('numberType options:', this.options.numberType)
+
+      if (!this.toolModel.selectedId) {
+        return []
+      }
+      const filteredOptions = this.options.numberType.filter(
+        (option) => option.id === this.toolModel.selectedId
+      )
+      console.log('filtered options:', filteredOptions)
+      return filteredOptions
     },
 
     popupTitle() {
