@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <Modal :title="popupTitle" v-if="showModal" />
-    <v-btn color="primary" @click="openModal">Открыть модальное окно</v-btn>
+    <!--    <v-btn color="primary" @click="openModal">Открыть модальное окно</v-btn>-->
     <v-data-table-server
       v-if="toolsHistory && toolsHistory.length > 0"
       noDataText="Нет данных"
