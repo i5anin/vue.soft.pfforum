@@ -73,7 +73,7 @@
               density="compact"
               label="Количество"
               required
-              v-model="toolModel.norma"
+              v-model="toolModel.issue"
             />
             <h2 class="text-h6"></h2>
             <div></div>
@@ -371,7 +371,7 @@ export default {
           id_oper: this.toolModel.selectedOperationId,
           id_user: this.selectedFio.value,
           id_tool: this.toolId,
-          quantity: parseInt(this.toolModel.norma),
+          quantity: parseInt(this.toolModel.issue),
           date: new Date().toISOString(),
         }
 
@@ -385,9 +385,6 @@ export default {
           console.log('Данные успешно сохранены на сервере')
           this.$emit('changes-saved')
           console.log('Событие changes-saved отправлено')
-
-          await this.fetchToolsByFilter()
-          console.log('Таблица инструментов обновлена')
         } else {
           console.error(
             'Ошибка при сохранении данных на сервере: ',
