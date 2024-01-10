@@ -119,7 +119,7 @@ export default {
   //реактивные данные
   data: () => ({
     localParentId: null,
-    toolModel: { name: null, property: {} },
+    toolModel: { name: null, property: {}, norma: null, sklad: null },
     toolParamOptions: [],
     selectedParams: [],
     geometryOptions: [],
@@ -266,10 +266,13 @@ export default {
       const toolDataToSend = {
         ...this.toolModel,
         parent_id: this.localParentId,
+        norma: parseFloat(this.toolModel.norma),
+        sklad: parseFloat(this.toolModel.sklad),
       }
 
       try {
         let response
+        console.log(this.toolId)
         if (this.toolId) {
           response = await updateTool(this.toolId, toolDataToSend)
         } else {
@@ -278,7 +281,7 @@ export default {
         console.log(response, response.status)
         if (response.success === 'OK') {
           this.$emit('changes-saved')
-          this.fetchToolsByFilter()
+          await this.fetchToolsByFilter()
         } else {
           console.error('Ошибка при сохранении: ', response.data)
           // Оставляем форму открытой для всех ошибок, кроме 200
