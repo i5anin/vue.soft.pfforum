@@ -34,6 +34,7 @@
               v-model="toolModel.detailDescription"
               :disabled="!options.idNameDescription.length"
               :items="options.idNameDescription"
+              @update:model-value="onDetailDescriptionSelected"
             />
             <v-select
               density="compact"
@@ -252,6 +253,40 @@ export default {
       'fetchToolById',
     ]),
 
+    onDetailDescriptionSelected(selectedValue) {
+      console.log('onDetailDescriptionSelected called with:', selectedValue)
+      // console.log(
+      //   'Current idNameDescription options:',
+      //   this.options.idNameDescription
+      // )
+
+      const selectedOption = this.options.idNameDescription.find(
+        (option) => option.value === selectedValue
+      )
+      console.log(
+        'Selected option in onDetailDescriptionSelected:',
+        selectedOption
+      )
+
+      if (selectedOption) {
+        const selectedId = selectedOption.id
+        console.log('Selected ID in onDetailDescriptionSelected:', selectedId)
+        this.updateOperationOptions(selectedId)
+      } else {
+        console.error(
+          'No matching option found in idNameDescription for value:',
+          selectedValue
+        )
+      }
+    },
+
+    updateOperationOptions(selectedId) {
+      console.log('updateOperationOptions called with ID:', selectedId)
+      const filteredData = this.rawData.filter((item) => item.id === selectedId)
+      console.log('Filtered data in updateOperationOptions:', filteredData)
+      this.options.numberType = this.formatOperationOptions(filteredData)
+    },
+
     handleSelectionChange(selectedItem) {
       console.log(
         `Выбрана фамилия: ${selectedItem.text} с ID:`,
@@ -289,29 +324,33 @@ export default {
     },
 
     formatOperationOptions(data) {
+      console.log('formatOperationOptions called with data:', data)
       const uniqueSet = new Set()
       data.forEach((item) => {
+        console.log('Processing item in formatOperationOptions:', item)
         const label = `${item.no} - ${item.cnc_type}`
         if (!uniqueSet.has(label)) {
           uniqueSet.add(label)
           this.operationMapping[label] = item.specs_op_id
         }
       })
-      return Array.from(uniqueSet)
+      const result = Array.from(uniqueSet)
+      console.log('Result of formatOperationOptions:', result)
+      return result
     },
 
     async onIdChanged(newId) {
-      // console.log('onIdChanged. ID изменено:', newId)
+      console.log('onIdChanged called with new ID:', newId)
       clearTimeout(this.debounceTimeout)
       this.debounceTimeout = setTimeout(async () => {
         try {
-          console.log('Выполнение поиска для ID:', newId)
+          console.log('Performing search for ID:', newId)
           const result = await detailApi.searchById(newId)
-          //TODO: console.log('Результат поиска:', result)
+          console.log('Search result in onIdChanged:', result)
           this.options.idNameDescription = this.formatToolOptions(result)
           this.options.numberType = this.formatOperationOptions(result)
         } catch (error) {
-          console.error('Ошибка при поиске:', error)
+          console.error('Error in onIdChanged:', error)
         }
       }, 500)
     },
@@ -378,22 +417,19 @@ export default {
           date: new Date().toISOString(),
         }
 
-        console.log('Отправка данных инструмента:', toolHistoryData)
+        console.log('Sending tool data:', toolHistoryData)
 
-        // Отправка данных истории инструмента
         const response = await detailApi.addHistoryTool(toolHistoryData)
+        console.log('Response from addHistoryTool:', response)
 
         if (response.success === 'OK') {
           this.$emit('changes-saved')
           await this.fetchToolsByFilter()
         } else {
-          console.error('Ошибка при сохранении: ', response.data)
+          console.error('Error in onSave:', response.data)
         }
       } catch (error) {
-        console.error(
-          'Ошибка при сохранении: ',
-          error.response ? error.response.data : error
-        )
+        console.error('Error in onSave:', error)
       }
     },
   },
