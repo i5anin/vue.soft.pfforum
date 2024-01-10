@@ -58,13 +58,14 @@
             <!--            />-->
             <h2 class="text-h6">Кому выдать:</h2>
             <v-select
-              density="compact"
-              label="ФИО"
-              required
-              v-model="toolModel.norma"
+              v-model="selectedFio"
               :items="fioOptions"
-              item-text="text"
+              item-title="text"
               item-value="value"
+              label="ФИО"
+              return-object
+              single-line
+              @update:modelValue="handleSelectionChange"
             />
             <h2 class="text-h6">Сколько выдать:</h2>
             <v-text-field
@@ -118,7 +119,6 @@
 
 <script>
 import Modal from '@/components/shared/Modal.vue'
-import { addTool, deleteTool, getToolParams, updateTool } from '@/api'
 import DeleteConfirmationDialog from '@/modules/tool/components/modal/DeleteConfirmationDialog.vue'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { detailApi } from '@/modules/issue-tool/api/detail'
@@ -135,6 +135,7 @@ export default {
   components: { DeleteConfirmationDialog, Modal },
   //реактивные данные
   data: () => ({
+    selectedFio: null,
     fioOptions: [],
     selectedData: {
       name: null,
@@ -188,13 +189,12 @@ export default {
     console.log('Вызов getDetailFio')
     try {
       const fioData = await detailApi.getDetailFio()
-      console.log('Полученные данные ФИО:', fioData)
       this.fioOptions = this.prepareFioOptions(fioData)
     } catch (error) {
       console.error('Ошибка при загрузке данных ФИО:', error)
     }
     // Дополнительное логирование состояния после обработки
-    console.log('fioOptions после обработки:', this.fioOptions)
+    // console.log('fioOptions после обработки:', this.fioOptions)
     this.initializeLocalState()
     if (this.toolId == null) {
       this.setTool({
@@ -251,13 +251,18 @@ export default {
       'fetchToolById',
     ]),
 
+    handleSelectionChange(selectedItem) {
+      console.log(
+        `Выбрана фамилия: ${selectedItem.text} с ID:`,
+        selectedItem.value
+      )
+    },
+
     prepareFioOptions(fioData) {
-      const options = fioData.map((item) => ({
+      return fioData.map((item) => ({
         text: item.fio,
         value: item.id,
       }))
-      console.log('Опции ФИО:', options)
-      return options
     },
 
     onOperationSelected(value) {
@@ -295,17 +300,15 @@ export default {
     },
 
     async onIdChanged(newId) {
-      console.log('onIdChanged. ID изменено:', newId)
+      // console.log('onIdChanged. ID изменено:', newId)
       clearTimeout(this.debounceTimeout)
       this.debounceTimeout = setTimeout(async () => {
         try {
           console.log('Выполнение поиска для ID:', newId)
           const result = await detailApi.searchById(newId)
-          console.log('Результат поиска:', result)
+          //TODO: console.log('Результат поиска:', result)
           this.options.idNameDescription = this.formatToolOptions(result)
           this.options.numberType = this.formatOperationOptions(result)
-          // Логирование после обновления options
-          console.log('options после поиска:', this.options)
         } catch (error) {
           console.error('Ошибка при поиске:', error)
         }
@@ -364,33 +367,32 @@ export default {
       this.$emit('canceled')
     },
     async onSave() {
-      const toolDataToSend = {
-        ...this.toolModel,
-        parent_id: this.localParentId,
-      }
-      console.log('Сохранение данных инструмента:', toolDataToSend)
-
       try {
-        let response
-        if (this.toolId) {
-          response = await updateTool(this.toolId, toolDataToSend)
-        } else {
-          response = await addTool(toolDataToSend)
+        // Подготовка данных инструмента для истории
+        const toolHistoryData = {
+          id_operation: this.toolModel.selectedOperationId,
+          id_user: this.selectedFio.value,
+          id_tool: this.toolId,
+          quantity: this.toolModel.norma,
+          date: new Date().toISOString(),
         }
-        console.log(response, response.status)
+
+        console.log('Отправка данных инструмента:', toolHistoryData)
+
+        // Отправка данных истории инструмента
+        const response = await detailApi.addHistoryTool(toolHistoryData)
+
         if (response.success === 'OK') {
           this.$emit('changes-saved')
           this.fetchToolsByFilter()
         } else {
           console.error('Ошибка при сохранении: ', response.data)
-          // Оставляем форму открытой для всех ошибок, кроме 200
         }
       } catch (error) {
         console.error(
           'Ошибка при сохранении: ',
           error.response ? error.response.data : error
         )
-        // Оставляем форму открытой для всех ошибок
       }
     },
   },

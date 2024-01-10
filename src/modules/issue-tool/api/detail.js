@@ -31,4 +31,11 @@ export const detailApi = {
       .get('detail/id', { params: { id } })
       .then(handleResponse)
       .catch(handleError),
+
+  // Функция для отправки данных об инструменте
+  addHistoryTool: async (toolData) =>
+    axiosInstance
+      .post('tool/history', toolData)
+      .then(handleResponse)
+      .catch(handleError),
 }
