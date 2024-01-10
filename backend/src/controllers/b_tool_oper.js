@@ -52,6 +52,7 @@ async function getAllOperators(req, res) {
       SELECT id, fio
       FROM dbo.operators
       WHERE not nach AND not nalad AND active
+      ORDER BY fio
     `
 
     // Выполнение запроса
