@@ -116,7 +116,7 @@ import DeleteConfirmationDialog from '@/modules/tool/components/modal/DeleteConf
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 
 export default {
-  name: 'EditToolModal',
+  name: 'FillingModal',
   emits: ['canceled', 'changes-saved'], // объявления пользовательских событий
   //props контракт общение что использовать и что передавать от родительского компонента к дочернему
   props: {
@@ -252,16 +252,18 @@ export default {
     },
 
     confirmDelete() {
-      this.confirmDeleteDialog = true
+      if (window.confirm('Вы уверены, что хотите удалить этот инструмент?')) {
+        this.onDelete()
+      }
     },
     async onDelete() {
       const { id } = this.toolModel
       if (id != null) {
         try {
-          const { result } = await deleteTool(id)
-          if (result) {
+          const response = await deleteTool(id)
+          if (response.result) {
             this.$emit('changes-saved')
-            await this.fetchToolsByFilter()
+            this.isModalVisible = false
           }
         } catch (error) {
           console.error('Ошибка при удалении инструмента:', error)
@@ -287,7 +289,7 @@ export default {
         console.log(response, response.status)
         if (response.success === 'OK') {
           this.$emit('changes-saved')
-          this.fetchToolsByFilter()
+          await this.fetchToolsByFilter()
         } else {
           console.error('Ошибка при сохранении: ', response.data)
           // Оставляем форму открытой для всех ошибок, кроме 200
