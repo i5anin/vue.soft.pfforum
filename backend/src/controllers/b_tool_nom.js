@@ -151,13 +151,27 @@ async function getTools(req, res) {
 async function deleteTool(req, res) {
   const { id } = req.params
   try {
-    await pool.query(
-      `DELETE
+    // Проверяем, существует ли инструмент с данным ID
+    const toolExists = await pool.query(
+      `SELECT id
        FROM dbo.tool_nom
        WHERE id = $1`,
       [id]
     )
-    res.json({ result: true })
+
+    // Если инструмент существует, продолжаем операцию удаления
+    if (toolExists.rowCount > 0) {
+      await pool.query(
+        `DELETE
+         FROM dbo.tool_nom
+         WHERE id = $1`,
+        [id]
+      )
+      res.json({ success: 'OK' })
+    } else {
+      // Если инструмент не найден, возвращаем ошибку
+      res.status(404).json({ error: 'Инструмент с таким ID не найден.' })
+    }
   } catch (error) {
     console.error(error)
     res.status(500).send(error.message)

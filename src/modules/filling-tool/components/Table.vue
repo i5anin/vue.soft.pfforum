@@ -148,7 +148,7 @@ export default {
       this.openDialog = false
     },
     onSaveChanges() {
-      this.openDialog = falseц
+      this.openDialog = false
       this.$emit('changes-saved')
     },
     onAddTool() {
