@@ -131,9 +131,9 @@ export default {
   methods: {
     onIssueTool(event, item) {
       event.stopPropagation() // Предотвратить всплытие события
-      console.log('Выдать инструмент:', item)
-      this.editingToolId = item.id // Установите ID инструмента для редактирования
-      this.openDialog = true // Открыть модалку
+      console.log(item.id, 'Выдать инструмент:', item)
+      this.editingToolId = item.id
+      this.openDialog = true
     },
     calculateOrder(tool) {
       if (tool.norma || tool.sklad) return tool.norma - tool.sklad
