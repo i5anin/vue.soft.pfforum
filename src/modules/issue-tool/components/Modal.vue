@@ -111,16 +111,10 @@
       </v-btn>
     </template>
   </Modal>
-  <!--  </form> -->
-  <DeleteConfirmationDialog
-    :confirmDeleteDialog="confirmDeleteDialog"
-    :onDelete="onDelete"
-  />
 </template>
 
 <script>
 import Modal from '@/components/shared/Modal.vue'
-import DeleteConfirmationDialog from '@/modules/tool/components/modal/DeleteConfirmationDialog.vue'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { detailApi } from '@/modules/issue-tool/api/detail'
 
@@ -132,7 +126,7 @@ export default {
     toolId: { type: Number, default: null },
     radiusOptions: { type: Array },
   },
-  components: { DeleteConfirmationDialog, Modal },
+  components: { Modal },
   data: () => ({
     originalData: [],
     idMapping: {},

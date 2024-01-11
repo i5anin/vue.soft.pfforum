@@ -37,7 +37,7 @@
 
 <script>
 import { mapActions, mapGetters, mapMutations } from 'vuex'
-import TabMainTable from '@/modules/storage-catalog/components/Table.vue'
+import TabMainTable from '@/modules/storage-tool/components/Table.vue'
 import { getTree } from '@/api'
 // import { normSpaces } from '@/modules/tool/components/normSpaces'
 import CatalogBreadcrumbs from '@/modules/tool/components/CatalogBreadcrumbs.vue'

@@ -26,9 +26,9 @@ import ToolTabParam from '@/modules/tool/components/tabs/Param.vue'
 import GiveTool from '@/modules/tool/components/tabs/HistoryTool.vue'
 import ToolTabTree from '@/modules/tool/components/tabs/Tree.vue'
 
-import TabCatalog from '@/modules/tool-catalog/components/Catalog.vue'
+import TabCatalog from '@/modules/filling-tool/components/Catalog.vue'
 
-import StorageCatalog from '@/modules/storage-catalog/components/Catalog.vue'
+import StorageCatalog from '@/modules/storage-tool/components/Catalog.vue'
 import TabIssueCatalog from '@/modules/issue-tool/components/Catalog.vue'
 
 // Ссылка на текущую выбранную вкладку

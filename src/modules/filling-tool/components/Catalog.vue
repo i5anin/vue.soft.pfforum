@@ -58,7 +58,7 @@
 
 <script>
 import { mapActions, mapGetters, mapMutations } from 'vuex'
-import TabMainTable from '@/modules/tool-catalog/components/Table.vue'
+import TabMainTable from '@/modules/filling-tool/components/Table.vue'
 import { addFolder, deleteFolder, getTree, renameFolder } from '@/api'
 import { normSpaces } from '@/modules/tool/components/normSpaces'
 import CatalogBreadcrumbs from '@/modules/tool/components/CatalogBreadcrumbs.vue'
