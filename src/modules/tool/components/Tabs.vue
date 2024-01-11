@@ -26,15 +26,10 @@ import ToolTabParam from '@/modules/tool/components/tabs/Param.vue'
 import GiveTool from '@/modules/tool/components/tabs/HistoryTool.vue'
 import ToolTabTree from '@/modules/tool/components/tabs/Tree.vue'
 
-import TabCatalog from '@/modules/tool/components/tabs/Catalog.vue'
+import TabCatalog from '@/modules/tool-catalog/components/Catalog.vue'
 
 import StorageCatalog from '@/modules/storage-catalog/components/Catalog.vue'
 import TabIssueCatalog from '@/modules/issue-tool/components/Catalog.vue'
-
-// Определение пропсов
-// const props = defineProps({
-//   parentId: { type: Object, default: () => ({ id: null, label: null }) },
-// })
 
 // Ссылка на текущую выбранную вкладку
 const tab = ref('Каталог')
@@ -47,13 +42,6 @@ const tabs = [
   { name: 'Выдача', component: TabIssueCatalog, type: 'Get' },
   { name: 'Склад', component: StorageCatalog, type: 'Sklad' },
   { name: 'История', component: GiveTool },
+  { name: 'Отчёты' },
 ]
-
-// Наблюдатель (watcher) для отслеживания изменений в выбранной вкладке
-// watch(tab, (newTabName) => {
-//   const currentTab = tabs.find((t) => t.name === newTabName)
-//   // if (currentTab) {
-//   //   console.log('Текущий тип вкладки:', currentTab.type)
-//   // }
-// })
 </script>
