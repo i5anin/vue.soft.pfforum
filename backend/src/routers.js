@@ -40,5 +40,6 @@ router.post('/tool/history', operController.saveToolHistory)
 
 router.get('/sklad', skladController.getToolHistory)
 router.post('/sklad/update', skladController.updateToolInventory)
+router.get('/sklad/history', skladController.getToolHistoryId) //TODO: test
 
 module.exports = router

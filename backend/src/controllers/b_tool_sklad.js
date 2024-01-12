@@ -109,7 +109,50 @@ async function updateToolInventory(req, res) {
   }
 }
 
+async function getToolHistoryId(req, res) {
+  try {
+    // Получение id_oper из строки запроса
+    const id_oper = req.query.id_oper
+
+    // SQL-запрос для получения данных с учетом id_oper
+    const query = `
+      SELECT
+        sno.id AS specs_op_id,
+        sn.ID,
+        sn.NAME,
+        sn.description,
+        oon.no AS no_oper,
+        dbo.get_full_cnc_type(dbo.get_op_type_code(sno.ID)) AS type_oper,
+        thn.quantity,
+        thn.id_user,
+        thn.date,
+        thn.id_tool
+      FROM dbo.tool_history_nom thn
+      INNER JOIN dbo.specs_nom_operations sno ON thn.id_oper = sno.id
+      INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
+      INNER JOIN dbo.operations_ordersnom oon ON oon.op_id = sno.ordersnom_op_id
+      WHERE thn.id_oper = $1
+        AND NOT sn.status_otgruzka
+        AND (POSITION('ЗАПРЕТ' IN UPPER(sn.comments)) = 0 OR sn.comments IS NULL)
+      ORDER BY sn.NAME, sn.description, oon.no::INT;
+    `
+
+    const result = await pool.query(query, [id_oper])
+
+    // Проверка наличия результатов и отправка ответа
+    if (result.rows.length > 0) {
+      res.status(200).json(result.rows)
+    } else {
+      res.status(404).send('История для данного ID операции не найдена.')
+    }
+  } catch (err) {
+    console.error('Ошибка при запросе истории инструмента:', err)
+    res.status(500).send('Ошибка сервера')
+  }
+}
+
 module.exports = {
   getToolHistory,
   updateToolInventory,
+  getToolHistoryId,
 }
