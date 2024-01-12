@@ -344,7 +344,7 @@ export default {
       try {
         // Подготовка данных инструмента для истории
         const toolHistoryData = {
-          id_oper: this.toolModel.selectedOperationId,
+          specs_op_id: this.toolModel.selectedOperationId,
           id_user: this.selectedFio.value,
           id_tool: this.toolId,
           quantity: parseInt(this.toolModel.issue),

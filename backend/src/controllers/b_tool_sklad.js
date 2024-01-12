@@ -24,7 +24,7 @@ async function getToolHistory(req, res) {
     const countQuery = `
       SELECT COUNT(*)
       FROM dbo.tool_history_nom thn
-      INNER JOIN dbo.specs_nom_operations sno ON thn.id_oper = sno.id
+      INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
       INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
       WHERE sn.status_p = 'П'
         AND NOT sn.status_otgruzka
@@ -34,8 +34,8 @@ async function getToolHistory(req, res) {
     // Запрос для получения истории инструментов с учетом пагинации
     const dataQuery = `
       SELECT
-        thn.id_oper AS specs_op_id,
-        sn.ID AS id_oper,
+        thn.specs_op_id AS specs_op_id,
+        sn.ID AS specs_op_id,
         sn.NAME,
         sn.description,
         oon.no AS no_oper,
@@ -48,7 +48,7 @@ async function getToolHistory(req, res) {
         tn.name AS name_tool,
         tn.property
       FROM dbo.tool_history_nom thn
-      INNER JOIN dbo.specs_nom_operations sno ON thn.id_oper = sno.id
+      INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
       INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
       INNER JOIN dbo.operations_ordersnom oon ON oon.op_id = sno.ordersnom_op_id
       INNER JOIN dbo.operators o ON thn.id_user = o.id
@@ -111,33 +111,33 @@ async function updateToolInventory(req, res) {
 
 async function getToolHistoryId(req, res) {
   try {
-    // Получение id_oper из строки запроса
-    const id_oper = req.query.id_oper
+    // Получение specs_op_id из строки запроса
+    const specs_op_id = req.query.specs_op_id
 
-    // SQL-запрос для получения данных с учетом id_oper
+    // SQL-запрос для получения данных с учетом specs_op_id
     const query = `
       SELECT
-        sno.id AS specs_op_id,
-        sn.ID,
         sn.NAME,
         sn.description,
         oon.no AS no_oper,
         dbo.get_full_cnc_type(dbo.get_op_type_code(sno.ID)) AS type_oper,
+        CAST(sno.id AS INTEGER) AS specs_op_id,
+        sn.ID,
         thn.quantity,
         thn.id_user,
-        thn.date,
-        thn.id_tool
+        thn.id_tool,
+        thn.date
       FROM dbo.tool_history_nom thn
-      INNER JOIN dbo.specs_nom_operations sno ON thn.id_oper = sno.id
+      INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
       INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
       INNER JOIN dbo.operations_ordersnom oon ON oon.op_id = sno.ordersnom_op_id
-      WHERE thn.id_oper = $1
+      WHERE thn.specs_op_id = $1
         AND NOT sn.status_otgruzka
         AND (POSITION('ЗАПРЕТ' IN UPPER(sn.comments)) = 0 OR sn.comments IS NULL)
       ORDER BY sn.NAME, sn.description, oon.no::INT;
     `
 
-    const result = await pool.query(query, [id_oper])
+    const result = await pool.query(query, [specs_op_id])
 
     // Проверка наличия результатов и отправка ответа
     if (result.rows.length > 0) {
