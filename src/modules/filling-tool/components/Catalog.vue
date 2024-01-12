@@ -48,7 +48,7 @@
       </v-container>
     </v-main>
   </v-app>
-  <TabMainTable
+  <filling-table
     v-bind="{ toolsTotalCount, formattedTools, filters, isLoading, paramsList }"
     @page-changed="onPageChanged"
     @page-limit-changed="onUpdateItemsPerPage"
@@ -58,14 +58,14 @@
 
 <script>
 import { mapActions, mapGetters, mapMutations } from 'vuex'
-import TabMainTable from '@/modules/filling-tool/components/Table.vue'
+import FillingTable from '@/modules/filling-tool/components/Table.vue'
 import { addFolder, deleteFolder, getTree, renameFolder } from '@/api'
 import { normSpaces } from '@/modules/tool/components/normSpaces'
 import CatalogBreadcrumbs from '@/modules/tool/components/CatalogBreadcrumbs.vue'
 
 export default {
   name: 'CatalogTab',
-  components: { TabMainTable, CatalogBreadcrumbs },
+  components: { FillingTable, CatalogBreadcrumbs },
 
   data() {
     return {

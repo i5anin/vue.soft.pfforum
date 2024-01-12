@@ -1,9 +1,9 @@
 <template>
   <v-container>
-    <tool-filter :namespace="namespace">
-      <!--      <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>-->
-    </tool-filter>
-    <edit-tool-modal
+    <!-- <tool-filter :namespace="namespace">-->
+    <!-- <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>-->
+    <!-- </tool-filter>-->
+    <issue-modal
       v-if="openDialog"
       :persistent="true"
       :tool-id="editingToolId"
@@ -56,7 +56,7 @@
 </template>
 
 <script>
-import EditToolModal from './Modal.vue'
+import IssueModal from './Modal.vue'
 import ToolFilter from '@/modules/tool/components/ToolFilter.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 
@@ -64,7 +64,7 @@ export default {
   emits: ['changes-saved', 'canceled', 'page-changed', 'page-limit-changed'],
   components: {
     VDataTableServer,
-    EditToolModal,
+    IssueModal,
     ToolFilter,
   },
   props: {
@@ -138,7 +138,6 @@ export default {
     calculateOrder(tool) {
       if (tool.norma || tool.sklad) return tool.norma - tool.sklad
     },
-
     async onChangePage(page) {
       this.$emit('page-changed', page)
     },

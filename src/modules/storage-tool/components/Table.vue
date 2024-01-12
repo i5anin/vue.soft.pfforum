@@ -1,8 +1,8 @@
 <template>
   <v-container>
-    <tool-filter :namespace="namespace">
-      <!--      <v-btn color="blue" @click="onAddTool">Редактировать склад</v-btn>-->
-    </tool-filter>
+    <!-- <tool-filter :namespace="namespace">-->
+    <!-- <v-btn color="blue" @click="onAddTool">Редактировать склад</v-btn>-->
+    <!-- </tool-filter>-->
     <storage-tool-modal
       v-if="openDialog"
       :persistent="true"
