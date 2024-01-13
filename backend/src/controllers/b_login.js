@@ -1,7 +1,6 @@
 //login
 
 require('dotenv').config() // Это должно быть в самом верху файла
-const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const { Pool } = require('pg')
 const dbConfig = require('../config').dbConfig
