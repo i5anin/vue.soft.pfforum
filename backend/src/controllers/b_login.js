@@ -23,13 +23,12 @@ app.get('/api/database-info', (req, res) => {
 
 exports.getDatabaseInfo = async (req, res) => {
   try {
-    const dbInfo = getNetworkDetails();
-    res.json(dbInfo);
+    const dbInfo = getNetworkDetails()
+    res.json(dbInfo)
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message })
   }
-};
-
+}
 
 exports.validateUser = async (req, res) => {
   const { login, password } = req.body
@@ -43,7 +42,7 @@ exports.validateUser = async (req, res) => {
 
     if (user.rows.length > 0) {
       // Сравниваем пароль в чистом виде
-      const isValid = (password === user.rows[0].password)
+      const isValid = password === user.rows[0].password
 
       console.log('Password valid:', isValid)
 
@@ -51,7 +50,7 @@ exports.validateUser = async (req, res) => {
         const token = jwt.sign(
           { id: user.rows[0].id, access: user.rows[0].access },
           process.env.SECRET_KEY, // Используйте переменную окружения или запасной ключ
-          { expiresIn: '1h' },
+          { expiresIn: '1h' }
         )
         res.json({ token })
       } else {
