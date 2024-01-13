@@ -29,6 +29,8 @@ export default {
       toolsHistory: [],
       totalCount: 0,
       headers: [
+        { title: 'Операция', value: 'specs_op_id', sortable: false },
+        { title: 'ID', value: 'id', sortable: false },
         { title: 'Название', value: 'name', sortable: false },
         { title: 'Обозначение', value: 'description', sortable: false },
         { title: 'Номер операции', value: 'no_oper', sortable: false },

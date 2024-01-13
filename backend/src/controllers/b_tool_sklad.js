@@ -34,7 +34,7 @@ async function getToolHistory(req, res) {
     // Запрос для получения истории инструментов с учетом пагинации
     const dataQuery = `
       SELECT thn.specs_op_id                                     AS specs_op_id,
-             sn.ID                                               AS specs_op_id,
+             sn.ID                                               AS ID,
              sn.NAME,
              sn.description,
              oon.no                                              AS no_oper,
@@ -137,6 +137,7 @@ async function getToolHistoryId(req, res) {
     `
 
     const result = await pool.query(query, [specs_op_id])
+    console.log(result)
 
     // Проверка наличия результатов и отправка ответа
     if (result.rows.length > 0) {

@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 
-const loginController = require('./controllers/b_login')
+// const loginController = require('./controllers/b_login')
 const nomController = require('./controllers/b_tool_nom')
 const paramController = require('./controllers/b_tool_param')
 const treeController = require('./controllers/b_tool_tree')
@@ -9,8 +9,8 @@ const skladController = require('./controllers/b_tool_sklad')
 const operController = require('./controllers/b_tool_oper')
 
 // Маршруты для аутентификации
-router.post('/validate-user', loginController.validateUser)
-router.get('/database-info', loginController.getDatabaseInfo)
+// router.post('/validate-user', loginController.validateUser)
+// router.get('/database-info', loginController.getDatabaseInfo)
 
 // Маршруты для работы с инструментами
 router.get('/tool/:id', nomController.getToolById) //1 элемент
