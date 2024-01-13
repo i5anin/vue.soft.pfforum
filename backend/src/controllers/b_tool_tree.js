@@ -13,35 +13,28 @@ const pool = new Pool(dbConfig)
 
 // Функция для построения дерева данных
 async function buildTreeData(parentId = 0) {
-  try {
-    const { rows } = await pool.query(
-      `SELECT t.id, t.parent_id, t.name,
-        (SELECT COUNT(*) FROM dbo.tool_nom n WHERE n.parent_id = t.id) as element_count
-      FROM dbo.tool_tree t
-      WHERE t.parent_id = $1`,
-      [parentId]
-    )
-
-    const treeData = []
-    for (const row of rows) {
-      const children = await buildTreeData(row.id)
-      const totalElements =
-        children.reduce((acc, child) => acc + child.totalElements, 0) +
-        parseInt(row.element_count)
-
-      treeData.push({
-        id: row.id,
-        label: row.name,
-        elements: parseInt(row.element_count, 10),
-        totalElements: totalElements, // Общее количество элементов в поддереве
-        nodes: children,
-      })
-    }
-
-    return treeData
-  } catch (error) {
-    throw error
+  const { rows } = await pool.query(
+    `SELECT t.id, t.parent_id, t.name,
+      (SELECT COUNT(*) FROM dbo.tool_nom n WHERE n.parent_id = t.id) as element_count
+    FROM dbo.tool_tree t
+    WHERE t.parent_id = $1`,
+    [parentId]
+  )
+  const treeData = []
+  for (const row of rows) {
+    const children = await buildTreeData(row.id)
+    const totalElements =
+      children.reduce((acc, child) => acc + child.totalElements, 0) +
+      parseInt(row.element_count)
+    treeData.push({
+      id: row.id,
+      label: row.name,
+      elements: parseInt(row.element_count, 10),
+      totalElements: totalElements, // Общее количество элементов в поддереве
+      nodes: children,
+    })
   }
+  return treeData
 }
 
 const addBranch = async (req, res) => {
@@ -211,20 +204,6 @@ async function updateFolderTree(req, res) {
     res.status(500).json({ message: 'Ошибка сервера', reason: error.message })
   }
 }
-
-// "unlinkedNomenclatures": {
-//   "count": "517",
-//     "label": "Непривязанные номенклатуры"
-// },
-// "linkedToNonExistentFolders": {
-//   "count": "3",
-//     "label": "Привязанные к несуществующим папкам",
-//     "nonexistentIds": [
-//     13,
-//     21,
-//     22
-//   ]
-// }
 
 async function countNomenclatureStatuses(req, res) {
   try {
