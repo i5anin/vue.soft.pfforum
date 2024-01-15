@@ -125,11 +125,16 @@ async function getToolHistoryId(req, res) {
              thn.quantity,
              thn.id_user,
              thn.id_tool,
-             thn.date
+             thn.date,
+             o.fio                                               AS user_fio, -- Поле user_fio из таблицы operators
+             tn.name                                             AS name_tool, -- Поле name_tool из таблицы tool_nom
+             tn.property                                         -- Поле property из таблицы tool_nom
       FROM dbo.tool_history_nom thn
              INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
              INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
              INNER JOIN dbo.operations_ordersnom oon ON oon.op_id = sno.ordersnom_op_id
+             INNER JOIN dbo.operators o ON thn.id_user = o.id
+             INNER JOIN dbo.tool_nom tn ON thn.id_tool = tn.id
       WHERE thn.specs_op_id = $1
         AND NOT sn.status_otgruzka
         AND (POSITION('ЗАПРЕТ' IN UPPER(sn.comments)) = 0 OR sn.comments IS NULL)

@@ -29,7 +29,7 @@
       class="elevation-1"
       hover
       fixed-header
-      width
+      width="true"
     >
       <template v-slot:item.index="{ index }">
         <td class="index">{{ index + 1 }}</td>
@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import EditToolModal from '@/modules/filling-tool/components/Modal.vue'
+import EditToolModal from './Modal.vue'
 import ToolFilter from '@/modules/tool/components/ToolFilter.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 

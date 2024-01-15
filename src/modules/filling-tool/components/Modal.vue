@@ -122,7 +122,6 @@ export default {
   props: {
     persistent: { type: Boolean, default: false },
     toolId: { type: Number, default: null },
-    radiusOptions: { type: Array },
   },
   components: { DeleteConfirmationDialog, Modal },
   //реактивные данные

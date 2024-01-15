@@ -23,7 +23,7 @@
 <script setup>
 import { ref } from 'vue'
 import ToolTabParam from '@/modules/tool/components/tabs/Param.vue'
-import GiveTool from '@/modules/tool/components/tabs/HistoryTool.vue'
+import GiveTool from '@/modules/history-tool/components/Table.vue'
 import ToolTabTree from '@/modules/tool/components/tabs/Tree.vue'
 
 import TabCatalog from '@/modules/filling-tool/components/Catalog.vue'
