@@ -8,11 +8,13 @@
       :headers="headers"
       :items-length="totalCount"
       :items="toolsHistory"
+      :items-per-page="filters.itemsPerPage"
+      :page="filters.currentPage"
+      :loading="isLoading"
       :items-per-page-options="[15, 50, 100, 300]"
       @update:page="onChangePage"
       @update:items-per-page="onUpdateItemsPerPage"
-    >
-    </v-data-table-server>
+    ></v-data-table-server>
   </v-container>
 </template>
 
@@ -25,6 +27,8 @@ export default {
   components: { VDataTableServer },
   data() {
     return {
+      filters: { itemsPerPage: 15, currentPage: 1 },
+      isLoading: false,
       showModal: false,
       toolsHistory: [],
       totalCount: 0,
@@ -47,17 +51,23 @@ export default {
   },
   methods: {
     async onChangePage(page) {
-      this.$emit('page-changed', page)
+      this.filters.currentPage = page
+      await this.fetchAndFormatToolHistory()
     },
     async onUpdateItemsPerPage(itemsPerPage) {
-      this.$emit('page-limit-changed', itemsPerPage)
+      this.filters.itemsPerPage = itemsPerPage
+      await this.fetchAndFormatToolHistory()
     },
     formatDate(date) {
       return format(parseISO(date), 'dd.MM.yyyy HH:mm:ss')
     },
     async fetchAndFormatToolHistory() {
       try {
-        const response = await fetchToolHistory()
+        const response = await fetchToolHistory(
+          '',
+          this.filters.currentPage,
+          this.filters.itemsPerPage
+        )
         this.toolsHistory = response.toolsHistory.map((tool) => ({
           ...tool,
           date: this.formatDate(tool.date),
