@@ -47,7 +47,7 @@ export default {
       editingToolId: null,
       totalCount: 0,
       headers: [
-        { title: 'Операция', value: 'specs_op_id', sortable: false },
+        // { title: 'Операция', value: 'specs_op_id', sortable: false },
         { title: 'ID', value: 'id', sortable: false },
         { title: 'Название', value: 'name', sortable: false, width: '300px' },
         { title: 'Обозначение', value: 'description', sortable: false },

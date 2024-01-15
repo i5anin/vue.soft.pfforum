@@ -1,8 +1,22 @@
 <template>
   <Modal :title="popupTitle">
     <template #content>
-      <v-data-table :headers="headers" :items="historyData" class="elevation-1">
-      </v-data-table>
+      <v-table class="elevation-1">
+        <thead>
+          <tr>
+            <th v-for="header in headers" :key="header.value" class="text-left">
+              {{ header.title }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in historyData" :key="item.id">
+            <td v-for="header in headers" :key="header.value">
+              {{ item[header.value] }}
+            </td>
+          </tr>
+        </tbody>
+      </v-table>
     </template>
     <template #action>
       <v-btn
@@ -29,28 +43,28 @@ export default {
   },
   props: {
     persistent: { type: Boolean, default: false },
-    specs_op_id: { type: Number, default: null }, // Убедитесь, что toolId передаётся правильно
+    specs_op_id: { type: Number, default: null },
   },
   data() {
     return {
       headers: [
-        { title: 'Операция', value: 'specs_op_id', sortable: false },
-        { title: 'ID', value: 'id', sortable: false },
-        { title: 'Название', value: 'name', sortable: false },
-        { title: 'Обозначение', value: 'description', sortable: false },
-        { title: 'Номер операции', value: 'no_oper', sortable: false },
-        { title: 'Тип операции', value: 'type_oper', sortable: false },
-        { title: 'Кол-во', value: 'quantity', sortable: false },
-        { title: 'ФИО', value: 'user_fio', sortable: false },
-        { title: 'Дата', value: 'date', sortable: false },
-        { title: 'Инструмент', value: 'name_tool', sortable: false },
+        { title: 'Операция', value: 'specs_op_id' },
+        { title: 'ID', value: 'id' },
+        { title: 'Название', value: 'name' },
+        { title: 'Обозначение', value: 'description' },
+        { title: 'Номер операции', value: 'no_oper' },
+        { title: 'Тип операции', value: 'type_oper' },
+        { title: 'Кол-во', value: 'quantity' },
+        { title: 'ФИО', value: 'user_fio' },
+        { title: 'Дата', value: 'date' },
+        { title: 'Инструмент', value: 'name_tool' },
       ],
       historyData: [], // Данные для таблицы
     }
   },
   computed: {
     popupTitle() {
-      return 'История инструмента'
+      return `Инструмент затраченный на операцию: ${this.specs_op_id}`
     },
   },
   methods: {
@@ -59,17 +73,15 @@ export default {
     },
     async fetchHistoryData() {
       try {
-        console.log('modal', this.specs_op_id)
-        const data = await detailApi.historyToolById(this.specs_op_id) // Обновлено использование specs_op_id
-        console.log(data)
-        this.historyData = data // Обновление данных таблицы
+        this.historyData = await detailApi.historyToolById(this.specs_op_id)
+        console.log(this.historyData)
       } catch (error) {
         console.error('Ошибка при загрузке данных:', error)
       }
     },
   },
   created() {
-    this.fetchHistoryData() // Загрузите данные при создании компонента
+    this.fetchHistoryData()
   },
 }
 </script>
