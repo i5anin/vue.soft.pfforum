@@ -95,7 +95,6 @@ export default {
       this.openDialog = false
     },
     onInfoRow(event, { item: tool }) {
-      console.log(tool.specs_op_id)
       this.editingToolId = tool.specs_op_id
       this.openDialog = true
     },

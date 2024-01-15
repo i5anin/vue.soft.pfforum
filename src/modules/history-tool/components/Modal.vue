@@ -59,8 +59,9 @@ export default {
     },
     async fetchHistoryData() {
       try {
-        console.log(this.specs_op_id)
+        console.log('modal', this.specs_op_id)
         const data = await detailApi.historyToolById(this.specs_op_id) // Обновлено использование specs_op_id
+        console.log(data)
         this.historyData = data // Обновление данных таблицы
       } catch (error) {
         console.error('Ошибка при загрузке данных:', error)
@@ -72,7 +73,3 @@ export default {
   },
 }
 </script>
-
-<style>
-/* Стили, если нужно */
-</style>
