@@ -76,20 +76,16 @@ export default {
       return format(parseISO(date), 'dd.MM.yyyy HH:mm:ss')
     },
     async fetchAndFormatToolHistory() {
-      try {
-        const response = await fetchToolHistory(
-          '',
-          this.filters.currentPage,
-          this.filters.itemsPerPage
-        )
-        this.toolsHistory = response.toolsHistory.map((tool) => ({
-          ...tool,
-          date: this.formatDate(tool.date),
-        }))
-        this.totalCount = response.totalCount
-      } catch (error) {
-        console.error('Ошибка при загрузке истории инструментов:', error)
-      }
+      const response = await fetchToolHistory(
+        '',
+        this.filters.currentPage,
+        this.filters.itemsPerPage
+      )
+      this.toolsHistory = response.toolsHistory.map((tool) => ({
+        ...tool,
+        date: this.formatDate(tool.date),
+      }))
+      this.totalCount = response.totalCount
     },
     onClosePopup() {
       this.openDialog = false

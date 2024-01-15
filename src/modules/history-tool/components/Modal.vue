@@ -1,5 +1,5 @@
 <template>
-  <Modal fullscreen :title="popupTitle" widthDefault="max">
+  <Modal :title="popupTitle" widthDefault="max">
     <template #content>
       <v-table class="elevation-1">
         <thead>
@@ -12,7 +12,12 @@
         <tbody>
           <tr v-for="item in historyData" :key="item.id">
             <td v-for="header in headers" :key="header.value">
-              {{ item[header.value] }}
+              <template v-if="header.value === 'date'">
+                {{ formatDate(item[header.value]) }}
+              </template>
+              <template v-else>
+                {{ item[header.value] }}
+              </template>
             </td>
           </tr>
         </tbody>
@@ -34,6 +39,7 @@
 <script>
 import Modal from '@/components/shared/Modal.vue'
 import { detailApi } from '../api/history'
+import { format, parseISO } from 'date-fns'
 
 export default {
   name: 'ToolModal',
@@ -71,6 +77,9 @@ export default {
     },
   },
   methods: {
+    formatDate(date) {
+      return format(parseISO(date), 'dd.MM.yyyy HH:mm:ss')
+    },
     onCancel() {
       this.$emit('canceled')
     },
