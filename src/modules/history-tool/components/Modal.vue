@@ -1,20 +1,8 @@
 <template>
   <Modal :title="popupTitle">
     <template #content>
-      <v-table>
-        <thead>
-          <tr>
-            <th class="text-left">Name</th>
-            <th class="text-left">Calories</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="item in desserts" :key="item.name">
-            <td>{{ item.name }}</td>
-            <td>{{ item.calories }}</td>
-          </tr>
-        </tbody>
-      </v-table>
+      <v-data-table :headers="headers" :items="historyData" class="elevation-1">
+      </v-data-table>
     </template>
     <template #action>
       <v-btn
@@ -31,6 +19,7 @@
 
 <script>
 import Modal from '@/components/shared/Modal.vue'
+import { detailApi } from '../api/history'
 
 export default {
   name: 'ToolModal',
@@ -40,52 +29,23 @@ export default {
   },
   props: {
     persistent: { type: Boolean, default: false },
-    toolId: { type: Number, default: null },
+    specs_op_id: { type: Number, default: null }, // Убедитесь, что toolId передаётся правильно
   },
   data() {
     return {
-      desserts: [
-        {
-          name: 'Frozen Yogurt',
-          calories: 159,
-        },
-        {
-          name: 'Ice cream sandwich',
-          calories: 237,
-        },
-        {
-          name: 'Eclair',
-          calories: 262,
-        },
-        {
-          name: 'Cupcake',
-          calories: 305,
-        },
-        {
-          name: 'Gingerbread',
-          calories: 356,
-        },
-        {
-          name: 'Jelly bean',
-          calories: 375,
-        },
-        {
-          name: 'Lollipop',
-          calories: 392,
-        },
-        {
-          name: 'Honeycomb',
-          calories: 408,
-        },
-        {
-          name: 'Donut',
-          calories: 452,
-        },
-        {
-          name: 'KitKat',
-          calories: 518,
-        },
+      headers: [
+        { title: 'Операция', value: 'specs_op_id', sortable: false },
+        { title: 'ID', value: 'id', sortable: false },
+        { title: 'Название', value: 'name', sortable: false },
+        { title: 'Обозначение', value: 'description', sortable: false },
+        { title: 'Номер операции', value: 'no_oper', sortable: false },
+        { title: 'Тип операции', value: 'type_oper', sortable: false },
+        { title: 'Кол-во', value: 'quantity', sortable: false },
+        { title: 'ФИО', value: 'user_fio', sortable: false },
+        { title: 'Дата', value: 'date', sortable: false },
+        { title: 'Инструмент', value: 'name_tool', sortable: false },
       ],
+      historyData: [], // Данные для таблицы
     }
   },
   computed: {
@@ -97,13 +57,22 @@ export default {
     onCancel() {
       this.$emit('canceled')
     },
+    async fetchHistoryData() {
+      try {
+        console.log(this.specs_op_id)
+        const data = await detailApi.historyToolById(this.specs_op_id) // Обновлено использование specs_op_id
+        this.historyData = data // Обновление данных таблицы
+      } catch (error) {
+        console.error('Ошибка при загрузке данных:', error)
+      }
+    },
   },
   created() {
-    // Здесь можно выполнить начальную загрузку данных, если нужно
+    this.fetchHistoryData() // Загрузите данные при создании компонента
   },
 }
 </script>
 
 <style>
-/* Здесь добавьте свои стили, если нужно */
+/* Стили, если нужно */
 </style>

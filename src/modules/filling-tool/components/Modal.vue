@@ -117,14 +117,12 @@ import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 
 export default {
   name: 'FillingModal',
-  emits: ['canceled', 'changes-saved'], // объявления пользовательских событий
-  //props контракт общение что использовать и что передавать от родительского компонента к дочернему
+  emits: ['canceled', 'changes-saved'],
   props: {
     persistent: { type: Boolean, default: false },
     toolId: { type: Number, default: null },
   },
   components: { DeleteConfirmationDialog, Modal },
-  //реактивные данные
   data: () => ({
     localParentId: null,
     toolModel: { name: null, property: {} },
@@ -145,9 +143,6 @@ export default {
       (v) => (v && v.length >= 3) || 'Минимальная длина: 3 символа',
     ],
   }),
-  // [data] - используется для определения реактивных данных компонента, которые непосредственно управляют состоянием и поведением этого компонента.
-  // [watch] - используется для отслеживания изменений в этих данных (или в других реактивных источниках) и выполнения дополнительных действий или логики в ответ на эти изменения.
-
   watch: {
     tool: {
       deep: true,

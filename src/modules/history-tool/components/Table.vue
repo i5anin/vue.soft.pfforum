@@ -3,7 +3,7 @@
     <edit-tool-modal
       v-if="openDialog"
       :persistent="true"
-      :tool-id="editingToolId"
+      :specs_op_id="editingToolId"
       @canceled="onClosePopup"
       @changes-saved="onSaveChanges"
     />
@@ -95,7 +95,8 @@ export default {
       this.openDialog = false
     },
     onInfoRow(event, { item: tool }) {
-      this.editingToolId = tool.id
+      console.log(tool.specs_op_id)
+      this.editingToolId = tool.specs_op_id
       this.openDialog = true
     },
     onSaveChanges() {
