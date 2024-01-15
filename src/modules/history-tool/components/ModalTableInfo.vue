@@ -1,0 +1,94 @@
+<template>
+  <Modal :title="popupTitle" widthDefault="max">
+    <template #content>
+      <v-table class="elevation-1">
+        <thead>
+          <tr>
+            <th v-for="header in headers" :key="header.value" class="text-left">
+              {{ header.title }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in historyData" :key="item.id">
+            <td v-for="header in headers" :key="header.value">
+              <template v-if="header.value === 'date'">
+                {{ formatDate(item[header.value]) }}
+              </template>
+              <template v-else>
+                {{ item[header.value] }}
+              </template>
+            </td>
+          </tr>
+        </tbody>
+      </v-table>
+    </template>
+    <template #action>
+      <v-btn
+        color="red darken-1"
+        variant="text"
+        @click="onCancel"
+        class="text-none text-subtitle-1 ml-3"
+      >
+        Закрыть
+      </v-btn>
+    </template>
+  </Modal>
+</template>
+
+<script>
+import Modal from '@/components/shared/Modal.vue'
+import { detailApi } from '../api/history'
+import { format, parseISO } from 'date-fns'
+
+export default {
+  name: 'ToolModal',
+  emits: ['canceled'],
+  components: {
+    Modal,
+  },
+  props: {
+    persistent: { type: Boolean, default: false },
+    specs_op_id: { type: Number, default: null },
+  },
+  data() {
+    return {
+      headers: [
+        // { title: 'Операция', value: 'specs_op_id' },
+        { title: 'ID', value: 'id' },
+        { title: 'Название', value: 'name' },
+        { title: 'Обозначение', value: 'description' },
+        { title: 'Номер операции', value: 'no_oper' },
+        { title: 'Тип операции', value: 'type_oper' },
+        { title: 'Кол-во', value: 'quantity' },
+        { title: 'ФИО', value: 'user_fio' },
+        { title: 'Дата', value: 'date' },
+        { title: 'Инструмент', value: 'name_tool' },
+      ],
+      historyData: [],
+    }
+  },
+  computed: {
+    popupTitle() {
+      return `Инструмент затраченный на операцию: ${this.specs_op_id} суммарно инструмента: ${this.totalQuantity}`
+    },
+    totalQuantity() {
+      return this.historyData.reduce((total, item) => total + item.quantity, 0)
+    },
+  },
+  methods: {
+    formatDate(date) {
+      return format(parseISO(date), 'dd.MM.yyyy HH:mm:ss')
+    },
+    onCancel() {
+      this.$emit('canceled')
+    },
+    async fetchHistoryData() {
+      this.historyData = await detailApi.historyToolById(this.specs_op_id)
+    },
+  },
+  created() {
+    this.fetchHistoryData()
+  },
+}
+</script>
