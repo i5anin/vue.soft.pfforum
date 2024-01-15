@@ -48,7 +48,7 @@ export default {
   data() {
     return {
       headers: [
-        { title: 'Операция', value: 'specs_op_id' },
+        // { title: 'Операция', value: 'specs_op_id' },
         { title: 'ID', value: 'id' },
         { title: 'Название', value: 'name' },
         { title: 'Обозначение', value: 'description' },
@@ -72,12 +72,7 @@ export default {
       this.$emit('canceled')
     },
     async fetchHistoryData() {
-      try {
-        this.historyData = await detailApi.historyToolById(this.specs_op_id)
-        console.log(this.historyData)
-      } catch (error) {
-        console.error('Ошибка при загрузке данных:', error)
-      }
+      this.historyData = await detailApi.historyToolById(this.specs_op_id)
     },
   },
   created() {
@@ -85,3 +80,11 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+.v-dialog {
+  width: 600px !important; /* Установите ширину, которую вы хотите */
+  color: red;
+  max-width: none; /* Это уберет максимальную ширину, если она есть */
+}
+</style>
