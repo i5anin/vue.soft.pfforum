@@ -1,5 +1,5 @@
 <template>
-  <Modal :title="popupTitle">
+  <Modal fullscreen :title="popupTitle">
     <template #content>
       <v-table class="elevation-1">
         <thead>
@@ -82,9 +82,8 @@ export default {
 </script>
 
 <style scoped>
-.v-dialog {
-  width: 600px !important; /* Установите ширину, которую вы хотите */
-  color: red;
-  max-width: none; /* Это уберет максимальную ширину, если она есть */
+.dialog-bottom-transition-enter-active,
+.dialog-bottom-transition-leave-active {
+  transition: transform 0.2s ease-in-out;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <v-dialog persistent :model-value="true" v-bind="modalProps" width="500">
+  <v-dialog persistent="true" :model-value="true" v-bind="modalProps">
     <template v-slot:activator="{ props }">
       <slot name="default" v-bind="props" />
     </template>
