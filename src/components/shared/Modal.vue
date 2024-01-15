@@ -1,5 +1,10 @@
 <template>
-  <v-dialog persistent="true" :model-value="true" v-bind="modalProps">
+  <v-dialog
+    persistent="true"
+    :model-value="true"
+    v-bind="modalProps"
+    :width="widthDefault"
+  >
     <template v-slot:activator="{ props }">
       <slot name="default" v-bind="props" />
     </template>
@@ -29,6 +34,10 @@ export default {
     modalProps: {
       type: Object,
       default: () => ({}),
+    },
+    widthDefault: {
+      type: String,
+      default: '500',
     },
   },
 }

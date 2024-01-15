@@ -1,5 +1,5 @@
 <template>
-  <Modal fullscreen :title="popupTitle">
+  <Modal fullscreen :title="popupTitle" widthDefault="max">
     <template #content>
       <v-table class="elevation-1">
         <thead>
@@ -59,12 +59,15 @@ export default {
         { title: 'Дата', value: 'date' },
         { title: 'Инструмент', value: 'name_tool' },
       ],
-      historyData: [], // Данные для таблицы
+      historyData: [],
     }
   },
   computed: {
     popupTitle() {
-      return `Инструмент затраченный на операцию: ${this.specs_op_id}`
+      return `Инструмент затраченный на операцию: ${this.specs_op_id} суммарно инструмента: ${this.totalQuantity}`
+    },
+    totalQuantity() {
+      return this.historyData.reduce((total, item) => total + item.quantity, 0)
     },
   },
   methods: {
@@ -80,10 +83,3 @@ export default {
   },
 }
 </script>
-
-<style scoped>
-.dialog-bottom-transition-enter-active,
-.dialog-bottom-transition-leave-active {
-  transition: transform 0.2s ease-in-out;
-}
-</style>
