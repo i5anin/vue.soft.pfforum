@@ -1,5 +1,5 @@
 <template>
-  <Modal :title="popupTitle" widthDefault="max">
+  <Modal :title="popupTitle" widthDefault="800px">
     <template #content>
       <v-table class="elevation-1">
         <thead>
@@ -43,24 +43,16 @@ import { format, parseISO } from 'date-fns'
 
 export default {
   name: 'ToolModal',
-  emits: ['canceled'],
   components: {
     Modal,
   },
   props: {
-    persistent: { type: Boolean, default: false },
     specs_op_id: { type: Number, default: null },
   },
   data() {
     return {
       headers: [
-        // { title: 'Операция', value: 'specs_op_id' },
-        { title: 'ID', value: 'id' },
-        { title: 'Название', value: 'name' },
-        { title: 'Обозначение', value: 'description' },
-        { title: 'Номер операции', value: 'no_oper' },
-        { title: 'Тип операции', value: 'type_oper' },
-        { title: 'Кол-во', value: 'quantity' },
+        { title: 'Кол-во', value: 'quantity', width: '70px' },
         { title: 'ФИО', value: 'user_fio' },
         { title: 'Дата', value: 'date' },
         { title: 'Инструмент', value: 'name_tool' },
@@ -70,10 +62,7 @@ export default {
   },
   computed: {
     popupTitle() {
-      return `Инструмент затраченный на операцию: ${this.specs_op_id} суммарно инструмента: ${this.totalQuantity}`
-    },
-    totalQuantity() {
-      return this.historyData.reduce((total, item) => total + item.quantity, 0)
+      return `Инструмент затраченный на операцию: ${this.specs_op_id}`
     },
   },
   methods: {
@@ -92,3 +81,7 @@ export default {
   },
 }
 </script>
+
+<style>
+/* Add your CSS styles if needed */
+</style>
