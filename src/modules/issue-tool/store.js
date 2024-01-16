@@ -67,9 +67,27 @@ export default {
     async fetchToolsByFilter({ commit, state }) {
       console.log('ВЫДАЧА VUEX')
       commit('setIsLoading', true)
-      const { currentPage, itemsPerPage, search, includeNull, selectedParams } =
-        state.filters
+      const {
+        currentPage,
+        itemsPerPage,
+        search,
+        includeNull,
+        onlyInStock = true,
+      } = state.filters
       const { id: parentId } = state.idParent
+
+      // Формируем URL для запроса
+      const params = new URLSearchParams({
+        search: search,
+        page: currentPage,
+        limit: itemsPerPage,
+        includeNull: includeNull,
+        onlyInStock: onlyInStock,
+      })
+      if (parentId !== null) {
+        params.append('parent_id', parentId)
+      }
+
       try {
         const { tools, totalCount, paramsList } = await getTools(
           search,
@@ -77,17 +95,18 @@ export default {
           itemsPerPage,
           includeNull,
           parentId,
-          selectedParams
+          onlyInStock
         )
-        commit('setParamsList', paramsList) // Это данные, которые передаются в мутацию. Полученный из функции getTools
-        commit('setTools', tools) // Инструменты
-        commit('setToolsTotalCount', totalCount) // Счетчик
+        commit('setParamsList', paramsList)
+        commit('setTools', tools)
+        commit('setToolsTotalCount', totalCount)
       } catch (error) {
         console.error('getTools. Ошибка при получении данных:', error)
       } finally {
         commit('setIsLoading', false)
       }
     },
+
     async onSaveToolModel({ dispatch }, toolModel) {
       try {
         // Отправка данных на сервер

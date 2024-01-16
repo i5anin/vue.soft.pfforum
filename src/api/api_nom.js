@@ -17,9 +17,10 @@ export async function getTools(
   page = 1,
   limit = 10,
   includeNull = false,
-  parentId = null
+  parentId = null,
+  onlyInStock = true
 ) {
-  const params = { search, page, limit, includeNull }
+  const params = { search, page, limit, includeNull, onlyInStock }
   if (parentId !== null) {
     params.parent_id = parentId
   }
