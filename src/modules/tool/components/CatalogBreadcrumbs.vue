@@ -5,7 +5,7 @@
     <span v-for="(item, index) in tree" :key="index">
       <span :class="getBreadcrumbClass(index)" @click="goTo(index)">
         {{ item.label }}
-        <span v-if="item.elements !== 0"> ({{ item.elements }}) </span>
+        <span v-if="item.available !== 0"> ({{ item.available }}) </span>
       </span>
       <span v-if="index < tree.length - 1"> &nbsp;&nbsp;/&nbsp;&nbsp; </span>
     </span>
@@ -23,7 +23,7 @@
         <v-icon color="info" icon="mdi-folder" class="icon" />
         <v-list-item-title>
           {{ item.label }}
-          <span v-if="item.elements !== 0"> ({{ item.elements }}) </span>
+          <span v-if="item.available !== 0"> ({{ item.available }}) </span>
         </v-list-item-title>
       </div>
     </v-list-item>
