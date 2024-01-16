@@ -1,6 +1,5 @@
 <template>
   <v-container>
-    <!--каталог-->
     <tool-filter :namespace="namespace">
       <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>
     </tool-filter>
@@ -32,31 +31,26 @@
       fixed-header
       width="true"
     >
-      <template v-slot:item="{ item, index }">
-        <tr>
-          <td class="index" style="white-space: nowrap">
-            {{ calculateIndex(index) }}
-          </td>
-          <td :class="getClassForItem(item)" style="white-space: nowrap">
-            {{ item.name }}
-          </td>
-          <td
-            v-for="param in paramsList"
-            :key="param.key"
-            :class="getClassForItem(item)"
-          >
-            {{ item[param.key] }}
-          </td>
-          <td :class="getClassForItem(item)" style="white-space: nowrap">
-            {{ item.norma }}
-          </td>
-          <td :class="getClassForItem(item)" style="white-space: nowrap">
-            {{ item.sklad }}
-          </td>
-          <td :class="getClassForItem(item)" style="white-space: nowrap">
-            {{ calculateOrder(item) }}
-          </td>
-        </tr>
+      <template v-slot:item.index="{ index }">
+        <td class="index">{{ index + 1 }}</td>
+      </template>
+      <!--name-->
+      <template v-slot:item.name="{ item }">
+        <span style="white-space: nowrap">{{ item.name }}</span>
+      </template>
+      <template v-slot:item.sklad="{ item }">
+        <span style="white-space: nowrap">{{ item.sklad }}</span>
+      </template>
+      <template v-slot:item.norma="{ item }">
+        <span style="white-space: nowrap">{{ item.norma }}</span>
+      </template>
+      <template v-slot:item.zakaz="{ item }">
+        <span style="white-space: nowrap">{{ calculateOrder(item) }}</span>
+      </template>
+      <template v-slot:item.actions="{ item }">
+        <v-btn color="primary" @click="(event) => onIssueTool(event, item)">
+          Выдать
+        </v-btn>
       </template>
     </v-data-table-server>
   </v-container>
@@ -136,14 +130,6 @@ export default {
     this.isDataLoaded = true
   },
   methods: {
-    calculateIndex(index) {
-      return (
-        (this.filters.currentPage - 1) * this.filters.itemsPerPage + index + 1
-      )
-    },
-    getClassForItem(item) {
-      return { grey: !item.sklad || item.sklad === 0 }
-    },
     onIssueTool(event, item) {
       event.stopPropagation() // Предотвратить всплытие события
       console.log('Выдать инструмент:', item)
@@ -181,9 +167,6 @@ export default {
 .index {
   max-width: 40px !important;
   font-size: 0.9em;
-  color: grey;
-}
-.grey {
   color: grey;
 }
 </style>
