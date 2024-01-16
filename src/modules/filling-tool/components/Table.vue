@@ -40,6 +40,7 @@
           <td :class="getClassForItem(item)" style="white-space: nowrap">
             {{ item.name }}
           </td>
+          <!-- Динамические столбцы -->
           <td
             v-for="param in paramsList"
             :key="param.key"
@@ -47,14 +48,12 @@
           >
             {{ item[param.key] }}
           </td>
-          <td :class="getClassForItem(item)" style="white-space: nowrap">
-            {{ item.norma }}
-          </td>
-          <td :class="getClassForItem(item)" style="white-space: nowrap">
-            {{ item.sklad }}
-          </td>
-          <td :class="getClassForItem(item)" style="white-space: nowrap">
-            {{ calculateOrder(item) }}
+          <td :class="getClassForItem(item)">{{ item.sklad }}</td>
+          <td :class="getClassForItem(item)">{{ item.norma }}</td>
+          <td :class="getClassForItem(item)">{{ calculateOrder(item) }}</td>
+
+          <td>
+            <!-- Кнопки или другие действия для столбца 'actions' -->
           </td>
         </tr>
       </template>
