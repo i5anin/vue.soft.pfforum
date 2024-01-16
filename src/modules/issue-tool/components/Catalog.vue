@@ -27,7 +27,7 @@
       filters,
       isLoading,
       paramsList,
-      namespace: 'issueTool',
+      namespace: 'IssueToolStore',
     }"
     @page-changed="onPageChanged"
     @page-limit-changed="onUpdateItemsPerPage"
@@ -77,7 +77,7 @@ export default {
     },
   },
   computed: {
-    ...mapGetters('issueTool', [
+    ...mapGetters('IssueToolStore', [
       'toolsTotalCount',
       'formattedTools',
       'filters',
@@ -87,12 +87,12 @@ export default {
   },
   methods: {
     // обновить IdParent
-    ...mapMutations('issueTool', [
+    ...mapMutations('IssueToolStore', [
       'updateIdParent',
       'setCurrentPage',
       'setItemsPerPage',
     ]),
-    ...mapActions('issueTool', ['fetchToolsByFilter']),
+    ...mapActions('IssueToolStore', ['fetchToolsByFilter']),
     async onPageChanged(page) {
       this.setCurrentPage(page)
       await this.fetchToolsByFilter()

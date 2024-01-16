@@ -196,14 +196,14 @@ export default {
   },
 
   computed: {
-    ...mapGetters('tool', [
+    ...mapGetters('IssueToolStore', [
       'widthOptions',
       'shagOptions',
       'gabaritOptions',
       'nameOptions',
       'tool',
     ]),
-    ...mapState('tool', ['idParent']),
+    ...mapState('IssueToolStore', ['idParent']),
     currentFolderName() {
       return this.toolId === null ? this.idParent.label : this.tool.folder_name
     },
@@ -222,8 +222,8 @@ export default {
     },
   },
   methods: {
-    ...mapMutations('tool', ['setTool']),
-    ...mapActions('tool', [
+    ...mapMutations('IssueToolStore', ['setTool']),
+    ...mapActions('IssueToolStore', [
       'fetchUniqueToolSpecs',
       'fetchToolsByFilter',
       'onSaveToolModel',

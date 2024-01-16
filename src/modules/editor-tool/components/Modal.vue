@@ -182,14 +182,14 @@ export default {
   },
 
   computed: {
-    ...mapGetters('tool', [
+    ...mapGetters('EditorToolStore', [
       'widthOptions',
       'shagOptions',
       'gabaritOptions',
       'nameOptions',
       'tool',
     ]),
-    ...mapState('tool', ['idParent']),
+    ...mapState('EditorToolStore', ['idParent']),
     currentFolderName() {
       return this.toolId === null ? this.idParent.label : this.tool.folder_name
     },
@@ -208,8 +208,8 @@ export default {
     },
   },
   methods: {
-    ...mapMutations('tool', ['setTool']),
-    ...mapActions('tool', [
+    ...mapMutations('EditorToolStore', ['setTool']),
+    ...mapActions('EditorToolStore', [
       'fetchUniqueToolSpecs',
       'fetchToolsByFilter',
       'onSaveToolModel',

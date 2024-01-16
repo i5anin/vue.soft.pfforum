@@ -79,7 +79,9 @@ export default {
     },
   },
   data: () => ({
-    filterModel: null,
+    filterModel: {
+      search: '',
+    },
   }),
   computed: {
     filters() {
