@@ -4,11 +4,7 @@ import StorageToolStore from '@/modules/storage-tool/store'
 import IssueToolStore from '@/modules/issue-tool/store'
 
 const store = new Vuex.Store({
-  modules: {
-    StorageToolStore: StorageToolStore,
-    IssueToolStore: IssueToolStore,
-    EditorToolStore: EditorToolStore,
-  },
+  modules: { StorageToolStore, IssueToolStore, EditorToolStore },
 })
 
 export default store
