@@ -75,14 +75,29 @@ async function saveToolHistory(req, res) {
     // Извлекаем данные из тела запроса
     const { specs_op_id, id_user, id_tool, quantity, date } = req.body
 
+    // SQL запрос для получения текущего количества инструмента на складе
+    const selectQuery = `
+      SELECT sklad
+      FROM dbo.tool_nom
+      WHERE id = $1
+    `
+
+    // Выполняем запрос на получение данных
+    const toolData = await pool.query(selectQuery, [id_tool])
+
+    // Проверяем, достаточно ли инструмента на складе
+    if (toolData.rows[0].sklad < quantity) {
+      return res.status(400).send('Недостаточно инструмента на складе')
+    }
+
     // SQL запрос для вставки данных в таблицу tool_history_nom
-    const query = `
+    const insertQuery = `
       INSERT INTO dbo.tool_history_nom (specs_op_id, id_user, id_tool, quantity, date)
       VALUES ($1, $2, $3, $4, $5)
     `
 
-    // Предположим, что эта функция возвращает данные, которые были только что вставлены
-    const insertedData = await pool.query(query, [
+    // Выполняем запрос на вставку данных
+    const insertedData = await pool.query(insertQuery, [
       specs_op_id,
       id_user,
       id_tool,
@@ -90,8 +105,27 @@ async function saveToolHistory(req, res) {
       date,
     ])
 
+    // SQL запрос для обновления данных в таблице tool_nom
+    const updateQuery = `
+      UPDATE dbo.tool_nom
+      SET sklad = sklad - $1
+      WHERE id = $2
+    `
+
+    // Выполняем запрос на обновление данных
+    await pool.query(updateQuery, [quantity, id_tool])
+
+    // Получаем обновленное значение sklad
+    const updatedSklad = await pool.query(selectQuery, [id_tool])
+
     // Отправляем эти данные обратно в ответе
-    res.status(200).json({ success: 'OK', data: insertedData })
+    res
+      .status(200)
+      .json({
+        success: 'OK',
+        data: insertedData,
+        updatedSklad: updatedSklad.rows[0].sklad,
+      })
   } catch (error) {
     console.error('Ошибка при сохранении истории инструмента:', error)
     res.status(500).send('Внутренняя ошибка сервера')
