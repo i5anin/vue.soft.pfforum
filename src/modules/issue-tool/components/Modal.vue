@@ -45,18 +45,6 @@
               :items="options.numberType"
               @update:model-value="onOperationSelected"
             />
-
-            <!--            :disabled="!toolModel.detailName"-->
-            <!--            <h2 class="text-h6">Операция:</h2>-->
-            <!--            <v-select-->
-            <!--              density="compact"-->
-            <!--              label="Выберите деталь"-->
-            <!--              required-->
-            <!--              v-model="toolModel.operationType"-->
-            <!--              :disabled="!toolModel.no"-->
-            <!--              :items="options.operation"-->
-            <!--              @update:model-value="onToolOperationId"-->
-            <!--            />-->
             <h2 class="text-h6">Кому выдать:</h2>
             <v-select
               v-model="selectedFio"
@@ -74,7 +62,9 @@
               label="Количество"
               required
               v-model="toolModel.issue"
+              :rules="issueRules"
             />
+
             <h2 class="text-h6"></h2>
             <div></div>
           </v-col>
@@ -158,6 +148,9 @@ export default {
     },
   }),
   watch: {
+    'tool.sklad': function (newVal) {
+      console.log('tool.sklad changed from ', newVal)
+    },
     tool: {
       deep: true,
       immediate: true,
@@ -218,7 +211,7 @@ export default {
     popupTitle() {
       return this.tool?.id != null
         ? `Редактировать инструмент ID: ${this.tool.id}`
-        : 'Добавить инструмент'
+        : 'Ошибка нет ID'
     },
   },
   methods: {
