@@ -27,7 +27,6 @@ export default {
   }),
   mutations: {
     updateIdParent(state, idParentData) {
-      // console.log('VueX. Изменяется idParent:', idParentData.id)
       state.idParent = { ...idParentData }
     },
     setParamsList(state, params) {
@@ -66,6 +65,7 @@ export default {
     },
 
     async fetchToolsByFilter({ commit, state }) {
+      console.log('ОБЩИЙ VUEX')
       commit('setIsLoading', true)
       const { currentPage, itemsPerPage, search, includeNull, selectedParams } =
         state.filters

@@ -1,8 +1,8 @@
 import { addTool, getTools, getToolById } from '@/api'
 
-export const store = {
+export default {
   namespaced: true,
-  state: {
+  state: () => ({
     idParent: { id: 1, label: null },
     isLoading: false,
     paramsList: [],
@@ -24,10 +24,9 @@ export const store = {
       selectedParams: [],
       includeNull: false,
     },
-  },
+  }),
   mutations: {
     updateIdParent(state, idParentData) {
-      // console.log('VueX. Изменяется idParent:', idParentData.id)
       state.idParent = { ...idParentData }
     },
     setParamsList(state, params) {
@@ -66,6 +65,7 @@ export const store = {
     },
 
     async fetchToolsByFilter({ commit, state }) {
+      console.log('РЕДАКТОР VUEX')
       commit('setIsLoading', true)
       const { currentPage, itemsPerPage, search, includeNull, selectedParams } =
         state.filters

@@ -36,9 +36,9 @@
 </template>
 
 <script>
+import { getTree } from '@/api'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import TabMainTable from '@/modules/issue-tool/components/Table.vue'
-import { getTree } from '@/api'
 import CatalogBreadcrumbs from '@/modules/tool/components/CatalogBreadcrumbs.vue'
 
 export default {
