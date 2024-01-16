@@ -36,21 +36,24 @@
       </template>
       <!--name-->
       <template v-slot:item.name="{ item }">
-        <span style="white-space: nowrap">{{ item.name }}</span>
+        <td :class="getClassForItem(item)" style="white-space: nowrap">
+          {{ item.name }}
+        </td>
       </template>
       <template v-slot:item.sklad="{ item }">
-        <span style="white-space: nowrap">{{ item.sklad }}</span>
+        <td :class="getClassForItem(item)" style="white-space: nowrap">
+          {{ item.sklad }}
+        </td>
       </template>
       <template v-slot:item.norma="{ item }">
-        <span style="white-space: nowrap">{{ item.norma }}</span>
+        <td :class="getClassForItem(item)" style="white-space: nowrap">
+          {{ item.norma }}
+        </td>
       </template>
       <template v-slot:item.zakaz="{ item }">
-        <span style="white-space: nowrap">{{ calculateOrder(item) }}</span>
-      </template>
-      <template v-slot:item.actions="{ item }">
-        <v-btn color="primary" @click="(event) => onIssueTool(event, item)">
-          Выдать
-        </v-btn>
+        <td :class="getClassForItem(item)" style="white-space: nowrap">
+          {{ calculateOrder(item) }}
+        </td>
       </template>
     </v-data-table-server>
   </v-container>
@@ -137,7 +140,9 @@ export default {
     calculateOrder(tool) {
       if (tool.norma || tool.sklad) return tool.norma - tool.sklad
     },
-
+    getClassForItem(item) {
+      return { grey: !item.sklad || item.sklad === 0 }
+    },
     async onChangePage(page) {
       this.$emit('page-changed', page)
     },
@@ -167,6 +172,9 @@ export default {
 .index {
   max-width: 40px !important;
   font-size: 0.9em;
+  color: grey;
+}
+.grey {
   color: grey;
 }
 </style>
