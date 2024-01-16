@@ -95,16 +95,6 @@ async function saveToolHistory(req, res) {
       INSERT INTO dbo.tool_history_nom (specs_op_id, id_user, id_tool, quantity, date)
       VALUES ($1, $2, $3, $4, $5)
     `
-
-    // Выполняем запрос на вставку данных
-    // const insertedData = await pool.query(insertQuery, [
-    //   specs_op_id,
-    //   id_user,
-    //   id_tool,
-    //   quantity,
-    //   date,
-    // ])
-
     console.log(insertedData.rows)
 
     // SQL запрос для обновления данных в таблице tool_nom
@@ -123,7 +113,6 @@ async function saveToolHistory(req, res) {
     // Отправляем эти данные обратно в ответе
     res.status(200).json({
       success: 'OK',
-      // data: insertedData.rows,
       specs_op_id,
       id_user,
       id_tool,
