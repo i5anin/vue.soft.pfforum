@@ -33,7 +33,6 @@
       <template v-slot:item.index="{ index }">
         <td class="index">{{ index + 1 }}</td>
       </template>
-      <!--name-->
       <template v-slot:item.name="{ item }">
         <span style="white-space: nowrap">{{ item.name }}</span>
       </template>

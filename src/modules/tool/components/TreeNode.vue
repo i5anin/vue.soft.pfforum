@@ -6,7 +6,7 @@
         <span>
           {{ node.label }}
           <span v-if="node.elements !== 0">
-            (Элементов: {{ node.elements }})
+            [ Доступно: {{ node.available }} / {{ node.elements }} ]
           </span>
           <span class="node-id">id: {{ node.id }} </span>
         </span>

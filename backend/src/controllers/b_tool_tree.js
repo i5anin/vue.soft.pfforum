@@ -11,26 +11,45 @@ const dbConfig =
 // Создание пула соединений с базой данных
 const pool = new Pool(dbConfig)
 
+// Экспорт функции для получения дерева инструментов
+async function getToolsTree(req, res) {
+  try {
+    const tree = await buildTreeData()
+    res.json(tree)
+  } catch (error) {
+    console.error(error)
+    res.status(500).send(error.message)
+  }
+}
+
 // Функция для построения дерева данных
 async function buildTreeData(parentId = 0) {
   const { rows } = await pool.query(
     `SELECT t.id, t.parent_id, t.name,
-      (SELECT COUNT(*) FROM dbo.tool_nom n WHERE n.parent_id = t.id) as element_count
+      (SELECT COUNT(*) FROM dbo.tool_nom n WHERE n.parent_id = t.id) as element_count,
+      (SELECT COUNT(*) FROM dbo.tool_nom n WHERE n.parent_id = t.id AND n.sklad > 0) as available_count
     FROM dbo.tool_tree t
     WHERE t.parent_id = $1`,
     [parentId]
   )
+
   const treeData = []
   for (const row of rows) {
     const children = await buildTreeData(row.id)
     const totalElements =
       children.reduce((acc, child) => acc + child.totalElements, 0) +
-      parseInt(row.element_count)
+      parseInt(row.element_count, 10)
+    const totalAvailable =
+      children.reduce((acc, child) => acc + child.totalAvailable, 0) +
+      parseInt(row.available_count, 10)
+
     treeData.push({
       id: row.id,
       label: row.name,
       elements: parseInt(row.element_count, 10),
-      totalElements: totalElements, // Общее количество элементов в поддереве
+      available: parseInt(row.available_count, 10),
+      totalElements: totalElements,
+      totalAvailable: totalAvailable, // Общее количество доступных элементов в поддереве
       nodes: children,
     })
   }
@@ -75,17 +94,6 @@ const addBranch = async (req, res) => {
   } catch (error) {
     console.error('Error adding new branch:', error)
     res.status(500).json({ message: `Error: ${error.message}` })
-  }
-}
-
-// Экспорт функции для получения дерева инструментов
-async function getToolsTree(req, res) {
-  try {
-    const tree = await buildTreeData()
-    res.json(tree)
-  } catch (error) {
-    console.error(error)
-    res.status(500).send(error.message)
   }
 }
 
