@@ -49,7 +49,14 @@
     </v-main>
   </v-app>
   <filling-table
-    v-bind="{ toolsTotalCount, formattedTools, filters, isLoading, paramsList }"
+    v-bind="{
+      toolsTotalCount,
+      formattedTools,
+      filters,
+      isLoading,
+      paramsList,
+      namespace: 'EditorToolStore',
+    }"
     @page-changed="onPageChanged"
     @page-limit-changed="onUpdateItemsPerPage"
     @changes-saved="fetchToolsByFilter"

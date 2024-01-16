@@ -27,7 +27,7 @@
       filters,
       isLoading,
       paramsList,
-      namespace: 'storageCatalogTool',
+      namespace: 'StorageToolStore',
     }"
     @page-changed="onPageChanged"
     @page-limit-changed="onUpdateItemsPerPage"
@@ -41,6 +41,7 @@ import TabMainTable from '@/modules/storage-tool/components/Table.vue'
 import { getTree } from '@/api'
 // import { normSpaces } from '@/modules/tool/components/normSpaces'
 import CatalogBreadcrumbs from '@/modules/tool/components/CatalogBreadcrumbs.vue'
+import StorageToolStore from '@/modules/storage-tool/store'
 
 export default {
   name: 'StorageCatalog',
@@ -78,7 +79,7 @@ export default {
     },
   },
   computed: {
-    ...mapGetters('storageCatalogTool', [
+    ...mapGetters('StorageToolStore', [
       'toolsTotalCount',
       'formattedTools',
       'filters',
@@ -88,12 +89,12 @@ export default {
   },
   methods: {
     // обновить IdParent
-    ...mapMutations('storageCatalogTool', [
+    ...mapMutations('StorageToolStore', [
       'updateIdParent',
       'setCurrentPage',
       'setItemsPerPage',
     ]),
-    ...mapActions('storageCatalogTool', ['fetchToolsByFilter']),
+    ...mapActions('StorageToolStore', ['fetchToolsByFilter']),
     async onPageChanged(page) {
       this.setCurrentPage(page)
       await this.fetchToolsByFilter()
