@@ -209,7 +209,8 @@ async function addTool(req, res) {
 
     // Добавляем поля sklad и norma в запрос
     const toolInsertResult = await pool.query(
-      'INSERT INTO dbo.tool_nom (name, parent_id, property, sklad, norma) VALUES ($1, $2, $3, $4, $5) RETURNING id',
+      'INSERT INTO dbo.tool_nom (name, parent_id, property, sklad, norma) ' +
+        'VALUES ($1, $2, $3, $4, $5) RETURNING id',
       [name, parent_id, propertyString, sklad, norma]
     )
 

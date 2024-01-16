@@ -97,13 +97,15 @@ async function saveToolHistory(req, res) {
     `
 
     // Выполняем запрос на вставку данных
-    const insertedData = await pool.query(insertQuery, [
-      specs_op_id,
-      id_user,
-      id_tool,
-      quantity,
-      date,
-    ])
+    // const insertedData = await pool.query(insertQuery, [
+    //   specs_op_id,
+    //   id_user,
+    //   id_tool,
+    //   quantity,
+    //   date,
+    // ])
+
+    console.log(insertedData.rows)
 
     // SQL запрос для обновления данных в таблице tool_nom
     const updateQuery = `
@@ -119,13 +121,16 @@ async function saveToolHistory(req, res) {
     const updatedSklad = await pool.query(selectQuery, [id_tool])
 
     // Отправляем эти данные обратно в ответе
-    res
-      .status(200)
-      .json({
-        success: 'OK',
-        data: insertedData,
-        updatedSklad: updatedSklad.rows[0].sklad,
-      })
+    res.status(200).json({
+      success: 'OK',
+      // data: insertedData.rows,
+      specs_op_id,
+      id_user,
+      id_tool,
+      quantity,
+      date,
+      updatedSklad: updatedSklad.rows[0].sklad,
+    })
   } catch (error) {
     console.error('Ошибка при сохранении истории инструмента:', error)
     res.status(500).send('Внутренняя ошибка сервера')
