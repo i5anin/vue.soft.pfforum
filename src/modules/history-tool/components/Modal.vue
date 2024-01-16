@@ -10,7 +10,11 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in historyData" :key="item.id">
+          <tr
+            v-for="item in historyData"
+            :key="item.id"
+            :class="{ 'bg-blue-darken-2': item.type === 'sum' }"
+          >
             <td v-for="header in headers" :key="header.value">
               <template v-if="header.value === 'date'">
                 {{ formatDate(item[header.value]) }}
@@ -67,7 +71,7 @@ export default {
   },
   methods: {
     formatDate(date) {
-      return format(parseISO(date), 'dd.MM.yyyy HH:mm:ss')
+      if (date) return format(parseISO(date), 'dd.MM.yyyy HH:mm:ss')
     },
     onCancel() {
       this.$emit('canceled')
@@ -83,5 +87,8 @@ export default {
 </script>
 
 <style>
-/* Add your CSS styles if needed */
+.sum {
+  background-color: #a41111; /* Или другой оттенок красного, который вам нужен */
+  color: white; /* Опционально, для лучшей читаемости текста */
+}
 </style>
