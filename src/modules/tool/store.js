@@ -65,7 +65,7 @@ export default {
     },
 
     async fetchToolsByFilter({ commit, state }) {
-      console.log('ОБЩИЙ VUEX')
+      console.log('ОБЩИЙ VUEX TOOL')
       commit('setIsLoading', true)
       const { currentPage, itemsPerPage, search, includeNull, selectedParams } =
         state.filters
