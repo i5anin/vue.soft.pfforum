@@ -95,7 +95,6 @@ async function saveToolHistory(req, res) {
       INSERT INTO dbo.tool_history_nom (specs_op_id, id_user, id_tool, quantity, date)
       VALUES ($1, $2, $3, $4, $5)
     `
-    console.log(insertedData.rows)
 
     // SQL запрос для обновления данных в таблице tool_nom
     const updateQuery = `
@@ -122,7 +121,22 @@ async function saveToolHistory(req, res) {
     })
   } catch (error) {
     console.error('Ошибка при сохранении истории инструмента:', error)
-    res.status(500).send('Внутренняя ошибка сервера')
+    res.status(500).json({
+      success: false,
+      message: 'Внутренняя ошибка сервера',
+      error: {
+        name: error.name, // Тип ошибки, например, "TypeError"
+        message: error.message, // Сообщение об ошибке
+        stack: error.stack, // Стек вызовов, который привел к ошибке
+      },
+      requestData: {
+        specs_op_id, // Переданные данные для лучшего понимания контекста
+        id_user,
+        id_tool,
+        quantity,
+        date,
+      },
+    })
   }
 }
 

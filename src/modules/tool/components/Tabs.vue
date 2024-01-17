@@ -30,6 +30,8 @@ import EditorCatalog from '@/modules/editor-tool/components/Catalog.vue'
 import StorageCatalog from '@/modules/storage-tool/components/Catalog.vue'
 import TabIssueCatalog from '@/modules/issue-tool/components/Catalog.vue'
 
+import Report from '@/modules/tool/components/tabs/Report.vue'
+
 // Ссылка на текущую выбранную вкладку
 const tab = ref('Каталог')
 
@@ -41,6 +43,6 @@ const tabs = [
   { name: 'Выдача', component: TabIssueCatalog },
   { name: 'Склад', component: StorageCatalog },
   { name: 'История', component: GiveTool },
-  { name: 'Отчёты' },
+  { name: 'Отчёты', component: Report },
 ]
 </script>
