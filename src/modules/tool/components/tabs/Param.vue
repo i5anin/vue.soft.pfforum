@@ -62,13 +62,9 @@
 </template>
 
 <script>
-import {
-  getToolParams,
-  updateToolParam,
-  addToolParam,
-  deleteToolParam,
-} from '@/api'
+import { getToolParams } from '@/api'
 import { normSpaces } from '@/modules/tool/components/normSpaces'
+import { toolParamApi } from '@/modules/tool/api/params'
 
 export default {
   data() {
@@ -121,7 +117,7 @@ export default {
           if (this.editingParam) {
             // Обновление существующего параметра
             const updatedParam = { info: normalizedParamInfo }
-            const result = await updateToolParam(
+            const result = await toolParamApi.updateToolParam(
               this.editingParam.id,
               updatedParam
             )
@@ -136,7 +132,9 @@ export default {
             }
           } else {
             // Добавление нового параметра
-            const newParam = await addToolParam({ info: normalizedParamInfo })
+            const newParam = await toolParamApi.addToolParam({
+              info: normalizedParamInfo,
+            })
             if (newParam && newParam.id) {
               this.toolParams.push(newParam)
             } else {
@@ -161,7 +159,7 @@ export default {
       )
       if (confirmDelete) {
         try {
-          await deleteToolParam(param.id)
+          await toolParamApi.deleteToolParam(param.id)
           const index = this.toolParams.indexOf(param)
           if (index > -1) {
             this.toolParams.splice(index, 1)
