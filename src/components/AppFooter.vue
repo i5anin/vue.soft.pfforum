@@ -9,6 +9,8 @@
 </template>
 
 <script>
+import { getDatabaseInfo } from '@/api/getDatabaseInfo'
+
 export default {
   name: 'AppFooter',
   data() {
