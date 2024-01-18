@@ -6,7 +6,7 @@ function handleResponse(response) {
   return response.data
 }
 
-function handleError(error) {
+function handleApiError(error) {
   if (error.response) {
     console.error('Ошибка от сервера:', error.response.data)
     console.error('Статус:', error.response.status)
@@ -25,5 +25,5 @@ export const detailApi = {
     axiosInstance
       .get('sklad/history', { params: { specs_op_id } })
       .then(handleResponse)
-      .catch(handleError),
+      .catch(handleApiError),
 }

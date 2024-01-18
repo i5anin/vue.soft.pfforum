@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { handleError } from '@/api/errorHandler'
+import { handleApiError } from '@/api/errorHandler'
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL || 'http://localhost:4000/api',
@@ -11,17 +11,17 @@ function handleResponse(response) {
 
 export const toolTreeApi = {
   getTree: async () =>
-    axiosInstance.get('/tools-tree').then(handleResponse).catch(handleError),
+    axiosInstance.get('/tools-tree').then(handleResponse).catch(handleApiError),
   addFolder: async (name, parentId) =>
     axiosInstance
       .post('/tools-tree', { name, parentId })
       .then(handleResponse)
-      .catch(handleError),
+      .catch(handleApiError),
   deleteFolder: async (itemId) =>
-    axiosInstance.delete(`/tools-tree/${itemId}`).catch(handleError),
+    axiosInstance.delete(`/tools-tree/${itemId}`).catch(handleApiError),
   renameFolder: async (id, newName) =>
     axiosInstance
       .put('/tools-tree', { id, newName })
       .then(handleResponse)
-      .catch(handleError),
+      .catch(handleApiError),
 }

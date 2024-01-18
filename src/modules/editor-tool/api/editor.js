@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { handleError } from '@/api/errorHandler'
+import { handleApiError } from '@/api/errorHandler'
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL || 'http://localhost:4000/api',
@@ -15,16 +15,19 @@ export const toolEditorApi = {
     axiosInstance
       .post('/tool', toolData)
       .then(handleResponse)
-      .catch(handleError),
+      .catch(handleApiError),
 
   // Удалить инструмент по ID
   deleteTool: async (id) =>
-    axiosInstance.delete(`/tool/${id}`).then(handleResponse).catch(handleError),
+    axiosInstance
+      .delete(`/tool/${id}`)
+      .then(handleResponse)
+      .catch(handleApiError),
 
   // Обновить существующий инструмент
   updateTool: async (id, toolData) =>
     axiosInstance
       .put(`/tool/${id}`, toolData)
       .then(handleResponse)
-      .catch(handleError),
+      .catch(handleApiError),
 }

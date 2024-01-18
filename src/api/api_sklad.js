@@ -22,13 +22,3 @@ export async function fetchToolHistory( //FIXME тут проблема
     return null
   }
 }
-
-export async function updateToolInventory(toolData) {
-  try {
-    const response = await axios.post(`${BASE_URL}/sklad/update`, toolData)
-    return response.data
-  } catch (error) {
-    console.error('Проблема с запросом на сервер:', error)
-    return null
-  }
-}

@@ -6,7 +6,7 @@ function handleResponse(response) {
   return response.data
 }
 
-function handleError(error) {
+function handleApiError(error) {
   if (error.response) {
     console.error('Ошибка от сервера:', error.response.data)
     console.error('Статус:', error.response.status)
@@ -23,19 +23,19 @@ function handleError(error) {
 export const detailApi = {
   //получить fio
   getDetailFio: async () =>
-    axiosInstance.get('detail/fio').then(handleResponse).catch(handleError),
+    axiosInstance.get('detail/fio').then(handleResponse).catch(handleApiError),
 
   //получить detail по id
   searchById: async (id) =>
     axiosInstance
       .get('detail/id', { params: { id } })
       .then(handleResponse)
-      .catch(handleError),
+      .catch(handleApiError),
 
   // Функция для отправки данных об инструменте
   addHistoryTool: async (toolData) =>
     axiosInstance
       .post('tool/history', toolData)
       .then(handleResponse)
-      .catch(handleError),
+      .catch(handleApiError),
 }

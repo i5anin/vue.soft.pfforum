@@ -89,8 +89,9 @@
 
 <script>
 import Modal from '@/components/shared/Modal.vue'
-import { getToolParams, updateToolInventory } from '@/api'
+import { getToolParams } from '@/api'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import { toolInventoryApi } from '@/modules/storage-tool/api/storage'
 
 export default {
   name: 'EditToolModal',
@@ -258,7 +259,7 @@ export default {
       try {
         let response
         if (this.toolId) {
-          response = await updateToolInventory(toolDataToSend)
+          response = await toolInventoryApi.updateToolInventory(toolDataToSend)
           console.log(response)
           if (response && response.success === 'OK') this.$emit('changes-saved')
         } else {
