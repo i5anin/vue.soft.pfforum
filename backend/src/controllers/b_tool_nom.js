@@ -65,7 +65,8 @@ async function getTools(req, res) {
              tool_nom.name,
              tool_nom.property,
              tool_nom.sklad,
-             tool_nom.norma
+             tool_nom.norma,
+             tool_nom.limit
       FROM dbo.tool_nom as tool_nom
       ${whereClause}
       ORDER BY tool_nom.id DESC
@@ -116,6 +117,7 @@ async function getTools(req, res) {
         property: formattedProperty,
         sklad: tool.sklad,
         norma: tool.norma,
+        limit: tool.limit,
       }
     })
 
