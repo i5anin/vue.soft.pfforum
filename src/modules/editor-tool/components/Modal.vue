@@ -191,7 +191,7 @@ export default {
     ]),
     ...mapState('EditorToolStore', ['idParent']),
     currentFolderName() {
-      return this.toolId === null ? this.idParent.label : this.tool.folder_name
+      // return this.toolId === null ? this.idParent.label : this.tool.folder_name
     },
     selectedParamsInfo() {
       return this.selectedParams
@@ -247,6 +247,7 @@ export default {
 
     confirmDelete() {
       if (window.confirm('Вы уверены, что хотите удалить этот инструмент?')) {
+        console.log('onDelete()')
         this.onDelete()
       }
     },
@@ -255,15 +256,20 @@ export default {
       if (id != null) {
         try {
           const response = await deleteTool(id)
-          if (response.result) {
-            this.$emit('changes-saved')
-            this.isModalVisible = false
+          // Проверяем, что ответ сервера содержит success: "OK"
+          if (response.success === 'OK') {
+            this.$emit('changes-saved') // Уведомляем родительский компонент об успешном удалении
+          } else {
+            console.error(
+              'Ошибка при удалении инструмента: ответ сервера не OK'
+            )
           }
         } catch (error) {
           console.error('Ошибка при удалении инструмента:', error)
         }
       }
     },
+
     onCancel() {
       this.$emit('canceled')
     },
@@ -281,13 +287,14 @@ export default {
           response = await addTool(toolDataToSend)
         }
         console.log(response, response.status)
+        // ---------
         if (response.success === 'OK') {
           this.$emit('changes-saved')
           await this.fetchToolsByFilter()
         } else {
           console.error('Ошибка при сохранении: ', response.data)
-          // Оставляем форму открытой для всех ошибок, кроме 200
         }
+        // ---------
       } catch (error) {
         console.error(
           'Ошибка при сохранении: ',
