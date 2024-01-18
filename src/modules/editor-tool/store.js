@@ -1,4 +1,5 @@
-import { addTool, getTools, getToolById } from '@/api'
+import { getTools, getToolById } from '@/api'
+import { toolEditorApi } from '@/modules/editor-tool/api/editor'
 
 export default {
   namespaced: true,
@@ -91,7 +92,7 @@ export default {
     async onSaveToolModel({ dispatch }, toolModel) {
       try {
         // Отправка данных на сервер
-        const result = await addTool({
+        const result = await toolEditorApi.addTool({
           name: toolModel.name,
           property: Object.fromEntries(
             Object.entries(toolModel.property).filter(

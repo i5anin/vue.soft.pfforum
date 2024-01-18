@@ -111,7 +111,8 @@
 
 <script>
 import Modal from '@/components/shared/Modal.vue'
-import { addTool, deleteTool, getToolParams, updateTool } from '@/api'
+import { getToolParams } from '@/api'
+import { toolEditorApi } from '../api/editor'
 import DeleteConfirmationDialog from '@/modules/tool/components/modal/DeleteConfirmationDialog.vue'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 
@@ -255,7 +256,7 @@ export default {
       const { id } = this.toolModel
       if (id != null) {
         try {
-          const response = await deleteTool(id)
+          const response = await toolEditorApi.deleteTool(id)
           if (response.success === 'OK') this.$emit('changes-saved')
         } catch (error) {
           console.error('Ошибка при удалении инструмента:', error)
@@ -275,9 +276,9 @@ export default {
       try {
         let response
         if (this.toolId) {
-          response = await updateTool(this.toolId, toolDataToSend)
+          response = await toolEditorApi.updateTool(this.toolId, toolDataToSend)
         } else {
-          response = await addTool(toolDataToSend)
+          response = await toolEditorApi.addTool(toolDataToSend)
         }
         console.log(response, response.status)
         if (response.success === 'OK') this.$emit('changes-saved')

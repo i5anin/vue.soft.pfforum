@@ -89,7 +89,7 @@
 
 <script>
 import Modal from '@/components/shared/Modal.vue'
-import { deleteTool, getToolParams, updateToolInventory } from '@/api'
+import { getToolParams, updateToolInventory } from '@/api'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 
 export default {

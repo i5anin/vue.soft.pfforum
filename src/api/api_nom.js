@@ -34,41 +34,6 @@ export async function getTools(
   }
 }
 
-// Добавить новый инструмент
-export async function addTool(toolData) {
-  try {
-    const response = await axios.post(`${BASE_URL}/tool`, toolData)
-    return response.data
-  } catch (error) {
-    console.error(
-      'There has been a problem with your fetch operation:',
-      error.response ? error.response.data : error.message
-    )
-    return null
-  }
-}
-// Удалить инструмент по ID
-export async function deleteTool(id) {
-  try {
-    const response = await axios.delete(`${BASE_URL}/tool/${id}`)
-    return response.data
-  } catch (error) {
-    console.error('There has been a problem with your fetch operation:', error)
-    return null
-  }
-}
-
-// Обновить существующий инструмент
-export async function updateTool(id, toolData) {
-  try {
-    const response = await axios.put(`${BASE_URL}/tool/${id}`, toolData)
-    return response.data
-  } catch (error) {
-    console.error('There has been a problem with your fetch operation:', error)
-    return null
-  }
-}
-
 export async function getToolById(id) {
   try {
     const response = await axios.get(`${BASE_URL}/tool/${id}`)

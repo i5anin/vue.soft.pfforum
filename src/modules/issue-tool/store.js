@@ -1,4 +1,4 @@
-import { addTool, getTools, getToolById } from '@/api'
+import { getTools, getToolById } from '@/api'
 
 export default {
   namespaced: true,
@@ -104,26 +104,6 @@ export default {
         console.error('getTools. Ошибка при получении данных:', error)
       } finally {
         commit('setIsLoading', false)
-      }
-    },
-
-    async onSaveToolModel({ dispatch }, toolModel) {
-      try {
-        // Отправка данных на сервер
-        const result = await addTool({
-          name: toolModel.name,
-          property: Object.fromEntries(
-            Object.entries(toolModel.property).filter(
-              ([, value]) => value != null
-            ) // {name: 'her',} -> ['name', 'her'] - преобразование данных
-          ),
-        })
-        if (result) {
-          dispatch('fetchToolsByFilter')
-          // localStorage.setItem('lastSavedToolModel', JSON.stringify(toolModel))
-        }
-      } catch (error) {
-        console.error('Ошибка при сохранении инструмента:', error)
       }
     },
   },
