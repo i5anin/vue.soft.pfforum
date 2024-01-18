@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import { getTree } from '@/api'
+import { toolTreeApi } from '@/modules/tool/api/tree'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import TabMainTable from '@/modules/issue-tool/components/Table.vue'
 import CatalogBreadcrumbs from '@/modules/tool/components/CatalogBreadcrumbs.vue'
@@ -102,7 +102,7 @@ export default {
       await this.fetchToolsByFilter()
     },
     async refreshTree() {
-      const updatedTree = await getTree()
+      const updatedTree = await toolTreeApi.getTree()
       this.tree = updatedTree
       // TODO: сделать нормальный поиск во вложенных node'ах
       const updatedCurrentItem = updatedTree.find(
@@ -160,7 +160,7 @@ export default {
     },
   },
   async created() {
-    const toolsTree = await getTree()
+    const toolsTree = await toolTreeApi.getTree()
     if (toolsTree && toolsTree.length > 0) {
       this.currentItem = toolsTree[0]
       this.tree.push(this.currentItem)

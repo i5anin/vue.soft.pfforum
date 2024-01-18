@@ -66,7 +66,7 @@
 <script>
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import FillingTable from '@/modules/editor-tool/components/Table.vue'
-import { addFolder, deleteFolder, getTree, renameFolder } from '@/api'
+import { toolTreeApi } from '@/modules/tool/api/tree'
 import { normSpaces } from '@/modules/tool/components/normSpaces'
 import CatalogBreadcrumbs from '@/modules/tool/components/CatalogBreadcrumbs.vue'
 
@@ -137,7 +137,7 @@ export default {
       const newName = this.editableLabel
 
       try {
-        const response = await renameFolder(itemId, newName)
+        const response = await toolTreeApi.renameFolder(itemId, newName)
         if (response && response.message) {
           alert('Элемент успешно переименован.')
           this.currentItem.label = newName // Обновляем название текущего элемента без перестроения всего дерева
@@ -157,7 +157,7 @@ export default {
       const itemId = this.currentItem.id
       if (confirm(`Уверены, что хотите удалить ${this.currentItem.label}?`)) {
         try {
-          await deleteFolder(itemId)
+          await toolTreeApi.deleteFolder(itemId)
           alert('Элемент успешно удален.')
 
           if (this.tree.length > 1) {
@@ -190,7 +190,10 @@ export default {
         console.log(`Введенное название папки: ${branchName}`) // Логирование введенного названия
 
         try {
-          const newBranch = await addFolder(branchName, this.currentItem.id)
+          const newBranch = await toolTreeApi.addFolder(
+            branchName,
+            this.currentItem.id
+          )
           // Создаем объект новой папки
           const newFolder = {
             id: newBranch.newBranchId,
@@ -208,7 +211,7 @@ export default {
     },
 
     async refreshTree() {
-      const updatedTree = await getTree()
+      const updatedTree = await toolTreeApi.getTree()
       this.tree = updatedTree
       // TODO: сделать нормальный поиск во вложенных node'ах
       const updatedCurrentItem = updatedTree.find(
@@ -266,7 +269,7 @@ export default {
     },
   },
   async created() {
-    const toolsTree = await getTree()
+    const toolsTree = await toolTreeApi.getTree()
     if (toolsTree && toolsTree.length > 0) {
       this.currentItem = toolsTree[0]
       this.tree.push(this.currentItem)
