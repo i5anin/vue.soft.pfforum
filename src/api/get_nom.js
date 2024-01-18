@@ -1,45 +1,33 @@
-import axios from 'axios'
+// Импорт общего экземпляра Axios и обработчиков ошибок
+import axiosInstance from '@/api/axiosConfig'
+import { handleApiError, handleResponse } from '@/api/errorHandler'
 
-const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:4000/api'
+export const toolApi = {
+  // Получить инструменты с фильтрацией и пагинацией
+  getTools: async (
+    search = '',
+    page = 1,
+    limit = 10,
+    includeNull = false,
+    parentId = null,
+    onlyInStock = true
+  ) => {
+    const params = { search, page, limit, includeNull, onlyInStock }
+    if (parentId !== null) {
+      params.parent_id = parentId
+    }
 
-export async function getDatabaseInfo() {
-  try {
-    const response = await axios.get(`${BASE_URL}/database-info`)
-    return response.data
-  } catch (error) {
-    console.error('Error fetching database info:', error)
-    throw error
-  }
-}
+    return axiosInstance
+      .get('/tools', { params })
+      .then(handleResponse)
+      .catch(handleApiError)
+  },
 
-export async function getTools(
-  search = '',
-  page = 1,
-  limit = 10,
-  includeNull = false,
-  parentId = null,
-  onlyInStock = true
-) {
-  const params = { search, page, limit, includeNull, onlyInStock }
-  if (parentId !== null) {
-    params.parent_id = parentId
-  }
-
-  try {
-    const response = await axios.get(`${BASE_URL}/tools`, { params })
-    response.data.totalCount = parseInt(response.data.totalCount, 10)
-    return response.data
-  } catch (error) {
-    console.error('There has been a problem with your fetch operation:', error)
-  }
-}
-
-export async function getToolById(id) {
-  try {
-    const response = await axios.get(`${BASE_URL}/tool/${id}`)
-    return response.data
-  } catch (error) {
-    console.error('Error fetching tool by ID:', error)
-    return null
-  }
+  // Получить инструмент по ID
+  getToolById: async (id) => {
+    return axiosInstance
+      .get(`/tool/${id}`)
+      .then(handleResponse)
+      .catch(handleApiError)
+  },
 }

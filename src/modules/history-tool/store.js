@@ -1,4 +1,4 @@
-import { getTools, getToolById } from '@/api'
+import { toolApi } from '@/api'
 
 export default {
   namespaced: true,
@@ -57,7 +57,7 @@ export default {
   actions: {
     async fetchToolById({ commit }, id) {
       try {
-        const tool = await getToolById(id)
+        const tool = await toolApi.getToolById(id)
         commit('setTool', tool)
       } catch (error) {
         console.error('Ошибка при загрузке инструмента:', error)
@@ -71,7 +71,7 @@ export default {
         state.filters
       const { id: parentId } = state.idParent
       try {
-        const { tools, totalCount, paramsList } = await getTools(
+        const { tools, totalCount, paramsList } = await toolApi.getTools(
           search,
           currentPage,
           itemsPerPage,
@@ -79,7 +79,7 @@ export default {
           parentId,
           selectedParams
         )
-        commit('setParamsList', paramsList) // Это данные, которые передаются в мутацию. Полученный из функции getTools
+        commit('setParamsList', paramsList)
         commit('setTools', tools) // Инструменты
         commit('setToolsTotalCount', totalCount) // Счетчик
       } catch (error) {

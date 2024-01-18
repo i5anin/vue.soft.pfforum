@@ -12,3 +12,7 @@ export function handleApiError(error) {
   console.error('Конфигурация запроса:', error.config)
   throw error
 }
+
+export async function handleResponse(response) {
+  return response.data
+}
