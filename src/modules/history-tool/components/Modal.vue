@@ -42,7 +42,7 @@
 
 <script>
 import Modal from '@/components/shared/Modal.vue'
-import { detailApi } from '../api/history'
+import { detailHistoryApi } from '../api/history'
 import { format, parseISO } from 'date-fns'
 
 export default {
@@ -77,7 +77,9 @@ export default {
       this.$emit('canceled')
     },
     async fetchHistoryData() {
-      this.historyData = await detailApi.historyToolById(this.specs_op_id)
+      this.historyData = await detailHistoryApi.historyToolById(
+        this.specs_op_id
+      )
     },
   },
   created() {

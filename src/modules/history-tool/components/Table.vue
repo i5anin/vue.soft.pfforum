@@ -32,8 +32,8 @@
 <script>
 import { VDataTableServer } from 'vuetify/labs/components'
 import { format, parseISO } from 'date-fns'
-import { fetchToolHistory } from '@/api'
 import EditToolModal from './Modal.vue'
+import { toolInventoryApi } from '@/modules/storage-tool/api/storage'
 
 export default {
   components: { EditToolModal, VDataTableServer },
@@ -76,7 +76,7 @@ export default {
       return format(parseISO(date), 'dd.MM.yyyy HH:mm:ss')
     },
     async fetchAndFormatToolHistory() {
-      const response = await fetchToolHistory(
+      const response = await toolInventoryApi.fetchToolHistory(
         '',
         this.filters.currentPage,
         this.filters.itemsPerPage
