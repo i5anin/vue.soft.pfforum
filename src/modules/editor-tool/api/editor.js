@@ -1,9 +1,5 @@
-import axios from 'axios'
 import { handleApiError } from '@/api/errorHandler'
-
-const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_BASE_URL || 'http://localhost:4000/api',
-})
+import axiosInstance from '@/api/axiosConfig'
 
 function handleResponse(response) {
   return response.data
