@@ -47,11 +47,6 @@
       <template v-slot:item.zakaz="{ item }">
         <span style="white-space: nowrap">{{ calculateOrder(item) }}</span>
       </template>
-      <template v-slot:item.actions="{ item }">
-        <v-btn color="primary" @click="(event) => onIssueTool(event, item)">
-          Выдать
-        </v-btn>
-      </template>
     </v-data-table-server>
   </v-container>
 </template>
