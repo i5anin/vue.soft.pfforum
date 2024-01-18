@@ -241,10 +241,8 @@ export default {
     },
 
     confirmDelete() {
-      if (window.confirm('Вы уверены, что хотите удалить этот инструмент?')) {
-        console.log('onDelete()')
+      if (window.confirm('Вы уверены, что хотите удалить этот инструмент?'))
         this.onDelete()
-      }
     },
     async onDelete() {
       const { id } = this.toolModel
