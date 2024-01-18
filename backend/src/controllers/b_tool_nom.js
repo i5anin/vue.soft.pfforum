@@ -69,7 +69,9 @@ async function getTools(req, res) {
              tool_nom.limit
       FROM dbo.tool_nom as tool_nom
       ${whereClause}
-      ORDER BY tool_nom.id DESC
+      ORDER BY
+        CASE WHEN tool_nom.sklad > 0 THEN 1 ELSE 2 END,
+        tool_nom.name
       LIMIT ${limit} OFFSET ${offset}
     `
 
