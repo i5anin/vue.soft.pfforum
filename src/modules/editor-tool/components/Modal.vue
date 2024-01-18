@@ -256,14 +256,7 @@ export default {
       if (id != null) {
         try {
           const response = await deleteTool(id)
-          // Проверяем, что ответ сервера содержит success: "OK"
-          if (response.success === 'OK') {
-            this.$emit('changes-saved') // Уведомляем родительский компонент об успешном удалении
-          } else {
-            console.error(
-              'Ошибка при удалении инструмента: ответ сервера не OK'
-            )
-          }
+          if (response.success === 'OK') this.$emit('changes-saved')
         } catch (error) {
           console.error('Ошибка при удалении инструмента:', error)
         }
@@ -287,14 +280,7 @@ export default {
           response = await addTool(toolDataToSend)
         }
         console.log(response, response.status)
-        // ---------
-        if (response.success === 'OK') {
-          this.$emit('changes-saved')
-          await this.fetchToolsByFilter()
-        } else {
-          console.error('Ошибка при сохранении: ', response.data)
-        }
-        // ---------
+        if (response.success === 'OK') this.$emit('changes-saved')
       } catch (error) {
         console.error(
           'Ошибка при сохранении: ',

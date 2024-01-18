@@ -260,17 +260,8 @@ export default {
         if (this.toolId) {
           response = await updateToolInventory(toolDataToSend)
           console.log(response)
-          if (response && response.success === 'OK') {
-            this.$emit('changes-saved')
-            await this.fetchToolsByFilter()
-          } else {
-            console.error(
-              'Ошибка при сохранении: ',
-              response ? response.data : 'No response'
-            )
-          }
+          if (response && response.success === 'OK') this.$emit('changes-saved')
         } else {
-          // Handle the case where toolId is not provided if necessary
           console.error('Tool ID is not provided')
         }
       } catch (error) {
