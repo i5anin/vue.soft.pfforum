@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { handleApiError } from '@/api/errorHandler'
 
 const axiosInstance = axios.create({ baseURL: import.meta.env.VITE_BASE_URL })
 
@@ -6,7 +7,7 @@ function handleResponse(response) {
   return response.data
 }
 
-export const detailApi = {
+export const issueToolApi = {
   //получить fio
   getDetailFio: async () =>
     axiosInstance.get('detail/fio').then(handleResponse).catch(handleApiError),

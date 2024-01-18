@@ -106,7 +106,7 @@
 <script>
 import Modal from '@/components/shared/Modal.vue'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import { detailApi } from '@/modules/issue-tool/api/detail'
+import { issueToolApi } from '@/modules/issue-tool/api/issue'
 
 export default {
   name: 'Issue-Modal',
@@ -169,7 +169,7 @@ export default {
   async created() {
     console.log('Вызов getDetailFio')
     try {
-      const fioData = await detailApi.getDetailFio()
+      const fioData = await issueToolApi.getDetailFio()
       this.fioOptions = this.prepareFioOptions(fioData)
     } catch (error) {
       console.error('Ошибка при загрузке данных ФИО:', error)
@@ -288,7 +288,7 @@ export default {
 
     async onIdChanged(newId) {
       try {
-        const result = await detailApi.searchById(newId)
+        const result = await issueToolApi.searchById(newId)
         this.originalData = result // Сохраняем исходные данные для последующего использования
         this.options.idNameDescription = this.formatToolOptions(result)
       } catch (error) {
@@ -347,7 +347,7 @@ export default {
         console.log('Отправка данных инструмента на сервер:', toolHistoryData)
 
         // Отправка данных истории инструмента
-        const response = await detailApi.addHistoryTool(toolHistoryData)
+        const response = await issueToolApi.addHistoryTool(toolHistoryData)
         console.log('Ответ сервера:', response)
 
         if (response.success === 'OK') {
