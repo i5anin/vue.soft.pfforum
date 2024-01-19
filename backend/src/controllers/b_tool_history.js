@@ -89,21 +89,21 @@ async function getToolHistory(req, res) {
 
     // Запрос для получения истории инструментов с учетом пагинации и группировки
     const dataQuery = `
-      SELECT sn.ID                                               AS id_part,
-             sn.NAME,
-             sn.description,
-             SUM(thn.quantity)                                   AS totalQuantity,
-             COUNT(thn.id)                                       AS recordsCount
-      FROM dbo.tool_history_nom thn
-             INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
-             INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
-      WHERE sn.status_p = 'П'
-        AND NOT sn.status_otgruzka
-        AND (POSITION('ЗАПРЕТ' IN UPPER(sn.comments)) = 0 OR sn.comments IS NULL)
-      GROUP BY sn.ID, sn.NAME, sn.description
-      ORDER BY sn.NAME, sn.description
-      LIMIT ${limit}
-      OFFSET ${offset};
+        SELECT sn.ID                                               AS id_part,
+               sn.NAME,
+               sn.description,
+               CAST(SUM(thn.quantity) AS INTEGER)                  AS totalQuantity,
+               CAST(COUNT(thn.id) AS INTEGER)                      AS recordsCount
+        FROM dbo.tool_history_nom thn
+               INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
+               INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
+        WHERE sn.status_p = 'П'
+          AND NOT sn.status_otgruzka
+          AND (POSITION('ЗАПРЕТ' IN UPPER(sn.comments)) = 0 OR sn.comments IS NULL)
+        GROUP BY sn.ID, sn.NAME, sn.description
+        ORDER BY sn.NAME, sn.description
+        LIMIT ${limit}
+        OFFSET ${offset};
     `
 
     const countResult = await pool.query(countQuery)
