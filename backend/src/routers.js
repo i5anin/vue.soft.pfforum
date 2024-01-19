@@ -6,7 +6,7 @@ const nomController = require('./controllers/b_tool_nom')
 const paramController = require('./controllers/b_tool_param')
 const treeController = require('./controllers/b_tool_tree')
 const skladController = require('./controllers/b_tool_sklad')
-const operController = require('./controllers/b_tool_oper')
+const operController = require('./controllers/b_tool_history')
 
 // Маршруты для аутентификации
 // router.post('/validate-user', loginController.validateUser)
