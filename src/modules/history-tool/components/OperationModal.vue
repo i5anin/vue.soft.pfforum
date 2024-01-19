@@ -11,10 +11,9 @@
         </thead>
         <tbody>
           <tr
-            v-for="item in historyData"
+            v-for="item in operationData"
             :key="item.id"
             :class="{ 'bg-blue-darken-2': item.type === 'sum' }"
-            @click="openOperationModal(item.no_oper)"
           >
             <td v-for="header in headers" :key="header.value">
               <template v-if="header.value === 'date'">
@@ -45,34 +44,29 @@
 import Modal from '@/components/shared/Modal.vue'
 import { detailHistoryApi } from '../api/history'
 import { format, parseISO } from 'date-fns'
-import OperationModal from './OperationModal.vue' // Импортируйте вторую модалку
 
 export default {
-  name: 'ToolModal',
+  name: 'OperationModal',
   components: {
     Modal,
-    OperationModal, // Добавьте вторую модалку в компоненты
   },
   props: {
-    id_part: { type: Number, default: null },
+    no_oper: { type: String, default: null },
   },
   data() {
     return {
       headers: [
         { title: 'Инструмент', value: 'name_tool' },
-        { title: 'Инструмент', value: 'name_tool' },
+        { title: 'ФИО', value: 'user_fio' },
         { title: 'Кол-во', value: 'quantity', width: '90px' },
         { title: 'Дата', value: 'date' },
-        { title: 'Операция', value: 'no_oper' },
       ],
-      historyData: [],
-      showOperationModal: false,
-      currentNoOper: null,
+      operationData: [],
     }
   },
   computed: {
     popupTitle() {
-      return `Инструмент затраченный на операцию: ${this.id_part}`
+      return `Операция: ${this.no_oper}`
     },
   },
   methods: {
@@ -82,28 +76,21 @@ export default {
     onCancel() {
       this.$emit('canceled')
     },
-    openOperationModal(no_oper) {
-      this.currentNoOper = no_oper
-      this.showOperationModal = true
-    },
-    closeOperationModal() {
-      this.showOperationModal = false
-    },
-    async fetchHistoryData() {
-      this.historyData = await detailHistoryApi.fetchHistoryByPartId(
-        this.id_part
+    async fetchOperationData() {
+      this.operationData = await detailHistoryApi.fetchHistoryByOperationId(
+        this.no_oper
       )
     },
   },
   created() {
-    this.fetchHistoryData()
+    this.fetchOperationData()
   },
 }
 </script>
 
 <style>
 .sum {
-  background-color: #a41111; /* Или другой оттенок красного, который вам нужен */
-  color: white; /* Опционально, для лучшей читаемости текста */
+  background-color: #a41111;
+  color: white;
 }
 </style>

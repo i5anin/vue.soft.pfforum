@@ -14,6 +14,12 @@ export const detailHistoryApi = {
       .then(handleResponse)
       .catch(handleApiError),
 
+  fetchHistoryByPartId: async (partId) =>
+    axiosInstance
+      .get(`/history-part`, { params: { id_part: partId } })
+      .then(handleResponse)
+      .catch(handleApiError),
+
   // Получить историю инструмента
   fetchToolHistory: async (
     search = '',

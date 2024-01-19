@@ -37,7 +37,7 @@ router.get('/history', historyController.getToolHistory)
 router.post('/history', historyController.saveToolHistory)
 
 router.get('/history-part', historyController.getToolHistoryByPartId)
-router.get('/test', historyController.getToolTest)
+// router.get('/test', historyController.getToolTest)
 //sklad
 router.post('/sklad/update', skladController.updateToolInventory)
 

@@ -3,7 +3,7 @@
     <edit-tool-modal
       v-if="openDialog"
       :persistent="true"
-      :specs_op_id="editingToolId"
+      :id_part="editingToolId"
       @canceled="onClosePopup"
       @changes-saved="onSaveChanges"
     />
@@ -33,7 +33,6 @@
 import { VDataTableServer } from 'vuetify/labs/components'
 import { format, parseISO } from 'date-fns'
 import EditToolModal from './Modal.vue'
-import { toolInventoryApi } from '@/modules/storage-tool/api/storage'
 import { detailHistoryApi } from '@/modules/history-tool/api/history'
 
 export default {
@@ -87,7 +86,7 @@ export default {
       this.openDialog = false
     },
     onInfoRow(event, { item: tool }) {
-      this.editingToolId = tool.specs_op_id
+      this.editingToolId = tool.id_part
       this.openDialog = true
     },
     onSaveChanges() {
