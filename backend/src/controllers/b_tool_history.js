@@ -76,7 +76,7 @@ async function getToolHistory(req, res) {
     const limit = parseInt(req.query.limit || 15, 10)
     const offset = (page - 1) * limit
 
-    // Запрос для подсчета общего количества записей
+    // Запрос для подсчета общего количества уникальных id_part
     const countQuery = `
       SELECT COUNT(DISTINCT sn.ID)
       FROM dbo.tool_history_nom thn
@@ -87,24 +87,26 @@ async function getToolHistory(req, res) {
         AND (POSITION('ЗАПРЕТ' IN UPPER(sn.comments)) = 0 OR sn.comments IS NULL);
     `
 
-    // Запрос для получения истории инструментов с учетом пагинации и группировки
+    // Запрос для получения агрегированных данных истории инструментов
     const dataQuery = `
-        SELECT sn.ID                                               AS id_part,
-               sn.NAME,
-               sn.description,
-               CAST(SUM(thn.quantity) AS INTEGER)                  AS totalQuantity,
-               CAST(COUNT(thn.id) AS INTEGER)                      AS recordsCount
-        FROM dbo.tool_history_nom thn
-               INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
-               INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
-        WHERE sn.status_p = 'П'
-          AND NOT sn.status_otgruzka
-          AND (POSITION('ЗАПРЕТ' IN UPPER(sn.comments)) = 0 OR sn.comments IS NULL)
-        GROUP BY sn.ID, sn.NAME, sn.description
-        ORDER BY sn.NAME, sn.description
-        LIMIT ${limit}
-        OFFSET ${offset};
-    `
+  SELECT
+    sn.ID AS id_part,
+    sn.NAME,
+    sn.description,
+    CAST(SUM(thn.quantity) AS INTEGER) AS quantity,
+    CAST(COUNT(*) AS INTEGER) AS recordscount,
+    MIN(thn.date) AS date
+  FROM dbo.tool_history_nom thn
+         INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
+         INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
+  WHERE sn.status_p = 'П'
+    AND NOT sn.status_otgruzka
+    AND (POSITION('ЗАПРЕТ' IN UPPER(sn.comments)) = 0 OR sn.comments IS NULL)
+  GROUP BY sn.ID, sn.NAME, sn.description
+  ORDER BY MIN(thn.date) DESC, sn.NAME, sn.description 
+  LIMIT ${limit}
+  OFFSET ${offset};
+`
 
     const countResult = await pool.query(countQuery)
     const dataResult = await pool.query(dataQuery)
@@ -113,7 +115,12 @@ async function getToolHistory(req, res) {
       currentPage: page,
       itemsPerPage: limit,
       totalCount: parseInt(countResult.rows[0].count, 10),
-      toolsHistory: dataResult.rows,
+      toolsHistory: dataResult.rows.map((row) => ({
+        ...row,
+        quantity: parseInt(row.quantity, 10), // Преобразование к числу
+        recordscount: parseInt(row.recordscount, 10), // Преобразование к числу
+        date: row.date, // Дата начала использования
+      })),
     })
   } catch (err) {
     console.error('Error executing query', err.stack)

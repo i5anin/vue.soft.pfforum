@@ -69,7 +69,7 @@ export default {
       await this.fetchAndFormatToolHistory()
     },
     formatDate(date) {
-      return format(parseISO(date), 'dd.MM.yyyy HH:mm:ss')
+      return format(parseISO(date), 'dd.MM.yyyy')
     },
     async fetchAndFormatToolHistory() {
       const response = await detailHistoryApi.fetchToolHistory(
