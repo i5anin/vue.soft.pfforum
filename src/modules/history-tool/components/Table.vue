@@ -48,16 +48,11 @@ export default {
       editingToolId: null,
       totalCount: 0,
       headers: [
-        // { title: 'Операция', value: 'specs_op_id', sortable: false },
-        { title: 'ID', value: 'id', sortable: false },
+        { title: 'ID партии', value: 'id', sortable: false },
         { title: 'Название', value: 'name', sortable: false, width: '300px' },
         { title: 'Обозначение', value: 'description', sortable: false },
-        { title: 'Номер операции', value: 'no_oper', sortable: false },
-        { title: 'Тип операции', value: 'type_oper', sortable: false },
-        { title: 'Кол-во', value: 'quantity', sortable: false, width: '80px' },
-        { title: 'ФИО', value: 'user_fio', sortable: false, width: '150px' },
         { title: 'Дата', value: 'date', sortable: false },
-        { title: 'Инструмент', value: 'name_tool', sortable: false },
+        { title: 'Кол-во', value: 'quantity', sortable: false, width: '80px' },
       ],
     }
   },
