@@ -7,6 +7,7 @@ const paramController = require('./controllers/b_tool_param')
 const treeController = require('./controllers/b_tool_tree')
 const skladController = require('./controllers/b_tool_sklad')
 const historyController = require('./controllers/b_tool_history')
+const issueController = require('./controllers/b_tool_issue')
 
 // Маршруты для аутентификации
 // router.post('/validate-user', loginController.validateUser)
@@ -25,18 +26,21 @@ router.post('/tools-params', paramController.addToolParam)
 router.put('/tools-params/:id', paramController.updateToolParam)
 router.delete('/tools-params/:id', paramController.deleteToolParam)
 
-// Маршруты для дерева инструментов
+// tree
 router.get('/tools-tree', treeController.getToolsTree)
 router.post('/tools-tree', treeController.addBranch)
 router.put('/tools-tree', treeController.updateFolderTree)
 router.delete('/tools-tree/:id', treeController.dellFolderTree)
-
-router.get('/detail/id', historyController.findDetailProduction)
-router.get('/operators/fio', historyController.getFioOperators)
+//issue
+router.get('/detail/id', issueController.findDetailProduction)
+router.get('/operators/fio', issueController.getFioOperators)
+//history
 router.get('/history/:id', historyController.getToolHistoryId)
 router.get('/history', historyController.getToolHistory)
 router.post('/history', historyController.saveToolHistory)
-
+router.get('/history/part', historyController.getToolHistoryByPartId)
+router.get('/test', historyController.getToolTest)
+//sklad
 router.post('/sklad/update', skladController.updateToolInventory)
 
 module.exports = router

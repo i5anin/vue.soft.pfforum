@@ -103,7 +103,7 @@ async function getToolHistory(req, res) {
     AND NOT sn.status_otgruzka
     AND (POSITION('ЗАПРЕТ' IN UPPER(sn.comments)) = 0 OR sn.comments IS NULL)
   GROUP BY sn.ID, sn.NAME, sn.description
-  ORDER BY MIN(thn.date) DESC, sn.NAME, sn.description 
+  ORDER BY MIN(thn.date) DESC, sn.NAME, sn.description
   LIMIT ${limit}
   OFFSET ${offset};
 `
@@ -198,6 +198,68 @@ async function getToolHistoryId(req, res) {
   }
 }
 
+async function getToolHistoryByPartId(req, res) {
+  console.log('req.query.id_part=', req.query.id_part)
+  try {
+    const idPart = parseInt(req.query.id_part, 10) // Преобразуем в число
+    console.log('idPart=', idPart)
+
+    if (isNaN(idPart)) {
+      return res.status(400).send('ID партии должен быть числом')
+    }
+
+    // Запрос для получения истории операций по id_part
+    const operationsQuery = `
+      SELECT
+        sno.id AS specs_op_id,
+        sn.ID AS id_part,
+        sn.NAME,
+        sn.description,
+        oon.no AS no_oper,
+        dbo.get_full_cnc_type(dbo.get_op_type_code(sno.ID)) AS type_oper,
+        thn.quantity,
+        o.fio AS user_fio,
+        thn.id_user,
+        thn.date,
+        tn.name AS name_tool,
+        thn.id_tool
+      FROM dbo.tool_history_nom thn
+             INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
+             INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
+             INNER JOIN dbo.operations_ordersnom oon ON oon.op_id = sno.ordersnom_op_id
+             INNER JOIN dbo.operators o ON thn.id_user = o.id
+             INNER JOIN dbo.tool_nom tn ON thn.id_tool = tn.id
+      WHERE sn.ID = $1
+      ORDER BY thn.date DESC;
+    `
+
+    // Запрос для получения информации о затраченных инструментах в этой партии
+    const toolsQuery = `
+      SELECT
+        thn.id_tool,
+        tn.name AS name_tool,
+        SUM(thn.quantity) AS total_quantity
+      FROM dbo.tool_history_nom thn
+             INNER JOIN dbo.tool_nom tn ON thn.id_tool = tn.id
+             INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
+             INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
+      WHERE sn.ID = $1
+      GROUP BY thn.id_tool, tn.name;
+    `
+
+    const operationsResult = await pool.query(operationsQuery, [idPart])
+    const toolsResult = await pool.query(toolsQuery, [idPart])
+
+    res.json({
+      operations: operationsResult.rows,
+      toolsUsed: toolsResult.rows,
+    })
+  } catch (err) {
+    console.error('Error executing query', err.stack)
+    res.status(500).send('Ошибка при выполнении запроса')
+  }
+}
+
 async function saveToolHistory(req, res) {
   try {
     // Извлекаем данные из тела запроса
@@ -257,21 +319,77 @@ async function saveToolHistory(req, res) {
         message: error.message, // Сообщение об ошибке
         stack: error.stack, // Стек вызовов, который привел к ошибке
       },
-      requestData: {
-        specs_op_id, // Переданные данные для лучшего понимания контекста
-        id_user,
-        id_tool,
-        quantity,
-        date,
-      },
+      requestData: { specs_op_id, id_user, id_tool, quantity, date },
     })
   }
 }
 
+async function getToolTest(req, res) {
+  try {
+    // Параметры пагинации
+    const page = parseInt(req.query.page || 1, 10)
+    const limit = parseInt(req.query.limit || 15, 10)
+    const offset = (page - 1) * limit
+
+    // Запрос для подсчета общего количества записей
+    const countQuery = `
+      SELECT COUNT(*)
+      FROM dbo.tool_history_nom thn
+             INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
+             INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
+      WHERE sn.status_p = 'П'
+        AND NOT sn.status_otgruzka
+        AND (POSITION('ЗАПРЕТ' IN UPPER(sn.comments)) = 0 OR sn.comments IS NULL);
+    `
+
+    // Запрос для получения истории инструментов с учетом пагинации
+    const dataQuery = `
+      SELECT thn.specs_op_id                                     AS specs_op_id,
+             sn.ID                                               AS id_part,
+             sn.NAME,
+             sn.description,
+             oon.no                                              AS no_oper,
+             dbo.get_full_cnc_type(dbo.get_op_type_code(sno.ID)) AS type_oper,
+             thn.quantity,
+             tn.name                                             AS name_tool,
+             thn.id_tool,
+             thn.date
+      FROM dbo.tool_history_nom thn
+             INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
+             INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
+             INNER JOIN dbo.operations_ordersnom oon ON oon.op_id = sno.ordersnom_op_id
+             INNER JOIN dbo.operators o ON thn.id_user = o.id
+             INNER JOIN dbo.tool_nom tn ON thn.id_tool = tn.id
+      WHERE sn.status_p = 'П'
+        AND NOT sn.status_otgruzka
+        AND (POSITION('ЗАПРЕТ' IN UPPER(sn.comments)) = 0 OR sn.comments IS NULL)
+      ORDER BY thn.date DESC, sn.NAME, sn.description, oon.no::INT
+      LIMIT ${limit}
+      OFFSET ${offset};
+    `
+    // tn.property
+
+    // Выполнение запросов
+    const countResult = await pool.query(countQuery)
+    const dataResult = await pool.query(dataQuery)
+
+    // Отправка результата
+    res.json({
+      currentPage: page,
+      itemsPerPage: limit,
+      totalCount: parseInt(countResult.rows[0].count, 10),
+      toolsHistory: dataResult.rows,
+    })
+  } catch (err) {
+    console.error('Error executing query', err.stack)
+    res.status(500).send('Ошибка при выполнении запроса')
+  }
+}
+
 module.exports = {
-  findDetailProduction,
-  getFioOperators,
   saveToolHistory,
   getToolHistoryId,
   getToolHistory,
+  getToolHistoryByPartId,
+  getToolTest,
 }
