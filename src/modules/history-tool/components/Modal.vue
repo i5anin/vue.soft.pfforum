@@ -3,27 +3,28 @@
     <template #content>
       <v-table class="elevation-1">
         <thead>
-        <tr>
-          <th v-for="header in headers" :key="header.value" class="text-left">
-            {{ header.title }}
-          </th>
-        </tr>
+          <tr>
+            <th v-for="header in headers" :key="header.value" class="text-left">
+              {{ header.title }}
+            </th>
+          </tr>
         </thead>
         <tbody>
-        <tr
-          v-for="(items, no_oper) in groupedHistoryData"
-          :key="no_oper"
-          @click="openOperationModal(no_oper)"
-        >
-          <td v-for="item in items" :key="item.id">
-            <template v-if="header.value === 'date'">
-              {{ formatDate(item.date) }}
-            </template>
-            <template v-else>
-              {{ item[header.value] }}
-            </template>
-          </td>
-        </tr>
+          <tr
+            v-for="item in historyData"
+            :key="item.id"
+            :class="{ 'bg-blue-darken-2': item.type === 'sum' }"
+            @click="openOperationModal(item.no_oper)"
+          >
+            <td v-for="header in headers" :key="header.value">
+              <template v-if="header.value === 'date'">
+                {{ formatDate(item[header.value]) }}
+              </template>
+              <template v-else>
+                {{ item[header.value] }}
+              </template>
+            </td>
+          </tr>
         </tbody>
       </v-table>
     </template>
@@ -44,13 +45,13 @@
 import Modal from '@/components/shared/Modal.vue'
 import { detailHistoryApi } from '../api/history'
 import { format, parseISO } from 'date-fns'
-import OperationModal from './OperationModal.vue'
+import OperationModal from './OperationModal.vue' // Импортируйте вторую модалку
 
 export default {
-  name: 'OperationModal',
+  name: 'ToolModal',
   components: {
     Modal,
-    OperationModal,
+    OperationModal, // Добавьте вторую модалку в компоненты
   },
   props: {
     id_part: { type: Number, default: null },
@@ -59,12 +60,12 @@ export default {
     return {
       headers: [
         { title: 'Инструмент', value: 'name_tool' },
+        { title: 'Инструмент', value: 'name_tool' },
         { title: 'Кол-во', value: 'quantity', width: '90px' },
         { title: 'Дата', value: 'date' },
         { title: 'Операция', value: 'no_oper' },
       ],
       historyData: [],
-      groupedHistoryData: {},
       showOperationModal: false,
       currentNoOper: null,
     }
@@ -88,20 +89,10 @@ export default {
     closeOperationModal() {
       this.showOperationModal = false
     },
-    groupByNoOper(data) {
-      return data.reduce((acc, item) => {
-        const key = item.no_oper
-        if (!acc[key]) {
-          acc[key] = []
-        }
-        acc[key].push(item)
-        return acc
-      }, {})
-    },
     async fetchHistoryData() {
-      const data = await detailHistoryApi.fetchHistoryByPartId(this.id_part)
-      this.historyData = data
-      this.groupedHistoryData = this.groupByNoOper(data)
+      this.historyData = await detailHistoryApi.fetchHistoryByPartId(
+        this.id_part
+      )
     },
   },
   created() {
@@ -112,7 +103,7 @@ export default {
 
 <style>
 .sum {
-  background-color: #a41111;
-  color: white;
+  background-color: #a41111; /* Или другой оттенок красного, который вам нужен */
+  color: white; /* Опционально, для лучшей читаемости текста */
 }
 </style>
