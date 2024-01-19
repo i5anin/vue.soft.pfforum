@@ -6,7 +6,7 @@ const nomController = require('./controllers/b_tool_nom')
 const paramController = require('./controllers/b_tool_param')
 const treeController = require('./controllers/b_tool_tree')
 const skladController = require('./controllers/b_tool_sklad')
-const operController = require('./controllers/b_tool_history')
+const historyController = require('./controllers/b_tool_history')
 
 // Маршруты для аутентификации
 // router.post('/validate-user', loginController.validateUser)
@@ -31,12 +31,12 @@ router.post('/tools-tree', treeController.addBranch)
 router.put('/tools-tree', treeController.updateFolderTree)
 router.delete('/tools-tree/:id', treeController.dellFolderTree)
 
-router.get('/detail/id', operController.findDetailProduction)
-router.get('/operators/fio', operController.getFioOperators)
-router.post('/tool/history', operController.saveToolHistory)
+router.get('/detail/id', historyController.findDetailProduction)
+router.get('/operators/fio', historyController.getFioOperators)
+router.get('/history/:id', historyController.getToolHistoryId)
+router.get('/history', historyController.getToolHistory)
+router.post('/history', historyController.saveToolHistory)
 
-router.get('/sklad', skladController.getToolHistory)
 router.post('/sklad/update', skladController.updateToolInventory)
-// router.get('/sklad/id', skladController.getToolHistoryId)
 
 module.exports = router

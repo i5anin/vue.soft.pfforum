@@ -10,7 +10,7 @@ function handleResponse(response) {
 export const detailHistoryApi = {
   historyToolById: async (specs_op_id) =>
     axiosInstance
-      .get('sklad/history', { params: { specs_op_id } })
+      .get(`/history/${specs_op_id}`)
       .then(handleResponse)
       .catch(handleApiError),
 
@@ -28,7 +28,7 @@ export const detailHistoryApi = {
     }
 
     return axiosInstance
-      .get('/sklad', { params })
+      .get('/history', { params })
       .then(handleResponse)
       .catch(handleApiError)
   },
