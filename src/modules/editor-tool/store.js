@@ -100,10 +100,7 @@ export default {
             ) // {name: 'her',} -> ['name', 'her'] - преобразование данных
           ),
         })
-        if (result) {
-          dispatch('fetchToolsByFilter')
-          // localStorage.setItem('lastSavedToolModel', JSON.stringify(toolModel))
-        }
+        if (result) dispatch('fetchToolsByFilter')
       } catch (error) {
         console.error('Ошибка при сохранении инструмента:', error)
       }
