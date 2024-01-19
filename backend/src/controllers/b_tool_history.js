@@ -199,16 +199,11 @@ async function getToolHistoryId(req, res) {
 }
 
 async function getToolHistoryByPartId(req, res) {
-  console.log('req.query.id_part=', req.query.id_part)
   try {
-    const idPart = parseInt(req.query.id_part, 10) // Преобразуем в число
-    console.log('idPart=', idPart)
+    console.log('Received id_part:', req.query.id_part)
+    const idPart = req.query.id_part
 
-    if (isNaN(idPart)) {
-      return res.status(400).send('ID партии должен быть числом')
-    }
-
-    // Запрос для получения истории операций по id_part
+    // Запрос для получения всех операций, связанных с id_part
     const operationsQuery = `
       SELECT
         sno.id AS specs_op_id,
@@ -224,36 +219,23 @@ async function getToolHistoryByPartId(req, res) {
         tn.name AS name_tool,
         thn.id_tool
       FROM dbo.tool_history_nom thn
-             INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
-             INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
-             INNER JOIN dbo.operations_ordersnom oon ON oon.op_id = sno.ordersnom_op_id
-             INNER JOIN dbo.operators o ON thn.id_user = o.id
-             INNER JOIN dbo.tool_nom tn ON thn.id_tool = tn.id
+        INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
+        INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
+        INNER JOIN dbo.operations_ordersnom oon ON oon.op_id = sno.ordersnom_op_id
+        INNER JOIN dbo.operators o ON thn.id_user = o.id
+        INNER JOIN dbo.tool_nom tn ON thn.id_tool = tn.id
       WHERE sn.ID = $1
       ORDER BY thn.date DESC;
     `
-
-    // Запрос для получения информации о затраченных инструментах в этой партии
-    const toolsQuery = `
-      SELECT
-        thn.id_tool,
-        tn.name AS name_tool,
-        SUM(thn.quantity) AS total_quantity
-      FROM dbo.tool_history_nom thn
-             INNER JOIN dbo.tool_nom tn ON thn.id_tool = tn.id
-             INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
-             INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
-      WHERE sn.ID = $1
-      GROUP BY thn.id_tool, tn.name;
-    `
-
+    console.log('Executing query for idPart:', idPart)
     const operationsResult = await pool.query(operationsQuery, [idPart])
-    const toolsResult = await pool.query(toolsQuery, [idPart])
 
-    res.json({
-      operations: operationsResult.rows,
-      toolsUsed: toolsResult.rows,
-    })
+    if (operationsResult.rows.length === 0) {
+      console.log(`No operations found for idPart: ${idPart}`)
+      return res.status(404).send('Операции для данной партии не найдены')
+    }
+
+    res.json(operationsResult.rows)
   } catch (err) {
     console.error('Error executing query', err.stack)
     res.status(500).send('Ошибка при выполнении запроса')
