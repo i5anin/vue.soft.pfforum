@@ -200,7 +200,7 @@ async function getToolHistoryId(req, res) {
 
 async function getToolHistoryByPartId(req, res) {
   try {
-    console.log('Received id_part:', req.query.id_part)
+    // console.log('Received id_part:', req.query.id_part)
     const idPart = req.query.id_part
 
     // Запрос для получения всех операций, связанных с id_part
@@ -227,7 +227,7 @@ async function getToolHistoryByPartId(req, res) {
       WHERE sn.ID = $1
       ORDER BY thn.date DESC;
     `
-    console.log('Executing query for idPart:', idPart)
+    // console.log('Executing query for idPart:', idPart)
     const operationsResult = await pool.query(operationsQuery, [idPart])
 
     if (operationsResult.rows.length === 0) {
