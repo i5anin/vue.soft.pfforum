@@ -72,14 +72,13 @@ async function getFioOperators(req, res) {
 
 async function getToolHistory(req, res) {
   try {
-    // Параметры пагинации
     const page = parseInt(req.query.page || 1, 10)
     const limit = parseInt(req.query.limit || 15, 10)
     const offset = (page - 1) * limit
 
     // Запрос для подсчета общего количества записей
     const countQuery = `
-      SELECT COUNT(*)
+      SELECT COUNT(DISTINCT sn.ID)
       FROM dbo.tool_history_nom thn
              INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
              INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
@@ -88,40 +87,28 @@ async function getToolHistory(req, res) {
         AND (POSITION('ЗАПРЕТ' IN UPPER(sn.comments)) = 0 OR sn.comments IS NULL);
     `
 
-    // Запрос для получения истории инструментов с учетом пагинации
+    // Запрос для получения истории инструментов с учетом пагинации и группировки
     const dataQuery = `
-      SELECT thn.specs_op_id                                     AS specs_op_id,
-             sn.ID                                               AS id_part,
+      SELECT sn.ID                                               AS id_part,
              sn.NAME,
              sn.description,
-             oon.no                                              AS no_oper,
-             dbo.get_full_cnc_type(dbo.get_op_type_code(sno.ID)) AS type_oper,
-             thn.quantity,
-             o.fio                                               AS user_fio,
-             thn.id_user,
-             tn.name                                             AS name_tool,
-             thn.id_tool,
-             thn.date
+             SUM(thn.quantity)                                   AS totalQuantity,
+             COUNT(thn.id)                                       AS recordsCount
       FROM dbo.tool_history_nom thn
              INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
              INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
-             INNER JOIN dbo.operations_ordersnom oon ON oon.op_id = sno.ordersnom_op_id
-             INNER JOIN dbo.operators o ON thn.id_user = o.id
-             INNER JOIN dbo.tool_nom tn ON thn.id_tool = tn.id
       WHERE sn.status_p = 'П'
         AND NOT sn.status_otgruzka
         AND (POSITION('ЗАПРЕТ' IN UPPER(sn.comments)) = 0 OR sn.comments IS NULL)
-      ORDER BY thn.date DESC, sn.NAME, sn.description, oon.no::INT
+      GROUP BY sn.ID, sn.NAME, sn.description
+      ORDER BY sn.NAME, sn.description
       LIMIT ${limit}
       OFFSET ${offset};
     `
-    // tn.property
 
-    // Выполнение запросов
     const countResult = await pool.query(countQuery)
     const dataResult = await pool.query(dataQuery)
 
-    // Отправка результата
     res.json({
       currentPage: page,
       itemsPerPage: limit,

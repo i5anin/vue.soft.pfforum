@@ -52,12 +52,7 @@ export default {
         { title: 'Название', value: 'name', sortable: false, width: '300px' },
         { title: 'Обозначение', value: 'description', sortable: false },
         { title: 'Дата', value: 'date', sortable: false },
-        {
-          title: 'Кол-во сумм',
-          value: 'quantity',
-          sortable: false,
-          width: '80px',
-        },
+        { title: 'Кол-во', value: 'quantity', sortable: false, width: '80px' },
       ],
     }
   },
