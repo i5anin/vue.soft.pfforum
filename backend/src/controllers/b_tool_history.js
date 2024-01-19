@@ -91,7 +91,7 @@ async function getToolHistory(req, res) {
     // Запрос для получения истории инструментов с учетом пагинации
     const dataQuery = `
       SELECT thn.specs_op_id                                     AS specs_op_id,
-             sn.ID                                               AS ID,
+             sn.ID                                               AS id_part,
              sn.NAME,
              sn.description,
              oon.no                                              AS no_oper,
@@ -99,10 +99,9 @@ async function getToolHistory(req, res) {
              thn.quantity,
              o.fio                                               AS user_fio,
              thn.id_user,
-             thn.date,
-             thn.id_tool,
              tn.name                                             AS name_tool,
-             tn.property
+             thn.id_tool,
+             thn.date
       FROM dbo.tool_history_nom thn
              INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
              INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
@@ -116,6 +115,7 @@ async function getToolHistory(req, res) {
       LIMIT ${limit}
       OFFSET ${offset};
     `
+    // tn.property
 
     // Выполнение запросов
     const countResult = await pool.query(countQuery)

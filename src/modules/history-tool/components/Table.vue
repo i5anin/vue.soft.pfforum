@@ -48,11 +48,16 @@ export default {
       editingToolId: null,
       totalCount: 0,
       headers: [
-        { title: 'ID партии', value: 'id', sortable: false },
+        { title: 'ID партии', value: 'id_part', sortable: false },
         { title: 'Название', value: 'name', sortable: false, width: '300px' },
         { title: 'Обозначение', value: 'description', sortable: false },
         { title: 'Дата', value: 'date', sortable: false },
-        { title: 'Кол-во', value: 'quantity', sortable: false, width: '80px' },
+        {
+          title: 'Кол-во сумм',
+          value: 'quantity',
+          sortable: false,
+          width: '80px',
+        },
       ],
     }
   },
