@@ -10,7 +10,10 @@ function handleResponse(response) {
 export const issueToolApi = {
   //получить fio
   getDetailFio: async () =>
-    axiosInstance.get('detail/fio').then(handleResponse).catch(handleApiError),
+    axiosInstance
+      .get('operators/fio')
+      .then(handleResponse)
+      .catch(handleApiError),
 
   //получить detail по id
   searchById: async (id) =>

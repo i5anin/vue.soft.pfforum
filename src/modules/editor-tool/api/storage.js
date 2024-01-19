@@ -10,7 +10,10 @@ function handleResponse(response) {
 export const detailApi = {
   //получить fio
   getDetailFio: async () =>
-    axiosInstance.get('detail/fio').then(handleResponse).catch(handleApiError),
+    axiosInstance
+      .get('operators/fio')
+      .then(handleResponse)
+      .catch(handleApiError),
 
   //получить название
   getDetailNames: async () =>
