@@ -1,16 +1,9 @@
-import axios from 'axios'
-
-const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:4000/api'
+import axiosInstance from '@/api/axiosConfig'
+import { handleApiError, handleResponse } from '@/api/errorHandler'
 
 export async function getToolParams() {
-  try {
-    const response = await axios.get(`${BASE_URL}/tools-params`)
-    return response.data
-  } catch (error) {
-    console.error(
-      'There has been a problem with fetching tool parameters:',
-      error
-    )
-    return null
-  }
+  return axiosInstance
+    .get('/tools-params')
+    .then(handleResponse)
+    .catch(handleApiError)
 }
