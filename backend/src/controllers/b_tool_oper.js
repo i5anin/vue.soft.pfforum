@@ -12,7 +12,7 @@ const dbConfig =
 // Создание соединения с базой данных
 const pool = new Pool(dbConfig)
 
-async function findDetail(req, res) {
+async function findDetailProduction(req, res) {
   try {
     const query = `
       SELECT
@@ -45,7 +45,7 @@ async function findDetail(req, res) {
   }
 }
 
-async function getAllOperators(req, res) {
+async function getFioOperators(req, res) {
   try {
     // SQL запрос для получения всех ID и фамилий из таблицы operators
     const query = `
@@ -141,7 +141,7 @@ async function saveToolHistory(req, res) {
 }
 
 module.exports = {
-  findDetail,
-  getAllOperators,
+  findDetailProduction,
+  getFioOperators,
   saveToolHistory,
 }

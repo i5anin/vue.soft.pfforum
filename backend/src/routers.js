@@ -32,8 +32,8 @@ router.post('/tools-tree', treeController.addBranch)
 router.put('/tools-tree', treeController.updateFolderTree)
 router.delete('/tools-tree/:id', treeController.dellFolderTree)
 
-router.get('/detail/id', operController.findDetail)
-router.get('/detail/fio', operController.getAllOperators)
+router.get('/detail/id', operController.findDetailProduction)
+router.get('/detail/fio', operController.getFioOperators)
 router.post('/tool/history', operController.saveToolHistory)
 
 router.get('/sklad', skladController.getToolHistory)
