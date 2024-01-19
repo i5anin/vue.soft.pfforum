@@ -11,13 +11,13 @@
         </thead>
         <tbody>
           <tr
-            v-for="(items, no_oper) in groupedHistoryData"
-            :key="no_oper"
-            @click="openOperationModal(no_oper)"
+            v-for="item in operationData"
+            :key="item.id"
+            :class="{ 'bg-blue-darken-2': item.type === 'sum' }"
           >
-            <td v-for="item in items" :key="item.id">
+            <td v-for="header in headers" :key="header.value">
               <template v-if="header.value === 'date'">
-                {{ formatDate(item.date) }}
+                {{ formatDate(item[header.value]) }}
               </template>
               <template v-else>
                 {{ item[header.value] }}
@@ -44,34 +44,29 @@
 import Modal from '@/components/shared/Modal.vue'
 import { detailHistoryApi } from '../api/history'
 import { format, parseISO } from 'date-fns'
-import OperationModal from './OperationModal.vue'
 
 export default {
-  name: 'ToolModal',
+  name: 'OperationModal',
   components: {
     Modal,
-    OperationModal,
   },
   props: {
-    id_part: { type: Number, default: null },
+    no_oper: { type: String, default: null },
   },
   data() {
     return {
       headers: [
         { title: 'Инструмент', value: 'name_tool' },
+        { title: 'ФИО', value: 'user_fio' },
         { title: 'Кол-во', value: 'quantity', width: '90px' },
         { title: 'Дата', value: 'date' },
-        { title: 'Операция', value: 'no_oper' },
       ],
-      historyData: [],
-      groupedHistoryData: {},
-      showOperationModal: false,
-      currentNoOper: null,
+      operationData: [],
     }
   },
   computed: {
     popupTitle() {
-      return `Инструмент затраченный на операцию: ${this.id_part}`
+      return `Операция: ${this.no_oper}`
     },
   },
   methods: {
@@ -81,31 +76,14 @@ export default {
     onCancel() {
       this.$emit('canceled')
     },
-    openOperationModal(no_oper) {
-      this.currentNoOper = no_oper
-      this.showOperationModal = true
-    },
-    closeOperationModal() {
-      this.showOperationModal = false
-    },
-    groupByNoOper(data) {
-      return data.reduce((acc, item) => {
-        const key = item.no_oper
-        if (!acc[key]) {
-          acc[key] = []
-        }
-        acc[key].push(item)
-        return acc
-      }, {})
-    },
-    async fetchHistoryData() {
-      const data = await detailHistoryApi.fetchHistoryByPartId(this.id_part)
-      this.historyData = data
-      this.groupedHistoryData = this.groupByNoOper(data)
+    async fetchOperationData() {
+      this.operationData = await detailHistoryApi.fetchHistoryByOperationId(
+        this.no_oper
+      )
     },
   },
   created() {
-    this.fetchHistoryData()
+    this.fetchOperationData()
   },
 }
 </script>
