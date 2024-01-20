@@ -27,7 +27,7 @@ import ToolTabTree from '@/modules/tool/components/tabs/Tree.vue'
 
 import EditorCatalog from '@/modules/editor-tool/components/Catalog.vue'
 import StorageCatalog from '@/modules/storage-tool/components/Catalog.vue'
-import TabIssueCatalog from '@/modules/issue-tool/components/Catalog.vue'
+import IssueCatalog from '@/modules/issue-tool/components/Catalog.vue'
 
 import Report from '@/modules/tool/components/tabs/Report.vue'
 
@@ -39,7 +39,7 @@ export default {
         { name: 'Редактор', url: '#editor', component: EditorCatalog },
         { name: 'Дерево', url: '#tree', component: ToolTabTree },
         { name: 'Параметры', url: '#params', component: ToolTabParam },
-        { name: 'Выдача', url: '#issue', component: TabIssueCatalog },
+        { name: 'Выдача', url: '#issue', component: IssueCatalog },
         { name: 'Склад', url: '#storage', component: StorageCatalog },
         { name: 'История', url: '#history', component: GiveTool },
         { name: 'Отчёты', url: '#report', component: Report },
