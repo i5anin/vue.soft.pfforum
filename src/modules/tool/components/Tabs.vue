@@ -21,7 +21,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import ToolTabParam from '@/modules/tool/components/tabs/Param.vue'
 import GiveTool from '@/modules/history-tool/components/Table.vue'
 import ToolTabTree from '@/modules/tool/components/tabs/Tree.vue'
@@ -33,16 +33,39 @@ import TabIssueCatalog from '@/modules/issue-tool/components/Catalog.vue'
 import Report from '@/modules/tool/components/tabs/Report.vue'
 
 // Ссылка на текущую выбранную вкладку
-const tab = ref('Каталог')
+const tab = ref('Редактор')
 
 // Определение вкладок
 const tabs = [
-  { name: 'Редактор', component: EditorCatalog },
-  { name: 'Дерево', component: ToolTabTree },
-  { name: 'Параметры', component: ToolTabParam },
-  { name: 'Выдача', component: TabIssueCatalog },
-  { name: 'Склад', component: StorageCatalog },
-  { name: 'История', component: GiveTool },
-  { name: 'Отчёты', component: Report },
+  { name: 'Редактор', url: '#editor', component: EditorCatalog },
+  { name: 'Дерево', url: '#tree', component: ToolTabTree },
+  { name: 'Параметры', url: '#params', component: ToolTabParam },
+  { name: 'Выдача', url: '#item4', component: TabIssueCatalog },
+  { name: 'Склад', url: '#item5', component: StorageCatalog },
+  { name: 'История', url: '#item6', component: GiveTool },
+  { name: 'Отчёты', url: '#item7', component: Report },
 ]
+
+watch(tab, () => {
+
+  // console.log(tabs)
+
+  let current_tab = tabs.find((el) => el.name == tab.value)
+
+  window.location.hash = current_tab.url;
+  // console.log(current_tab)
+  // console.log(window.location)
+})
+
+onMounted(() => {
+  console.log(window.location.hash)
+
+  let current_tab = tabs.find((el) => el.url == window.location.hash)
+
+  if(current_tab != undefined)
+    tab.value = current_tab.name
+
+})
+
+
 </script>
