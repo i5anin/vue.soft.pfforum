@@ -5,6 +5,7 @@ module.exports = {
     database: process.env.DB_TEST_NAME,
     password: process.env.DB_TEST_PASSWORD,
     port: process.env.DB_TEST_PORT,
+    dialect: 'postgres',
   },
   dbConfig: {
     user: process.env.DB_USER,
@@ -12,6 +13,7 @@ module.exports = {
     database: process.env.DB_NAME,
     password: process.env.DB_PASSWORD,
     port: process.env.DB_PORT,
+    dialect: 'postgres',
   },
   server: {
     host: process.env.HOST,
