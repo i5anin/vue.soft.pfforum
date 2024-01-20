@@ -1,14 +1,12 @@
 <template>
   <v-container>
     <tool-filter :namespace="namespace">
-
       <v-select
         v-for="elem in paramsList"
         :key="elem.key"
         :label="elem.label"
         :items="elem.values"
-      ></v-select>
-
+      />
       <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>
     </tool-filter>
     <edit-tool-modal
@@ -112,7 +110,7 @@ export default {
       isDataLoaded: false,
       editingToolId: null, //редактирование идентификатора инструмента
       toolTableHeaders: [], //заголовки таблиц инструментов,
-      toolsList: {}
+      toolsList: {},
     }
   },
   watch: {
@@ -140,11 +138,8 @@ export default {
 
   async mounted() {
     this.isDataLoaded = true
-
-
   },
-  updated()
-  {
+  updated() {
     console.log(this.paramsList)
   },
   methods: {
@@ -189,6 +184,7 @@ export default {
   font-size: 0.9em;
   color: grey;
 }
+
 .grey {
   color: grey;
 }
