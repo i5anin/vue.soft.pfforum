@@ -30,125 +30,57 @@ function removeNullProperties(obj) {
 }
 
 async function getTools(req, res) {
+  const ToolNom = require('../models/tool_nom') // Подключение модели
+  const { Op } = require('sequelize')
+
   try {
-    const { search, parent_id, includeNull, onlyInStock } = req.query
+    const { search, parent_id, onlyInStock } = req.query
     const page = parseInt(req.query.page || 1, 10)
     const limit = parseInt(req.query.limit || 15, 10)
     const offset = (page - 1) * limit
 
-    let conditions = []
+    let conditions = {}
 
     if (search) {
-      conditions.push(`tool_nom.name ILIKE '%${search.replace(/'/g, "''")}%'`)
+      conditions.name = { [Op.iLike]: `%${search}%` }
     }
 
     if (parent_id) {
-      conditions.push(`tool_nom.parent_id = ${parent_id}`)
+      conditions.parent_id = parent_id
     }
 
     if (onlyInStock === 'true') {
-      conditions.push(`tool_nom.sklad > 0`)
+      conditions.sklad = { [Op.gt]: 0 }
     }
 
-    const whereClause = conditions.length
-      ? `WHERE ${conditions.join(' AND ')}`
-      : ''
+    const { count, rows } = await ToolNom.findAndCountAll({
+      where: conditions,
+      limit,
+      offset,
+      order: [
+        ['sklad', 'DESC'],
+        ['name', 'ASC'],
+      ],
+    })
 
-    const countQuery = `
-      SELECT COUNT(*)
-      FROM dbo.tool_nom as tool_nom
-      ${whereClause}
-    `
-
-    const toolQuery = `
-      SELECT tool_nom.id,
-             tool_nom.name,
-             tool_nom.property,
-             tool_nom.sklad,
-             tool_nom.norma,
-             tool_nom.limit
-      FROM dbo.tool_nom as tool_nom
-      ${whereClause}
-      ORDER BY
-        CASE WHEN tool_nom.sklad > 0 THEN 1 ELSE 2 END,
-        tool_nom.name
-      LIMIT ${limit} OFFSET ${offset}
-    `
-
-    const [countResult, toolsResult, paramsMapping] = await Promise.all([
-      pool.query(countQuery),
-      pool.query(toolQuery),
-      getParamsMapping(),
-    ])
-
-    const totalCount = parseInt(countResult.rows[0].count, 10)
-
-    const uniqueParams = new Set()
-    const propertyValues = {} // Объект для хранения уникальных значений свойств
-
-    const formattedTools = toolsResult.rows.map((tool) => {
-      let formattedProperty = {}
-
-      if (tool.property) {
-        const propertyObj = tool.property
-
-        formattedProperty = Object.entries(propertyObj).reduce(
-          (acc, [key, value]) => {
-            if (value !== '' && value !== null && paramsMapping[key]) {
-              acc[key] = {
-                info: paramsMapping[key].info,
-                value: value,
-              }
-              uniqueParams.add(key) // Добавление ключа свойства в uniqueParams
-
-              // Добавление уникальных значений для каждого свойства
-              if (!propertyValues[key]) {
-                propertyValues[key] = new Set()
-              }
-              propertyValues[key].add(value)
-            }
-            return acc
-          },
-          {}
-        )
-      }
-
+    const tools = rows.map((tool) => {
       return {
         id: tool.id,
         name: tool.name,
-        property: formattedProperty,
-        sklad: tool.sklad,
-        norma: tool.norma,
-        limit: tool.limit,
+        description: tool.description, // Предположим, что это поле присутствует в вашей модели
+        price: tool.price, // Предположим, что это поле присутствует в вашей модели
+        // Дополните здесь остальными полями, если они есть в модели
+        sklad: tool.sklad, // Если это поле есть в модели
+        norma: tool.norma, // Если это поле есть в модели
+        // и так далее для всех полей, которые у вас есть
       }
     })
-
-    // Преобразование Set в массив для каждого свойства
-    Object.keys(propertyValues).forEach((key) => {
-      propertyValues[key] = Array.from(propertyValues[key])
-    })
-
-    const paramsList = Array.from(uniqueParams)
-      .map((key) => {
-        // Фильтрация параметров, имеющих более одного значения
-        const values = propertyValues[key]
-        if (values && values.length > 1) {
-          return {
-            key: key,
-            label: paramsMapping[key]?.info || key,
-            values: values,
-          }
-        }
-        return null
-      })
-      .filter((item) => item != null) // Исключение null значений после фильтрации
 
     res.json({
       currentPage: page,
       itemsPerPage: limit,
-      totalCount,
-      tools: formattedTools,
-      paramsList,
+      totalCount: count,
+      tools,
     })
   } catch (err) {
     console.error(err)
