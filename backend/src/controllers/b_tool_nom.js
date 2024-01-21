@@ -31,7 +31,7 @@ function removeNullProperties(obj) {
 
 async function getTools(req, res) {
   try {
-    const { search, parent_id, includeNull, onlyInStock } = req.query
+    const { search, parent_id, onlyInStock } = req.query
     const page = parseInt(req.query.page || 1, 10)
     const limit = parseInt(req.query.limit || 15, 10)
     const offset = (page - 1) * limit
