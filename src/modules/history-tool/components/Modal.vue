@@ -3,7 +3,7 @@
     <template #content>
       <div style="padding-left: 16px">
         <v-row>
-          <h2 style="padding-left: 25px">
+          <h2 v-if="this.info" style="padding-left: 25px">
             {{ this?.info.name }} {{ this?.info.description }}
           </h2>
           <v-spacer />
@@ -67,7 +67,7 @@ import { detailHistoryApi } from '../api/history'
 import { format, parseISO } from 'date-fns'
 
 export default {
-  name: 'ToolModal',
+  name: 'HistoryModal',
   components: { Modal },
   props: {
     id_part: { type: Number, default: null },
