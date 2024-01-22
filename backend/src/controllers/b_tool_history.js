@@ -242,7 +242,8 @@ async function getToolHistoryByPartId(req, res) {
           allTools[row.id_tool].date = row.date
         }
       } else {
-        allTools[row.id_tool] = { ...row, no_oper: undefined }
+        const { specs_op_id, user_fio, id_user, ...rest } = row
+        allTools[row.id_tool] = { ...rest, no_oper: undefined }
       }
 
       // Собираем данные по операциям
@@ -402,5 +403,4 @@ module.exports = {
   getToolHistoryId,
   getToolHistory,
   getToolHistoryByPartId,
-  getToolTest,
 }

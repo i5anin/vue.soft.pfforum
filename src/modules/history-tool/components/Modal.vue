@@ -15,7 +15,11 @@
       <v-table class="elevation-1">
         <thead>
           <tr>
-            <th v-for="header in headers" :key="header.value" class="text-left">
+            <th
+              v-for="header in currentHeaders"
+              :key="header.value"
+              class="text-left"
+            >
               {{ header.title }}
             </th>
           </tr>
@@ -26,7 +30,7 @@
             :key="item.id"
             :class="{ 'bg-blue-darken-2': item.type === 'sum' }"
           >
-            <td v-for="header in headers" :key="header.value">
+            <td v-for="header in currentHeaders" :key="header.value">
               <template v-if="header.value === 'date'">
                 {{ formatDate(item[header.value]) }}
               </template>
@@ -74,8 +78,14 @@ export default {
       headers: [
         { title: 'Инструмент', value: 'name_tool' },
         { title: 'Кол-во', value: 'quantity', width: '90px' },
+        { title: 'Выдано', value: 'user_fio' },
         { title: 'Дата', value: 'date' },
         { title: 'Операция', value: 'no_oper' },
+      ],
+      headersAll: [
+        { title: 'Инструмент', value: 'name_tool' },
+        { title: 'Дата', value: 'date' },
+        { title: 'Кол-во', value: 'quantity', width: '90px' },
       ],
       filteredData: [],
       showOperationModal: false,
@@ -86,10 +96,18 @@ export default {
     popupTitle() {
       return `Инструмент затраченный на операцию: ${this.id_part}`
     },
+    currentHeaders() {
+      if (this.selectedOperation === 'all') {
+        return this.headersAll
+      } else {
+        return this.headers
+      }
+    },
   },
   methods: {
     filterData() {
       if (this.selectedOperation === 'all') {
+        this.headers = this.headersAll
         // Проверяем, является ли originalData.all массивом
         if (Array.isArray(this.originalData['all'])) {
           // Если это массив, копируем его в filteredData
@@ -99,6 +117,13 @@ export default {
           this.filteredData = [this.originalData['all']]
         }
       } else {
+        this.headers = [
+          { title: 'Инструмент', value: 'name_tool' },
+          { title: 'Кол-во', value: 'quantity', width: '90px' },
+          { title: 'Дата', value: 'date' },
+          { title: 'Операция', value: 'no_oper' },
+          { title: 'Выдано', value: 'user_fio' },
+        ]
         // Фильтруем данные по выбранной операции
         this.filteredData = [
           ...(this.originalData[this.selectedOperation] || []),
