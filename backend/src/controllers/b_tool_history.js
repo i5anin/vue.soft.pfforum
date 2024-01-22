@@ -241,21 +241,36 @@ async function getToolHistoryByPartId(req, res) {
     }, {})
 
     const finalData = {
-      all: {
-        id_part: operationsResult.rows[0].id_part,
-        name: operationsResult.rows[0].name,
-        description: operationsResult.rows[0].description,
-        type_oper: operationsResult.rows[0].type_oper,
-        name_tool: operationsResult.rows[0].name_tool,
-        id_tool: operationsResult.rows[0].id_tool,
-        quantity: 0,
-      },
+      all: [],
     }
+
     const sortedKeys = Object.keys(groupedData).sort()
     sortedKeys.forEach((key) => {
-      finalData.all.quantity += groupedData[key].totalQuantity
-      finalData[key] = groupedData[key].data
+      const toolData = {}
+      groupedData[key].data.forEach((item) => {
+        if (toolData[item.id_tool]) {
+          toolData[item.id_tool].quantity += item.quantity
+        } else {
+          toolData[item.id_tool] = { ...item }
+        }
+      })
+      finalData[key] = Object.values(toolData)
+
+      if (key !== 'all') {
+        finalData.all.push(...finalData[key])
+      }
     })
+
+    // Для finalData.all убираем дубликаты и суммируем количество
+    const allTools = {}
+    finalData.all.forEach((item) => {
+      if (allTools[item.id_tool]) {
+        allTools[item.id_tool].quantity += item.quantity
+      } else {
+        allTools[item.id_tool] = { ...item }
+      }
+    })
+    finalData.all = Object.values(allTools)
 
     res.json(finalData)
   } catch (err) {

@@ -25,7 +25,6 @@
             v-for="item in filteredData"
             :key="item.id"
             :class="{ 'bg-blue-darken-2': item.type === 'sum' }"
-            @click="openOperationModal(item.no_oper)"
           >
             <td v-for="header in headers" :key="header.value">
               <template v-if="header.value === 'date'">
@@ -91,9 +90,19 @@ export default {
   methods: {
     filterData() {
       if (this.selectedOperation === 'all') {
-        this.filteredData = this.originalData['all'] || []
+        // Проверяем, является ли originalData.all массивом
+        if (Array.isArray(this.originalData['all'])) {
+          // Если это массив, копируем его в filteredData
+          this.filteredData = [...this.originalData['all']]
+        } else {
+          // Если это не массив, оборачиваем объект в массив
+          this.filteredData = [this.originalData['all']]
+        }
       } else {
-        this.filteredData = this.originalData[this.selectedOperation] || []
+        // Фильтруем данные по выбранной операции
+        this.filteredData = [
+          ...(this.originalData[this.selectedOperation] || []),
+        ]
       }
     },
     formatDate(date) {
@@ -110,13 +119,6 @@ export default {
     },
     onCancel() {
       this.$emit('canceled')
-    },
-    openOperationModal(no_oper) {
-      this.currentNoOper = no_oper
-      this.showOperationModal = true
-    },
-    closeOperationModal() {
-      this.showOperationModal = false
     },
     async fetchHistoryData() {
       try {
