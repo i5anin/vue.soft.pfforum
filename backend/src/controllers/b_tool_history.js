@@ -201,10 +201,7 @@ async function getToolHistoryId(req, res) {
 
 async function getToolHistoryByPartId(req, res) {
   try {
-    // console.log('Received id_part:', req.query.id_part)
     const idPart = req.query.id_part
-
-    // Запрос для получения всех операций, связанных с id_part
     const operationsQuery = `
       SELECT
         sno.id AS specs_op_id,
@@ -228,15 +225,41 @@ async function getToolHistoryByPartId(req, res) {
       WHERE sn.ID = $1
       ORDER BY thn.date DESC;
     `
-    // console.log('Executing query for idPart:', idPart)
     const operationsResult = await pool.query(operationsQuery, [idPart])
 
     if (operationsResult.rows.length === 0) {
-      console.log(`No operations found for idPart: ${idPart}`)
       return res.status(404).send('Операции для данной партии не найдены')
     }
 
-    res.json(operationsResult.rows)
+    const groupedData = operationsResult.rows.reduce((acc, item) => {
+      if (!acc[item.no_oper]) {
+        acc[item.no_oper] = { data: [], totalQuantity: 0 }
+      }
+      acc[item.no_oper].data.push(item)
+      acc[item.no_oper].totalQuantity += item.quantity
+      return acc
+    }, {})
+
+    const finalData = []
+    const allData = {
+      id_part: operationsResult.rows[0].id_part,
+      name: operationsResult.rows[0].name,
+      description: operationsResult.rows[0].description,
+      type_oper: operationsResult.rows[0].type_oper,
+      name_tool: operationsResult.rows[0].name_tool,
+      id_tool: operationsResult.rows[0].id_tool,
+      quantity: 0,
+    }
+    const sortedKeys = Object.keys(groupedData).sort()
+    sortedKeys.forEach((key) => {
+      allData.quantity += groupedData[key].totalQuantity
+      finalData.push({
+        [key]: groupedData[key].data,
+      })
+    })
+    finalData.unshift({ all: allData })
+
+    res.json(finalData)
   } catch (err) {
     console.error('Error executing query', err.stack)
     res.status(500).send('Ошибка при выполнении запроса')

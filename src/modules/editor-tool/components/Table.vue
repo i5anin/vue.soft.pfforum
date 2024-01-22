@@ -143,7 +143,7 @@ export default {
     this.isDataLoaded = true
   },
   updated() {
-    console.log(this.paramsList)
+    // console.log(this.paramsList)
   },
   methods: {
     onIssueTool(event, item) {
