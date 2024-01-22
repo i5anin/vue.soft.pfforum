@@ -233,6 +233,7 @@ async function getToolHistoryByPartId(req, res) {
 
     const allTools = {}
     const operationsData = {}
+    let info = null
 
     operationsResult.rows.forEach((row) => {
       // Собираем данные для all
@@ -242,7 +243,15 @@ async function getToolHistoryByPartId(req, res) {
           allTools[row.id_tool].date = row.date
         }
       } else {
-        const { specs_op_id, user_fio, id_user, ...rest } = row
+        const {
+          specs_op_id,
+          user_fio,
+          id_user,
+          id_part,
+          name,
+          description,
+          ...rest
+        } = row
         allTools[row.id_tool] = { ...rest, no_oper: undefined }
       }
 
@@ -250,13 +259,32 @@ async function getToolHistoryByPartId(req, res) {
       if (!operationsData[row.no_oper]) {
         operationsData[row.no_oper] = []
       }
-      operationsData[row.no_oper].push(row)
+      const { specs_op_id, id_part, name, description, ...restOper } = row
+      operationsData[row.no_oper].push(restOper)
+
+      // Собираем информацию для info
+      if (!info) {
+        const {
+          specs_op_id,
+          no_oper,
+          type_oper,
+          quantity,
+          user_fio,
+          id_user,
+          date,
+          name_tool,
+          id_tool,
+          ...restInfo
+        } = row
+        info = restInfo
+      }
     })
 
     // Сортируем ключи операций
     const sortedOperations = Object.keys(operationsData).sort()
 
     const finalData = {
+      info,
       all: Object.values(allTools),
     }
 

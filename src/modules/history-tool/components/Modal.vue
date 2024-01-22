@@ -1,17 +1,23 @@
 <template>
   <Modal :title="popupTitle" widthDefault="1300px">
     <template #content>
-      <v-row>
-        <v-col cols="12" md="3">
-          <v-select
-            label="Операция"
-            v-model="selectedOperation"
-            :items="availableOperations"
-            @update:model-value="filterData"
-            solo
-          />
-        </v-col>
-      </v-row>
+      <div style="padding-left: 16px">
+        <v-row>
+          <h2 style="padding-left: 25px">
+            {{ this?.info.name }} {{ this?.info.description }}
+          </h2>
+          <v-spacer />
+          <v-col cols="12" md="3">
+            <v-select
+              label="Операция"
+              v-model="selectedOperation"
+              :items="availableOperations"
+              @update:model-value="filterData"
+              solo
+            />
+          </v-col>
+        </v-row>
+      </div>
       <v-table class="elevation-1">
         <thead>
           <tr>
@@ -59,19 +65,16 @@
 import Modal from '@/components/shared/Modal.vue'
 import { detailHistoryApi } from '../api/history'
 import { format, parseISO } from 'date-fns'
-import OperationModal from './OperationModal.vue'
 
 export default {
   name: 'ToolModal',
-  components: {
-    Modal,
-    OperationModal,
-  },
+  components: { Modal },
   props: {
     id_part: { type: Number, default: null },
   },
   data() {
     return {
+      info: null,
       originalData: [],
       selectedOperation: 'all',
       availableOperations: [],
@@ -81,10 +84,11 @@ export default {
         { title: 'Выдано', value: 'user_fio' },
         { title: 'Дата', value: 'date' },
         { title: 'Операция', value: 'no_oper' },
+        { title: 'Тип', value: 'type_oper' },
       ],
       headersAll: [
         { title: 'Инструмент', value: 'name_tool' },
-        { title: 'Дата', value: 'date' },
+        { title: 'Дата начальная', value: 'date' },
         { title: 'Кол-во', value: 'quantity', width: '90px' },
       ],
       filteredData: [],
@@ -94,7 +98,10 @@ export default {
   },
   computed: {
     popupTitle() {
-      return `Инструмент затраченный на операцию: ${this.id_part}`
+      console.log('вызов popupTitle')
+      if (this.info) {
+        return `Инструмент затраченный на партию: ${this.id_part}`
+      }
     },
     currentHeaders() {
       if (this.selectedOperation === 'all') {
@@ -108,23 +115,12 @@ export default {
     filterData() {
       if (this.selectedOperation === 'all') {
         this.headers = this.headersAll
-        // Проверяем, является ли originalData.all массивом
         if (Array.isArray(this.originalData['all'])) {
-          // Если это массив, копируем его в filteredData
           this.filteredData = [...this.originalData['all']]
         } else {
-          // Если это не массив, оборачиваем объект в массив
           this.filteredData = [this.originalData['all']]
         }
       } else {
-        this.headers = [
-          { title: 'Инструмент', value: 'name_tool' },
-          { title: 'Кол-во', value: 'quantity', width: '90px' },
-          { title: 'Дата', value: 'date' },
-          { title: 'Операция', value: 'no_oper' },
-          { title: 'Выдано', value: 'user_fio' },
-        ]
-        // Фильтруем данные по выбранной операции
         this.filteredData = [
           ...(this.originalData[this.selectedOperation] || []),
         ]
@@ -150,6 +146,7 @@ export default {
         const response = await detailHistoryApi.fetchHistoryByPartId(
           this.id_part
         )
+        this.info = response.info
         if (response && typeof response === 'object') {
           this.originalData = response
           this.filteredData = response['all'] || []
@@ -170,10 +167,3 @@ export default {
   },
 }
 </script>
-
-<style>
-.sum {
-  background-color: #a41111; /* Или другой оттенок красного, который вам нужен */
-  color: white; /* Опционально, для лучшей читаемости текста */
-}
-</style>
