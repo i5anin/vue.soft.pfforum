@@ -52,6 +52,7 @@ export default {
         { title: 'Обозначение', value: 'description', sortable: false },
         { title: 'Дата', value: 'date', sortable: false },
         { title: 'Кол-во', value: 'quantity', sortable: false, width: '80px' },
+        { title: 'Операций', value: 'operation_count', sortable: false },
       ],
     }
   },
