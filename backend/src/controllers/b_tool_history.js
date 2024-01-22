@@ -100,9 +100,6 @@ async function getToolHistory(req, res) {
       FROM dbo.tool_history_nom thn
              INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
              INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
-      WHERE sn.status_p = 'П'
-        AND NOT sn.status_otgruzka
-        AND (POSITION('ЗАПРЕТ' IN UPPER(sn.comments)) = 0 OR sn.comments IS NULL)
       GROUP BY sn.ID, sn.NAME, sn.description
       ORDER BY MIN(thn.date) DESC, sn.NAME, sn.description
       LIMIT ${limit}
@@ -376,10 +373,7 @@ async function getToolTest(req, res) {
       SELECT COUNT(*)
       FROM dbo.tool_history_nom thn
              INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
-             INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
-      WHERE sn.status_p = 'П'
-        AND NOT sn.status_otgruzka
-        AND (POSITION('ЗАПРЕТ' IN UPPER(sn.comments)) = 0 OR sn.comments IS NULL);
+             INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id;
     `
 
     // Запрос для получения истории инструментов с учетом пагинации
@@ -400,9 +394,6 @@ async function getToolTest(req, res) {
              INNER JOIN dbo.operations_ordersnom oon ON oon.op_id = sno.ordersnom_op_id
              INNER JOIN dbo.operators o ON thn.id_user = o.id
              INNER JOIN dbo.tool_nom tn ON thn.id_tool = tn.id
-      WHERE sn.status_p = 'П'
-        AND NOT sn.status_otgruzka
-        AND (POSITION('ЗАПРЕТ' IN UPPER(sn.comments)) = 0 OR sn.comments IS NULL)
       ORDER BY thn.date DESC, sn.NAME, sn.description, oon.no::INT
       LIMIT ${limit}
       OFFSET ${offset};
