@@ -113,24 +113,12 @@ export default {
   },
   methods: {
     filterData() {
-      if (this.selectedOperation === 'all') {
-        this.headers = this.headersAll
-        if (Array.isArray(this.originalData['all'])) {
-          this.filteredData = [...this.originalData['all']]
-        } else {
-          this.filteredData = [this.originalData['all']]
-        }
-      } else {
-        this.filteredData = [
-          ...(this.originalData[this.selectedOperation] || []),
-        ]
-      }
+      this.filteredData =
+        this.selectedOperation === 'all'
+          ? this.originalData['all'] || []
+          : this.originalData[this.selectedOperation] || []
     },
     formatDate(date) {
-      const isoDateRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/
-      if (!isoDateRegex.test(date)) {
-        return date
-      }
       try {
         return format(parseISO(date), 'dd.MM.yyyy HH:mm:ss')
       } catch (error) {
@@ -148,9 +136,11 @@ export default {
         )
         this.info = response.info
         if (response && typeof response === 'object') {
-          this.originalData = response
-          this.filteredData = response['all'] || []
-          this.availableOperations = Object.keys(response)
+          // Removing the 'info' key from the response object
+          const { info, ...operations } = response
+          this.originalData = operations
+          this.filteredData = operations['all'] || []
+          this.availableOperations = Object.keys(operations)
         } else {
           console.log('No history data found')
           this.originalData = {}
