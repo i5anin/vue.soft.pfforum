@@ -202,7 +202,6 @@ async function getToolHistoryId(req, res) {
 async function getToolHistoryByPartId(req, res) {
   try {
     const idPart = req.query.id_part
-
     const operationsQuery = `
       SELECT
         sno.id AS specs_op_id,
@@ -226,52 +225,43 @@ async function getToolHistoryByPartId(req, res) {
       WHERE sn.ID = $1
       ORDER BY thn.date DESC;
     `
-
     const operationsResult = await pool.query(operationsQuery, [idPart])
 
     if (operationsResult.rows.length === 0) {
       return res.status(404).send('Операции для данной партии не найдены')
     }
 
-    const groupedData = operationsResult.rows.reduce((acc, item) => {
-      if (!acc[item.no_oper]) {
-        acc[item.no_oper] = { data: [], totalQuantity: 0 }
-      }
-      acc[item.no_oper].data.push(item)
-      acc[item.no_oper].totalQuantity += item.quantity
-      return acc
-    }, {})
-
-    const finalData = { all: [] }
-
-    const allData = []
-    const sortedKeys = Object.keys(groupedData).sort((a, b) =>
-      a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
-    )
-    sortedKeys.forEach((key) => {
-      allData.push(...groupedData[key].data)
-    })
-
     const allTools = {}
-    allData.forEach((item) => {
-      if (allTools[item.id_tool]) {
-        allTools[item.id_tool].quantity += item.quantity
-      } else {
-        allTools[item.id_tool] = { ...item }
-      }
-    })
-    finalData.all = Object.values(allTools)
+    const operationsData = {}
 
-    sortedKeys.forEach((key) => {
-      const toolData = {}
-      groupedData[key].data.forEach((item) => {
-        if (toolData[item.id_tool]) {
-          toolData[item.id_tool].quantity += item.quantity
-        } else {
-          toolData[item.id_tool] = { ...item }
+    operationsResult.rows.forEach((row) => {
+      // Собираем данные для all
+      if (allTools[row.id_tool]) {
+        allTools[row.id_tool].quantity += row.quantity
+        if (new Date(allTools[row.id_tool].date) > new Date(row.date)) {
+          allTools[row.id_tool].date = row.date
         }
-      })
-      finalData[key] = Object.values(toolData)
+      } else {
+        allTools[row.id_tool] = { ...row, no_oper: undefined }
+      }
+
+      // Собираем данные по операциям
+      if (!operationsData[row.no_oper]) {
+        operationsData[row.no_oper] = []
+      }
+      operationsData[row.no_oper].push(row)
+    })
+
+    // Сортируем ключи операций
+    const sortedOperations = Object.keys(operationsData).sort()
+
+    const finalData = {
+      all: Object.values(allTools),
+    }
+
+    // Добавляем отсортированные операции в finalData
+    sortedOperations.forEach((operation) => {
+      finalData[operation] = operationsData[operation]
     })
 
     res.json(finalData)
