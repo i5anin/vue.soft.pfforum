@@ -240,24 +240,22 @@ async function getToolHistoryByPartId(req, res) {
       return acc
     }, {})
 
-    const finalData = []
-    const allData = {
-      id_part: operationsResult.rows[0].id_part,
-      name: operationsResult.rows[0].name,
-      description: operationsResult.rows[0].description,
-      type_oper: operationsResult.rows[0].type_oper,
-      name_tool: operationsResult.rows[0].name_tool,
-      id_tool: operationsResult.rows[0].id_tool,
-      quantity: 0,
+    const finalData = {
+      all: {
+        id_part: operationsResult.rows[0].id_part,
+        name: operationsResult.rows[0].name,
+        description: operationsResult.rows[0].description,
+        type_oper: operationsResult.rows[0].type_oper,
+        name_tool: operationsResult.rows[0].name_tool,
+        id_tool: operationsResult.rows[0].id_tool,
+        quantity: 0,
+      },
     }
     const sortedKeys = Object.keys(groupedData).sort()
     sortedKeys.forEach((key) => {
-      allData.quantity += groupedData[key].totalQuantity
-      finalData.push({
-        [key]: groupedData[key].data,
-      })
+      finalData.all.quantity += groupedData[key].totalQuantity
+      finalData[key] = groupedData[key].data
     })
-    finalData.unshift({ all: allData })
 
     res.json(finalData)
   } catch (err) {
