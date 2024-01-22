@@ -202,6 +202,7 @@ async function getToolHistoryId(req, res) {
 async function getToolHistoryByPartId(req, res) {
   try {
     const idPart = req.query.id_part
+
     const operationsQuery = `
       SELECT
         sno.id AS specs_op_id,
@@ -225,6 +226,7 @@ async function getToolHistoryByPartId(req, res) {
       WHERE sn.ID = $1
       ORDER BY thn.date DESC;
     `
+
     const operationsResult = await pool.query(operationsQuery, [idPart])
 
     if (operationsResult.rows.length === 0) {
@@ -243,12 +245,13 @@ async function getToolHistoryByPartId(req, res) {
     const finalData = { all: [] }
 
     const allData = []
-    const sortedKeys = Object.keys(groupedData).sort()
+    const sortedKeys = Object.keys(groupedData).sort((a, b) =>
+      a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+    )
     sortedKeys.forEach((key) => {
       allData.push(...groupedData[key].data)
     })
 
-    // Затем группируем данные для 'all'
     const allTools = {}
     allData.forEach((item) => {
       if (allTools[item.id_tool]) {
@@ -259,7 +262,6 @@ async function getToolHistoryByPartId(req, res) {
     })
     finalData.all = Object.values(allTools)
 
-    // Теперь группируем данные для каждой отдельной операции
     sortedKeys.forEach((key) => {
       const toolData = {}
       groupedData[key].data.forEach((item) => {
