@@ -7,13 +7,7 @@ function handleResponse(response) {
   return response.data
 }
 
-export const detailHistoryApi = {
-  historyToolById: async (specs_op_id) =>
-    axiosInstance
-      .get(`/history/${specs_op_id}`)
-      .then(handleResponse)
-      .catch(handleApiError),
-
+export const issueHistoryApi = {
   fetchHistoryByPartId: async (partId) =>
     axiosInstance
       .get(`/history-part`, { params: { id_part: partId } })

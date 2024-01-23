@@ -7,6 +7,7 @@
       @canceled="onClosePopup"
       @changes-saved="onSaveChanges"
     />
+
     <v-data-table-server
       v-if="toolsHistory && toolsHistory.length > 0"
       no-data-text="Нет данных"
@@ -33,63 +34,76 @@
 import { VDataTableServer } from 'vuetify/labs/components'
 import { format, parseISO } from 'date-fns'
 import EditToolModal from './Modal.vue'
-import { issueHistoryApi } from '@/modules/history-tool/api/history'
+import { damagedHistoryApi } from '../api/damaged'
 
 export default {
-  components: { EditToolModal, VDataTableServer },
+  components: {
+    EditToolModal,
+    VDataTableServer,
+  },
+
   data() {
     return {
       openDialog: false,
-      filters: { itemsPerPage: 15, currentPage: 1 },
+      filters: {
+        itemsPerPage: 15,
+        currentPage: 1,
+      },
       isLoading: false,
       showModal: false,
       toolsHistory: [],
       editingToolId: null,
       totalCount: 0,
       headers: [
-        { title: 'ID партии', value: 'id_part', sortable: false },
-        { title: 'Название', value: 'name', sortable: false, width: '300px' },
-        { title: 'Обозначение', value: 'description', sortable: false },
-        { title: 'Дата', value: 'date', sortable: false },
-        { title: 'Кол-во', value: 'quantity', sortable: false, width: '80px' },
-        { title: 'Операций', value: 'operation_count', sortable: false },
+        { title: 'Название инструмента', value: 'tool_name', sortable: false },
+        { title: 'ФИО', value: 'fio', sortable: false },
+        { title: 'CNC название', value: 'cnc_name', sortable: false },
+        { title: 'Комментарий', value: 'comment', sortable: false },
       ],
     }
   },
+
   async mounted() {
     await this.fetchAndFormatToolHistory()
   },
+
   methods: {
     async onChangePage(page) {
       this.filters.currentPage = page
       await this.fetchAndFormatToolHistory()
     },
+
     async onUpdateItemsPerPage(itemsPerPage) {
       this.filters.itemsPerPage = itemsPerPage
       await this.fetchAndFormatToolHistory()
     },
+
     formatDate(date) {
       return format(parseISO(date), 'dd.MM.yyyy')
     },
+
     async fetchAndFormatToolHistory() {
-      const response = await issueHistoryApi.fetchToolHistory(
+      const response = await damagedHistoryApi.fetchDamagedHistory(
         '',
         this.filters.currentPage,
         this.filters.itemsPerPage
       )
       this.toolsHistory = response.toolsHistory.map((tool) => ({
         ...tool,
-        date: this.formatDate(tool.date),
+        date: tool.date ? this.formatDate(tool.date) : null,
       }))
-      this.totalCount = response.totalCount
+      this.totalCount = this.toolsHistory.length
     },
+
     onClosePopup() {
       this.openDialog = false
     },
+
     onInfoRow(event, { item: tool }) {
       this.editingToolId = tool.id_part
       this.openDialog = true
     },
+
     onSaveChanges() {
       this.openDialog = false
       this.$emit('changes-saved')

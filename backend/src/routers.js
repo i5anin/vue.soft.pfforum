@@ -7,6 +7,7 @@ const paramController = require('./controllers/b_tool_param')
 const treeController = require('./controllers/b_tool_tree')
 const skladController = require('./controllers/b_tool_sklad')
 const historyController = require('./controllers/b_tool_history')
+const damagedController = require('./controllers/b_tool_damaged')
 const issueController = require('./controllers/b_tool_issue')
 
 // Маршруты для аутентификации
@@ -35,9 +36,9 @@ router.post('/issue', issueController.issueTool)
 //history
 router.get('/history/:id', historyController.getToolHistoryId)
 router.get('/history', historyController.getToolHistory)
-
 router.get('/history-part', historyController.getToolHistoryByPartId)
-// router.get('/test', historyController.getToolTest)
+//damaged
+router.get('/damaged-history', damagedController.getDamaged)
 //sklad
 router.post('/sklad/update', skladController.updateToolInventory)
 
