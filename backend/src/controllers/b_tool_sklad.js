@@ -17,7 +17,14 @@ const pool = new Pool(dbConfig)
 async function updateToolInventory(req, res) {
   try {
     // Извлекаем id, sklad, и norma из запроса
-    const { id, sklad, norma } = req.body
+    const { id, sklad, norma, limit } = req.body
+
+    // Проверяем, что sklad и norma больше или равны нулю
+    if (sklad < 0 || norma < 0 || limit < 0) {
+      return res
+        .status(400)
+        .send('sklad, norma и limit должны быть больше или равны нулю.')
+    }
 
     // SQL запрос для обновления данных
     const updateQuery = `

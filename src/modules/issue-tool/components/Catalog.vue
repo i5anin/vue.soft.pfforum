@@ -116,7 +116,7 @@ export default {
     },
 
     async selectItem(item) {
-      console.log('Выбранная папка каталога:', item.id, item.label)
+      console.log('Выбранная папка каталога id:', item.id, item.label)
       this.currentItem = item
       if (!this.tree.includes(item)) this.tree.push(item)
     },

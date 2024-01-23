@@ -45,23 +45,28 @@
       </template>
       <!--name-->
       <template v-slot:item.name="{ item }">
-        <td :class="getClassForItem(item)" style="white-space: nowrap">
+        <td :class="colorClassGrey(item)" style="white-space: nowrap">
           {{ item.name }}
         </td>
       </template>
       <template v-slot:item.sklad="{ item }">
-        <td :class="getClassForItem(item)" style="white-space: nowrap">
+        <td :class="colorClassGrey(item)" style="white-space: nowrap">
           {{ item.sklad }}
         </td>
       </template>
       <template v-slot:item.norma="{ item }">
-        <td :class="getClassForItem(item)" style="white-space: nowrap">
+        <td :class="colorClassGrey(item)" style="white-space: nowrap">
           {{ item.norma }}
         </td>
       </template>
       <template v-slot:item.zakaz="{ item }">
-        <td :class="getClassForItem(item)" style="white-space: nowrap">
+        <td :class="colorClassGrey(item)" style="white-space: nowrap">
           {{ calculateOrder(item) }}
+        </td>
+      </template>
+      <template v-slot:item.limit="{ item }">
+        <td :class="colorClassGrey(item)" style="white-space: nowrap">
+          {{ item.limit }}
         </td>
       </template>
     </v-data-table-server>
@@ -134,6 +139,7 @@ export default {
           { title: 'Норма', key: 'norma', sortable: false },
           { title: 'Склад', key: 'sklad', sortable: false },
           { title: 'Заказ', key: 'zakaz', sortable: false },
+          { title: 'Лимит', key: 'limit', sortable: false },
         ]
       },
     },
@@ -151,9 +157,9 @@ export default {
       console.log('Выдать инструмент:', item)
     },
     calculateOrder(tool) {
-      if (tool.norma || tool.sklad) return tool.norma - tool.sklad
+      if (tool.norma != null) return tool.norma - tool.sklad
     },
-    getClassForItem(item) {
+    colorClassGrey(item) {
       return { grey: !item.sklad || item.sklad === 0 }
     },
     async onChangePage(page) {

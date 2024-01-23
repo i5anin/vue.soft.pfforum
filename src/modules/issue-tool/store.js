@@ -65,7 +65,7 @@ export default {
     },
 
     async fetchToolsByFilter({ commit, state }) {
-      console.log('ВЫДАЧА VUEX')
+      // console.log('ВЫДАЧА VUEX')
       commit('setIsLoading', true)
       const {
         currentPage,

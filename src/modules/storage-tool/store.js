@@ -65,7 +65,7 @@ export default {
     },
 
     async fetchToolsByFilter({ commit, state }) {
-      console.log('СКЛАД VUEX')
+      // console.log('СКЛАД VUEX')
       commit('setIsLoading', true)
       const { currentPage, itemsPerPage, search, includeNull, selectedParams } =
         state.filters
