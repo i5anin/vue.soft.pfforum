@@ -29,6 +29,7 @@ import ToolTabTree from '@/modules/tool/components/tabs/Tree.vue'
 import EditorCatalog from '@/modules/editor-tool/components/Catalog.vue'
 import StorageCatalog from '@/modules/storage-tool/components/Catalog.vue'
 import IssueCatalog from '@/modules/issue-tool/components/Catalog.vue'
+import NaladCatalog from '@/modules/nalad-tool/components/Catalog.vue'
 
 import Report from '@/modules/tool/components/tabs/Report.vue'
 
@@ -44,6 +45,7 @@ export default {
         { name: 'Склад', url: '#storage', component: StorageCatalog },
         { name: 'История', url: '#history', component: HistoryTool },
         { name: 'Испорченный', url: '#damaged', component: HistoryDamaged },
+        { name: 'Наладчик', url: '#nalad', component: NaladCatalog },
         { name: 'Отчёты', url: '#report', component: Report },
       ],
     }
