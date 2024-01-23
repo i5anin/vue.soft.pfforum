@@ -56,47 +56,6 @@ async function buildTreeData(parentId = 0) {
   return treeData
 }
 
-const addBranch = async (req, res) => {
-  try {
-    // Check for malformed JSON input
-    if (!req.body) {
-      return res.status(400).json({ message: 'Invalid JSON input' })
-    }
-
-    const { name, parentId } = req.body
-
-    // First, check if the parentId exists in the database
-    const parentCheckResult = await pool.query(
-      `SELECT id FROM dbo.tool_tree WHERE id = $1`,
-      [parentId]
-    )
-
-    // If the parentId does not exist, send an error response
-    if (parentCheckResult.rows.length === 0) {
-      return res
-        .status(400)
-        .json({ message: `Branch ID ${parentId} does not exist.` })
-    }
-
-    // Execute SQL query to insert the new branch
-    const result = await pool.query(
-      `INSERT INTO dbo.tool_tree (name, parent_id)
-       VALUES ($1, $2)
-       RETURNING id`,
-      [name, parentId]
-    )
-
-    // Respond with the ID of the newly added branch
-    res.json({
-      message: 'New branch added successfully.',
-      newBranchId: result.rows[0].id,
-    })
-  } catch (error) {
-    console.error('Error adding new branch:', error)
-    res.status(500).json({ message: `Error: ${error.message}` })
-  }
-}
-
 async function dellFolderTree(req, res) {
   try {
     const itemId = req.params.id
@@ -210,6 +169,47 @@ async function updateFolderTree(req, res) {
   } catch (error) {
     console.error('Ошибка при обновлении названия папки:', error)
     res.status(500).json({ message: 'Ошибка сервера', reason: error.message })
+  }
+}
+
+const addBranch = async (req, res) => {
+  try {
+    // Check for malformed JSON input
+    if (!req.body) {
+      return res.status(400).json({ message: 'Invalid JSON input' })
+    }
+
+    const { name, parentId } = req.body
+
+    // First, check if the parentId exists in the database
+    const parentCheckResult = await pool.query(
+      `SELECT id FROM dbo.tool_tree WHERE id = $1`,
+      [parentId]
+    )
+
+    // If the parentId does not exist, send an error response
+    if (parentCheckResult.rows.length === 0) {
+      return res
+        .status(400)
+        .json({ message: `Branch ID ${parentId} does not exist.` })
+    }
+
+    // Execute SQL query to insert the new branch
+    const result = await pool.query(
+      `INSERT INTO dbo.tool_tree (name, parent_id)
+       VALUES ($1, $2)
+       RETURNING id`,
+      [name, parentId]
+    )
+
+    // Respond with the ID of the newly added branch
+    res.json({
+      message: 'New branch added successfully.',
+      newBranchId: result.rows[0].id,
+    })
+  } catch (error) {
+    console.error('Error adding new branch:', error)
+    res.status(500).json({ message: `Error: ${error.message}` })
   }
 }
 
