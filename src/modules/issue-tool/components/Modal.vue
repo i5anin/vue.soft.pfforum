@@ -280,7 +280,6 @@ export default {
         const label = `${item.no} - ${item.cnc_type}`
         if (!uniqueSet.has(label)) {
           uniqueSet.add(label)
-          console.log(item.specs_op_id)
           this.operationMapping[label] = item.specs_op_id
         }
       })

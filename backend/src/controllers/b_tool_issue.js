@@ -95,11 +95,31 @@ async function issueTool(req, res) {
       return res.status(400).send('Недостаточно инструмента на складе')
     }
 
-    // SQL запрос для вставки данных в таблицу tool_history_nom
+    // SQL запрос для вставки данных в таблицу tool_history_nom и возвращения идентификатора
     const insertQuery = `
       INSERT INTO dbo.tool_history_nom (specs_op_id, id_user, id_tool, quantity, date)
       VALUES ($1, $2, $3, $4, $5)
+      RETURNING id
     `
+
+    // Выполняем запрос на вставку данных и получаем результат
+    const insertResult = await pool.query(insertQuery, [
+      specs_op_id,
+      id_user,
+      id_tool,
+      quantity,
+      date,
+    ])
+
+    // Проверяем, была ли строка успешно добавлена
+    if (insertResult.rows.length === 0) {
+      return res
+        .status(500)
+        .send('Ошибка при добавлении записи в историю инструмента')
+    }
+
+    // Получаем ID добавленной записи
+    const insertedId = insertResult.rows[0].id
 
     // SQL запрос для обновления данных в таблице tool_nom
     const updateQuery = `
@@ -117,6 +137,7 @@ async function issueTool(req, res) {
     // Отправляем эти данные обратно в ответе
     res.status(200).json({
       success: 'OK',
+      insertedRecordId: insertedId, // ID вставленной записи
       specs_op_id,
       id_user,
       id_tool,
@@ -130,9 +151,9 @@ async function issueTool(req, res) {
       success: false,
       message: 'Внутренняя ошибка сервера',
       error: {
-        name: error.name, // Тип ошибки, например, "TypeError"
-        message: error.message, // Сообщение об ошибке
-        stack: error.stack, // Стек вызовов, который привел к ошибке
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
       },
       requestData: { specs_op_id, id_user, id_tool, quantity, date },
     })
