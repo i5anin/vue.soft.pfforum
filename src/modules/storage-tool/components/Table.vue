@@ -36,16 +36,20 @@
       </template>
       <!--name-->
       <template v-slot:item.name="{ item }">
-        <span style="white-space: nowrap">{{ item.name }}</span>
+        <td :class="colorClassGrey(item)" style="white-space: nowrap">
+          {{ item.name }}
+        </td>
       </template>
       <template v-slot:item.sklad="{ item }">
-        <span style="white-space: nowrap">{{ item.sklad }}</span>
+        <td :class="colorClassRed(item)" style="white-space: nowrap">
+          {{ item.sklad }}
+        </td>
       </template>
       <template v-slot:item.norma="{ item }">
-        <span style="white-space: nowrap">{{ item.norma }}</span>
+        <td style="white-space: nowrap">{{ item.norma }}</td>
       </template>
       <template v-slot:item.zakaz="{ item }">
-        <span style="white-space: nowrap">{{ calculateOrder(item) }}</span>
+        <td style="white-space: nowrap">{{ calculateOrder(item) }}</td>
       </template>
     </v-data-table-server>
   </v-container>
@@ -125,6 +129,12 @@ export default {
     this.isDataLoaded = true
   },
   methods: {
+    colorClassGrey(item) {
+      return { grey: !item.sklad || item.sklad === 0 }
+    },
+    colorClassRed(item) {
+      return { red: !item.sklad || item.sklad === 0 }
+    },
     onIssueTool(event, item) {
       event.stopPropagation() // Предотвратить всплытие события
       console.log('Выдать инструмент:', item)
@@ -163,5 +173,13 @@ export default {
   max-width: 40px !important;
   font-size: 0.9em;
   color: grey;
+}
+
+.grey {
+  color: grey;
+}
+
+.red {
+  color: red;
 }
 </style>

@@ -23,7 +23,9 @@
         <v-icon color="info" icon="mdi-folder" class="icon" />
         <v-list-item-title>
           {{ item.label }}
-          <span v-if="item.available !== 0"> ({{ item.available }}) </span>
+          <span v-if="item.elements !== 0" style="color: grey">
+            ({{ item.available }}&nbsp;/&nbsp;{{ item.elements }})
+          </span>
         </v-list-item-title>
       </div>
     </v-list-item>
