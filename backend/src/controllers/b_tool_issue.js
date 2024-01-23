@@ -75,6 +75,11 @@ async function issueTool(req, res) {
     // Извлекаем данные из тела запроса
     const { specs_op_id, id_user, id_tool, quantity, date } = req.body
 
+    // Проверяем наличие всех необходимых параметров
+    if (!specs_op_id || !id_user || !id_tool || quantity == null || !date) {
+      return res.status(400).send('Отсутствует один из обязательных параметров')
+    }
+
     // SQL запрос для получения текущего количества инструмента на складе
     const selectQuery = `
       SELECT sklad
