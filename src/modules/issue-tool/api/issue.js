@@ -25,7 +25,7 @@ export const issueToolApi = {
   // Функция для отправки данных об инструменте
   addHistoryTool: async (toolData) =>
     axiosInstance
-      .post('history', toolData)
+      .post('issue', toolData)
       .then(handleResponse)
       .catch(handleApiError),
 }

@@ -31,10 +31,10 @@ router.delete('/tools-tree/:id', treeController.dellFolderTree)
 //issue
 router.get('/detail/id', issueController.findDetailProduction)
 router.get('/operators/fio', issueController.getFioOperators)
+router.post('/issue', issueController.issueTool)
 //history
 router.get('/history/:id', historyController.getToolHistoryId)
 router.get('/history', historyController.getToolHistory)
-router.post('/history', historyController.saveToolHistory)
 
 router.get('/history-part', historyController.getToolHistoryByPartId)
 // router.get('/test', historyController.getToolTest)

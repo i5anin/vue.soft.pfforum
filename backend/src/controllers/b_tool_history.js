@@ -239,72 +239,7 @@ async function getToolHistoryByPartId(req, res) {
   }
 }
 
-async function saveToolHistory(req, res) {
-  try {
-    // Извлекаем данные из тела запроса
-    const { specs_op_id, id_user, id_tool, quantity, date } = req.body
-
-    // SQL запрос для получения текущего количества инструмента на складе
-    const selectQuery = `
-      SELECT sklad
-      FROM dbo.tool_nom
-      WHERE id = $1
-    `
-
-    // Выполняем запрос на получение данных
-    const toolData = await pool.query(selectQuery, [id_tool])
-
-    // Проверяем, достаточно ли инструмента на складе
-    if (toolData.rows[0].sklad < quantity) {
-      return res.status(400).send('Недостаточно инструмента на складе')
-    }
-
-    // SQL запрос для вставки данных в таблицу tool_history_nom
-    const insertQuery = `
-      INSERT INTO dbo.tool_history_nom (specs_op_id, id_user, id_tool, quantity, date)
-      VALUES ($1, $2, $3, $4, $5)
-    `
-
-    // SQL запрос для обновления данных в таблице tool_nom
-    const updateQuery = `
-      UPDATE dbo.tool_nom
-      SET sklad = sklad - $1
-      WHERE id = $2
-    `
-
-    // Выполняем запрос на обновление данных
-    await pool.query(updateQuery, [quantity, id_tool])
-
-    // Получаем обновленное значение sklad
-    const updatedSklad = await pool.query(selectQuery, [id_tool])
-
-    // Отправляем эти данные обратно в ответе
-    res.status(200).json({
-      success: 'OK',
-      specs_op_id,
-      id_user,
-      id_tool,
-      quantity,
-      date,
-      updatedSklad: updatedSklad.rows[0].sklad,
-    })
-  } catch (error) {
-    console.error('Ошибка при сохранении истории инструмента:', error)
-    res.status(500).json({
-      success: false,
-      message: 'Внутренняя ошибка сервера',
-      error: {
-        name: error.name, // Тип ошибки, например, "TypeError"
-        message: error.message, // Сообщение об ошибке
-        stack: error.stack, // Стек вызовов, который привел к ошибке
-      },
-      requestData: { specs_op_id, id_user, id_tool, quantity, date },
-    })
-  }
-}
-
 module.exports = {
-  saveToolHistory,
   getToolHistoryId,
   getToolHistory,
   getToolHistoryByPartId,
