@@ -84,41 +84,41 @@ async function addToolHistoryDamaged(req, res) {
       return res.status(400).send('Станок не найден')
     }
 
-    // SQL запрос для вставки данных в таблицу tool_history_damaged
+    // Проверяем существование инструмента и достаточное количество на складе
+    const toolQuery = `SELECT sklad FROM dbo.tool_nom WHERE id = $1;`
+    const toolResult = await pool.query(toolQuery, [id_tool])
+    if (toolResult.rows.length === 0) {
+      return res.status(400).send('Инструмент не найден')
+    }
+    if (toolResult.rows[0].sklad < 1) {
+      return res.status(400).send('Недостаточно инструмента на складе')
+    }
+
+    // Вставка данных в таблицу tool_history_damaged
     const insertQuery = `
       INSERT INTO dbo.tool_history_damaged (id_tool, id_user, cnc_code, comment)
       VALUES ($1, $2, $3, $4)
-      RETURNING id
+      RETURNING id;
     `
+    await pool.query(insertQuery, [id_tool, id_user, cnc_code, comment])
 
-    // Выполняем запрос на вставку данных и получаем результат
-    const insertResult = await pool.query(insertQuery, [
-      id_tool,
-      id_user,
-      cnc_code,
-      comment,
-    ])
+    // Обновление количества инструмента на складе
+    const updateSkladQuery = `
+      UPDATE dbo.tool_nom
+      SET sklad = sklad - 1
+      WHERE id = $1;
+    `
+    await pool.query(updateSkladQuery, [id_tool])
 
-    // Проверяем, была ли строка успешно добавлена
-    if (insertResult.rows.length === 0) {
-      return res
-        .status(500)
-        .send(
-          'Ошибка при добавлении записи в историю поврежденного инструмента'
-        )
-    }
-
-    // Получаем ID добавленной записи
-    const insertedId = insertResult.rows[0].id
-
-    // Отправляем эти данные обратно в ответе
-    res.status(200).json({
-      success: 'OK',
-      insertedRecordId: insertedId, // ID вставленной записи
-    })
+    res
+      .status(200)
+      .json({
+        success: 'OK',
+        message: 'Запись успешно добавлена и количество на складе обновлено',
+      })
   } catch (error) {
     console.error(
-      'Ошибка при сохранении истории поврежденного инструмента:',
+      'Ошибка при добавлении записи о поврежденном инструменте:',
       error
     )
     res.status(500).json({
