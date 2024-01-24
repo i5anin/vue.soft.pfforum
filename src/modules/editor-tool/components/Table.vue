@@ -1,15 +1,15 @@
 <template>
   <v-container>
+    <v-row cols="12" sm="4">
+      <v-col v-for="elem in paramsList" :key="elem.key">
+        <v-select
+          :label="elem.label"
+          :items="elem.values"
+          v-model="elem.selectedValue"
+        />
+      </v-col>
+    </v-row>
     <tool-filter :namespace="namespace">
-      <v-row>
-        <v-col cols="12" md="6" v-for="elem in paramsList" :key="elem.key">
-          <v-select
-            :label="elem.label"
-            :items="elem.values"
-            v-model="elem.selectedValue"
-          />
-        </v-col>
-      </v-row>
       <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>
     </tool-filter>
     <edit-tool-modal
