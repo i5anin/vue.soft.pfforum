@@ -136,7 +136,7 @@ export default {
       this.openDialog = true
     },
     calculateOrder(tool) {
-      if (tool.norma || tool.sklad) return tool.norma - tool.sklad
+      if (tool.norma != null) return tool.norma - tool.sklad
     },
     async onChangePage(page) {
       this.$emit('page-changed', page)

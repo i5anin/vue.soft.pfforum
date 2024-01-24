@@ -50,12 +50,20 @@
               label="Норма"
               required
               v-model="toolModel.norma"
+              disabled="true"
             />
             <v-text-field
               density="compact"
               label="Склад"
               required
               v-model="toolModel.sklad"
+              disabled="true"
+            />
+            <v-text-field
+              density="compact"
+              label="Норма"
+              required
+              v-model="toolModel.norma"
             />
             <h2 class="text-h6"></h2>
             <div></div>
@@ -187,7 +195,7 @@ export default {
 
     popupTitle() {
       return this.tool?.id != null
-        ? `Редактировать инструмент ID: ${this.tool.id}`
+        ? `Редактировать норму инструмента ID: ${this.tool.id}`
         : 'Добавить инструмент'
     },
   },
