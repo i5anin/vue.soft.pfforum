@@ -28,6 +28,13 @@
               required
               single-line
             />
+            <v-text-field
+              label="Количество"
+              v-model="damagedQuantity"
+              type="number"
+              min="1"
+              required
+            />
             <v-select
               v-model="selectedFio"
               :items="fioOptions"
@@ -96,6 +103,7 @@ export default {
   },
   components: { Modal },
   data: () => ({
+    damagedQuantity: 1,
     comment: null,
     selectedCnc: null,
     cncList: [],
@@ -338,12 +346,12 @@ export default {
     },
     async onSave() {
       try {
-        // Подготовка данных о поврежденном инструменте
         const damagedToolData = {
           id_tool: this.toolId,
           id_user: this.selectedFio.value,
           cnc_code: this.selectedCnc,
           comment: this.comment,
+          quantity: this.damagedQuantity, // новое поле
         }
 
         // Отправка данных о поврежденном инструменте

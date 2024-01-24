@@ -35,7 +35,9 @@ async function getDamaged(req, res) {
         operators.fio,
         tool_history_damaged.cnc_code,
         cnc.cnc_name,
-        tool_history_damaged.comment
+        tool_history_damaged.comment,
+        tool_history_damaged.quantity,
+        tool_history_damaged.timestamp
       FROM dbo.tool_history_damaged
       INNER JOIN dbo.tool_nom ON tool_history_damaged.id_tool = tool_nom.id
       INNER JOIN dbo.operators ON tool_history_damaged.id_user = operators.id
@@ -63,10 +65,10 @@ async function getDamaged(req, res) {
 async function addToolHistoryDamaged(req, res) {
   try {
     // Извлекаем данные из тела запроса
-    const { id_tool, id_user, cnc_code, comment } = req.body
+    const { id_tool, id_user, cnc_code, comment, quantity } = req.body
 
     // Проверяем наличие всех необходимых параметров
-    if (!id_tool || !id_user || !cnc_code || !comment) {
+    if (!id_tool || !id_user || !cnc_code || !comment || !quantity) {
       return res.status(400).send('Отсутствует один из обязательных параметров')
     }
 
@@ -90,32 +92,36 @@ async function addToolHistoryDamaged(req, res) {
     if (toolResult.rows.length === 0) {
       return res.status(400).send('Инструмент не найден')
     }
-    if (toolResult.rows[0].sklad < 1) {
+    if (toolResult.rows[0].sklad < quantity) {
       return res.status(400).send('Недостаточно инструмента на складе')
     }
 
     // Вставка данных в таблицу tool_history_damaged
     const insertQuery = `
-      INSERT INTO dbo.tool_history_damaged (id_tool, id_user, cnc_code, comment)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO dbo.tool_history_damaged (id_tool, id_user, cnc_code, comment, quantity, timestamp)
+      VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
       RETURNING id;
     `
-    await pool.query(insertQuery, [id_tool, id_user, cnc_code, comment])
+    await pool.query(insertQuery, [
+      id_tool,
+      id_user,
+      cnc_code,
+      comment,
+      quantity,
+    ])
 
     // Обновление количества инструмента на складе
     const updateSkladQuery = `
       UPDATE dbo.tool_nom
-      SET sklad = sklad - 1
+      SET sklad = sklad - $2
       WHERE id = $1;
     `
-    await pool.query(updateSkladQuery, [id_tool])
+    await pool.query(updateSkladQuery, [id_tool, quantity])
 
-    res
-      .status(200)
-      .json({
-        success: 'OK',
-        message: 'Запись успешно добавлена и количество на складе обновлено',
-      })
+    res.status(200).json({
+      success: 'OK',
+      message: 'Запись успешно добавлена и количество на складе обновлено',
+    })
   } catch (error) {
     console.error(
       'Ошибка при добавлении записи о поврежденном инструменте:',

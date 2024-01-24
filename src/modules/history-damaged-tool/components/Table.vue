@@ -60,6 +60,8 @@ export default {
         { title: 'ФИО', value: 'fio', sortable: false },
         { title: 'CNC название', value: 'cnc_name', sortable: false },
         { title: 'Комментарий', value: 'comment', sortable: false },
+        { title: 'Кол-во', key: 'quantity', sortable: false },
+        { title: 'Дата', key: 'timestamp', sortable: false },
       ],
     }
   },
@@ -80,7 +82,7 @@ export default {
     },
 
     formatDate(date) {
-      return format(parseISO(date), 'dd.MM.yyyy')
+      return format(parseISO(date), 'dd.MM.yyyy hh:mm')
     },
     onAddTool() {
       this.editingToolId = null
@@ -88,16 +90,20 @@ export default {
     },
 
     async fetchAndFormatToolHistory() {
-      const response = await damagedHistoryApi.fetchDamagedHistory(
-        '',
-        this.filters.currentPage,
-        this.filters.itemsPerPage
-      )
-      this.toolsHistory = response.toolsHistory.map((tool) => ({
-        ...tool,
-        date: tool.date ? this.formatDate(tool.date) : null,
-      }))
-      this.totalCount = this.toolsHistory.length
+      try {
+        const response = await damagedHistoryApi.fetchDamagedHistory(
+          '',
+          this.filters.currentPage,
+          this.filters.itemsPerPage
+        )
+        this.toolsHistory = response.toolsHistory.map((tool) => ({
+          ...tool,
+          timestamp: tool.timestamp ? this.formatDate(tool.timestamp) : null,
+        }))
+        this.totalCount = response.totalCount
+      } catch (error) {
+        console.error('Error fetching tool history:', error)
+      }
     },
 
     onClosePopup() {
