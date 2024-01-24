@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <!--    <v-btn color="blue" @click="onAddTool">Добавить</v-btn>-->
+    <!-- <v-btn color="blue" @click="onAddTool">Добавить</v-btn>-->
     <edit-tool-modal
       v-if="openDialog"
       :persistent="true"
