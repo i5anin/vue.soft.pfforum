@@ -29,6 +29,13 @@ export const issueToolApi = {
       .then(handleResponse)
       .catch(handleApiError),
 
+  // Функция для отправки данных о поврежденном инструменте
+  addToolHistoryDamaged: async (damagedData) =>
+    axiosInstance
+      .post('tool-history-damaged', damagedData)
+      .then(handleResponse)
+      .catch(handleApiError),
+
   fetchCncList: async () =>
     axiosInstance.get('cnc').then(handleResponse).catch(handleApiError),
 }

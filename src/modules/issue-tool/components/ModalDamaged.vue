@@ -338,35 +338,32 @@ export default {
     },
     async onSave() {
       try {
-        // Подготовка данных инструмента для истории
-        const toolHistoryData = {
-          specs_op_id: this.toolModel.selectedOperationId,
-          id_user: this.selectedFio.value,
+        // Подготовка данных о поврежденном инструменте
+        const damagedToolData = {
           id_tool: this.toolId,
-          quantity: parseInt(this.toolModel.issue),
-          date: new Date().toISOString(),
+          id_user: this.selectedFio.value,
+          cnc_code: this.selectedCnc,
+          comment: this.comment,
         }
 
-        console.log('Отправка данных инструмента на сервер:', toolHistoryData)
-
-        // Отправка данных истории инструмента
-        const response = await issueToolApi.addHistoryTool(toolHistoryData)
+        // Отправка данных о поврежденном инструменте
+        const response =
+          await issueToolApi.addToolHistoryDamaged(damagedToolData)
         console.log('Ответ сервера:', response)
 
         if (response.success === 'OK') {
-          console.log('Данные успешно сохранены на сервере')
+          console.log('Данные о поврежденном инструменте успешно сохранены')
           this.$emit('changes-saved')
-          console.log('Событие changes-saved отправлено')
         } else {
           console.error(
-            'Ошибка при сохранении данных на сервере: ',
-            response.data
+            'Ошибка при сохранении данных о поврежденном инструменте: ',
+            response
           )
         }
       } catch (error) {
         console.error(
-          'Ошибка при отправке данных на сервер: ',
-          error.response ? error.response.data : error
+          'Ошибка при отправке данных о поврежденном инструменте: ',
+          error
         )
       }
     },
