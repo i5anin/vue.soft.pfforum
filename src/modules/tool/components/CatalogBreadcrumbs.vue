@@ -20,7 +20,7 @@
       class="align-center"
     >
       <div class="flex">
-        <v-icon color="info" icon="mdi-folder" class="icon" />
+        <v-icon :color="appColor" icon="mdi-folder" class="icon" />
         <v-list-item-title>
           {{ item.label }}
           <span v-if="item.elements !== 0" style="color: grey">
@@ -44,6 +44,11 @@ export default {
     currentItem: {
       type: Object,
       default: () => null,
+    },
+  },
+  computed: {
+    appColor() {
+      return import.meta.env.VITE_NODE_ENV === 'build' ? 'blue-grey' : 'primary'
     },
   },
   methods: {

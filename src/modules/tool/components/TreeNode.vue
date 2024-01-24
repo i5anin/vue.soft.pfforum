@@ -2,7 +2,7 @@
   <v-list-item>
     <div className="tree-node">
       <div className="node-content">
-        <v-icon color="info">mdi-folder</v-icon>
+        <v-icon :color="appColor">mdi-folder</v-icon>
         <span>
           {{ node.label }}
           <span v-if="node.elements !== 0">
@@ -27,6 +27,12 @@
 export default {
   name: 'TreeNode',
   props: ['node'],
+
+  computed: {
+    appColor() {
+      return import.meta.env.VITE_NODE_ENV === 'build' ? 'blue-grey' : 'primary'
+    },
+  },
 }
 </script>
 

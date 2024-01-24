@@ -37,7 +37,7 @@
       />
     </v-navigation-drawer>
 
-    <v-app-bar color="primary" sticky prominent dark>
+    <v-app-bar :color="appColor" sticky prominent dark>
       <!-- Левая кнопка -->
       <v-app-bar-nav-icon
         variant="text"
@@ -75,6 +75,9 @@ export default {
     isHovered: false,
   }),
   computed: {
+    appColor() {
+      return import.meta.env.VITE_NODE_ENV === 'build' ? 'blue-grey' : 'primary'
+    },
     originalMenuItemsComputed() {
       return this.filterForHohlov(originalMenuItems)
     },
