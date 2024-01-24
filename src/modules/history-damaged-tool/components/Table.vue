@@ -1,5 +1,6 @@
 <template>
   <v-container>
+    <!--    <v-btn color="blue" @click="onAddTool">Добавить</v-btn>-->
     <edit-tool-modal
       v-if="openDialog"
       :persistent="true"
@@ -33,12 +34,12 @@
 <script>
 import { VDataTableServer } from 'vuetify/labs/components'
 import { format, parseISO } from 'date-fns'
-import EditToolModal from './Modal.vue'
+import HistoryDamagedModal from './Modal.vue'
 import { damagedHistoryApi } from '../api/damaged'
 
 export default {
   components: {
-    EditToolModal,
+    EditToolModal: HistoryDamagedModal,
     VDataTableServer,
   },
 
@@ -80,6 +81,10 @@ export default {
 
     formatDate(date) {
       return format(parseISO(date), 'dd.MM.yyyy')
+    },
+    onAddTool() {
+      this.editingToolId = null
+      this.openDialog = true
     },
 
     async fetchAndFormatToolHistory() {

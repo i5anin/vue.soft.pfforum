@@ -49,6 +49,9 @@
         <v-btn color="primary" @click="(event) => onIssueTool(event, item)">
           Выдать
         </v-btn>
+        <v-btn color="red" @click="(event) => onIssueTool(event, item)">
+          Испорчен
+        </v-btn>
       </template>
     </v-data-table-server>
   </v-container>

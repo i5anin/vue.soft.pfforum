@@ -41,7 +41,7 @@ export default {
         { name: 'Редактор', url: '#editor', component: EditorCatalog },
         { name: 'Дерево', url: '#tree', component: ToolTabTree },
         { name: 'Параметры', url: '#params', component: ToolTabParam },
-        { name: 'Выдача', url: '#issue', component: IssueCatalog },
+        { name: 'Выдача', url: '#issue', component: IssueCatalog }, //инструментальщик
         { name: 'Склад', url: '#storage', component: StorageCatalog },
         { name: 'История выдачи', url: '#history', component: HistoryTool },
         {
