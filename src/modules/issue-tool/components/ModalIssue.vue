@@ -336,7 +336,7 @@ export default {
     async onSave() {
       try {
         // Подготовка данных инструмента для истории
-        const toolHistoryData = {
+        const issueHistoryData = {
           specs_op_id: this.toolModel.selectedOperationId,
           id_user: this.selectedFio.value,
           id_tool: this.toolId,
@@ -344,10 +344,10 @@ export default {
           date: new Date().toISOString(),
         }
 
-        console.log('Отправка данных инструмента на сервер:', toolHistoryData)
+        console.log('Отправка данных инструмента на сервер:', issueHistoryData)
 
         // Отправка данных истории инструмента
-        const response = await issueToolApi.addHistoryTool(toolHistoryData)
+        const response = await issueToolApi.addHistoryTool(issueHistoryData)
         console.log('Ответ сервера:', response)
 
         if (response.success === 'OK') {

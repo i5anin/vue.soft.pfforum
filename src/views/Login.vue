@@ -1,41 +1,56 @@
 <template>
-  <v-container fluid>
-    <v-row justify="center">
-      <v-col cols="12" sm="8" md="4">
-        <v-card class="elevation-12">
-          <v-toolbar color="primary" dark flat>
-            <v-toolbar-title>Вход в систему</v-toolbar-title>
-          </v-toolbar>
-          <v-card-text>
-            <v-form ref="form">
-              <v-text-field
-                v-model="login"
-                label="Логин"
-                name="login"
-                prepend-icon="mdi-account"
-                type="text"
-                required
-              ></v-text-field>
-              <v-text-field
-                v-model="password"
-                label="Пароль"
-                name="password"
-                prepend-icon="mdi-lock"
-                type="password"
-                required
-              ></v-text-field>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn type="submit" color="primary" @click.prevent="submit"
-                  >Войти</v-btn
-                >
-              </v-card-actions>
-            </v-form>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
+  <div>
+    <v-container>
+      <v-img class="mx-auto my-6" max-width="100" src="@/assets/logo_min.png" />
+
+      <h1 class="text-h4 text-center pb-6">Авторизация</h1>
+      <v-card
+        class="mx-auto pa-12 pb-8"
+        elevation="8"
+        max-width="448"
+        rounded="lg"
+      >
+        <div class="text-subtitle-1 text-medium-emphasis">Логин</div>
+
+        <v-text-field
+          density="compact"
+          placeholder="Login"
+          prepend-inner-icon="mdi-key"
+          variant="outlined"
+        />
+
+        <div
+          class="text-subtitle-1 text-medium-emphasis d-flex align-center justify-space-between"
+        >
+          Пароль
+        </div>
+
+        <v-text-field
+          v-model="password"
+          :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
+          :type="visible ? 'text' : 'password'"
+          density="compact"
+          placeholder="Password"
+          prepend-inner-icon="mdi-lock-outline"
+          variant="outlined"
+          @click:append-inner="toggleVisibility"
+        ></v-text-field>
+
+        <v-btn block class="mb-8" color="blue" size="large" variant="tonal">
+          Войти
+        </v-btn>
+
+        <v-card-text class="text-center">
+          <a
+            class="text-blue text-decoration-none"
+            href="#"
+            rel="noopener noreferrer"
+            target="_blank"
+          />
+        </v-card-text>
+      </v-card>
+    </v-container>
+  </div>
 </template>
 
 <script>
@@ -43,22 +58,18 @@ export default {
   data: () => ({
     login: '',
     password: '',
+    visible: false,
   }),
   methods: {
+    toggleVisibility() {
+      this.visible = !this.visible
+    },
     submit() {
-      // Здесь должен быть ваш код для проверки данных формы и отправки их на сервер
-      // Например, используя axios для отправки запроса на ваш API
       const formData = {
         login: this.login,
         password: this.password,
       }
-      console.log(formData) // Замените эту часть на реальный запрос к серверу
-      // Пример с axios (не забудьте установить axios через npm и импортировать его):
-      // axios.post('/api/login', formData).then(response => {
-      //   // Обработка успешного входа
-      // }).catch(error => {
-      //   // Обработка ошибок входа
-      // });
+      console.log(formData)
     },
   },
 }

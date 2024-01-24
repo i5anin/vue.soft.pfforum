@@ -60,6 +60,80 @@ async function getDamaged(req, res) {
   }
 }
 
+async function addToolHistoryDamaged(req, res) {
+  try {
+    // Извлекаем данные из тела запроса
+    const { id_tool, id_user, cnc_code, comment } = req.body
+
+    // Проверяем наличие всех необходимых параметров
+    if (!id_tool || !id_user || !cnc_code || !comment) {
+      return res.status(400).send('Отсутствует один из обязательных параметров')
+    }
+
+    // Проверяем существование пользователя
+    const userQuery = `SELECT id FROM dbo.operators WHERE id = $1 AND active = 't'`
+    const userResult = await pool.query(userQuery, [id_user])
+    if (userResult.rows.length === 0) {
+      return res.status(400).send('Пользователь не найден')
+    }
+
+    // Проверяем существование станка
+    const cncQuery = `SELECT cnc_code FROM dbo.cnc WHERE cnc_code = $1 AND active = 't'`
+    const cncResult = await pool.query(cncQuery, [cnc_code])
+    if (cncResult.rows.length === 0) {
+      return res.status(400).send('Станок не найден')
+    }
+
+    // SQL запрос для вставки данных в таблицу tool_history_damaged
+    const insertQuery = `
+      INSERT INTO dbo.tool_history_damaged (id_tool, id_user, cnc_code, comment)
+      VALUES ($1, $2, $3, $4)
+      RETURNING id
+    `
+
+    // Выполняем запрос на вставку данных и получаем результат
+    const insertResult = await pool.query(insertQuery, [
+      id_tool,
+      id_user,
+      cnc_code,
+      comment,
+    ])
+
+    // Проверяем, была ли строка успешно добавлена
+    if (insertResult.rows.length === 0) {
+      return res
+        .status(500)
+        .send(
+          'Ошибка при добавлении записи в историю поврежденного инструмента'
+        )
+    }
+
+    // Получаем ID добавленной записи
+    const insertedId = insertResult.rows[0].id
+
+    // Отправляем эти данные обратно в ответе
+    res.status(200).json({
+      success: 'OK',
+      insertedRecordId: insertedId, // ID вставленной записи
+    })
+  } catch (error) {
+    console.error(
+      'Ошибка при сохранении истории поврежденного инструмента:',
+      error
+    )
+    res.status(500).json({
+      success: false,
+      message: 'Внутренняя ошибка сервера',
+      error: {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+      },
+    })
+  }
+}
+
 module.exports = {
   getDamaged,
+  addToolHistoryDamaged,
 }

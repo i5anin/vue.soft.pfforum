@@ -29,18 +29,19 @@ router.get('/tools-tree', treeController.getToolsTree)
 router.post('/tools-tree', treeController.addBranch)
 router.put('/tools-tree', treeController.updateFolderTree)
 router.delete('/tools-tree/:id', treeController.dellFolderTree)
-//issue
+// issue
 router.get('/detail/id', issueController.findDetailProduction)
 router.get('/operators/fio', issueController.getFioOperators)
 router.post('/issue', issueController.issueTool)
 router.get('/cnc', issueController.getCncData)
-//history
+// history
 router.get('/history/:id', historyController.getToolHistoryId)
 router.get('/history', historyController.getToolHistory)
 router.get('/history-part', historyController.getToolHistoryByPartId)
-//damaged
+// damaged
 router.get('/damaged-history', damagedController.getDamaged)
-//sklad
+router.post('/tool-history-damaged', damagedController.addToolHistoryDamaged)
+// sklad
 router.post('/sklad/update', skladController.updateToolInventory)
 
 module.exports = router

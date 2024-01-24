@@ -38,15 +38,13 @@
               single-line
               @update:modelValue="handleSelectionChange"
             />
-            <v-text-field
-              density="compact"
+            <v-textarea
+              class="comment-field"
               label="Комментарий"
+              v-model="comment"
+              rows="3"
               required
-              @update:model-value="onIdChanged"
             />
-
-            <h2 class="text-h6"></h2>
-            <div></div>
           </v-col>
         </v-row>
       </v-container>
@@ -98,6 +96,7 @@ export default {
   },
   components: { Modal },
   data: () => ({
+    comment: null,
     selectedCnc: null,
     cncList: [],
     originalData: [],
@@ -133,6 +132,12 @@ export default {
     'tool.sklad': function (newVal) {
       console.log('tool.sklad changed from ', newVal)
     },
+    selectedCnc(newValue) {
+      console.log('Выбранное значение cnc_id:', newValue)
+    },
+    selectedFio(newValue) {
+      console.log('Выбранное значение fio_id:', newValue)
+    },
     tool: {
       deep: true,
       immediate: true,
@@ -160,7 +165,6 @@ export default {
       const cncData = await issueToolApi.fetchCncList()
       // Обновление cncList для обеспечения реактивности
       this.cncList = cncData ? [...cncData] : []
-      console.log(cncData)
       // Проверка и присвоение полученных данных о станках
       if (cncData && Array.isArray(cncData)) {
         this.cncList = cncData
@@ -186,7 +190,6 @@ export default {
     } catch (error) {
       console.error('Ошибка в created:', error)
     }
-    console.log('cncList:', this.cncList)
   },
 
   computed: {
