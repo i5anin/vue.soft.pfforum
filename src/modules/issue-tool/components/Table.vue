@@ -4,7 +4,15 @@
     <!-- <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>-->
     <!-- </tool-filter>-->
     <issue-modal
-      v-if="openDialog"
+      v-if="openDialog && currentModal === 'issue'"
+      :persistent="true"
+      :tool-id="editingToolId"
+      @canceled="onClosePopup"
+      @changes-saved="onSaveChanges"
+    />
+
+    <damaged-modal
+      v-if="openDialog && currentModal === 'damaged'"
       :persistent="true"
       :tool-id="editingToolId"
       @canceled="onClosePopup"
@@ -45,11 +53,14 @@
       <template v-slot:item.zakaz="{ item }">
         <span style="white-space: nowrap">{{ calculateOrder(item) }}</span>
       </template>
-      <template v-slot:item.actions="{ item }">
+      <template v-slot:item.issue="{ item }">
         <v-btn color="primary" @click="(event) => onIssueTool(event, item)">
           Выдать
         </v-btn>
-        <v-btn color="red" @click="(event) => onIssueTool(event, item)">
+      </template>
+
+      <template v-slot:item.damaged="{ item }">
+        <v-btn color="red" @click="(event) => onDamagedTool(event, item)">
           Испорчен
         </v-btn>
       </template>
@@ -59,6 +70,7 @@
 
 <script>
 import IssueModal from './Modal.vue'
+import DamagedModal from './ModalDamaged.vue'
 import ToolFilter from '@/modules/tool/components/ToolFilter.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 
@@ -68,6 +80,7 @@ export default {
     VDataTableServer,
     IssueModal,
     ToolFilter,
+    DamagedModal,
   },
   props: {
     toolsTotalCount: {
@@ -112,7 +125,7 @@ export default {
           { title: '№', key: 'index', sortable: false },
           { title: 'Маркировка', key: 'name', sortable: true },
           { title: 'Склад', key: 'sklad', sortable: false },
-          { title: 'Действие', key: 'actions', sortable: false },
+          { title: 'Выдача', key: 'issue', sortable: false },
           ...(newVal && newVal.length > 0
             ? newVal.map((param) => ({
                 title: param.label,
@@ -121,8 +134,8 @@ export default {
               }))
             : []),
           // { title: 'Норма', key: 'norma', sortable: false },
-
           // { title: 'Заказ', key: 'zakaz', sortable: false },
+          { title: 'Испорчен', key: 'damaged', sortable: false },
         ]
       },
     },
@@ -133,9 +146,15 @@ export default {
   },
   methods: {
     onIssueTool(event, item) {
-      event.stopPropagation() // Предотвратить всплытие события
-      console.log(item.id, 'Выдать инструмент:', item)
+      event.stopPropagation()
       this.editingToolId = item.id
+      this.currentModal = 'issue'
+      this.openDialog = true
+    },
+    onDamagedTool(event, item) {
+      event.stopPropagation()
+      this.editingToolId = item.id
+      this.currentModal = 'damaged'
       this.openDialog = true
     },
     calculateOrder(tool) {
@@ -149,6 +168,7 @@ export default {
     },
     onClosePopup() {
       this.openDialog = false
+      this.currentModal = null
     },
     onSaveChanges() {
       this.openDialog = false

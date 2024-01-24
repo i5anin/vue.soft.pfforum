@@ -71,6 +71,6 @@ export default {
   left: -1px;
   top: 24px;
   width: 1px;
-  background: rgb(var(--v-theme-background));
+  //background: rgb(var(--v-theme-background));
 }
 </style>

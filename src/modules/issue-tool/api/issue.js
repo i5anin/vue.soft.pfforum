@@ -28,4 +28,7 @@ export const issueToolApi = {
       .post('issue', toolData)
       .then(handleResponse)
       .catch(handleApiError),
+
+  fetchCncList: async () =>
+    axiosInstance.get('cnc').then(handleResponse).catch(handleApiError),
 }

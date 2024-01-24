@@ -160,8 +160,31 @@ async function issueTool(req, res) {
   }
 }
 
+async function getCncData(req, res) {
+  try {
+    const query = `
+      SELECT id, cnc_name, cnc_code
+      FROM dbo.cnc
+      WHERE active = 't'
+      ORDER BY cnc_name
+    `
+
+    const result = await pool.query(query)
+
+    if (result.rows.length > 0) {
+      res.json(result.rows)
+    } else {
+      res.status(404).send('Станки не найдены')
+    }
+  } catch (error) {
+    console.error('Ошибка при получении данных о станках:', error)
+    res.status(500).send('Внутренняя ошибка сервера')
+  }
+}
+
 module.exports = {
   findDetailProduction,
   getFioOperators,
   issueTool,
+  getCncData,
 }
