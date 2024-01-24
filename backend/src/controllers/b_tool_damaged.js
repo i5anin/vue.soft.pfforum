@@ -116,11 +116,22 @@ async function addToolHistoryDamaged(req, res) {
       SET sklad = sklad - $2
       WHERE id = $1;
     `
+    // Обновление количества инструмента на складе
     await pool.query(updateSkladQuery, [id_tool, quantity])
+
+    // Проверка обновленного значения количества на складе
+    const updatedToolResult = await pool.query(toolQuery, [id_tool])
+    const updatedQuantity = updatedToolResult.rows[0].sklad
+
+    // Проверяем, что количество на складе уменьшилось на указанное значение
+    if (updatedQuantity !== toolResult.rows[0].sklad - quantity) {
+      throw new Error('Ошибка при обновлении количества инструмента на складе')
+    }
 
     res.status(200).json({
       success: 'OK',
       message: 'Запись успешно добавлена и количество на складе обновлено',
+      updatedQuantity,
     })
   } catch (error) {
     console.error(
