@@ -93,9 +93,7 @@ async function createExcelFile(data) {
 
   // Добавление данных в лист
   data.forEach((item) => {
-    if (item.zakaz > 0) {
-      worksheet.addRow(item)
-    }
+    if (item.zakaz > 0) worksheet.addRow(item)
   })
 
   // Стили для заголовков
