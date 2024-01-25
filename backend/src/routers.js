@@ -9,7 +9,7 @@ const skladController = require('./controllers/b_tool_sklad')
 const historyController = require('./controllers/b_tool_history')
 const damagedController = require('./controllers/b_tool_damaged')
 const issueController = require('./controllers/b_tool_issue')
-
+const reportController = require('./controllers/b_tool_report')
 // Маршруты для аутентификации
 // router.post('/validate-user', loginController.validateUser)
 router.get('/database-info', loginController.getDatabaseInfo)
@@ -43,5 +43,7 @@ router.get('/damaged-history', damagedController.getDamaged)
 router.post('/tool-history-damaged', damagedController.addToolHistoryDamaged)
 // sklad
 router.post('/sklad/update', skladController.updateToolInventory)
+// excel
+router.get('/excel', reportController.generateReport)
 
 module.exports = router
