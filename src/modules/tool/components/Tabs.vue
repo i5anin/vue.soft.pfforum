@@ -22,7 +22,7 @@
 
 <script>
 import ToolTabParam from '@/modules/tool/components/tabs/Param.vue'
-import HistoryTool from '@/modules/history-issue-tool/components/Table.vue'
+import HistoryIssue from '@/modules/history-issue-tool/components/Table.vue'
 import HistoryDamaged from '@/modules/history-damaged-tool/components/Table.vue'
 import ToolTabTree from '@/modules/tool/components/tabs/Tree.vue'
 
@@ -43,13 +43,17 @@ export default {
         { name: 'Параметры', url: '#params', component: ToolTabParam },
         { name: 'Выдача', url: '#issue', component: IssueCatalog }, //инструментальщик
         { name: 'Склад', url: '#storage', component: StorageCatalog },
-        { name: 'История выдачи', url: '#history', component: HistoryTool },
+        {
+          name: 'История выдачи',
+          url: '#history_issue',
+          component: HistoryIssue,
+        },
         {
           name: 'История испорченного',
-          url: '#damaged',
+          url: '#history_damaged',
           component: HistoryDamaged,
         },
-        { name: 'Наладчик', url: '#nalad', component: NaladCatalog },
+        // { name: 'Наладчик', url: '#nalad', component: NaladCatalog },
         { name: 'Отчёты', url: '#report', component: Report },
       ],
     }
