@@ -19,7 +19,7 @@
                 disabled="true"
               />
             </div>
-            <v-select
+            <v-combobox
               v-model="selectedCnc"
               :items="cncList"
               label="Выберите станок"
