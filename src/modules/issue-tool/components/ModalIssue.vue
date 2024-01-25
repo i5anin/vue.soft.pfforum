@@ -23,7 +23,7 @@
             <h2 class="text-h6">Деталь:</h2>
             <v-text-field
               density="compact"
-              label="ID"
+              label="поиск по ID"
               required
               @update:model-value="onIdChanged"
             />
@@ -46,7 +46,7 @@
               @update:model-value="onOperationSelected"
             />
             <h2 class="text-h6">Кому выдать:</h2>
-            <v-select
+            <v-combobox
               v-model="selectedFio"
               :items="fioOptions"
               item-title="text"
@@ -64,7 +64,16 @@
               v-model="toolModel.issue"
               :rules="issueRules"
             />
-
+            <!-- <h2 class="text-h6">Комментарий:</h2>-->
+            <!-- <h2 class="text-h6">Внимание идет переиспользование инструмента:</h2>-->
+            <v-textarea
+              v-if="overNorm"
+              class="comment-field"
+              label="Комментарий"
+              v-model="comment"
+              rows="3"
+              required
+            />
             <h2 class="text-h6"></h2>
             <div></div>
           </v-col>
@@ -118,6 +127,7 @@ export default {
   },
   components: { Modal },
   data: () => ({
+    overNorm: false,
     originalData: [],
     idMapping: {},
     isModalOpen: true,
