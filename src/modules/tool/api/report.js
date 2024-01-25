@@ -1,11 +1,28 @@
-import { handleApiError } from '@/api/errorHandler'
 import axiosInstance from '@/api/axiosConfig'
-
-function handleResponse(response) {
-  return response.data
-}
+import { handleApiError } from '@/api/errorHandler'
 
 export const reportApi = {
-  updateToolParam: async () =>
-    axiosInstance.put(`/excel`).then(handleResponse).catch(handleApiError),
+  report: async () => {
+    try {
+      // Отправляем запрос, ожидая ответ в формате 'blob'
+      const response = await axiosInstance.get('/excel', {
+        responseType: 'blob',
+      })
+
+      // Создаем URL из полученного blob для скачивания
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', 'Report.xlsx') // Устанавливаем имя файла для скачивания
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url) // Освобождаем ресурсы
+
+      return response // Возвращаем ответ для дальнейшей обработки, если это необходимо
+    } catch (error) {
+      handleApiError(error) // Обработка ошибок
+      throw error // Перебрасываем ошибку для дальнейшего уведомления пользователя
+    }
+  },
 }

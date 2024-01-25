@@ -7,7 +7,6 @@
             <tr>
               <th class="text-left">Название</th>
               <th class="text-left">Сформировать</th>
-              <!--              <th class="text-left">Просмотр</th>-->
             </tr>
           </thead>
           <tbody>
@@ -18,11 +17,6 @@
                   Сформировать отчет
                 </v-btn>
               </td>
-              <!--              <td>-->
-              <!--                <v-btn color="primary" @click="viewReport(report)">-->
-              <!--                  Просмотреть-->
-              <!--                </v-btn>-->
-              <!--              </td>-->
             </tr>
           </tbody>
         </v-table>
@@ -33,6 +27,7 @@
 
 <script>
 import { startOfWeek, endOfWeek, format } from 'date-fns'
+import { reportApi } from '../../api/report'
 
 export default {
   data() {
@@ -42,25 +37,22 @@ export default {
       end: format(endOfWeek(dateNow), 'yyyy-MM-dd'),
     }
     const dateAll = {
-      start: '2020-01-01', // replace with your start date
+      start: '2020-01-01',
       end: format(dateNow, 'yyyy-MM-dd'),
     }
 
     return {
       reports: [
-        { name: 'Отчет заявка на инструмент', date: dateNow }, // todo: в ЧТ в 12:00 НОРМА - РАСХОД (ВКЛ ИСПОРЧЕННЫЙ ИНСТРУМЕНТ)
-        { name: 'Отчет в бухгалтерию', date: dateNextWeek }, // todo: ПО ЗАВЕШЕНИЮ ОПЕРАЦИИ ЗАКАЗАТЬ СКОЛЬКО НУЖНО (ПО ДЕТАЛИ)
-        // { name: 'Отчет за всё время', date: dateAll },
+        { name: 'Отчет заявка на инструмент', date: dateNow },
+        { name: 'Отчет в бухгалтерию', date: dateNextWeek },
       ],
     }
   },
+
   methods: {
-    generateReport(report) {
-      console.log(`Generating report: ${report.name}`)
+    async generateReport() {
+      await reportApi.report()
     },
-    // viewReport(report) {
-    //   console.log(`View report: ${report.name}`)
-    // },
   },
 }
 </script>

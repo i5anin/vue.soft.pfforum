@@ -12,13 +12,65 @@ const dbConfig =
 const pool = new Pool(dbConfig)
 
 // Функция для получения данных из базы данных
+// Функция для получения данных о расходе
+async function getConsumptionData() {
+  try {
+    const query = `
+      SELECT id_tool, SUM(quantity) as total_consumption
+      FROM dbo.tool_history_nom
+      GROUP BY id_tool;
+    `
+    const { rows } = await pool.query(query)
+    return rows
+  } catch (error) {
+    console.error('Ошибка при получении данных о расходе:', error)
+    throw error
+  }
+}
+
+// Функция для получения данных об испорченном инструменте
+async function getDamagedToolData() {
+  try {
+    const query = `
+      SELECT id_tool, SUM(quantity) as total_damaged
+      FROM dbo.tool_history_damaged
+      GROUP BY id_tool;
+    `
+    const { rows } = await pool.query(query)
+    return rows
+  } catch (error) {
+    console.error(
+      'Ошибка при получении данных об испорченном инструменте:',
+      error
+    )
+    throw error
+  }
+}
+
+// Обновленная функция для получения данных из базы данных
 async function getReportData() {
   try {
+    const consumptionData = await getConsumptionData()
+    const damagedToolData = await getDamagedToolData()
+
     const query = `
       SELECT id, name, sklad, norma, parent_id, property, "limit"
       FROM dbo.tool_nom;
     `
     const { rows } = await pool.query(query)
+
+    // Обновление данных для каждого инструмента
+    rows.forEach((row) => {
+      const consumption = consumptionData.find(
+        (item) => item.id_tool === row.id
+      )
+      const damaged = damagedToolData.find((item) => item.id_tool === row.id)
+
+      row.consumption = consumption ? consumption.total_consumption : 0
+      row.damaged = damaged ? damaged.total_damaged : 0
+      row.zakaz = row.norma - row.consumption - row.damaged
+    })
+
     return rows
   } catch (error) {
     console.error('Ошибка при получении данных:', error)
@@ -33,17 +85,17 @@ async function createExcelFile(data) {
 
   // Заголовки столбцов
   worksheet.columns = [
-    { header: 'ID', key: 'id', width: 10 },
-    { header: 'Название', key: 'name', width: 30 },
-    { header: 'Кол-во', key: 'quantity', width: 10 },
-    { header: 'sklad', key: 'sklad', width: 10 },
-    { header: 'norma', key: 'norma', width: 10 },
-    { header: 'limit', key: 'limit', width: 10 },
+    // { header: 'ID', key: 'id', width: 10 },
+    { header: 'Название', key: 'name', width: 40 },
+    // { header: 'Кол-во', key: 'quantity', width: 10 },
+    { header: 'Заказ', key: 'zakaz', width: 10 },
   ]
 
   // Добавление данных в лист
   data.forEach((item) => {
-    worksheet.addRow(item)
+    if (item.zakaz > 0) {
+      worksheet.addRow(item)
+    }
   })
 
   // Стили для заголовков
