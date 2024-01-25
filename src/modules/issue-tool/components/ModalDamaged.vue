@@ -349,9 +349,10 @@ export default {
         const damagedToolData = {
           id_tool: this.toolId,
           id_user: this.selectedFio.value,
-          cnc_code: this.selectedCnc,
+          // Убедитесь, что selectedCnc является строкой, представляющей cnc_code
+          cnc_code: this.selectedCnc.cnc_code,
           comment: this.comment,
-          quantity: this.damagedQuantity, // новое поле
+          quantity: this.damagedQuantity,
         }
 
         // Отправка данных о поврежденном инструменте

@@ -80,10 +80,14 @@ async function addToolHistoryDamaged(req, res) {
     }
 
     // Проверяем существование станка
-    const cncQuery = `SELECT cnc_code FROM dbo.cnc WHERE cnc_code = $1 AND active = 't'`
+    const cncQuery = `SELECT cnc_code FROM dbo.cnc WHERE cnc_code = $1 AND active = true;`
     const cncResult = await pool.query(cncQuery, [cnc_code])
+
     if (cncResult.rows.length === 0) {
-      return res.status(400).send('Станок не найден')
+      console.error(`Станок с кодом ${cnc_code} не найден или не активен.`)
+      return res
+        .status(404)
+        .send(`Станок с кодом ${cnc_code} не найден или не активен.`)
     }
 
     // Проверяем существование инструмента и достаточное количество на складе
