@@ -23,7 +23,6 @@
       :items-per-page-options="[15, 50, 100, 300]"
       @update:page="onChangePage"
       @update:items-per-page="onUpdateItemsPerPage"
-      @click:row="onInfoRow"
       hover
       fixed-header
       width="true"
