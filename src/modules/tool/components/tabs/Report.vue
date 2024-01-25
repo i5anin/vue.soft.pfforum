@@ -7,7 +7,7 @@
             <tr>
               <th class="text-left">Название</th>
               <th class="text-left">Сформировать</th>
-              <th class="text-left">Просмотр</th>
+              <!--              <th class="text-left">Просмотр</th>-->
             </tr>
           </thead>
           <tbody>
@@ -18,11 +18,11 @@
                   Сформировать отчет
                 </v-btn>
               </td>
-              <td>
-                <v-btn color="primary" @click="viewReport(report)">
-                  Просмотреть
-                </v-btn>
-              </td>
+              <!--              <td>-->
+              <!--                <v-btn color="primary" @click="viewReport(report)">-->
+              <!--                  Просмотреть-->
+              <!--                </v-btn>-->
+              <!--              </td>-->
             </tr>
           </tbody>
         </v-table>
@@ -48,9 +48,9 @@ export default {
 
     return {
       reports: [
-        { name: 'Отчет за неделю', date: dateNow },
-        { name: 'Отчет за месяц', date: dateNextWeek },
-        { name: 'Отчет за всё время', date: dateAll },
+        { name: 'Отчет заявка на инструмент', date: dateNow }, // todo: в ЧТ в 12:00 НОРМА - РАСХОД (ВКЛ ИСПОРЧЕННЫЙ ИНСТРУМЕНТ)
+        { name: 'Отчет в бухгалтерию', date: dateNextWeek }, // todo: ПО ЗАВЕШЕНИЮ ОПЕРАЦИИ ЗАКАЗАТЬ СКОЛЬКО НУЖНО (ПО ДЕТАЛИ)
+        // { name: 'Отчет за всё время', date: dateAll },
       ],
     }
   },
@@ -58,9 +58,9 @@ export default {
     generateReport(report) {
       console.log(`Generating report: ${report.name}`)
     },
-    viewReport(report) {
-      console.log(`View report: ${report.name}`)
-    },
+    // viewReport(report) {
+    //   console.log(`View report: ${report.name}`)
+    // },
   },
 }
 </script>

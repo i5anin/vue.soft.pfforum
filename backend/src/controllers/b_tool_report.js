@@ -2,7 +2,6 @@ const { Pool } = require('pg')
 const ExcelJS = require('exceljs')
 const { getNetworkDetails } = require('../db_type')
 const config = require('../config')
-const { join } = require('path')
 
 // Настройка подключения к базе данных
 const networkDetails = getNetworkDetails()
@@ -19,7 +18,6 @@ async function getReportData() {
       SELECT id, name, sklad, norma, parent_id, property, "limit"
       FROM dbo.tool_nom;
     `
-
     const { rows } = await pool.query(query)
     return rows
   } catch (error) {
@@ -30,7 +28,6 @@ async function getReportData() {
 
 // Функция для создания Excel файла
 async function createExcelFile(data) {
-  console.log('createExcelFile')
   const workbook = new ExcelJS.Workbook()
   const worksheet = workbook.addWorksheet('Report')
 
@@ -40,11 +37,8 @@ async function createExcelFile(data) {
     { header: 'Название', key: 'name', width: 30 },
     { header: 'Кол-во', key: 'quantity', width: 10 },
     { header: 'sklad', key: 'sklad', width: 10 },
-    { header: 'norma', key: 'normanorma', width: 10 },
-    // { header: 'parent_id', key: 'parent_id', width: 10 },
-    // { header: 'property', key: 'property', width: 10 },
+    { header: 'norma', key: 'norma', width: 10 },
     { header: 'limit', key: 'limit', width: 10 },
-    // Добавьте другие заголовки
   ]
 
   // Добавление данных в лист
@@ -55,23 +49,26 @@ async function createExcelFile(data) {
   // Стили для заголовков
   worksheet.getRow(1).font = { bold: true }
 
-  try {
-    const filePath = join(__dirname, 'Report.xlsx')
-    await workbook.xlsx.writeFile(filePath)
-    console.log('Файл Excel успешно создан!')
-  } catch (error) {
-    console.error('Ошибка при создании файла Excel:', error)
-  }
+  return workbook
 }
 
 // Объединение функционала
-async function generateReport() {
-  console.log('Запрос на создание отчета получен')
+async function generateReport(req, res) {
   try {
     const data = await getReportData()
-    await createExcelFile(data)
+    const workbook = await createExcelFile(data)
+
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    res.setHeader('Content-Disposition', 'attachment; filename=Report.xlsx')
+
+    await workbook.xlsx.write(res)
+    res.end()
   } catch (error) {
     console.error('Ошибка при генерации отчета:', error)
+    res.status(500).send('Ошибка при генерации отчета')
   }
 }
 
