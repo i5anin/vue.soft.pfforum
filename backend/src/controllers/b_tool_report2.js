@@ -105,7 +105,7 @@ async function createExcelFile(data) {
 }
 
 // Объединение функционала
-async function generateZayavInstr(req, res) {
+async function genBuchEndOp(req, res) {
   try {
     const data = await getReportData()
     const workbook = await createExcelFile(data)
@@ -125,5 +125,5 @@ async function generateZayavInstr(req, res) {
 }
 
 module.exports = {
-  generateZayavInstr,
+  genBuchEndOp,
 }

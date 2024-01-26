@@ -9,9 +9,9 @@ const skladController = require('./controllers/b_tool_sklad')
 const historyController = require('./controllers/b_tool_history')
 const damagedController = require('./controllers/b_tool_damaged')
 const issueController = require('./controllers/b_tool_issue')
-const reportController = require('./controllers/b_tool_report1')
-const reportController = require('./controllers/b_tool_report2')
-const reportController = require('./controllers/b_tool_report3')
+const reportBuchWeekController = require('./controllers/b_tool_report1')
+const reportBuchEndOpController = require('./controllers/b_tool_report2')
+const reportBuchMonthController = require('./controllers/b_tool_report3')
 const reportZakazController = require('./controllers/b_tool_report4')
 // Маршруты для аутентификации
 // router.post('/validate-user', loginController.validateUser)
@@ -46,10 +46,10 @@ router.get('/damaged-history', damagedController.getDamaged)
 router.post('/tool-history-damaged', damagedController.addToolHistoryDamaged)
 // sklad
 router.post('/sklad/update', skladController.updateToolInventory)
-// excel
-// router.get('/excel/genBuchIscSlom', reportController.genBuchIscSlom)
-// router.get('/excel/genBuchOtchet', reportController.genBuchOtchetEndOperation)
-// router.get('/excel/genBuchJurnIsp', reportController.genBuchJurnIspMonth)
-router.get('/excel/genZayavInstr', reportZakazController.genZayavInstr)
+// report
+router.get('/report/genBuchMonth', reportBuchWeekController.genBuchWeek) // бухгалтерию исключен сломанный	раз в неделю каждый ПТ в 12:00 (за неделю)
+router.get('/report/genBuchEndOp', reportBuchEndOpController.genBuchEndOp) // бухгалтерию	по завершению операции
+router.get('/report/genBuchMonth', reportBuchMonthController.genBuchMonth) // бухгалтерию журнал испорченного	раз в месяц каждый ПТ в 12:00 (за месяц)
+router.get('/report/genZayavInstr', reportZakazController.genZayavInstr) // заявка на инструмент	раз в неделю каждый ЧТ в 12:00 (за неделю)
 
 module.exports = router
