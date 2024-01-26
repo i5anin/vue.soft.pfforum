@@ -6,14 +6,16 @@
           <thead>
             <tr>
               <th class="text-left">Название</th>
+              <th class="text-left">Информация</th>
               <th class="text-left">Сформировать</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(report, index) in reports" :key="index">
               <td>{{ report.name }}</td>
+              <td>{{ report.info }}</td>
               <td>
-                <v-btn color="primary" @click="generateReport(report)">
+                <v-btn color="primary" @click="report.action(report)">
                   Сформировать отчет
                 </v-btn>
               </td>
@@ -24,34 +26,54 @@
     </v-row>
   </v-container>
 </template>
-
 <script>
 import { startOfWeek, endOfWeek, format } from 'date-fns'
 import { reportApi } from '../../api/report'
 
 export default {
   data() {
-    const dateNow = new Date()
-    const dateNextWeek = {
-      start: format(startOfWeek(dateNow), 'yyyy-MM-dd'),
-      end: format(endOfWeek(dateNow), 'yyyy-MM-dd'),
-    }
-    const dateAll = {
-      start: '2020-01-01',
-      end: format(dateNow, 'yyyy-MM-dd'),
-    }
-
     return {
       reports: [
-        { name: 'Отчет заявка на инструмент', date: dateNow },
-        { name: 'Отчет в бухгалтерию', date: dateNextWeek },
+        {
+          name: 'Отчет в бухгалтерию исключен сломанный',
+          info: 'раз в неделю каждый ЧТ в 12:00 (за неделю)',
+          action: this.generateBuchIscSlom,
+        },
+        {
+          name: 'Отчет в бухгалтерию',
+          info: 'по завершению операции',
+          action: this.generateBuchOtchet,
+        },
+        {
+          name: 'Отчет в бухгалтерию журнал испорченного',
+          info: 'раз в месяц каждый ЧТ в 12:00 (за месяц)',
+          action: this.generateBuchJurnIsp,
+        },
+        {
+          name: 'Отчет заявка на инструмент',
+          info: 'раз в неделю каждый ПТ в 12:00 (за неделю)',
+          action: this.generateZayavInstr,
+        },
       ],
     }
   },
 
   methods: {
-    async generateReport() {
+    async generateBuchIscSlom(report) {
+      console.log('Генерация отчета:', report.name)
       await reportApi.report()
+    },
+    async generateBuchOtchet(report) {
+      console.log('Генерация отчета:', report.name)
+      // Логика для отчета "Отчет в бухгалтерию"
+    },
+    async generateBuchJurnIsp(report) {
+      console.log('Генерация отчета:', report.name)
+      // Логика для отчета "Отчет в бухгалтерию журнал испорченного"
+    },
+    async generateZayavInstr(report) {
+      console.log('Генерация отчета:', report.name)
+      // Логика для отчета "Отчет заявка на инструмент"
     },
   },
 }
