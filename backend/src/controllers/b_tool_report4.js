@@ -81,9 +81,7 @@ async function getReportData() {
 // Функция для создания Excel файла
 async function createExcelFile(data) {
   const workbook = new ExcelJS.Workbook()
-  const now = new Date()
-  const dateStr = now.toISOString().replace(/:/g, '.')
-  const worksheet = workbook.addWorksheet(`Zakaz${dateStr}`)
+  const worksheet = workbook.addWorksheet('Report')
 
   // Заголовки столбцов
   worksheet.columns = [
@@ -109,24 +107,14 @@ async function createExcelFile(data) {
 // Объединение функционала
 async function genZayavInstr(req, res) {
   try {
-    const now = new Date()
     const data = await getReportData()
-    const workbook = await createExcelFile(data, now)
+    const workbook = await createExcelFile(data)
 
     res.setHeader(
       'Content-Type',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
-
-    // Получаем текущую дату и время
-    const now = new Date()
-    const dateStr = now.toISOString().replace(/:/g, '.')
-
-    // Устанавливаем имя файла для скачивания
-    res.setHeader(
-      'Content-Disposition',
-      `attachment; filename=Zakaz${dateStr}.xlsx`
-    )
+    res.setHeader('Content-Disposition', 'attachment; filename=Report.xlsx')
 
     await workbook.xlsx.write(res)
     res.end()
