@@ -9,7 +9,10 @@ const skladController = require('./controllers/b_tool_sklad')
 const historyController = require('./controllers/b_tool_history')
 const damagedController = require('./controllers/b_tool_damaged')
 const issueController = require('./controllers/b_tool_issue')
-const reportController = require('./controllers/b_tool_report')
+const reportController = require('./controllers/b_tool_report1')
+const reportController = require('./controllers/b_tool_report2')
+const reportController = require('./controllers/b_tool_report3')
+const reportZakazController = require('./controllers/b_tool_report4')
 // Маршруты для аутентификации
 // router.post('/validate-user', loginController.validateUser)
 router.get('/database-info', loginController.getDatabaseInfo)
@@ -44,9 +47,9 @@ router.post('/tool-history-damaged', damagedController.addToolHistoryDamaged)
 // sklad
 router.post('/sklad/update', skladController.updateToolInventory)
 // excel
-// router.get('/excel/generateBuchIscSlom', reportController.generateBuchIscSlom)
-// router.get('/excel/generateBuchOtchet', reportController.generateBuchOtchetEndOperation)
-// router.get('/excel/generateBuchJurnIsp', reportController.generateBuchJurnIspMonth)
-router.get('/excel/generateZayavInstr', reportController.generateZayavInstr)
+// router.get('/excel/genBuchIscSlom', reportController.genBuchIscSlom)
+// router.get('/excel/genBuchOtchet', reportController.genBuchOtchetEndOperation)
+// router.get('/excel/genBuchJurnIsp', reportController.genBuchJurnIspMonth)
+router.get('/excel/genZayavInstr', reportZakazController.genZayavInstr)
 
 module.exports = router
