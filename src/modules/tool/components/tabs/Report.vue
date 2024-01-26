@@ -37,7 +37,7 @@ export default {
         {
           name: 'Отчет в бухгалтерию исключен сломанный',
           info: 'раз в неделю каждый ПТ в 12:00 (за неделю)',
-          action: this.genBuchIscSlomWeek,
+          action: this.genBuchIssuedWeek,
         },
         {
           name: 'Отчет в бухгалтерию',
@@ -47,7 +47,7 @@ export default {
         {
           name: 'Отчет в бухгалтерию журнал испорченного',
           info: 'раз в месяц каждый ПТ в 12:00 (за месяц)',
-          action: this.genBuchJurnIspMonth,
+          action: this.genBuchDamagedMonth,
         },
         {
           name: 'Отчет заявка на инструмент',
@@ -59,22 +59,17 @@ export default {
   },
 
   methods: {
-    async genBuchIscSlomWeek(report) {
+    async genBuchIssuedWeek(report) {
       console.log('Генерация отчета:', report.name)
-      // Логика для отчета "Отчет в бухгалтерию исключен сломанный"
     },
     async genBuchEndOperation(report) {
       console.log('Генерация отчета:', report.name)
-      // Логика для отчета "Отчет в бухгалтерию"
     },
-    async genBuchJurnIspMonth(report) {
+    async genBuchDamagedMonth(report) {
       console.log('Генерация отчета:', report.name)
-      // Логика для отчета "Отчет в бухгалтерию журнал испорченного"
     },
-    async genZayavInstrWeek(report) {
-      console.log('Генерация отчета:', report.name)
-      // Логика для отчета "Отчет заявка на инструмент"
-      await reportApi.report()
+    async genZayavInstrWeek() {
+      await reportApi.genZayavInstr()
     },
   },
 }

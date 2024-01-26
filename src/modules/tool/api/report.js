@@ -2,10 +2,10 @@ import axiosInstance from '@/api/axiosConfig'
 import { handleApiError } from '@/api/errorHandler'
 
 export const reportApi = {
-  report: async () => {
+  genZayavInstr: async () => {
     try {
       // Отправляем запрос, ожидая ответ в формате 'blob'
-      const response = await axiosInstance.get('/excel/generateZayavInstr', {
+      const response = await axiosInstance.get('/report/genZayavInstr', {
         responseType: 'blob',
       })
 
@@ -13,7 +13,14 @@ export const reportApi = {
       const url = window.URL.createObjectURL(new Blob([response.data]))
       const link = document.createElement('a')
       link.href = url
-      link.setAttribute('download', 'Report.xlsx') // Устанавливаем имя файла для скачивания
+
+      // Получаем текущую дату и время
+      const now = new Date()
+      const dateStr = now.toISOString().replace(/:/g, '.')
+
+      // Устанавливаем имя файла для скачивания
+      link.setAttribute('download', `Zakaz_${dateStr}.xlsx`)
+
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
