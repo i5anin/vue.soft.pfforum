@@ -32,9 +32,9 @@ async function getConsumptionData() {
 async function getDamagedToolData() {
   try {
     const query = `
-      SELECT id_tool, SUM(quantity) as total_damaged
-      FROM dbo.tool_history_damaged
-      GROUP BY id_tool;
+    SELECT id_tool, SUM(quantity) as total_consumption
+    FROM dbo.tool_history_nom
+    GROUP BY id_tool;
     `
     const { rows } = await pool.query(query)
     return rows
@@ -85,15 +85,17 @@ async function createExcelFile(data) {
 
   // Заголовки столбцов
   worksheet.columns = [
-    // { header: 'ID', key: 'id', width: 10 },
     { header: 'Название', key: 'name', width: 40 },
-    // { header: 'Кол-во', key: 'quantity', width: 10 },
-    { header: 'Заказ', key: 'zakaz', width: 10 },
+    { header: 'Заявка', key: 'zakaz', width: 10 },
+    { header: 'Дата генерации отчёта', key: 'date', width: 20 }, // новый столбец
   ]
 
   // Добавление данных в лист
   data.forEach((item) => {
-    if (item.zakaz > 0) worksheet.addRow(item)
+    if (item.zakaz > 0) {
+      item.date = new Date() // добавление даты генерации
+      worksheet.addRow(item)
+    }
   })
 
   // Стили для заголовков
@@ -103,7 +105,7 @@ async function createExcelFile(data) {
 }
 
 // Объединение функционала
-async function generateReport(req, res) {
+async function generateZayavInstr(req, res) {
   try {
     const data = await getReportData()
     const workbook = await createExcelFile(data)
@@ -123,5 +125,5 @@ async function generateReport(req, res) {
 }
 
 module.exports = {
-  generateReport,
+  generateZayavInstr,
 }

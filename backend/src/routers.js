@@ -44,6 +44,9 @@ router.post('/tool-history-damaged', damagedController.addToolHistoryDamaged)
 // sklad
 router.post('/sklad/update', skladController.updateToolInventory)
 // excel
-router.get('/excel', reportController.generateReport)
+// router.get('/excel/generateBuchIscSlom', reportController.generateBuchIscSlom)
+// router.get('/excel/generateBuchOtchet', reportController.generateBuchOtchetEndOperation)
+// router.get('/excel/generateBuchJurnIsp', reportController.generateBuchJurnIspMonth)
+router.get('/excel/generateZayavInstr', reportController.generateZayavInstr)
 
 module.exports = router

@@ -5,7 +5,7 @@ export const reportApi = {
   report: async () => {
     try {
       // Отправляем запрос, ожидая ответ в формате 'blob'
-      const response = await axiosInstance.get('/excel', {
+      const response = await axiosInstance.get('/excel/generateZayavInstr', {
         responseType: 'blob',
       })
 
