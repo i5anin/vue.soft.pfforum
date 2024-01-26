@@ -55,12 +55,22 @@ export default {
       editingToolId: null,
       totalCount: 0,
       headers: [
-        { title: 'Название инструмента', value: 'tool_name', sortable: false },
-        { title: 'ФИО', value: 'fio', sortable: false },
-        { title: 'CNC название', value: 'cnc_name', sortable: false },
+        {
+          title: 'Название инструмента',
+          value: 'tool_name',
+          sortable: false,
+          width: '280px',
+        },
+        { title: 'ФИО', value: 'fio', sortable: false, width: '150px' },
+        {
+          title: 'CNC название',
+          value: 'cnc_name',
+          sortable: false,
+          width: '150px',
+        },
         { title: 'Комментарий', value: 'comment', sortable: false },
-        { title: 'Кол-во', key: 'quantity', sortable: false },
-        { title: 'Дата', key: 'timestamp', sortable: false },
+        { title: 'Кол-во', key: 'quantity', sortable: false, width: '80px' },
+        { title: 'Дата', key: 'timestamp', sortable: false, width: '150px' },
       ],
     }
   },
