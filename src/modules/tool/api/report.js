@@ -5,7 +5,7 @@ export const reportApi = {
   report: async () => {
     try {
       // Отправляем запрос, ожидая ответ в формате 'blob'
-      const response = await axiosInstance.get('/excel/generateZayavInstr', {
+      const response = await axiosInstance.get('/report/genZayavInstr', {
         responseType: 'blob',
       })
 
@@ -13,7 +13,7 @@ export const reportApi = {
       const url = window.URL.createObjectURL(new Blob([response.data]))
       const link = document.createElement('a')
       link.href = url
-      link.setAttribute('download', 'Report.xlsx') // Устанавливаем имя файла для скачивания
+
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
