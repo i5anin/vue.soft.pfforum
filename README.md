@@ -1,5 +1,37 @@
 # Разработка программного обеспечения для управления производственными процессами
 
+```mermaid
+graph LR
+    client[Client] -->|"/database-info"| loginController[Login Controller]
+    client -->|"/tool/:id"| nomController[Nom Controller]
+    client -->|"/tools"| nomController
+    client -->|"/tool"| nomController
+    client -->|"/tools-params"| paramController[Param Controller]
+    client -->|"/tools-tree"| treeController[Tree Controller]
+    client -->|"/detail/id"| issueController[Issue Controller]
+    client -->|"/history/:id"| historyController[History Controller]
+    client -->|"/history"| historyController
+    client -->|"/damaged-history"| damagedController[Damaged Controller]
+    client -->|"/sklad/update"| skladController[Sklad Controller]
+    client -->|"/report/genBuchWeek"| reportBuchWeekController[Report Buch Week Controller]
+    client -->|"/report/genBuchEndOp"| reportBuchEndOpController[Report Buch End Op Controller]
+    client -->|"/report/genBuchMonth"| reportBuchMonthController[Report Buch Month Controller]
+    client -->|"/report/genZayavInstr"| reportZakazController[Report Zakaz Controller]
+
+    loginController --> db[(Database)]
+    nomController --> db
+    paramController --> db
+    treeController --> db
+    issueController --> db
+    historyController --> db
+    damagedController --> db
+    skladController --> db
+    reportBuchWeekController --> db
+    reportBuchEndOpController --> db
+    reportBuchMonthController --> db
+    reportZakazController --> db
+```
+
 ## 1. **Настройка Пользовательских Приоритетов:**
 
 - Установка приоритетов для каждого пользователя в зависимости от их роли (Хохлов/Синицын, Наладчик/Инструментальщик).
