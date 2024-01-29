@@ -3,30 +3,26 @@
 ```mermaid
 graph LR
     client[Client] --> frontEnd[Frontend API Calls]
-
-    frontEnd -->|getDatabaseInfo| loginController[Login Controller - getDatabaseInfo]
-    frontEnd -->|getTools (toolApi)| nomController[Nom Controller - getTools]
-    frontEnd -->|getToolById (toolApi)| nomController[Nom Controller - getToolById]
-    frontEnd -->|addTool| nomController[Nom Controller - addTool]
-    frontEnd -->|getToolParams| paramController[Param Controller - getToolParams]
-    frontEnd -->|getToolsTree| treeController[Tree Controller - getToolsTree]
-    frontEnd -->|findDetailProduction| issueController[Issue Controller - findDetailProduction]
-    frontEnd -->|getToolHistoryId| historyController[History Controller - getToolHistoryId]
-    frontEnd -->|getToolHistory| historyController[History Controller - getToolHistory]
-    frontEnd -->|getDamaged| damagedController[Damaged Controller - getDamaged]
-    frontEnd -->|updateToolInventory| skladController[Sklad Controller - updateToolInventory]
-    frontEnd -->|genBuchWeek| reportBuchWeekController[Report Buch Week Controller - genBuchWeek]
-    frontEnd -->|genBuchEndOp| reportBuchEndOpController[Report Buch End Op Controller - genBuchEndOp]
-    frontEnd -->|genBuchMonth| reportBuchMonthController[Report Buch Month Controller - genBuchMonth]
-    frontEnd -->|genZayavInstr| reportZakazController[Report Zakaz Controller - genZayavInstr]
-
-    frontEnd -->|updateToolParam| apiUpdate[API - updateToolParam]
-    frontEnd -->|deleteToolParam| apiDelete[API - deleteToolParam]
-    frontEnd -->|addToolParam| apiAdd[API - addToolParam]
-
-    apiUpdate -->|PUT /tools-params/:id| paramController[Param Controller - updateToolParam]
-    apiDelete -->|DELETE /tools-params/:id| paramController[Param Controller - deleteToolParam]
-    apiAdd -->|POST /tools-params| paramController[Param Controller - addToolParam]
+    
+    frontEnd -->|"/database-info"| loginController[Login Controller - getDatabaseInfo]
+    frontEnd -->|"/tool/:id"| nomController[Nom Controller - getToolById]
+    frontEnd -->|"/tools"| nomController[Nom Controller - getTools]
+    frontEnd -->|"/tool"| nomController[Nom Controller - addTool]
+    frontEnd -->|"/tools-params"| paramController[Param Controller - getToolParams]
+    frontEnd -->|"/tools-tree"| treeController[Tree Controller - getToolsTree]
+    frontEnd -->|"/detail/id"| issueController[Issue Controller - findDetailProduction]
+    frontEnd -->|"/history/:id"| historyController[History Controller - getToolHistoryId]
+    frontEnd -->|"/history"| historyController[History Controller - getToolHistory]
+    frontEnd -->|"/damaged-history"| damagedController[Damaged Controller - getDamaged]
+    frontEnd -->|"/sklad/update"| skladController[Sklad Controller - updateToolInventory]
+    frontEnd -->|"/report/genBuchWeek"| reportBuchWeekController[Report Buch Week Controller - genBuchWeek]
+    frontEnd -->|"/report/genBuchEndOp"| reportBuchEndOpController[Report Buch End Op Controller - genBuchEndOp]
+    frontEnd -->|"/report/genBuchMonth"| reportBuchMonthController[Report Buch Month Controller - genBuchMonth]
+    frontEnd -->|"/report/genZayavInstr"| reportZakazController[Report Zakaz Controller - genZayavInstr]
+    
+    frontEnd -->|updateToolParam| paramController[Param Controller - updateToolParam]
+    frontEnd -->|deleteToolParam| paramController[Param Controller - deleteToolParam]
+    frontEnd -->|addToolParam| paramController[Param Controller - addToolParam]
 
     loginController --> db[(Database)]
     nomController --> db
