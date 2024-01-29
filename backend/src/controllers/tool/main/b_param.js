@@ -1,6 +1,6 @@
 const { Pool } = require('pg')
-const { getNetworkDetails } = require('../db_type')
-const config = require('../config')
+const { getNetworkDetails } = require('../../../db_type')
+const config = require('../../../config')
 
 // Получение настроек для подключения к базе данных
 const networkDetails = getNetworkDetails()

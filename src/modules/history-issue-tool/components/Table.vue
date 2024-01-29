@@ -7,6 +7,16 @@
       @canceled="onClosePopup"
       @changes-saved="onSaveChanges"
     />
+    <div class="d-flex align-center">
+      <v-text-field
+        v-model="searchQuery"
+        label="Поиск по партии, названию, обозначению"
+        class="flex-grow-1 mr-2"
+        @keyup.enter="fetchAndFormatToolHistory"
+      />
+      <v-btn @click="fetchAndFormatToolHistory">Поиск</v-btn>
+    </div>
+
     <v-data-table-server
       v-if="toolsHistory && toolsHistory.length > 0"
       no-data-text="Нет данных"
@@ -39,6 +49,7 @@ export default {
   components: { EditToolModal, VDataTableServer },
   data() {
     return {
+      searchQuery: '',
       openDialog: false,
       filters: { itemsPerPage: 15, currentPage: 1 },
       isLoading: false,
@@ -83,16 +94,25 @@ export default {
       return format(parseISO(date), 'dd.MM.yyyy')
     },
     async fetchAndFormatToolHistory() {
-      const response = await issueHistoryApi.fetchToolHistory(
-        '',
-        this.filters.currentPage,
-        this.filters.itemsPerPage
-      )
-      this.toolsHistory = response.toolsHistory.map((tool) => ({
-        ...tool,
-        date: this.formatDate(tool.date),
-      }))
-      this.totalCount = response.totalCount
+      this.isLoading = true
+      try {
+        const response = await issueHistoryApi.fetchToolHistory(
+          this.searchQuery, // Передаем поисковый запрос в API
+          this.filters.currentPage,
+          this.filters.itemsPerPage
+        )
+        this.toolsHistory = response.toolsHistory.map((tool) => ({
+          ...tool,
+          date: this.formatDate(tool.date),
+        }))
+        this.totalCount = response.totalCount
+      } catch (error) {
+        // Обработка ошибок запроса
+        console.error('Ошибка при получении истории инструментов:', error)
+        this.$emit('error', error) // Можно испустить событие для обработки ошибок
+      } finally {
+        this.isLoading = false
+      }
     },
     onClosePopup() {
       this.openDialog = false

@@ -1,6 +1,6 @@
 const { Pool } = require('pg')
-const { getNetworkDetails } = require('../db_type')
-const config = require('../config')
+const { getNetworkDetails } = require('../../db_type')
+const config = require('../../config')
 
 // Получение настроек для подключения к базе данных
 const networkDetails = getNetworkDetails()
@@ -13,10 +13,30 @@ const dbConfig =
 const pool = new Pool(dbConfig)
 
 async function getToolHistory(req, res) {
+  console.log('Получен запрос истории инструментов:', req.query)
   try {
     const page = parseInt(req.query.page || 1, 10)
     const limit = parseInt(req.query.limit || 15, 10)
     const offset = (page - 1) * limit
+    const searchIdPart = req.query.id_part
+    const searchName = req.query.name
+    const searchDescription = req.query.description
+
+    // Динамическое построение условий WHERE, основанных на параметрах поиска
+    let searchConditions = `
+      WHERE sn.status_p = 'П'
+      AND NOT sn.status_otgruzka
+      AND (POSITION('ЗАПРЕТ' IN UPPER(sn.comments)) = 0 OR sn.comments IS NULL)
+    `
+
+    // Добавление условий поиска, если они есть
+    if (searchIdPart) searchConditions += ` AND sn.ID = ${searchIdPart}`
+
+    if (searchName)
+      searchConditions += ` AND UPPER(sn.NAME) LIKE UPPER('%${searchName}%')`
+
+    if (searchDescription)
+      searchConditions += ` AND UPPER(sn.description) LIKE UPPER('%${searchDescription}%')`
 
     // Запрос для подсчета общего количества уникальных id_part
     const countQuery = `
@@ -24,33 +44,29 @@ async function getToolHistory(req, res) {
       FROM dbo.tool_history_nom thn
              INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
              INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
-      WHERE sn.status_p = 'П'
-        AND NOT sn.status_otgruzka
-        AND (POSITION('ЗАПРЕТ' IN UPPER(sn.comments)) = 0 OR sn.comments IS NULL);
+      ${searchConditions};
     `
 
     // Запрос для получения агрегированных данных истории инструментов
     const dataQuery = `
-        SELECT
-          sn.ID AS id_part,
-          sn.NAME,
-          sn.description,
-          CAST(SUM(thn.quantity) AS INTEGER) AS quantity_tool,
-          CAST(COUNT(*) AS INTEGER) AS recordscount,
-          COUNT(DISTINCT sno.id) AS operation_count,
-          MIN(thn.date) AS date,
-          CAST(dbo.kolvo_prod_ready(sn.ID) AS INTEGER) AS quantity_prod
-        FROM dbo.tool_history_nom thn
-               INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
-               INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
-        WHERE sn.status_p = 'П'
-          AND NOT sn.status_otgruzka
-          AND (POSITION('ЗАПРЕТ' IN UPPER(sn.comments)) = 0 OR sn.comments IS NULL)
-        GROUP BY sn.ID, sn.NAME, sn.description
-        ORDER BY MIN(thn.date) DESC, sn.NAME, sn.description
-        LIMIT ${limit}
-        OFFSET ${offset};
-      `
+      SELECT
+        sn.ID AS id_part,
+        sn.NAME,
+        sn.description,
+        CAST(SUM(thn.quantity) AS INTEGER) AS quantity_tool,
+        CAST(COUNT(*) AS INTEGER) AS recordscount,
+        COUNT(DISTINCT sno.id) AS operation_count,
+        MIN(thn.date) AS date,
+        CAST(dbo.kolvo_prod_ready(sn.ID) AS INTEGER) AS quantity_prod
+      FROM dbo.tool_history_nom thn
+             INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
+             INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
+      ${searchConditions}
+      GROUP BY sn.ID, sn.NAME, sn.description
+      ORDER BY MIN(thn.date) DESC, sn.NAME, sn.description
+      LIMIT ${limit}
+      OFFSET ${offset};
+    `
 
     const countResult = await pool.query(countQuery)
     const dataResult = await pool.query(dataQuery)

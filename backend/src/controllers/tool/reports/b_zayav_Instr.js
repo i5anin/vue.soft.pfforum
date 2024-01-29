@@ -1,7 +1,7 @@
 const { Pool } = require('pg')
 const ExcelJS = require('exceljs')
-const { getNetworkDetails } = require('../../db_type')
-const config = require('../../config')
+const { getNetworkDetails } = require('../../../db_type')
+const config = require('../../../config')
 
 // Настройка подключения к базе данных
 const networkDetails = getNetworkDetails()
