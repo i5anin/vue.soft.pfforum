@@ -11,8 +11,7 @@ const dbConfig =
     : config.dbConfigTest
 const pool = new Pool(dbConfig)
 
-// Обновленная функция для получения данных из базы данных
-// Обновленная функция для получения данных из базы данных
+// Функция для получения данных из базы данных
 async function getReportData() {
   try {
     const query = `
