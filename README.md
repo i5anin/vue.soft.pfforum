@@ -2,23 +2,25 @@
 
 ```mermaid
 graph LR
-    client[Client] -->|"/database-info"| loginController[Login Controller - getDatabaseInfo]
-    client -->|"/tool/:id"| nomController[Nom Controller - getToolById]
-    client -->|"/tools"| nomController[Nom Controller - getTools]
-    client -->|"/tool"| nomController[Nom Controller - addTool]
-    client -->|"/tools-params"| paramController[Param Controller - getToolParams]
-    client -->|"/tools-tree"| treeController[Tree Controller - getToolsTree]
-    client -->|"/detail/id"| issueController[Issue Controller - findDetailProduction]
-    client -->|"/history/:id"| historyController[History Controller - getToolHistoryId]
-    client -->|"/history"| historyController[History Controller - getToolHistory]
-    client -->|"/damaged-history"| damagedController[Damaged Controller - getDamaged]
-    client -->|"/sklad/update"| skladController[Sklad Controller - updateToolInventory]
-    client -->|"/report/genBuchWeek"| reportBuchWeekController[Report Buch Week Controller - genBuchWeek]
-    client -->|"/report/genBuchEndOp"| reportBuchEndOpController[Report Buch End Op Controller - genBuchEndOp]
-    client -->|"/report/genBuchMonth"| reportBuchMonthController[Report Buch Month Controller - genBuchMonth]
-    client -->|"/report/genZayavInstr"| reportZakazController[Report Zakaz Controller - genZayavInstr]
-
-    frontEnd[Frontend API Calls] -->|updateToolParam| paramController[Param Controller - updateToolParam]
+    client[Client] --> frontEnd[Frontend API Calls]
+    
+    frontEnd -->|"/database-info"| loginController[Login Controller - getDatabaseInfo]
+    frontEnd -->|"/tool/:id"| nomController[Nom Controller - getToolById]
+    frontEnd -->|"/tools"| nomController[Nom Controller - getTools]
+    frontEnd -->|"/tool"| nomController[Nom Controller - addTool]
+    frontEnd -->|"/tools-params"| paramController[Param Controller - getToolParams]
+    frontEnd -->|"/tools-tree"| treeController[Tree Controller - getToolsTree]
+    frontEnd -->|"/detail/id"| issueController[Issue Controller - findDetailProduction]
+    frontEnd -->|"/history/:id"| historyController[History Controller - getToolHistoryId]
+    frontEnd -->|"/history"| historyController[History Controller - getToolHistory]
+    frontEnd -->|"/damaged-history"| damagedController[Damaged Controller - getDamaged]
+    frontEnd -->|"/sklad/update"| skladController[Sklad Controller - updateToolInventory]
+    frontEnd -->|"/report/genBuchWeek"| reportBuchWeekController[Report Buch Week Controller - genBuchWeek]
+    frontEnd -->|"/report/genBuchEndOp"| reportBuchEndOpController[Report Buch End Op Controller - genBuchEndOp]
+    frontEnd -->|"/report/genBuchMonth"| reportBuchMonthController[Report Buch Month Controller - genBuchMonth]
+    frontEnd -->|"/report/genZayavInstr"| reportZakazController[Report Zakaz Controller - genZayavInstr]
+    
+    frontEnd -->|updateToolParam| paramController[Param Controller - updateToolParam]
     frontEnd -->|deleteToolParam| paramController[Param Controller - deleteToolParam]
     frontEnd -->|addToolParam| paramController[Param Controller - addToolParam]
 
