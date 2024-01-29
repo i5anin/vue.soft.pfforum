@@ -1,7 +1,7 @@
 const { Pool } = require('pg')
 const ExcelJS = require('exceljs')
-const { getNetworkDetails } = require('../db_type')
-const config = require('../config')
+const { getNetworkDetails } = require('../../db_type')
+const config = require('../../config')
 
 // Настройка подключения к базе данных
 const networkDetails = getNetworkDetails()
@@ -105,7 +105,7 @@ async function createExcelFile(data) {
 }
 
 // Объединение функционала
-async function genBuchEndOp(req, res) {
+async function genBuchMonth(req, res) {
   try {
     const data = await getReportData()
     const workbook = await createExcelFile(data)
@@ -125,5 +125,5 @@ async function genBuchEndOp(req, res) {
 }
 
 module.exports = {
-  genBuchEndOp,
+  genBuchMonth,
 }

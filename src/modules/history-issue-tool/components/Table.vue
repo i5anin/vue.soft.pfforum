@@ -51,7 +51,18 @@ export default {
         { title: 'Название', value: 'name', sortable: false, width: '300px' },
         { title: 'Обозначение', value: 'description', sortable: false },
         { title: 'Дата', value: 'date', sortable: false },
-        { title: 'Кол-во', value: 'quantity', sortable: false, width: '80px' },
+        {
+          title: 'Кол-во инструмента',
+          value: 'quantity_tool',
+          sortable: false,
+          width: '80px',
+        },
+        {
+          title: 'Кол-во продукции',
+          value: 'quantity_prod',
+          sortable: false,
+          width: '80px',
+        },
         { title: 'Операций', value: 'operation_count', sortable: false },
       ],
     }

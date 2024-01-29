@@ -21,7 +21,6 @@ async function downloadReport(endpoint) {
     link.click()
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url) // Освобождаем ресурсы
-
     return response
   } catch (error) {
     handleApiError(error)
