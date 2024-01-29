@@ -11,68 +11,18 @@ const dbConfig =
     : config.dbConfigTest
 const pool = new Pool(dbConfig)
 
-// Функция для получения данных из базы данных
-// Функция для получения данных о расходе
-async function getConsumptionData() {
-  try {
-    const query = `
-      SELECT id_tool, SUM(quantity) as total_consumption
-      FROM dbo.tool_history_nom
-      GROUP BY id_tool;
-    `
-    const { rows } = await pool.query(query)
-    return rows
-  } catch (error) {
-    console.error('Ошибка при получении данных о расходе:', error)
-    throw error
-  }
-}
-
-// Функция для получения данных об испорченном инструменте
-// async function getDamagedToolData() {
-//   try {
-//     const query = `
-//     SELECT id_tool, SUM(quantity) as total_consumption
-//     FROM dbo.tool_history_nom
-//     GROUP BY id_tool;
-//     `
-//     const { rows } = await pool.query(query)
-//     return rows
-//   } catch (error) {
-//     console.error(
-//       'Ошибка при получении данных об испорченном инструменте:',
-//       error
-//     )
-//     throw error
-//   }
-// }
-
+// Обновленная функция для получения данных из базы данных
 // Обновленная функция для получения данных из базы данных
 async function getReportData() {
   try {
-    const consumptionData = await getConsumptionData()
-    // const damagedToolData = await getDamagedToolData()
-
     const query = `
-  SELECT id_tool, SUM(quantity) as total_consumption
-  FROM dbo.tool_history_nom
-  WHERE date >= current_date - interval '7 days'
-  GROUP BY id_tool;
+      SELECT tool_history_nom.id_tool, tool_nom.name, SUM(tool_history_nom.quantity) as zakaz
+      FROM dbo.tool_history_nom
+      JOIN dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.id
+      -- WHERE date >= (CURRENT_DATE - INTERVAL '7 days')
+      GROUP BY tool_history_nom.id_tool, tool_nom.name;
     `
     const { rows } = await pool.query(query)
-
-    // Обновление данных для каждого инструмента
-    rows.forEach((row) => {
-      const consumption = consumptionData.find(
-        (item) => item.id_tool === row.id
-      )
-      const damaged = damagedToolData.find((item) => item.id_tool === row.id)
-
-      row.consumption = consumption ? consumption.total_consumption : 0
-      // row.damaged = damaged ? damaged.total_damaged : 0
-      row.zakaz = row.norma - row.consumption - row.damaged
-    })
-
     return rows
   } catch (error) {
     console.error('Ошибка при получении данных:', error)
@@ -83,7 +33,7 @@ async function getReportData() {
 // Функция для создания Excel файла
 async function createExcelFile(data) {
   const workbook = new ExcelJS.Workbook()
-  const worksheet = workbook.addWorksheet('Report')
+  const worksheet = workbook.addWorksheet('Бухгалтерия')
 
   // Добавление текста в начало листа
   worksheet.mergeCells('A1:E1')
@@ -116,19 +66,17 @@ async function createExcelFile(data) {
   worksheet.columns = [
     { header: 'Название', key: 'name', width: 40 },
     { header: 'Заявка', key: 'zakaz', width: 10 },
+    { header: 'Дата', key: 'date', width: 10 },
     // Остальные столбцы по необходимости
   ]
 
   // Добавление данных в лист
   data.forEach((item) => {
-    if (item.zakaz > 0) {
-      worksheet.addRow(item)
-    }
+    if (item.zakaz > 0) worksheet.addRow(item)
   })
 
   // Стили для заголовков
-  worksheet.getRow(4).font = { bold: true } // Предполагая, что заголовки начинаются с 4-й строки
-
+  worksheet.getRow(3).font = { bold: true } // Предполагая, что заголовки начинаются с 4-й строки
   return workbook
 }
 
