@@ -13,14 +13,12 @@ const dbConfig =
 const pool = new Pool(dbConfig)
 
 async function getToolHistory(req, res) {
-  console.log('Получен запрос истории инструментов:', req.query)
+  // console.log('Получен запрос истории инструментов:', req.query)
   try {
     const page = parseInt(req.query.page || 1, 10)
     const limit = parseInt(req.query.limit || 15, 10)
     const offset = (page - 1) * limit
-    const searchIdPart = req.query.id_part
-    const searchName = req.query.name
-    const searchDescription = req.query.description
+    const search = req.query.search
 
     // Динамическое построение условий WHERE, основанных на параметрах поиска
     let searchConditions = `
@@ -29,14 +27,14 @@ async function getToolHistory(req, res) {
       AND (POSITION('ЗАПРЕТ' IN UPPER(sn.comments)) = 0 OR sn.comments IS NULL)
     `
 
-    // Добавление условий поиска, если они есть
-    if (searchIdPart) searchConditions += ` AND sn.ID = ${searchIdPart}`
-
-    if (searchName)
-      searchConditions += ` AND UPPER(sn.NAME) LIKE UPPER('%${searchName}%')`
-
-    if (searchDescription)
-      searchConditions += ` AND UPPER(sn.description) LIKE UPPER('%${searchDescription}%')`
+    // Добавление условий поиска
+    if (search) {
+      searchConditions += ` AND (
+        sn.ID::text LIKE '%${search}%' OR
+        UPPER(sn.NAME) LIKE UPPER('%${search}%') OR
+        UPPER(sn.description) LIKE UPPER('%${search}%')
+      )`
+    }
 
     // Запрос для подсчета общего количества уникальных id_part
     const countQuery = `
