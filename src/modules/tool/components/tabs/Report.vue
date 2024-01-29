@@ -42,12 +42,12 @@ export default {
         {
           name: 'Отчет в бухгалтерию',
           info: 'по завершению операции',
-          action: this.genBuchEndOperation,
+          action: this.genBuchEndOp,
         },
         {
           name: 'Отчет в бухгалтерию журнал испорченного',
           info: 'раз в месяц каждый ПТ в 12:00 (за месяц)',
-          action: this.genBuchDamagedMonth,
+          action: this.genBuchMonth,
         },
         {
           name: 'Отчет заявка на инструмент',
@@ -59,14 +59,14 @@ export default {
   },
 
   methods: {
-    async genBuchIssuedWeek(report) {
-      console.log('Генерация отчета:', report.name)
+    async genBuchIssuedWeek() {
+      await reportApi.genBuchWeek()
     },
-    async genBuchEndOperation(report) {
-      console.log('Генерация отчета:', report.name)
+    async genBuchEndOp() {
+      await reportApi.genBuchEndOp()
     },
-    async genBuchDamagedMonth(report) {
-      console.log('Генерация отчета:', report.name)
+    async genBuchMonth() {
+      await reportApi.genBuchMonth()
     },
     async genZayavInstrWeek() {
       await reportApi.genZayavInstr()

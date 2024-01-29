@@ -9,10 +9,10 @@ const skladController = require('./controllers/b_tool_sklad')
 const historyController = require('./controllers/b_tool_history')
 const damagedController = require('./controllers/b_tool_damaged')
 const issueController = require('./controllers/b_tool_issue')
-const reportBuchWeekController = require('./controllers/b_tool_report1')
-const reportBuchEndOpController = require('./controllers/b_tool_report2')
-const reportBuchMonthController = require('./controllers/b_tool_report3')
-const reportZakazController = require('./controllers/b_tool_report4')
+const reportBuchWeekController = require('./controllers/b_tool_report_buch_week')
+const reportBuchEndOpController = require('./controllers/b_tool_report_buch_end_op')
+const reportBuchMonthController = require('./controllers/b_tool_report_buch_month')
+const reportZakazController = require('./controllers/b_tool_report_zayav_Instr')
 // Маршруты для аутентификации
 // router.post('/validate-user', loginController.validateUser)
 router.get('/database-info', loginController.getDatabaseInfo)
@@ -47,7 +47,7 @@ router.post('/tool-history-damaged', damagedController.addToolHistoryDamaged)
 // sklad
 router.post('/sklad/update', skladController.updateToolInventory)
 // report
-router.get('/report/genBuchMonth', reportBuchWeekController.genBuchWeek) // бухгалтерию исключен сломанный	раз в неделю каждый ПТ в 12:00 (за неделю)
+router.get('/report/genBuchWeek', reportBuchWeekController.genBuchWeek) // бухгалтерию исключен сломанный	раз в неделю каждый ПТ в 12:00 (за неделю)
 router.get('/report/genBuchEndOp', reportBuchEndOpController.genBuchEndOp) // бухгалтерию	по завершению операции
 router.get('/report/genBuchMonth', reportBuchMonthController.genBuchMonth) // бухгалтерию журнал испорченного	раз в месяц каждый ПТ в 12:00 (за месяц)
 router.get('/report/genZayavInstr', reportZakazController.genZayavInstr) // заявка на инструмент	раз в неделю каждый ЧТ в 12:00 (за неделю)
