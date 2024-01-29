@@ -7,14 +7,19 @@
       @canceled="onClosePopup"
       @changes-saved="onSaveChanges"
     />
-    <div class="d-flex align-center">
-      <v-text-field
-        v-model="searchQuery"
-        label="Поиск по партии, названию, обозначению"
-        class="flex-grow-1 mr-2"
-        @keyup.enter="fetchAndFormatToolHistory"
-      />
-      <v-btn @click="fetchAndFormatToolHistory">Поиск</v-btn>
+    <div class="d-flex align-center justify-center">
+      <v-row class="fill-height">
+        <v-col cols="12" md="5" class="d-flex align-center">
+          <v-text-field
+            clearable="true"
+            v-model="searchQuery"
+            label="Поиск по партии, названию, обозначению"
+            class="flex-grow-1 mr-2"
+            @keyup.enter="fetchAndFormatToolHistory"
+          />
+          <v-btn @click="fetchAndFormatToolHistory">Поиск</v-btn>
+        </v-col>
+      </v-row>
     </div>
 
     <v-data-table-server
@@ -81,6 +86,11 @@ export default {
   async mounted() {
     await this.fetchAndFormatToolHistory()
   },
+  watch: {
+    searchQuery(newQuery, oldQuery) {
+      if (newQuery !== oldQuery) this.fetchAndFormatToolHistory()
+    },
+  },
   methods: {
     async onChangePage(page) {
       this.filters.currentPage = page
@@ -97,7 +107,7 @@ export default {
       this.isLoading = true
       try {
         const response = await issueHistoryApi.fetchToolHistory(
-          this.searchQuery, // Передаем поисковый запрос в API
+          this.searchQuery,
           this.filters.currentPage,
           this.filters.itemsPerPage
         )
