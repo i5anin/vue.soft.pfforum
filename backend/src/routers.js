@@ -9,17 +9,10 @@ const skladController = require('./controllers/b_tool_sklad')
 const historyController = require('./controllers/b_tool_history')
 const damagedController = require('./controllers/b_tool_damaged')
 const issueController = require('./controllers/b_tool_issue')
-<<<<<<< HEAD
 const reportBuchWeekController = require('./controllers/reports/b_buch_week')
 const reportBuchEndOpController = require('./controllers/reports/b_buch_end_op')
 const reportBuchMonthController = require('./controllers/reports/b_buch_month')
 const reportZakazController = require('./controllers/reports/b_zayav_Instr')
-=======
-const reportBuchWeekController = require('./controllers/b_tool_report_buch_week')
-const reportBuchEndOpController = require('./controllers/b_tool_report_buch_end_op')
-const reportBuchMonthController = require('./controllers/b_tool_report_buch_month')
-const reportZakazController = require('./controllers/b_tool_report_zayav_Instr')
->>>>>>> 7fbb753ff21b42a72eba210120b376bdfb938e3b
 // Маршруты для аутентификации
 // router.post('/validate-user', loginController.validateUser)
 router.get('/database-info', loginController.getDatabaseInfo)
