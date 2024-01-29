@@ -8,9 +8,14 @@
 
     <v-card-text>
       <v-window v-model="tab">
-        <v-window-item v-for="item in tabs" :key="item.name" :value="item.name">
+        <v-window-item
+          v-for="item in tabs"
+          :key="`window-item-${item.name}`"
+          :value="item.name"
+        >
           <component
             :is="item.component"
+            :key="`component-${item.name}-${tab}`"
             :parentId="parentId"
             :type="item.type"
           />

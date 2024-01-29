@@ -22,10 +22,14 @@ export const Routes = {
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: Home,
-    // beforeEnter: authGuard.Home
+    redirect: '/Tool', // Добавление перенаправления с главной страницы на /Tool
   },
+  // {
+  //   path: '/',
+  //   name: 'Home',
+  //   component: Home,
+  //   // beforeEnter: authGuard.Home
+  // },
   {
     path: Routes.LOGIN,
     name: 'Login',
