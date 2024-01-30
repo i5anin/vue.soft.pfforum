@@ -2,6 +2,8 @@ const { Pool } = require('pg')
 const ExcelJS = require('exceljs')
 const { getNetworkDetails } = require('../../../db_type')
 const config = require('../../../config')
+const nodemailer = require('nodemailer')
+const { emailConfig } = require('../../../config')
 
 // Настройка подключения к базе данных
 const networkDetails = getNetworkDetails()
@@ -68,8 +70,8 @@ async function createExcelFile(data) {
   let rowNumber = 1 // Инициализация счетчика строк
   data.forEach((item) => {
     if (item.zakaz > 0) {
-      // Добавляем номер строки в начале каждой строки данных
-      worksheet.addRow([rowNumber, item.name, item.zakaz, item.date])
+      // Добавляем номер строки в начало каждой строки данных
+      worksheet.addRow([rowNumber, item.name, item.zakaz])
       rowNumber++ // Инкрементируем номер строки
     }
   })
@@ -77,6 +79,37 @@ async function createExcelFile(data) {
   // Стили для заголовков
   worksheet.getRow(3).font = { bold: true } // Предполагая, что заголовки начинаются с 4-й строки
   return workbook
+}
+
+// Функция для отправки сообщения с файлом на почту
+// Функция для отправки текстового сообщения с прикрепленным файлом на почту
+async function sendEmailWithTextAndAttachment(email, text, attachmentPath) {
+  const transporter = nodemailer.createTransport({
+    host: emailConfig.host, // Замените на доменное имя сервера почты
+    port: emailConfig.port,
+    secure: false, // true для SSL, false для TCP
+    auth: {
+      user: emailConfig.user,
+      pass: emailConfig.pass,
+    },
+  })
+
+  const mailOptions = {
+    from: 'report@pf-forum.ru',
+    to: email,
+    subject:
+      'Бухгалтерия: Исключен сломанный инструмент. Отчет каждый ПТ в 12:00 (за неделю)',
+    text: text, // Текстовое сообщение
+    attachments: [{ path: attachmentPath }],
+  }
+
+  try {
+    await transporter.sendMail(mailOptions)
+    console.log(`Отчет успешно отправлен на почту ${email}`)
+  } catch (error) {
+    console.error('Ошибка при отправке отчета на почту:', error)
+    throw error
+  }
 }
 
 // Объединение функционала
@@ -93,17 +126,28 @@ async function genBuchMonth(req, res) {
 
     const workbook = await createExcelFile(data)
 
-    res.setHeader(
-      'Content-Type',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    )
-    res.setHeader('Content-Disposition', 'attachment; filename=Report.xlsx')
+    const attachmentPath = 'Report.xlsx' // Путь к файлу отчета
+    await workbook.xlsx.writeFile(attachmentPath)
 
-    await workbook.xlsx.write(res)
-    res.end()
+    // Текстовое сообщение для отправки по почте
+    const emailText =
+      'Сообщение сделано автоматически почтовым сервисом\nПожалуйста, найдите вложенный отчет в формате Excel.'
+
+    // Отправляем отчет на указанный email
+    await sendEmailWithTextAndAttachment(
+      'isa@pf-forum.ru',
+      emailText,
+      attachmentPath
+    )
+
+    // Удаляем временный файл отчета
+    const fs = require('fs')
+    fs.unlinkSync(attachmentPath)
+
+    res.status(200).send('Отчет успешно отправлен на указанный email.')
   } catch (error) {
-    console.error('Ошибка при генерации отчета:', error)
-    res.status(500).send('Ошибка при генерации отчета')
+    console.error('Ошибка при генерации и отправке отчета:', error)
+    res.status(500).send('Ошибка при генерации и отправке отчета')
   }
 }
 
