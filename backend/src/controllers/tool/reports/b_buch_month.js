@@ -12,65 +12,15 @@ const dbConfig =
 const pool = new Pool(dbConfig)
 
 // Функция для получения данных из базы данных
-// Функция для получения данных о расходе
-async function getConsumptionData() {
-  try {
-    const query = `
-      SELECT id_tool, SUM(quantity) as total_consumption
-      FROM dbo.tool_history_nom
-      GROUP BY id_tool;
-    `
-    const { rows } = await pool.query(query)
-    return rows
-  } catch (error) {
-    console.error('Ошибка при получении данных о расходе:', error)
-    throw error
-  }
-}
-
-// Функция для получения данных об испорченном инструменте
-async function getDamagedToolData() {
-  try {
-    const query = `
-    SELECT id_tool, SUM(quantity) as total_consumption
-    FROM dbo.tool_history_nom
-    GROUP BY id_tool;
-    `
-    const { rows } = await pool.query(query)
-    return rows
-  } catch (error) {
-    console.error(
-      'Ошибка при получении данных об испорченном инструменте:',
-      error
-    )
-    throw error
-  }
-}
-
-// Обновленная функция для получения данных из базы данных
 async function getReportData() {
   try {
-    const consumptionData = await getConsumptionData()
-    const damagedToolData = await getDamagedToolData()
-
     const query = `
-      SELECT id, name, sklad, norma, parent_id, property, "limit"
-      FROM dbo.tool_nom;
+      SELECT tool_history_nom.id_tool, tool_nom.name, SUM(tool_history_nom.quantity) as zakaz
+      FROM dbo.tool_history_nom
+      JOIN dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.id
+      GROUP BY tool_history_nom.id_tool, tool_nom.name;
     `
     const { rows } = await pool.query(query)
-
-    // Обновление данных для каждого инструмента
-    rows.forEach((row) => {
-      const consumption = consumptionData.find(
-        (item) => item.id_tool === row.id
-      )
-      const damaged = damagedToolData.find((item) => item.id_tool === row.id)
-
-      row.consumption = consumption ? consumption.total_consumption : 0
-      row.damaged = damaged ? damaged.total_damaged : 0
-      row.zakaz = row.norma - row.consumption - row.damaged
-    })
-
     return rows
   } catch (error) {
     console.error('Ошибка при получении данных:', error)
@@ -81,26 +31,51 @@ async function getReportData() {
 // Функция для создания Excel файла
 async function createExcelFile(data) {
   const workbook = new ExcelJS.Workbook()
-  const worksheet = workbook.addWorksheet('Report')
+  const worksheet = workbook.addWorksheet('Бухгалтерия')
 
-  // Заголовки столбцов
-  worksheet.columns = [
-    { header: 'Название', key: 'name', width: 40 },
-    { header: 'Заявка', key: 'zakaz', width: 10 },
-    { header: 'Дата генерации отчёта', key: 'date', width: 20 }, // новый столбец
-  ]
+  // Добавление текста в начало листа
+  worksheet.mergeCells('A1:E1')
+  const titleRow = worksheet.getCell('A1')
+  titleRow.value =
+    'Бухгалтерия: Исключен сломанный инструмент. Отчет каждый ПТ в 12:00 (за неделю)'
+  titleRow.font = { bold: true, size: 14 }
+
+  // Определение дат начала и окончания недели (предыдущей недели относительно текущей)
+  let endDate = new Date()
+  endDate.setDate(endDate.getDate() - endDate.getDay() - 2) // Воскресенье предыдущей недели
+  let startDate = new Date(endDate)
+  startDate.setDate(startDate.getDate() - 6) // Понедельник предыдущей недели
+
+  // Форматирование дат
+  startDate = startDate.toISOString().split('T')[0]
+  endDate = endDate.toISOString().split('T')[0]
+
+  // Добавление дат в лист
+  worksheet.addRow([
+    'Дата начала недели:',
+    startDate,
+    '',
+    'Дата окончания недели:',
+    endDate,
+  ])
+  // Добавление пустых строк перед заголовками столбцов
+  worksheet.addRow([])
+
+  // Установка заголовков столбцов вручную
+  worksheet.getRow(3).values = ['№', 'Название', 'Кол-во']
 
   // Добавление данных в лист
+  let rowNumber = 1 // Инициализация счетчика строк
   data.forEach((item) => {
     if (item.zakaz > 0) {
-      item.date = new Date() // добавление даты генерации
-      worksheet.addRow(item)
+      // Добавляем номер строки в начале каждой строки данных
+      worksheet.addRow([rowNumber, item.name, item.zakaz, item.date])
+      rowNumber++ // Инкрементируем номер строки
     }
   })
 
   // Стили для заголовков
-  worksheet.getRow(1).font = { bold: true }
-
+  worksheet.getRow(3).font = { bold: true } // Предполагая, что заголовки начинаются с 4-й строки
   return workbook
 }
 
@@ -108,6 +83,14 @@ async function createExcelFile(data) {
 async function genBuchMonth(req, res) {
   try {
     const data = await getReportData()
+
+    // Проверка на наличие позиций в данных
+    if (data.length === 0) {
+      // Если данных нет, отправляем ошибку
+      res.status(404).send('Нет данных для создания отчета.')
+      return // Остановим дальнейшее выполнение функции
+    }
+
     const workbook = await createExcelFile(data)
 
     res.setHeader(

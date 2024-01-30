@@ -18,7 +18,6 @@ async function getReportData() {
       SELECT tool_history_nom.id_tool, tool_nom.name, SUM(tool_history_nom.quantity) as zakaz
       FROM dbo.tool_history_nom
       JOIN dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.id
-      -- WHERE date >= (CURRENT_DATE - INTERVAL '7 days')
       GROUP BY tool_history_nom.id_tool, tool_nom.name;
     `
     const { rows } = await pool.query(query)
@@ -59,19 +58,20 @@ async function createExcelFile(data) {
     'Дата окончания недели:',
     endDate,
   ])
-  worksheet.addRow([]) // Пустая строка для разделения
+  // Добавление пустых строк перед заголовками столбцов
+  worksheet.addRow([])
 
-  // Заголовки столбцов
-  worksheet.columns = [
-    { header: 'Название', key: 'name', width: 40 },
-    { header: 'Заявка', key: 'zakaz', width: 10 },
-    { header: 'Дата', key: 'date', width: 10 },
-    // Остальные столбцы по необходимости
-  ]
+  // Установка заголовков столбцов вручную
+  worksheet.getRow(3).values = ['№', 'Название', 'Кол-во']
 
   // Добавление данных в лист
+  let rowNumber = 1 // Инициализация счетчика строк
   data.forEach((item) => {
-    if (item.zakaz > 0) worksheet.addRow(item)
+    if (item.zakaz > 0) {
+      // Добавляем номер строки в начале каждой строки данных
+      worksheet.addRow([rowNumber, item.name, item.zakaz, item.date])
+      rowNumber++ // Инкрементируем номер строки
+    }
   })
 
   // Стили для заголовков
