@@ -30,29 +30,27 @@ async function getReportData() {
   }
 }
 
-// Функция для создания Excel файла
-async function createExcelFile(data) {
+// Функция для создания Excel файла и возврата его как потока данных
+async function createExcelFileStream(data) {
   const workbook = new ExcelJS.Workbook()
   const worksheet = workbook.addWorksheet('Бухгалтерия')
 
-  // Добавление текста в начало листа
   worksheet.mergeCells('A1:E1')
   const titleRow = worksheet.getCell('A1')
   titleRow.value =
     'Бухгалтерия: Исключен сломанный инструмент. Отчет каждый ПТ в 12:00 (за неделю)'
   titleRow.font = { bold: true, size: 14 }
 
-  // Определение дат начала и окончания недели (предыдущей недели относительно текущей)
+  // Определение дат начала и окончания недели
   let endDate = new Date()
-  endDate.setDate(endDate.getDate() - endDate.getDay() - 2) // Воскресенье предыдущей недели
+  endDate.setDate(endDate.getDate() - endDate.getDay() - 2)
   let startDate = new Date(endDate)
-  startDate.setDate(startDate.getDate() - 6) // Понедельник предыдущей недели
+  startDate.setDate(startDate.getDate() - 6)
 
   // Форматирование дат
   startDate = startDate.toISOString().split('T')[0]
   endDate = endDate.toISOString().split('T')[0]
 
-  // Добавление дат в лист
   worksheet.addRow([
     'Дата начала недели:',
     startDate,
@@ -60,34 +58,31 @@ async function createExcelFile(data) {
     'Дата окончания недели:',
     endDate,
   ])
-  // Добавление пустых строк перед заголовками столбцов
   worksheet.addRow([])
 
-  // Установка заголовков столбцов вручную
   worksheet.getRow(3).values = ['№', 'Название', 'Кол-во']
+  worksheet.getRow(3).font = { bold: true }
 
-  // Добавление данных в лист
-  let rowNumber = 1 // Инициализация счетчика строк
+  let rowNumber = 1
   data.forEach((item) => {
     if (item.zakaz > 0) {
-      // Добавляем номер строки в начало каждой строки данных
       worksheet.addRow([rowNumber, item.name, item.zakaz])
-      rowNumber++ // Инкрементируем номер строки
+      rowNumber++
     }
   })
 
-  // Стили для заголовков
-  worksheet.getRow(3).font = { bold: true } // Предполагая, что заголовки начинаются с 4-й строки
-  return workbook
+  const stream = new require('stream').PassThrough()
+  await workbook.xlsx.write(stream)
+  stream.end()
+  return stream
 }
 
 // Функция для отправки сообщения с файлом на почту
-// Функция для отправки текстового сообщения с прикрепленным файлом на почту
-async function sendEmailWithTextAndAttachment(email, text, attachmentPath) {
+async function sendEmailWithExcelStream(email, text, excelStream) {
   const transporter = nodemailer.createTransport({
-    host: emailConfig.host, // Замените на доменное имя сервера почты
+    host: emailConfig.host,
     port: emailConfig.port,
-    secure: false, // true для SSL, false для TCP
+    secure: false,
     auth: {
       user: emailConfig.user,
       pass: emailConfig.pass,
@@ -99,17 +94,11 @@ async function sendEmailWithTextAndAttachment(email, text, attachmentPath) {
     to: email,
     subject:
       'Бухгалтерия: Исключен сломанный инструмент. Отчет каждый ПТ в 12:00 (за неделю)',
-    text: text, // Текстовое сообщение
-    attachments: [{ path: attachmentPath }],
+    text: text,
+    attachments: [{ filename: 'Report.xlsx', content: excelStream }],
   }
 
-  try {
-    await transporter.sendMail(mailOptions)
-    console.log(`Отчет успешно отправлен на почту ${email}`)
-  } catch (error) {
-    console.error('Ошибка при отправке отчета на почту:', error)
-    throw error
-  }
+  await transporter.sendMail(mailOptions)
 }
 
 // Объединение функционала
@@ -117,32 +106,15 @@ async function genBuchMonth(req, res) {
   try {
     const data = await getReportData()
 
-    // Проверка на наличие позиций в данных
     if (data.length === 0) {
-      // Если данных нет, отправляем ошибку
       res.status(404).send('Нет данных для создания отчета.')
-      return // Остановим дальнейшее выполнение функции
+      return
     }
 
-    const workbook = await createExcelFile(data)
+    const excelStream = await createExcelFileStream(data)
+    const emailText = 'Пожалуйста, найдите вложенный отчет в формате Excel.'
 
-    const attachmentPath = 'Report.xlsx' // Путь к файлу отчета
-    await workbook.xlsx.writeFile(attachmentPath)
-
-    // Текстовое сообщение для отправки по почте
-    const emailText =
-      'Сообщение сделано автоматически почтовым сервисом\nПожалуйста, найдите вложенный отчет в формате Excel.'
-
-    // Отправляем отчет на указанный email
-    await sendEmailWithTextAndAttachment(
-      'isa@pf-forum.ru',
-      emailText,
-      attachmentPath
-    )
-
-    // Удаляем временный файл отчета
-    const fs = require('fs')
-    fs.unlinkSync(attachmentPath)
+    await sendEmailWithExcelStream('isa@pf-forum.ru', emailText, excelStream)
 
     res.status(200).send('Отчет успешно отправлен на указанный email.')
   } catch (error) {
