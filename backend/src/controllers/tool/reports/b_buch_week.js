@@ -2,6 +2,8 @@ const { Pool } = require('pg')
 const ExcelJS = require('exceljs')
 const { getNetworkDetails } = require('../../../db_type')
 const config = require('../../../config')
+const nodemailer = require('nodemailer')
+const { emailConfig } = require('../../../config')
 
 // Настройка подключения к базе данных
 const networkDetails = getNetworkDetails()
@@ -15,10 +17,23 @@ const pool = new Pool(dbConfig)
 async function getReportData() {
   try {
     const query = `
-      SELECT tool_history_nom.id_tool, tool_nom.name, SUM(tool_history_nom.quantity) as zakaz
-      FROM dbo.tool_history_nom
-      JOIN dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.id
-      GROUP BY tool_history_nom.id_tool, tool_nom.name;
+        SELECT
+            tool_history_nom.id_tool,
+            tool_nom.name,
+            tool_history_nom.date,
+            SUM(tool_history_nom.quantity) as zakaz
+        FROM
+            dbo.tool_history_nom
+        JOIN
+            dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.id
+        WHERE
+            tool_history_nom.date >= CURRENT_DATE - INTERVAL '7 days'
+        GROUP BY
+            tool_history_nom.id_tool,
+            tool_nom.name,
+            tool_history_nom.date
+        ORDER BY
+            tool_history_nom.date;
     `
     const { rows } = await pool.query(query)
     return rows
@@ -28,29 +43,27 @@ async function getReportData() {
   }
 }
 
-// Функция для создания Excel файла
-async function createExcelFile(data) {
+// Функция для создания Excel файла и возврата его как потока данных
+async function createExcelFileStream(data) {
   const workbook = new ExcelJS.Workbook()
   const worksheet = workbook.addWorksheet('Бухгалтерия')
 
-  // Добавление текста в начало листа
   worksheet.mergeCells('A1:E1')
   const titleRow = worksheet.getCell('A1')
   titleRow.value =
     'Бухгалтерия: Исключен сломанный инструмент. Отчет каждый ПТ в 12:00 (за неделю)'
   titleRow.font = { bold: true, size: 14 }
 
-  // Определение дат начала и окончания недели (предыдущей недели относительно текущей)
+  // Определение дат начала и окончания недели
   let endDate = new Date()
-  endDate.setDate(endDate.getDate() - endDate.getDay() - 2) // Воскресенье предыдущей недели
+  endDate.setDate(endDate.getDate() - endDate.getDay() - 2)
   let startDate = new Date(endDate)
-  startDate.setDate(startDate.getDate() - 6) // Понедельник предыдущей недели
+  startDate.setDate(startDate.getDate() - 6)
 
   // Форматирование дат
   startDate = startDate.toISOString().split('T')[0]
   endDate = endDate.toISOString().split('T')[0]
 
-  // Добавление дат в лист
   worksheet.addRow([
     'Дата начала недели:',
     startDate,
@@ -58,25 +71,70 @@ async function createExcelFile(data) {
     'Дата окончания недели:',
     endDate,
   ])
-  // Добавление пустых строк перед заголовками столбцов
   worksheet.addRow([])
 
-  // Установка заголовков столбцов вручную
   worksheet.getRow(3).values = ['№', 'Название', 'Кол-во']
+  worksheet.getRow(3).font = { bold: true }
 
-  // Добавление данных в лист
-  let rowNumber = 1 // Инициализация счетчика строк
+  let rowNumber = 1
   data.forEach((item) => {
     if (item.zakaz > 0) {
-      // Добавляем номер строки в начале каждой строки данных
-      worksheet.addRow([rowNumber, item.name, item.zakaz, item.date])
-      rowNumber++ // Инкрементируем номер строки
+      worksheet.addRow([rowNumber, item.name, item.zakaz])
+      rowNumber++
     }
   })
 
-  // Стили для заголовков
-  worksheet.getRow(3).font = { bold: true } // Предполагая, что заголовки начинаются с 4-й строки
-  return workbook
+  const stream = new require('stream').PassThrough()
+  await workbook.xlsx.write(stream)
+  stream.end()
+  return stream
+}
+
+// Функция для отправки сообщения с файлом на почту
+async function sendEmailWithExcelStream(email, text, excelStream) {
+  const transporter = nodemailer.createTransport({
+    host: emailConfig.host,
+    port: emailConfig.port,
+    secure: false,
+    auth: {
+      user: emailConfig.user,
+      pass: emailConfig.pass,
+    },
+  })
+
+  const { firstDate, lastDate } = getCurrentWeekDates()
+  const filename = `Report ${firstDate} - ${lastDate}.xlsx`
+
+  const mailOptions = {
+    from: 'report@pf-forum.ru',
+    to: email,
+    subject:
+      'Бухгалтерия: Исключен сломанный инструмент. Отчет каждый ПТ в 12:00 (за неделю)',
+    text: text,
+    attachments: [
+      {
+        filename,
+        content: excelStream,
+      },
+    ],
+  }
+
+  await transporter.sendMail(mailOptions)
+}
+// Функция для получения даты начала и конца текущей недели
+function getCurrentWeekDates() {
+  const currentDate = new Date()
+  const firstDayOfWeek = currentDate.getDate() - currentDate.getDay() + 1 // Понедельник
+  const lastDayOfWeek = firstDayOfWeek + 6 // Воскресенье
+
+  const firstDate = new Date(currentDate.setDate(firstDayOfWeek))
+    .toISOString()
+    .split('T')[0]
+  const lastDate = new Date(currentDate.setDate(lastDayOfWeek))
+    .toISOString()
+    .split('T')[0]
+
+  return { firstDate, lastDate }
 }
 
 // Объединение функционала
@@ -84,26 +142,20 @@ async function genBuchWeek(req, res) {
   try {
     const data = await getReportData()
 
-    // Проверка на наличие позиций в данных
     if (data.length === 0) {
-      // Если данных нет, отправляем ошибку
       res.status(404).send('Нет данных для создания отчета.')
-      return // Остановим дальнейшее выполнение функции
+      return
     }
 
-    const workbook = await createExcelFile(data)
+    const excelStream = await createExcelFileStream(data)
+    const emailText = 'Пожалуйста, найдите вложенный отчет в формате Excel.'
 
-    res.setHeader(
-      'Content-Type',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    )
-    res.setHeader('Content-Disposition', 'attachment; filename=Report.xlsx')
+    await sendEmailWithExcelStream('isa@pf-forum.ru', emailText, excelStream)
 
-    await workbook.xlsx.write(res)
-    res.end()
+    res.status(200).send('Отчет успешно отправлен на указанный email.')
   } catch (error) {
-    console.error('Ошибка при генерации отчета:', error)
-    res.status(500).send('Ошибка при генерации отчета')
+    console.error('Ошибка при генерации и отправке отчета:', error)
+    res.status(500).send('Ошибка при генерации и отправке отчета')
   }
 }
 

@@ -17,10 +17,23 @@ const pool = new Pool(dbConfig)
 async function getReportData() {
   try {
     const query = `
-      SELECT tool_history_nom.id_tool, tool_nom.name, SUM(tool_history_nom.quantity) as zakaz
-      FROM dbo.tool_history_nom
-      JOIN dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.id
-      GROUP BY tool_history_nom.id_tool, tool_nom.name;
+      SELECT
+          tool_history_nom.id_tool,
+          tool_nom.name,
+          tool_history_nom.date,
+          SUM(tool_history_nom.quantity) as zakaz
+      FROM
+          dbo.tool_history_nom
+      JOIN
+          dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.id
+      WHERE
+          tool_history_nom.date >= CURRENT_DATE - INTERVAL '30 days'
+      GROUP BY
+          tool_history_nom.id_tool,
+          tool_nom.name,
+          tool_history_nom.date
+      ORDER BY
+          tool_history_nom.date;
     `
     const { rows } = await pool.query(query)
     return rows
@@ -38,7 +51,7 @@ async function createExcelFileStream(data) {
   worksheet.mergeCells('A1:E1')
   const titleRow = worksheet.getCell('A1')
   titleRow.value =
-    'Бухгалтерия: Исключен сломанный инструмент. Отчет каждый ПТ в 12:00 (за неделю)'
+    'Бухгалтерия: Журнал испорченного раз в месяц. Отчет каждый ПТ в 12:00 (за месяц)'
   titleRow.font = { bold: true, size: 14 }
 
   // Определение дат начала и окончания недели
@@ -89,16 +102,39 @@ async function sendEmailWithExcelStream(email, text, excelStream) {
     },
   })
 
+  const { firstDate, lastDate } = getCurrentWeekDates()
+  const filename = `Report ${firstDate} - ${lastDate}.xlsx`
+
   const mailOptions = {
     from: 'report@pf-forum.ru',
     to: email,
     subject:
-      'Бухгалтерия: Исключен сломанный инструмент. Отчет каждый ПТ в 12:00 (за неделю)',
+      'Бухгалтерия: Журнал испорченного раз в месяц. Отчет каждый ПТ в 12:00 (за месяц)',
     text: text,
-    attachments: [{ filename: 'Report.xlsx', content: excelStream }],
+    attachments: [
+      {
+        filename,
+        content: excelStream,
+      },
+    ],
   }
 
   await transporter.sendMail(mailOptions)
+}
+// Функция для получения даты начала и конца текущей недели
+function getCurrentWeekDates() {
+  const currentDate = new Date()
+  const firstDayOfWeek = currentDate.getDate() - currentDate.getDay() + 1 // Понедельник
+  const lastDayOfWeek = firstDayOfWeek + 6 // Воскресенье
+
+  const firstDate = new Date(currentDate.setDate(firstDayOfWeek))
+    .toISOString()
+    .split('T')[0]
+  const lastDate = new Date(currentDate.setDate(lastDayOfWeek))
+    .toISOString()
+    .split('T')[0]
+
+  return { firstDate, lastDate }
 }
 
 // Объединение функционала
