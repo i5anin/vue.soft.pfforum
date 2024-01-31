@@ -31,42 +31,44 @@ transporter.use('compile', htmlToText())
 async function checkStatusChanges() {
   try {
     console.log('Проверка наличия обновленных строк...')
-    // Update completed_previous
-    const updateQuery = `
+    // Сохраняем текущий статус во временную переменную
+    let previousStatuses = await pool.query(`
+      SELECT t.id, t.completed_previous
+      FROM dbo.tool_history_nom t;
+    `)
+
+    // Обновляем completed_previous на основе status_ready
+    await pool.query(`
       UPDATE dbo.tool_history_nom t
       SET completed_previous =
         CASE
           WHEN s.status_ready = TRUE THEN 't'
-          WHEN s.status_ready = FALSE THEN 'f'
-          ELSE NULL
+          ELSE 'f'
         END
       FROM dbo.specs_nom_operations s
       WHERE t.id = s.id;
-    `
-    await pool.query(updateQuery)
-
-    console.log('Проверка наличия обновленных строк...')
-    // Fetch and group rows by id_tool, summing up quantities
-    const { rows } = await pool.query(`
-      SELECT n.id AS tool_id, n.name, SUM(t.quantity) AS total_quantity
-      FROM dbo.tool_history_nom t
-      JOIN dbo.tool_nom n ON t.id_tool = n.id
-      WHERE t.completed_previous = 't'
-      GROUP BY n.id, n.name;
     `)
 
-    if (rows.length > 0) {
-      sendEmailNotification(rows)
+    console.log('Проверка наличия обновленных строк...')
+    // Фильтруем строки, где статус изменился с null или 'f' на 't'
+    const changedRows = previousStatuses.rows.filter(
+      (row) =>
+        (row.completed_previous === null || row.completed_previous === 'f') &&
+        rows.find((r) => r.id === row.id).completed_previous === 't'
+    )
+
+    if (changedRows.length > 0) {
+      sendEmailNotification(changedRows)
     } else {
       console.log('Строки для отправки электронной почты не обновлены')
     }
   } catch (error) {
-    console.error('Изменение статуса проверки ошибок:', error)
+    console.error('Ошибка при проверке изменений статуса:', error)
   }
 }
 
 function sendEmailNotification(rows) {
-  let htmlContent = '<h2>The status of the following tools has changed:</h2>'
+  let htmlContent = '<h2>Изменился статус следующих инструментов:</h2>'
   htmlContent +=
     '<table border="1"><tr><th>Tool ID</th><th>Name</th><th>Total Quantity</th></tr>'
 
