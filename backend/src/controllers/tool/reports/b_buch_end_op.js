@@ -31,17 +31,17 @@ transporter.use('compile', htmlToText())
 async function checkStatusChanges() {
   try {
     console.log('Проверка наличия обновленных строк...')
-    // Update completed_previous
+    // Update status_temp
     const updateQuery = `
       UPDATE dbo.tool_history_nom t
-      SET completed_previous =
+      SET status_temp =
         CASE
-          WHEN s.status_ready = TRUE THEN 't'
-          WHEN s.status_ready = FALSE THEN 'f'
+          WHEN specs_nom_operations.status_ready = TRUE THEN 't'
+          WHEN specs_nom_operations.status_ready = FALSE THEN 'f'
           ELSE NULL
         END
-      FROM dbo.specs_nom_operations s
-      WHERE t.id = s.id;
+      FROM dbo.specs_nom_operations
+      WHERE tool_history_nom.id = specs_nom_operations.id;
     `
     await pool.query(updateQuery)
 
@@ -51,7 +51,7 @@ async function checkStatusChanges() {
      SELECT tool_nom.id AS tool_id, tool_nom.name, SUM(tool_history_nom.quantity) AS total_quantity
       FROM dbo.tool_history_nom
       JOIN dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.id
-      WHERE tool_history_nom.completed_previous = 't'
+      WHERE tool_history_nom.status_temp = 't'
       GROUP BY tool_nom.id, tool_nom.name;
     `)
 
@@ -68,7 +68,7 @@ async function checkStatusChanges() {
 function sendEmailNotification(rows) {
   let htmlContent = '<h2>Изменился статус следующих инструментов:</h2>'
   htmlContent +=
-    '<table border="1"><tr><th>Tool ID</th><th>Name</th><th>Total Quantity</th></tr>'
+    '<table border="1"><tr><th>Tool ID</th><th>Название</th><th>Кол-во</th></tr>'
 
   rows.forEach((row) => {
     htmlContent += `<tr><td>${row.tool_id}</td><td>${row.name}</td><td>${row.total_quantity}</td></tr>`
