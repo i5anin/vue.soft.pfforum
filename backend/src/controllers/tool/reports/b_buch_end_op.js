@@ -48,11 +48,11 @@ async function checkStatusChanges() {
     console.log('Проверка наличия обновленных строк...')
     // Fetch and group rows by id_tool, summing up quantities
     const { rows } = await pool.query(`
-      SELECT n.id AS tool_id, n.name, SUM(t.quantity) AS total_quantity
-      FROM dbo.tool_history_nom t
-      JOIN dbo.tool_nom n ON t.id_tool = n.id
-      WHERE t.completed_previous = 't'
-      GROUP BY n.id, n.name;
+     SELECT tool_nom.id AS tool_id, tool_nom.name, SUM(tool_history_nom.quantity) AS total_quantity
+      FROM dbo.tool_history_nom
+      JOIN dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.id
+      WHERE tool_history_nom.completed_previous = 't'
+      GROUP BY tool_nom.id, tool_nom.name;
     `)
 
     if (rows.length > 0) {
