@@ -66,7 +66,7 @@ async function checkStatusChanges() {
 }
 
 function sendEmailNotification(rows) {
-  let htmlContent = '<h2>The status of the following tools has changed:</h2>'
+  let htmlContent = '<h2>Изменился статус следующих инструментов:</h2>'
   htmlContent +=
     '<table border="1"><tr><th>Tool ID</th><th>Name</th><th>Total Quantity</th></tr>'
 
