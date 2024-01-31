@@ -31,28 +31,34 @@ transporter.use('compile', htmlToText())
 async function checkStatusChanges() {
   try {
     console.log('Проверка наличия обновленных строк...')
-    // Update completed_previous
-    const updateQuery = `
+
+    // Обновляем status_temp в tool_history_nom
+    await pool.query(`
       UPDATE dbo.tool_history_nom
       SET status_temp =
         CASE
-          WHEN specs_nom_operations.status_ready = TRUE THEN 't'
-          WHEN specs_nom_operations.status_ready = FALSE THEN 'f'
+          WHEN (SELECT status_ready FROM dbo.specs_nom_operations WHERE id = tool_history_nom.specs_op_id) = TRUE THEN 't'
+          WHEN (SELECT status_ready FROM dbo.specs_nom_operations WHERE id = tool_history_nom.specs_op_id) = FALSE THEN 'f'
           ELSE NULL
-        END
-      FROM dbo.specs_nom_operations
-      WHERE dbo.tool_history_nom.id = specs_nom_operations.id;
-    `
-    await pool.query(updateQuery)
+        END;
+    `)
 
-    console.log('Проверка наличия обновленных строк...')
-    // Fetch and group rows by id_tool, summing up quantities
+    console.log('Получение обновленных строк для отправки электронной почты...')
+    // Получаем строки для отправки электронной почты
     const { rows } = await pool.query(`
-     SELECT tool_nom.id AS tool_id, tool_nom.name, SUM(tool_history_nom.quantity) AS total_quantity
-      FROM dbo.tool_history_nom
-      JOIN dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.id
-      WHERE dbo.tool_history_nom.status_temp = 't'
-      GROUP BY tool_nom.id, tool_nom.name;
+      SELECT
+        tool_nom.id AS tool_id,
+        tool_nom.name,
+        tool_history_nom.quantity,
+        tool_history_nom.specs_op_id,
+        tool_history_nom.status_temp,
+        (SELECT status_ready FROM dbo.specs_nom_operations WHERE id = tool_history_nom.specs_op_id) AS status_ready
+      FROM
+        dbo.tool_history_nom
+      JOIN
+        dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.id
+      WHERE
+        tool_history_nom.status_temp = 't';
     `)
 
     if (rows.length > 0) {
@@ -61,17 +67,17 @@ async function checkStatusChanges() {
       console.log('Строки для отправки электронной почты не обновлены')
     }
   } catch (error) {
-    console.error('Изменение статуса проверки ошибок:', error)
+    console.error('Ошибка при проверке статуса изменений:', error)
   }
 }
 
 function sendEmailNotification(rows) {
   let htmlContent = '<h2>Изменился статус следующих инструментов:</h2>'
   htmlContent +=
-    '<table border="1"><tr><th>Tool ID</th><th>Название</th><th>Кол-во</th></tr>'
+    '<table border="1"><tr><th>ID Инструмента</th><th>Название</th><th>Количество</th></tr>'
 
   rows.forEach((row) => {
-    htmlContent += `<tr><td>${row.tool_id}</td><td>${row.name}</td><td>${row.total_quantity}</td></tr>`
+    htmlContent += `<tr><td>${row.tool_id}</td><td>${row.name}</td><td>${row.quantity}</td></tr>`
   })
 
   htmlContent += '</table>'
@@ -94,6 +100,6 @@ function sendEmailNotification(rows) {
 
 // Schedule the cron job
 cron.schedule('* * * * *', () => {
-  console.log('Running a task every minute')
+  console.log('Запуск задачи каждую минуту')
   checkStatusChanges()
 })
