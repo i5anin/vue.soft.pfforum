@@ -31,9 +31,9 @@ transporter.use('compile', htmlToText())
 async function checkStatusChanges() {
   try {
     console.log('Проверка наличия обновленных строк...')
-    // Update status_temp
+    // Update completed_previous
     const updateQuery = `
-      UPDATE dbo.tool_history_nom t
+      UPDATE dbo.tool_history_nom
       SET status_temp =
         CASE
           WHEN specs_nom_operations.status_ready = TRUE THEN 't'
@@ -41,7 +41,7 @@ async function checkStatusChanges() {
           ELSE NULL
         END
       FROM dbo.specs_nom_operations
-      WHERE tool_history_nom.id = specs_nom_operations.id;
+      WHERE dbo.tool_history_nom.id = specs_nom_operations.id;
     `
     await pool.query(updateQuery)
 
@@ -51,7 +51,7 @@ async function checkStatusChanges() {
      SELECT tool_nom.id AS tool_id, tool_nom.name, SUM(tool_history_nom.quantity) AS total_quantity
       FROM dbo.tool_history_nom
       JOIN dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.id
-      WHERE tool_history_nom.status_temp = 't'
+      WHERE dbo.tool_history_nom.status_temp = 't'
       GROUP BY tool_nom.id, tool_nom.name;
     `)
 
