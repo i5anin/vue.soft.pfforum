@@ -27,31 +27,26 @@ const transporter = nodemailer.createTransport({
 // Function to check for status changes
 async function checkStatusChanges() {
   try {
-    console.log('Update completed_old first')
+    console.log('Updating completed_previous...')
     const updateQuery = `
       UPDATE dbo.tool_history_nom t
-      SET completed_old =
+      SET completed_previous =
         CASE
           WHEN s.status_ready = TRUE THEN 't'
           WHEN s.status_ready = FALSE THEN 'f'
           ELSE NULL
         END
       FROM dbo.specs_nom_operations s
-      WHERE t.id = s.id AND (t.completed_old IS DISTINCT FROM
-        CASE
-          WHEN s.status_ready = TRUE THEN 't'
-          WHEN s.status_ready = FALSE THEN 'f'
-          ELSE NULL
-        END OR t.completed_old IS NULL);
+      WHERE t.id = s.id;
     `
     await pool.query(updateQuery)
 
-    console.log('Check for updated rows')
+    console.log('Checking for updated rows...')
     const checkQuery = `
       SELECT t.id, n.name
       FROM dbo.tool_history_nom t
       JOIN dbo.tool_nom n ON t.id_tool = n.id
-      WHERE (t.completed_old = 't' AND (t.completed_old_previous IS NULL OR t.completed_old_previous = 'f'));
+      WHERE t.completed_previous = 't';
     `
     const { rows } = await pool.query(checkQuery)
 
@@ -65,7 +60,6 @@ async function checkStatusChanges() {
   }
 }
 
-// Function to send email notifications
 function sendEmailNotification(rows) {
   let emailText = 'The status of the following items has changed:\n'
   rows.forEach((row) => {
