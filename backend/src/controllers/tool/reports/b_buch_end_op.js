@@ -4,6 +4,7 @@ const { Pool } = require('pg')
 const config = require('../../../config')
 const { emailConfig } = require('../../../config')
 const { getNetworkDetails } = require('../../../db_type')
+const { htmlToText } = require('nodemailer-html-to-text')
 
 // Настройка подключения к базе данных
 const networkDetails = getNetworkDetails()
@@ -24,10 +25,13 @@ const transporter = nodemailer.createTransport({
   },
 })
 
-// Function to check for status changes
+// Use htmlToText plugin
+transporter.use('compile', htmlToText())
+
 async function checkStatusChanges() {
   try {
-    console.log('Updating completed_previous...')
+    console.log('Проверка наличия обновленных строк...')
+    // Update completed_previous
     const updateQuery = `
       UPDATE dbo.tool_history_nom t
       SET completed_previous =
@@ -41,36 +45,42 @@ async function checkStatusChanges() {
     `
     await pool.query(updateQuery)
 
-    console.log('Checking for updated rows...')
-    const checkQuery = `
-      SELECT t.id, n.name
+    console.log('Проверка наличия обновленных строк...')
+    // Fetch and group rows by id_tool, summing up quantities
+    const { rows } = await pool.query(`
+      SELECT n.id AS tool_id, n.name, SUM(t.quantity) AS total_quantity
       FROM dbo.tool_history_nom t
       JOIN dbo.tool_nom n ON t.id_tool = n.id
-      WHERE t.completed_previous = 't';
-    `
-    const { rows } = await pool.query(checkQuery)
+      WHERE t.completed_previous = 't'
+      GROUP BY n.id, n.name;
+    `)
 
     if (rows.length > 0) {
       sendEmailNotification(rows)
     } else {
-      console.log('No relevant data changes to send email')
+      console.log('Строки для отправки электронной почты не обновлены')
     }
   } catch (error) {
-    console.error('Error checking status changes:', error)
+    console.error('Изменение статуса проверки ошибок:', error)
   }
 }
 
 function sendEmailNotification(rows) {
-  let emailText = 'The status of the following items has changed:\n'
+  let htmlContent = '<h2>The status of the following tools has changed:</h2>'
+  htmlContent +=
+    '<table border="1"><tr><th>Tool ID</th><th>Name</th><th>Total Quantity</th></tr>'
+
   rows.forEach((row) => {
-    emailText += `ID: ${row.id}, Name: ${row.name}\n`
+    htmlContent += `<tr><td>${row.tool_id}</td><td>${row.name}</td><td>${row.total_quantity}</td></tr>`
   })
+
+  htmlContent += '</table>'
 
   const mailOptions = {
     from: 'report@pf-forum.ru',
     to: 'isa@pf-forum.ru',
     subject: 'Бухгалтерия: по окончанию операции',
-    text: emailText,
+    html: htmlContent,
   }
 
   transporter.sendMail(mailOptions, function (error, info) {
@@ -84,7 +94,6 @@ function sendEmailNotification(rows) {
 
 // Schedule the cron job
 cron.schedule('* * * * *', () => {
-  // Runs every minute, adjust as needed
   console.log('Running a task every minute')
   checkStatusChanges()
 })
