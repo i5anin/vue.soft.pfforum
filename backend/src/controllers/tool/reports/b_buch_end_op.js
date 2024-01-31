@@ -28,6 +28,9 @@ const transporter = nodemailer.createTransport({
 // Use htmlToText plugin
 transporter.use('compile', htmlToText())
 
+// Массив для отслеживания уже отправленных уведомлений
+const sentNotifications = []
+
 async function checkStatusChanges() {
   try {
     console.log('Проверка наличия обновленных строк...')
@@ -60,25 +63,45 @@ async function checkStatusChanges() {
       WHERE
         tool_history_nom.status_temp = 't';
     `)
+    // console.log(rows)
+    if (rows.length === 0) {
+      console.log(rows)
+      console.log('Нет обновленных строк среди завершенных операций.')
+      return // Возвращаемся, так как нет обновлений для обработки
+    }
 
-    if (rows.length > 0) {
-      sendEmailNotification(rows)
-    } else {
-      console.log('Строки для отправки электронной почты не обновлены')
+    for (const row of rows) {
+      // Проверяем, было ли уже отправлено уведомление для данного инструмента
+      if (!sentNotifications.includes(row.tool_id)) {
+        // Обновляем данные на актуальные (status_temp='t' и status_ready='t')
+        await pool.query(`
+      UPDATE dbo.tool_history_nom
+      SET status_temp = 't'
+      WHERE id_tool = ${row.tool_id};
+    `)
+
+        // Добавляем лог измененного ID истории инструмента
+        console.log(
+          `Изменен статус для инструмента с ID истории инструмента: ${row.tool_id}`
+        )
+
+        sendEmailNotification(row)
+        // Добавляем ID инструмента в массив отправленных уведомлений
+        sentNotifications.push(row.tool_id)
+      }
     }
   } catch (error) {
     console.error('Ошибка при проверке статуса изменений:', error)
   }
 }
 
-function sendEmailNotification(rows) {
-  let htmlContent = '<h2>Изменился статус следующих инструментов:</h2>'
+function sendEmailNotification(row) {
+  console.log(`Отправка уведомления для инструмента с ID ${row.tool_id}...`)
+  let htmlContent = '<h2>Изменился статус инструмента:</h2>'
   htmlContent +=
     '<table border="1"><tr><th>ID Инструмента</th><th>Название</th><th>Количество</th></tr>'
 
-  rows.forEach((row) => {
-    htmlContent += `<tr><td>${row.tool_id}</td><td>${row.name}</td><td>${row.quantity}</td></tr>`
-  })
+  htmlContent += `<tr><td>${row.tool_id}</td><td>${row.name}</td><td>${row.quantity}</td></tr>`
 
   htmlContent += '</table>'
 
@@ -93,13 +116,18 @@ function sendEmailNotification(rows) {
     if (error) {
       console.log(error)
     } else {
-      console.log('Email sent: ' + info.response)
+      console.log(
+        `Отправлено электронное письмо с указанием идентификатора инструмента ${row.tool_id}\n` +
+          `status info:` +
+          info.response +
+          `\n`
+      )
     }
   })
 }
 
 // Schedule the cron job
-cron.schedule('* * * * *', () => {
-  console.log('Запуск задачи каждую минуту')
+cron.schedule('*/10 * * * * *', () => {
+  console.log('Запуск задачи каждые 10 секунд')
   checkStatusChanges()
 })
