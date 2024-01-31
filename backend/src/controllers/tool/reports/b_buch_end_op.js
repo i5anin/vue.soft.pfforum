@@ -40,8 +40,8 @@ async function checkStatusChanges() {
       UPDATE dbo.tool_history_nom
       SET status_temp =
         CASE
-          WHEN (SELECT status_ready FROM dbo.specs_nom_operations WHERE id = tool_history_nom.specs_op_id) = TRUE THEN 't'
-          WHEN (SELECT status_ready FROM dbo.specs_nom_operations WHERE id = tool_history_nom.specs_op_id) = FALSE THEN 'f'
+          WHEN (SELECT status_ready FROM dbo.specs_nom_operations WHERE id = tool_history_nom.specs_op_id) = TRUE THEN true
+          WHEN (SELECT status_ready FROM dbo.specs_nom_operations WHERE id = tool_history_nom.specs_op_id) = FALSE THEN false
           ELSE NULL
         END;
     `)
@@ -61,35 +61,43 @@ async function checkStatusChanges() {
       JOIN
         dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.id
       WHERE
-        tool_history_nom.status_temp = 't';
+        tool_history_nom.status_temp = true;
     `)
-    // console.log(rows)
+
     if (rows.length === 0) {
-      console.log(rows)
       console.log('Нет обновленных строк среди завершенных операций.')
       return // Возвращаемся, так как нет обновлений для обработки
+    } else {
+      console.log('Обнаружено обновление данных:')
     }
 
     for (const row of rows) {
+      console.log(row)
+      console.log('row =', row.tool_id)
       // Проверяем, было ли уже отправлено уведомление для данного инструмента
-      if (!sentNotifications.includes(row.tool_id)) {
-        // Обновляем данные на актуальные (status_temp='t' и status_ready='t')
-        await pool.query(`
-      UPDATE dbo.tool_history_nom
-      SET status_temp = 't'
-      WHERE id_tool = ${row.tool_id};
-    `)
+      // if (row.status_temp === 'f' || row.status_temp === null) {
+      // Обновляем данные на актуальные (status_temp='t' и status_ready='t')
+      await pool.query(`
+  UPDATE dbo.tool_history_nom
+  SET status_temp = op.status_ready
+  FROM dbo.specs_nom_operations op
+  WHERE tool_history_nom.specs_op_id = op.id
+    AND tool_history_nom.id_tool = ${row.tool_id};
+`)
 
-        // Добавляем лог измененного ID истории инструмента
-        console.log(
-          `Изменен статус для инструмента с ID истории инструмента: ${row.tool_id}`
-        )
+      // Добавляем лог измененного ID истории инструмента
+      console.log(
+        `Изменен статус для инструмента с ID истории инструмента: ${row.tool_id}`
+      )
 
-        sendEmailNotification(row)
-        // Добавляем ID инструмента в массив отправленных уведомлений
-        sentNotifications.push(row.tool_id)
-      }
+      sendEmailNotification(row)
+      // Добавляем ID инструмента в массив отправленных уведомлений
+      sentNotifications.push(row.tool_id)
+      // }
     }
+
+    // Очищаем массив отправленных уведомлений после обработки всех строк
+    sentNotifications.length = 0
   } catch (error) {
     console.error('Ошибка при проверке статуса изменений:', error)
   }
@@ -112,6 +120,7 @@ function sendEmailNotification(row) {
     html: htmlContent,
   }
 
+  return
   transporter.sendMail(mailOptions, function (error, info) {
     if (error) {
       console.log(error)
