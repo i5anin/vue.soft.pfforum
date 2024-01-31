@@ -74,26 +74,30 @@ async function checkStatusChanges() {
     for (const row of rows) {
       console.log(row)
       console.log('row =', row.tool_id)
+
       // Проверяем, было ли уже отправлено уведомление для данного инструмента
-      // if (row.status_temp === 'f' || row.status_temp === null) {
-      // Обновляем данные на актуальные (status_temp='t' и status_ready='t')
-      await pool.query(`
-  UPDATE dbo.tool_history_nom
-  SET status_temp = op.status_ready
-  FROM dbo.specs_nom_operations op
-  WHERE tool_history_nom.specs_op_id = op.id
-    AND tool_history_nom.id_tool = ${row.tool_id};
-`)
+      if (!sentNotifications.includes(row.tool_id)) {
+        // Обновляем данные на актуальные (status_temp = true)
+        await pool.query(
+          `
+      UPDATE dbo.tool_history_nom
+      SET status_temp = (op.status_ready = true)
+      FROM dbo.specs_nom_operations op
+      WHERE tool_history_nom.specs_op_id = op.id
+        AND tool_history_nom.id_tool = $1;
+      `,
+          [row.tool_id]
+        )
 
-      // Добавляем лог измененного ID истории инструмента
-      console.log(
-        `Изменен статус для инструмента с ID истории инструмента: ${row.tool_id}`
-      )
+        // Добавляем лог измененного ID истории инструмента
+        console.log(
+          `Изменен статус для инструмента с ID истории инструмента: ${row.tool_id}`
+        )
 
-      sendEmailNotification(row)
-      // Добавляем ID инструмента в массив отправленных уведомлений
-      sentNotifications.push(row.tool_id)
-      // }
+        sendEmailNotification(row)
+        // Добавляем ID инструмента в массив отправленных уведомлений
+        sentNotifications.push(row.tool_id)
+      }
     }
 
     // Очищаем массив отправленных уведомлений после обработки всех строк
