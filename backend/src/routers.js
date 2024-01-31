@@ -48,7 +48,7 @@ router.post('/tool-history-damaged', damagedController.addToolHistoryDamaged)
 router.post('/sklad/update', skladController.updateToolInventory)
 // report
 router.get('/report/genBuchWeek', reportBuchWeekController.genBuchWeek) // бухгалтерию исключен сломанный	раз в неделю каждый ПТ в 12:00 (за неделю)
-router.get('/report/genBuchEndOp', reportBuchEndOpController.genBuchEndOp) // бухгалтерию	по завершению операции
+// router.get('/report/genBuchEndOp', reportBuchEndOpController.genBuchEndOp) // бухгалтерию	по завершению операции
 router.get('/report/genBuchMonth', reportBuchMonthController.genBuchMonth) // бухгалтерию журнал испорченного	раз в месяц каждый ПТ в 12:00 (за месяц)
 router.get('/report/genZayavInstr', reportZakazController.genZayavInstr) // заявка на инструмент	раз в неделю каждый ЧТ в 12:00 (за неделю)
 

@@ -1,7 +1,9 @@
+const cron = require('node-cron')
+const nodemailer = require('nodemailer')
 const { Pool } = require('pg')
-const ExcelJS = require('exceljs')
-const { getNetworkDetails } = require('../../../db_type')
 const config = require('../../../config')
+const { emailConfig } = require('../../../config')
+const { getNetworkDetails } = require('../../../db_type')
 
 // Настройка подключения к базе данных
 const networkDetails = getNetworkDetails()
@@ -11,102 +13,84 @@ const dbConfig =
     : config.dbConfigTest
 const pool = new Pool(dbConfig)
 
-// Функция для получения данных из базы данных
-async function getReportData() {
+// Set up Nodemailer
+const transporter = nodemailer.createTransport({
+  host: emailConfig.host,
+  port: emailConfig.port,
+  secure: false,
+  auth: {
+    user: emailConfig.user,
+    pass: emailConfig.pass,
+  },
+})
+
+// Function to check for status changes
+async function checkStatusChanges() {
   try {
-    const query = `
-      SELECT tool_history_nom.id_tool, tool_nom.name, SUM(tool_history_nom.quantity) as zakaz
-      FROM dbo.tool_history_nom
-      JOIN dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.id
-      WHERE date >= (CURRENT_DATE - INTERVAL '7 days')
-      GROUP BY tool_history_nom.id_tool, tool_nom.name;
+    console.log('Update completed_old first')
+    const updateQuery = `
+      UPDATE dbo.tool_history_nom t
+      SET completed_old =
+        CASE
+          WHEN s.status_ready = TRUE THEN 't'
+          WHEN s.status_ready = FALSE THEN 'f'
+          ELSE NULL
+        END
+      FROM dbo.specs_nom_operations s
+      WHERE t.id = s.id AND (t.completed_old IS DISTINCT FROM
+        CASE
+          WHEN s.status_ready = TRUE THEN 't'
+          WHEN s.status_ready = FALSE THEN 'f'
+          ELSE NULL
+        END OR t.completed_old IS NULL);
     `
-    const { rows } = await pool.query(query)
-    return rows
+    await pool.query(updateQuery)
+
+    console.log('Check for updated rows')
+    const checkQuery = `
+      SELECT t.id, n.name
+      FROM dbo.tool_history_nom t
+      JOIN dbo.tool_nom n ON t.id_tool = n.id
+      WHERE (t.completed_old = 't' AND (t.completed_old_previous IS NULL OR t.completed_old_previous = 'f'));
+    `
+    const { rows } = await pool.query(checkQuery)
+
+    if (rows.length > 0) {
+      sendEmailNotification(rows)
+    } else {
+      console.log('No relevant data changes to send email')
+    }
   } catch (error) {
-    console.error('Ошибка при получении данных:', error)
-    throw error
+    console.error('Error checking status changes:', error)
   }
 }
 
-// Функция для создания Excel файла
-async function createExcelFile(data) {
-  const workbook = new ExcelJS.Workbook()
-  const worksheet = workbook.addWorksheet('Бухгалтерия')
-
-  // Добавление текста в начало листа
-  worksheet.mergeCells('A1:E1')
-  const titleRow = worksheet.getCell('A1')
-  titleRow.value = 'Бухгалтерия: Отчет в бухгалтерию по завершению операции'
-  titleRow.font = { bold: true, size: 14 }
-
-  // Определение дат начала и окончания недели (предыдущей недели относительно текущей)
-  let endDate = new Date()
-  endDate.setDate(endDate.getDate() - endDate.getDay() - 2) // Воскресенье предыдущей недели
-  let startDate = new Date(endDate)
-  startDate.setDate(startDate.getDate() - 6) // Понедельник предыдущей недели
-
-  // Форматирование дат
-  startDate = startDate.toISOString().split('T')[0]
-  endDate = endDate.toISOString().split('T')[0]
-
-  // Добавление дат в лист
-  worksheet.addRow([
-    'Дата начала недели:',
-    startDate,
-    '',
-    'Дата окончания недели:',
-    endDate,
-  ])
-  // Добавление пустых строк перед заголовками столбцов
-  worksheet.addRow([])
-
-  // Установка заголовков столбцов вручную
-  worksheet.getRow(3).values = ['№', 'Название', 'Кол-во']
-
-  // Добавление данных в лист
-  let rowNumber = 1 // Инициализация счетчика строк
-  data.forEach((item) => {
-    if (item.zakaz > 0) {
-      // Добавляем номер строки в начале каждой строки данных
-      worksheet.addRow([rowNumber, item.name, item.zakaz, item.date])
-      rowNumber++ // Инкрементируем номер строки
-    }
+// Function to send email notifications
+function sendEmailNotification(rows) {
+  let emailText = 'The status of the following items has changed:\n'
+  rows.forEach((row) => {
+    emailText += `ID: ${row.id}, Name: ${row.name}\n`
   })
 
-  // Стили для заголовков
-  worksheet.getRow(3).font = { bold: true } // Предполагая, что заголовки начинаются с 4-й строки
-  return workbook
-}
-
-// Объединение функционала
-async function genBuchEndOp(req, res) {
-  try {
-    const data = await getReportData()
-
-    // Проверка на наличие позиций в данных
-    if (data.length === 0) {
-      // Если данных нет, отправляем ошибку
-      res.status(404).send('Нет данных для создания отчета.')
-      return // Остановим дальнейшее выполнение функции
-    }
-
-    const workbook = await createExcelFile(data)
-
-    res.setHeader(
-      'Content-Type',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    )
-    res.setHeader('Content-Disposition', 'attachment; filename=Report.xlsx')
-
-    await workbook.xlsx.write(res)
-    res.end()
-  } catch (error) {
-    console.error('Ошибка при генерации отчета:', error)
-    res.status(500).send('Ошибка при генерации отчета')
+  const mailOptions = {
+    from: 'report@pf-forum.ru',
+    to: 'isa@pf-forum.ru',
+    subject: 'Бухгалтерия: по окончанию операции',
+    text: emailText,
   }
+
+  transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.log(error)
+    } else {
+      console.log('Email sent: ' + info.response)
+    }
+  })
 }
 
-module.exports = {
-  genBuchEndOp,
-}
+// Schedule the cron job
+cron.schedule('* * * * *', () => {
+  // Runs every minute, adjust as needed
+  console.log('Running a task every minute')
+  checkStatusChanges()
+})
