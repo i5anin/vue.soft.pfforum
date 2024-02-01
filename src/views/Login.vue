@@ -96,8 +96,8 @@ export default {
 
         if (response.data.status === 'ok') {
           localStorage.setItem('token', response.data.token)
-          this.authorize({ isAuthorized: true })
-          this.setUserRole(response.data.role) // Сохраняем роль пользователя
+          this.$store.dispatch('AuthStore/setAuthorization', true) // Обновите состояние аутентификации
+          this.$store.dispatch('AuthStore/setUserRole', response.data.role) // Обновите роль пользователя
           this.$router.push('/') // Перенаправляем на главную страницу
         } else {
           this.showError = true

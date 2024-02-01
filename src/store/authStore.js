@@ -7,7 +7,7 @@ const authStore = {
     userRole: null,
   },
   mutations: {
-    SET_AUTHORIZATION(state, isAuthorized) {
+    SET_AUTHORIZED(state, isAuthorized) {
       state.isAuthorized = isAuthorized
     },
     SET_USER_ROLE(state, role) {
@@ -20,6 +20,10 @@ const authStore = {
     },
     setUserRole({ commit }, role) {
       commit('SET_USER_ROLE', role)
+    },
+    logout({ commit }) {
+      commit('SET_AUTHORIZED', false)
+      commit('SET_USER_ROLE', null)
     },
   },
 }

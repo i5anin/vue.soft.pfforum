@@ -43,23 +43,60 @@ export default {
     return {
       tab: 'Редактор',
       tabs: [
-        { name: 'Редактор', url: '#editor', component: EditorCatalog },
-        { name: 'Дерево', url: '#tree', component: ToolTabTree },
-        { name: 'Параметры', url: '#params', component: ToolTabParam },
-        { name: 'Выдача', url: '#issue', component: IssueCatalog }, //инструментальщик
-        { name: 'Склад', url: '#storage', component: StorageCatalog },
+        {
+          name: 'Редактор',
+          url: '#editor',
+          component: EditorCatalog,
+          access: ['Admin', 'Editor'],
+        },
+        {
+          name: 'Дерево',
+          url: '#tree',
+          component: ToolTabTree,
+          access: ['Admin', 'Editor'],
+        },
+        {
+          name: 'Параметры',
+          url: '#params',
+          component: ToolTabParam,
+          access: ['Admin', 'Editor'],
+        },
+        {
+          name: 'Выдача',
+          url: '#issue',
+          component: IssueCatalog,
+          access: ['Admin', 'Editor', 'Issue'],
+        }, //инструментальщик
+        {
+          name: 'Склад',
+          url: '#storage',
+          component: StorageCatalog,
+          access: ['Admin', 'Editor', 'Sklad'],
+        },
         {
           name: 'История выдачи',
           url: '#history_issue',
           component: HistoryIssue,
+          access: ['Admin', 'Editor'],
         },
         {
           name: 'История испорченного',
           url: '#history_damaged',
           component: HistoryDamaged,
+          access: ['Admin', 'Editor'],
         },
-        // { name: 'Наладчик', url: '#nalad', component: NaladCatalog },
-        { name: 'Отчёты', url: '#report', component: Report },
+        {
+          name: 'Наладчик',
+          url: '#nalad',
+          component: NaladCatalog,
+          access: ['Nalad'],
+        },
+        {
+          name: 'Отчёты',
+          url: '#report',
+          component: Report,
+          access: ['Admin'],
+        },
       ],
     }
   },
