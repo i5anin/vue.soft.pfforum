@@ -62,6 +62,7 @@
 
 <script>
 import axiosInstance from '@/api/axiosConfig'
+import { mapActions } from 'vuex'
 
 export default {
   data: () => ({
@@ -72,19 +73,14 @@ export default {
     showError: false,
     errorMessage: '',
     formValid: false,
-    loginRules: [
-      (v) => !!v || 'Логин обязателен',
-      (v) => v.length >= 3 || 'Логин должен быть не менее 3 символов',
-    ],
-    passwordRules: [
-      (v) => !!v || 'Пароль обязателен',
-      (v) => v.length >= 6 || 'Пароль должен быть не менее 6 символов',
-    ],
+    loginRules: [(v) => !!v || 'Логин обязателен'],
+    passwordRules: [(v) => !!v || 'Пароль обязателен'],
   }),
   created() {
     this.isAuthorized = !!localStorage.getItem('token')
   },
   methods: {
+    ...mapActions('authStore', ['authorize']),
     toggleVisibility() {
       this.visible = !this.visible
     },
