@@ -75,8 +75,7 @@ export default {
           login: this.login,
           password: this.password,
         })
-        handleResponse(response)
-        // Сохранение токена или дальнейшие действия
+        await handleResponse(response)
         console.log('Login successful:', response.data)
       } catch (error) {
         handleApiError(error)

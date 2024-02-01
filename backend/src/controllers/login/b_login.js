@@ -41,7 +41,7 @@ async function login(req, res) {
       // Пользователь найден и пароль совпадает, генерируем токен
       const token = uuidv4()
       const updateTokenQuery =
-        'UPDATE vue_users SET token = $1 WHERE login = $2'
+        'UPDATE dbo.vue_users SET token = $1 WHERE login = $2'
       await pool.query(updateTokenQuery, [token, login])
 
       res.json({ status: 'ok', token })
