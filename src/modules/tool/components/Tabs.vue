@@ -26,89 +26,50 @@
 </template>
 
 <script>
-import ToolTabParam from '@/modules/tool/components/tabs/Param.vue'
-import HistoryIssue from '@/modules/history-issue-tool/components/Table.vue'
-import HistoryDamaged from '@/modules/history-damaged-tool/components/Table.vue'
-import ToolTabTree from '@/modules/tool/components/tabs/Tree.vue'
-
-import EditorCatalog from '@/modules/editor-tool/components/Catalog.vue'
-import StorageCatalog from '@/modules/storage-tool/components/Catalog.vue'
-import IssueCatalog from '@/modules/issue-tool/components/Catalog.vue'
-import NaladCatalog from '@/modules/nalad-tool/components/Catalog.vue'
-
-import Report from '@/modules/tool/components/tabs/Report.vue'
+import { computed, ref, onMounted, watch } from 'vue'
+import { useStore } from 'vuex'
+import tabsConfig from './tabsConfig' // Убедитесь, что путь правильный
 
 export default {
-  data() {
+  setup() {
+    const store = useStore()
+    const tab = ref('Редактор')
+    const tabs = ref(tabsConfig) // Используем нашу конфигурацию вкладок
+    const userRole = computed(() => store.getters['authStore/userRole'])
+
+    // Фильтруем вкладки на основе роли пользователя
+    const filteredTabs = computed(() => {
+      return tabs.value.filter((tabItem) =>
+        tabItem.access.includes(userRole.value)
+      )
+    })
+
+    // Следим за изменениями в tab, чтобы обновлять window.location.hash
+    watch(tab, (newValue) => {
+      const currentTab = tabs.value.find((tabItem) => tabItem.name === newValue)
+      if (currentTab) {
+        window.location.hash = currentTab.url
+      }
+    })
+
+    // Устанавливаем текущую вкладку на основе window.location.hash при монтировании
+    onMounted(() => {
+      const hash = window.location.hash
+      const currentTab = tabs.value.find(
+        (tabItem) => `#${tabItem.url.split('#')[1]}` === hash
+      )
+      if (currentTab) {
+        tab.value = currentTab.name
+      } else if (filteredTabs.value.length > 0) {
+        // Устанавливаем первую доступную вкладку, если hash не соответствует ни одной вкладке
+        tab.value = filteredTabs.value[0].name
+      }
+    })
+
     return {
-      tab: 'Редактор',
-      tabs: [
-        {
-          name: 'Редактор',
-          url: '#editor',
-          component: EditorCatalog,
-          access: ['Admin', 'Editor'],
-        },
-        {
-          name: 'Дерево',
-          url: '#tree',
-          component: ToolTabTree,
-          access: ['Admin', 'Editor'],
-        },
-        {
-          name: 'Параметры',
-          url: '#params',
-          component: ToolTabParam,
-          access: ['Admin', 'Editor'],
-        },
-        {
-          name: 'Выдача',
-          url: '#issue',
-          component: IssueCatalog,
-          access: ['Admin', 'Editor', 'Issue'],
-        }, //инструментальщик
-        {
-          name: 'Склад',
-          url: '#storage',
-          component: StorageCatalog,
-          access: ['Admin', 'Editor', 'Sklad'],
-        },
-        {
-          name: 'История выдачи',
-          url: '#history_issue',
-          component: HistoryIssue,
-          access: ['Admin', 'Editor'],
-        },
-        {
-          name: 'История испорченного',
-          url: '#history_damaged',
-          component: HistoryDamaged,
-          access: ['Admin', 'Editor'],
-        },
-        {
-          name: 'Наладчик',
-          url: '#nalad',
-          component: NaladCatalog,
-          access: ['Nalad'],
-        },
-        {
-          name: 'Отчёты',
-          url: '#report',
-          component: Report,
-          access: ['Admin'],
-        },
-      ],
+      tab,
+      filteredTabs,
     }
-  },
-  watch: {
-    tab() {
-      let current_tab = this.tabs.find((el) => el.name == this.tab)
-      window.location.hash = current_tab.url
-    },
-  },
-  mounted() {
-    let current_tab = this.tabs.find((el) => el.url == window.location.hash)
-    if (current_tab !== undefined) this.tab = current_tab.name
   },
 }
 </script>
