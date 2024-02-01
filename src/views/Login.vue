@@ -1,59 +1,116 @@
 <template>
-  <v-sheet width="300" class="mx-auto">
-    <v-form ref="form" @submit.prevent="submitForm">
-      <v-text-field
-        v-model="firstName"
-        label="First name"
-        :rules="firstNameRules"
-      ></v-text-field>
-
-      <v-text-field
-        v-model="lastName"
-        label="Last name"
-        :rules="lastNameRules"
-      ></v-text-field>
-
-      <v-btn type="submit" block class="mt-2">Submit</v-btn>
-
-      <!-- Сообщение об успешной отправке -->
-      <v-alert v-if="formStatus === 'success'" type="success" class="mt-4">
-        Form submitted successfully!
-      </v-alert>
-
-      <!-- Сообщение об ошибке отправки -->
-      <v-alert v-if="formStatus === 'error'" type="error" class="mt-4">
-        Please correct the errors before submitting again.
-      </v-alert>
-    </v-form>
-  </v-sheet>
+  <div>
+    <v-container>
+      <v-img class="mx-auto my-6" max-width="100" src="@/assets/logo_min.png" />
+      <h1 class="text-h4 text-center pb-6">Авторизация</h1>
+      <v-card
+        v-if="!isAuthorized"
+        class="mx-auto pa-12 pb-8"
+        elevation="8"
+        max-width="448"
+        rounded="lg"
+      >
+        <v-form ref="form" v-model="formValid">
+          <div class="text-subtitle-1 text-medium-emphasis">Логин</div>
+          <v-text-field
+            v-model="login"
+            density="compact"
+            placeholder="Login"
+            prepend-inner-icon="mdi-key"
+            variant="outlined"
+            :rules="loginRules"
+          />
+          <div
+            class="text-subtitle-1 text-medium-emphasis d-flex align-center justify-space-between"
+          >
+            Пароль
+          </div>
+          <v-text-field
+            v-model="password"
+            :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
+            :type="visible ? 'text' : 'password'"
+            density="compact"
+            placeholder="Password"
+            prepend-inner-icon="mdi-lock-outline"
+            variant="outlined"
+            @click:append-inner="toggleVisibility"
+            :rules="passwordRules"
+          />
+          <v-btn
+            :disabled="!formValid"
+            @click="submit"
+            block
+            class="mb-8"
+            color="blue"
+            size="large"
+            variant="tonal"
+            >Войти</v-btn
+          >
+          <v-alert
+            v-if="showError"
+            type="error"
+            dismissible
+            @click="showError = false"
+          >
+            {{ errorMessage }}
+          </v-alert>
+        </v-form>
+      </v-card>
+    </v-container>
+  </div>
 </template>
+
 <script>
+import axiosInstance from '@/api/axiosConfig'
+
 export default {
   data: () => ({
-    firstName: '',
-    lastName: '',
-    firstNameRules: [
-      (v) => !!v || 'First name is required',
-      (v) => v.length >= 3 || 'First name must be at least 3 characters.',
+    login: '',
+    password: '',
+    visible: false,
+    isAuthorized: false,
+    showError: false,
+    errorMessage: '',
+    formValid: false,
+    loginRules: [
+      (v) => !!v || 'Логин обязателен',
+      (v) => v.length >= 3 || 'Логин должен быть не менее 3 символов',
     ],
-    lastNameRules: [
-      (v) => !!v || 'Last name is required',
-      (v) => !/\d/.test(v) || 'Last name cannot contain digits.',
+    passwordRules: [
+      (v) => !!v || 'Пароль обязателен',
+      (v) => v.length >= 6 || 'Пароль должен быть не менее 6 символов',
     ],
-    formStatus: '',
   }),
+  created() {
+    this.isAuthorized = !!localStorage.getItem('token')
+  },
   methods: {
-    submitForm() {
-      this.$refs.form.validate().then((success) => {
-        if (success) {
-          // Обновление статуса формы на 'success'
-          this.formStatus = 'success'
-          // Здесь код для отправки данных формы
+    toggleVisibility() {
+      this.visible = !this.visible
+    },
+    async submit() {
+      this.$refs.form.validate()
+      if (!this.formValid) return
+
+      try {
+        const response = await axiosInstance.post('/login', {
+          login: this.login,
+          password: this.password,
+        })
+
+        if (response.data.status === 'ok') {
+          localStorage.setItem('token', response.data.token)
+          this.isAuthorized = true
+          // Здесь можно добавить перенаправление или другие действия после успешной авторизации
         } else {
-          // Обновление статуса формы на 'error'
-          this.formStatus = 'error'
+          this.showError = true
+          this.errorMessage = 'Неправильный логин или пароль'
         }
-      })
+      } catch (error) {
+        this.showError = true
+        this.errorMessage = 'Ошибка авторизации'
+        console.error('Login error:', error)
+      }
     },
   },
 }
