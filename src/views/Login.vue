@@ -96,7 +96,8 @@ export default {
 
         if (response.data.status === 'ok') {
           localStorage.setItem('token', response.data.token)
-          this.isAuthorized = true
+          this.authorize({ isAuthorized: true }) // Авторизация пользователя
+          this.setUserRole(response.data.role) // Сохранение роли пользователя в Vuex
           // Здесь можно добавить перенаправление или другие действия после успешной авторизации
         } else {
           this.showError = true
