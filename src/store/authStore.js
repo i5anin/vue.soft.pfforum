@@ -1,7 +1,7 @@
 // store/modules/authStore.js
 
 const authStore = {
-  namespaced: true, // Используйте пространство имен для этого модуля
+  namespaced: true,
   state: {
     isAuthorized: false,
     userRole: null,
@@ -16,7 +16,7 @@ const authStore = {
   },
   actions: {
     setAuthorization({ commit }, isAuthorized) {
-      commit('SET_AUTHORIZATION', isAuthorized)
+      commit('SET_AUTHORIZED', isAuthorized)
     },
     setUserRole({ commit }, role) {
       commit('SET_USER_ROLE', role)

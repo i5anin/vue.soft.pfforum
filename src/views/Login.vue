@@ -80,12 +80,12 @@ export default {
     this.isAuthorized = !!localStorage.getItem('token')
   },
   methods: {
-    ...mapActions('authStore', ['authorize']),
+    ...mapActions('authStore', ['setAuthorization', 'setUserRole']),
     toggleVisibility() {
       this.visible = !this.visible
     },
     async submit() {
-      this.$refs.form.validate()
+      await this.$refs.form.validate()
       if (!this.formValid) return
 
       try {

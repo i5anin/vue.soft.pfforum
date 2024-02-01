@@ -4,17 +4,29 @@ import { handleApiError, handleResponse } from '@/api/errorHandler'
 
 export const toolApi = {
   // Получить инструменты с фильтрацией и пагинацией
-  checkLogin: async () => {
+  getTools: async (
+    search = '',
+    page = 1,
+    limit = 10,
+    includeNull = false,
+    parentId = null,
+    onlyInStock = true
+  ) => {
+    const params = { search, page, limit, includeNull, onlyInStock }
+    if (parentId !== null) {
+      params.parent_id = parentId
+    }
+
     return axiosInstance
-      .get('/check-login')
+      .get('/tools', { params })
       .then(handleResponse)
       .catch(handleApiError)
   },
 
-  // Выполнить логин пользователя
-  login: async (credentials) => {
+  // Получить инструмент по ID
+  getToolById: async (id) => {
     return axiosInstance
-      .post('/login', credentials)
+      .get(`/tool/${id}`)
       .then(handleResponse)
       .catch(handleApiError)
   },

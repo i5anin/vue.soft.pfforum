@@ -16,7 +16,6 @@
           <component
             :is="item.component"
             :key="`component-${item.name}-${tab}`"
-            :parentId="parentId"
             :type="item.type"
           />
         </v-window-item>
@@ -26,50 +25,24 @@
 </template>
 
 <script>
-import { computed, ref, onMounted, watch } from 'vue'
-import { useStore } from 'vuex'
-import tabsConfig from './tabsConfig' // Убедитесь, что путь правильный
+import tabs from './tabsConfig'
 
 export default {
-  setup() {
-    const store = useStore()
-    const tab = ref('Редактор')
-    const tabs = ref(tabsConfig) // Используем нашу конфигурацию вкладок
-    const userRole = computed(() => store.getters['authStore/userRole'])
-
-    // Фильтруем вкладки на основе роли пользователя
-    const filteredTabs = computed(() => {
-      return tabs.value.filter((tabItem) =>
-        tabItem.access.includes(userRole.value)
-      )
-    })
-
-    // Следим за изменениями в tab, чтобы обновлять window.location.hash
-    watch(tab, (newValue) => {
-      const currentTab = tabs.value.find((tabItem) => tabItem.name === newValue)
-      if (currentTab) {
-        window.location.hash = currentTab.url
-      }
-    })
-
-    // Устанавливаем текущую вкладку на основе window.location.hash при монтировании
-    onMounted(() => {
-      const hash = window.location.hash
-      const currentTab = tabs.value.find(
-        (tabItem) => `#${tabItem.url.split('#')[1]}` === hash
-      )
-      if (currentTab) {
-        tab.value = currentTab.name
-      } else if (filteredTabs.value.length > 0) {
-        // Устанавливаем первую доступную вкладку, если hash не соответствует ни одной вкладке
-        tab.value = filteredTabs.value[0].name
-      }
-    })
-
+  data() {
     return {
-      tab,
-      filteredTabs,
+      tab: 'Редактор',
+      tabs,
     }
+  },
+  watch: {
+    tab() {
+      let current_tab = this.tabs.find((el) => el.name === this.tab)
+      window.location.hash = current_tab.url
+    },
+  },
+  mounted() {
+    let current_tab = this.tabs.find((el) => el.url === window.location.hash)
+    if (current_tab !== undefined) this.tab = current_tab.name
   },
 }
 </script>
