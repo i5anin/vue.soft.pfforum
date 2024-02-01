@@ -56,7 +56,7 @@ async function checkStatusChanges() {
 
     if (rows.length === 0) {
       console.log('Нет обновленных строк среди завершенных операций.')
-      return // Возвращаемся, так как нет обновлений для обработки
+      return
     } else {
       console.log('Обнаружено обновление данных:')
     }
@@ -66,9 +66,8 @@ async function checkStatusChanges() {
       console.log('row =', row.tool_id)
 
       // Проверяем, было ли уже отправлено уведомление для данного инструмента
-      if (!sentNotifications.includes(row.tool_id)) {
-        await pool.query(
-          `
+      await pool.query(
+        `
           UPDATE dbo.tool_history_nom
           SET sent = TRUE
           FROM
@@ -78,21 +77,17 @@ async function checkStatusChanges() {
           AND specs_nom_operations.status_ready
           AND tool_history_nom.specs_op_id = specs_nom_operations.ID
       `
-        )
+      )
 
-        // Добавляем лог измененного ID истории инструмента
-        console.log(
-          `Изменен статус для инструмента с ID истории инструмента: ${row.tool_id}`
-        )
+      // Добавляем лог измененного ID истории инструмента
+      console.log(
+        `Изменен статус для инструмента с ID истории инструмента: ${row.tool_id}`
+      )
 
-        sendEmailNotification(row)
-        // Добавляем ID инструмента в массив отправленных уведомлений
-        sentNotifications.push(row.tool_id)
-      }
+      sendEmailNotification(row)
+      // Добавляем ID инструмента в массив отправленных уведомлений
+      sentNotifications.push(row.tool_id)
     }
-
-    // Очищаем массив отправленных уведомлений после обработки всех строк
-    sentNotifications.length = 0
   } catch (error) {
     console.error('Ошибка при проверке статуса изменений:', error)
   }
@@ -111,7 +106,7 @@ function sendEmailNotification(row) {
   const mailOptions = {
     from: 'report@pf-forum.ru',
     to: 'isa@pf-forum.ru',
-    subject: 'Бухгалтерия: по окончанию операции',
+    subject: `Бухгалтерия: по окончанию операции  ${row.specs_op_id}`,
     html: htmlContent,
   }
 
@@ -120,7 +115,7 @@ function sendEmailNotification(row) {
       console.log(error)
     } else {
       console.log(
-        `Отправлено электронное письмо с указанием идентификатора инструмента ${row.tool_id}\n` +
+        `Отправлено электронное письмо с указанием номера операции ${row.specs_op_id}\n` +
           `status info:` +
           info.response +
           `\n`
