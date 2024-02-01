@@ -140,7 +140,7 @@ function sendEmailNotification(row) {
 }
 
 // Schedule the cron job
-cron.schedule('*/10 * * * * *', () => {
-  console.log('Запуск задачи каждые 10 секунд')
-  checkStatusChanges()
-})
+// cron.schedule('*/10 * * * * *', () => {
+//   console.log('Запуск задачи каждые 10 секунд')
+//   checkStatusChanges()
+// })

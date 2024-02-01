@@ -26,41 +26,6 @@ async function getDatabaseInfo(req, res) {
     res.status(500).json({ error: error.message })
   }
 }
-
-async function validateUser(req, res) {
-  const { login, password } = req.body
-
-  try {
-    const query = 'SELECT * FROM "dbo"."login" WHERE login = $1'
-    const user = await pool.query(query, [login])
-
-    console.log('User found:', user.rows[0])
-    console.log('Submitted password:', password)
-
-    if (user.rows.length > 0) {
-      // Сравниваем пароль в чистом виде
-      const isValid = password === user.rows[0].password
-
-      console.log('Password valid:', isValid)
-
-      if (isValid) {
-        const token = jwt.sign(
-          { id: user.rows[0].id, access: user.rows[0].access },
-          process.env.SECRET_KEY, // Используйте переменную окружения или запасной ключ
-          { expiresIn: '1h' }
-        )
-        res.json({ token })
-      } else {
-        res.status(401).send('Invalid credentials')
-      }
-    } else {
-      res.status(401).send('User not found')
-    }
-  } catch (err) {
-    console.error('Error during user validation:', err.message)
-    res.status(500).send('Internal Server Error')
-  }
-}
 async function login(req, res) {
   try {
     const { login, password } = req.body
@@ -117,7 +82,6 @@ async function checkLogin(req, res) {
 
 module.exports = {
   getDatabaseInfo,
-  validateUser,
   login,
   checkLogin,
 }
