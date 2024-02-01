@@ -13,8 +13,11 @@ const reportBuchWeekController = require('./controllers/tool/reports/b_buch_week
 const reportBuchEndOpController = require('./controllers/tool/reports/b_buch_end_op')
 const reportBuchMonthController = require('./controllers/tool/reports/b_buch_month')
 const reportZakazController = require('./controllers/tool/reports/b_zayav_Instr')
+
 // Маршруты для аутентификации
-// router.post('/validate-user', loginController.validateUser)
+router.post('/login', loginController.login)
+router.post('/check-login', loginController.checkLogin)
+
 router.get('/database-info', loginController.getDatabaseInfo)
 // nom
 router.get('/tool/:id', nomController.getToolById) //1 элемент
