@@ -3,7 +3,7 @@
 const { Pool } = require('pg')
 const { v4: uuidv4 } = require('uuid')
 require('dotenv').config() // Это должно быть в самом верху файла
-const jwt = require('jsonwebtoken')
+// const jwt = require('jsonwebtoken')
 const config = require('../../config')
 const { getNetworkDetails } = require('../../db_type')
 const express = require('express')
@@ -31,7 +31,7 @@ async function login(req, res) {
     const { login, password } = req.body
 
     // Проверяем существование пользователя
-    const userQuery = 'SELECT * FROM vue_users WHERE login = $1'
+    const userQuery = 'SELECT * FROM dbo.vue_users WHERE login = $1'
     const userResult = await pool.query(userQuery, [login])
 
     if (
@@ -62,7 +62,7 @@ async function checkLogin(req, res) {
     const { token } = req.body
 
     // Проверяем действительность токена
-    const tokenQuery = 'SELECT * FROM vue_users WHERE token = $1'
+    const tokenQuery = 'SELECT * FROM dbo.vue_users WHERE token = $1'
     const tokenResult = await pool.query(tokenQuery, [token])
 
     if (tokenResult.rows.length > 0) {

@@ -11,6 +11,7 @@
       >
         <div class="text-subtitle-1 text-medium-emphasis">Логин</div>
         <v-text-field
+          v-model="login"
           density="compact"
           placeholder="Login"
           prepend-inner-icon="mdi-key"
@@ -31,7 +32,14 @@
           variant="outlined"
           @click:append-inner="toggleVisibility"
         />
-        <v-btn block class="mb-8" color="blue" size="large" variant="tonal">
+        <v-btn
+          @click="submit"
+          block
+          class="mb-8"
+          color="blue"
+          size="large"
+          variant="tonal"
+        >
           Войти
         </v-btn>
         <v-card-text class="text-center">
@@ -48,6 +56,9 @@
 </template>
 
 <script>
+import axiosInstance from '@/api/axiosConfig'
+import { handleApiError, handleResponse } from '@/api/errorHandler'
+
 export default {
   data: () => ({
     login: '',
@@ -58,12 +69,18 @@ export default {
     toggleVisibility() {
       this.visible = !this.visible
     },
-    submit() {
-      const formData = {
-        login: this.login,
-        password: this.password,
+    async submit() {
+      try {
+        const response = await axiosInstance.post('/login', {
+          login: this.login,
+          password: this.password,
+        })
+        handleResponse(response)
+        // Сохранение токена или дальнейшие действия
+        console.log('Login successful:', response.data)
+      } catch (error) {
+        handleApiError(error)
       }
-      console.log(formData)
     },
   },
 }
