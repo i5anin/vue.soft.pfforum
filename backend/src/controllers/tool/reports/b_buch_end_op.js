@@ -47,8 +47,8 @@ async function checkStatusChanges() {
         specs_nom_operations.status_ready
         FROM
         dbo.tool_history_nom
-        JOIN dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.
-        ID JOIN dbo.specs_nom_operations ON tool_history_nom.specs_op_id = specs_nom_operations.ID
+        JOIN dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.ID
+        JOIN dbo.specs_nom_operations ON tool_history_nom.specs_op_id = specs_nom_operations.ID
         WHERE
         NOT tool_history_nom.sent
         AND specs_nom_operations.status_ready
