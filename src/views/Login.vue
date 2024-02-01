@@ -76,7 +76,13 @@ export default {
           password: this.password,
         })
         await handleResponse(response)
-        console.log('Login successful:', response.data)
+
+        if (response.data.status === 'ok') {
+          // Сохраняем токен в localStorage
+          localStorage.setItem('token', response.data.token)
+          console.log('Login successful:', response.data)
+          // Перенаправление пользователя или другие действия
+        }
       } catch (error) {
         handleApiError(error)
       }
