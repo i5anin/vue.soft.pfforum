@@ -57,7 +57,7 @@
         <v-icon>mdi-moon-last-quarter</v-icon>
       </v-btn>
       <v-btn icon>
-        <v-icon>mdi-exit-to-app</v-icon>
+        <v-icon @click="logout">mdi-exit-to-app</v-icon>
       </v-btn>
     </v-app-bar>
   </header>
@@ -105,6 +105,10 @@ export default {
           }
           return item
         })
+    },
+    logout() {
+      localStorage.removeItem('token')
+      this.isAuthorized = false
     },
   },
 }

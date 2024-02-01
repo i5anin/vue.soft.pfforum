@@ -1,91 +1,59 @@
 <template>
-  <div>
-    <v-container>
-      <v-img class="mx-auto my-6" max-width="100" src="@/assets/logo_min.png" />
-      <h1 class="text-h4 text-center pb-6">Авторизация</h1>
-      <v-card
-        class="mx-auto pa-12 pb-8"
-        elevation="8"
-        max-width="448"
-        rounded="lg"
-      >
-        <div class="text-subtitle-1 text-medium-emphasis">Логин</div>
-        <v-text-field
-          v-model="login"
-          density="compact"
-          placeholder="Login"
-          prepend-inner-icon="mdi-key"
-          variant="outlined"
-        />
-        <div
-          class="text-subtitle-1 text-medium-emphasis d-flex align-center justify-space-between"
-        >
-          Пароль
-        </div>
-        <v-text-field
-          v-model="password"
-          :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
-          :type="visible ? 'text' : 'password'"
-          density="compact"
-          placeholder="Password"
-          prepend-inner-icon="mdi-lock-outline"
-          variant="outlined"
-          @click:append-inner="toggleVisibility"
-        />
-        <v-btn
-          @click="submit"
-          block
-          class="mb-8"
-          color="blue"
-          size="large"
-          variant="tonal"
-        >
-          Войти
-        </v-btn>
-        <v-card-text class="text-center">
-          <a
-            class="text-blue text-decoration-none"
-            href="#"
-            rel="noopener noreferrer"
-            target="_blank"
-          />
-        </v-card-text>
-      </v-card>
-    </v-container>
-  </div>
+  <v-sheet width="300" class="mx-auto">
+    <v-form ref="form" @submit.prevent="submitForm">
+      <v-text-field
+        v-model="firstName"
+        label="First name"
+        :rules="firstNameRules"
+      ></v-text-field>
+
+      <v-text-field
+        v-model="lastName"
+        label="Last name"
+        :rules="lastNameRules"
+      ></v-text-field>
+
+      <v-btn type="submit" block class="mt-2">Submit</v-btn>
+
+      <!-- Сообщение об успешной отправке -->
+      <v-alert v-if="formStatus === 'success'" type="success" class="mt-4">
+        Form submitted successfully!
+      </v-alert>
+
+      <!-- Сообщение об ошибке отправки -->
+      <v-alert v-if="formStatus === 'error'" type="error" class="mt-4">
+        Please correct the errors before submitting again.
+      </v-alert>
+    </v-form>
+  </v-sheet>
 </template>
-
 <script>
-import axiosInstance from '@/api/axiosConfig'
-import { handleApiError, handleResponse } from '@/api/errorHandler'
-
 export default {
   data: () => ({
-    login: '',
-    password: '',
-    visible: false,
+    firstName: '',
+    lastName: '',
+    firstNameRules: [
+      (v) => !!v || 'First name is required',
+      (v) => v.length >= 3 || 'First name must be at least 3 characters.',
+    ],
+    lastNameRules: [
+      (v) => !!v || 'Last name is required',
+      (v) => !/\d/.test(v) || 'Last name cannot contain digits.',
+    ],
+    formStatus: '',
   }),
   methods: {
-    toggleVisibility() {
-      this.visible = !this.visible
-    },
-    async submit() {
-      try {
-        const response = await axiosInstance.post('/login', {
-          login: this.login,
-          password: this.password,
-        })
-        await handleResponse(response)
-
-        if (response.data.status === 'ok') {
-          // Сохраняем токен в localStorage
-          localStorage.setItem('token', response.data.token)
-          console.log('Login successful:', response.data)
-          // Перенаправление пользователя или другие действия
+    submitForm() {
+      this.$refs.form.validate().then((success) => {
+        if (success) {
+          // Обновление статуса формы на 'success'
+          this.formStatus = 'success'
+          // Здесь код для отправки данных формы
+        } else {
+          // Обновление статуса формы на 'error'
+          this.formStatus = 'error'
         }
-      } catch (error) {
-        handleApiError(error)
-      }
+      })
     },
   },
 }
