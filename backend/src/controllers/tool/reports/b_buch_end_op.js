@@ -33,66 +33,55 @@ const sentNotifications = []
 
 async function checkStatusChanges() {
   try {
-    // console.log('Проверка наличия обновленных строк...')
-
-    // console.log('Получение обновленных строк для отправки электронной почты...')
     // Получаем строки для отправки электронной почты
     const { rows } = await pool.query(`
         SELECT
-        tool_nom.ID AS tool_id,
-        tool_nom.NAME,
-        tool_history_nom.quantity,
-        tool_history_nom.specs_op_id,
-        tool_history_nom.sent,
-        specs_nom_operations.status_ready
+            tool_nom.ID AS tool_id,
+            tool_nom.NAME,
+            tool_history_nom.quantity,
+            tool_history_nom.specs_op_id,
+            tool_history_nom.sent,
+            specs_nom_operations.status_ready
         FROM
-        dbo.tool_history_nom
-        JOIN dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.
-        ID JOIN dbo.specs_nom_operations ON tool_history_nom.specs_op_id = specs_nom_operations.ID
+            dbo.tool_history_nom
+        JOIN dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.ID
+        JOIN dbo.specs_nom_operations ON tool_history_nom.specs_op_id = specs_nom_operations.ID
         WHERE
-        NOT tool_history_nom.sent
-        AND specs_nom_operations.status_ready
+            NOT tool_history_nom.sent
+            AND specs_nom_operations.status_ready;
     `)
 
     if (rows.length === 0) {
       console.log('Нет обновленных строк среди завершенных операций.')
-      return // Возвращаемся, так как нет обновлений для обработки
+      return
     } else {
       console.log('Обнаружено обновление данных:')
     }
 
-    for (const row of rows) {
-      console.log(row)
-      console.log('row =', row.tool_id)
+    // Группируем строки по ID операции
+    const operations = rows.reduce((acc, row) => {
+      ;(acc[row.specs_op_id] = acc[row.specs_op_id] || []).push(row)
+      return acc
+    }, {})
 
-      // Проверяем, было ли уже отправлено уведомление для данного инструмента
-      if (!sentNotifications.includes(row.tool_id)) {
-        await pool.query(
-          `
+    for (const [specs_op_id, operationRows] of Object.entries(operations)) {
+      console.log(`Отправка уведомлений для операции ${specs_op_id}...`)
+
+      // Предполагаем, что sendEmailNotification обрабатывает массив строк
+      await sendEmailNotification(operationRows)
+
+      // Обновляем статус отправленных уведомлений для всех записей этой операции
+      await pool.query(
+        `
           UPDATE dbo.tool_history_nom
           SET sent = TRUE
-          FROM
-          dbo.specs_nom_operations
-          WHERE
-          NOT tool_history_nom.sent
-          AND specs_nom_operations.status_ready
-          AND tool_history_nom.specs_op_id = specs_nom_operations.ID
-      `
-        )
-
-        // Добавляем лог измененного ID истории инструмента
-        console.log(
-          `Изменен статус для инструмента с ID истории инструмента: ${row.tool_id}`
-        )
-
-        sendEmailNotification(row)
-        // Добавляем ID инструмента в массив отправленных уведомлений
-        sentNotifications.push(row.tool_id)
-      }
+          WHERE specs_op_id = $1;
+      `,
+        [specs_op_id]
+      )
     }
 
-    // Очищаем массив отправленных уведомлений после обработки всех строк
-    sentNotifications.length = 0
+    console.log('Уведомления успешно отправлены и статусы обновлены.')
   } catch (error) {
     console.error('Ошибка при проверке статуса изменений:', error)
   }
