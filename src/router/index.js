@@ -1,4 +1,5 @@
-// src/index.js
+// src/router/index.js или src/index.js, в зависимости от структуры вашего проекта
+
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '@/views/Home.vue'
 import Tool from '@/modules/tool/components/Tabs.vue'
@@ -9,44 +10,20 @@ export const Routes = {
   LOGIN: '/Login',
 }
 
-// const authGuard = {
-//   Home(to, from, next) {
-//     if (localStorage.getItem('user')) {
-//       next()
-//     } else {
-//       next('/Login')
-//     }
-//   },
-// }
-
 const routes = [
   {
     path: '/',
     redirect: '/Tool', // Добавление перенаправления с главной страницы на /Tool
   },
-  // {
-  //   path: '/',
-  //   name: 'Home',
-  //   component: Home,
-  //   // beforeEnter: authGuard.Home
-  // },
   {
     path: Routes.LOGIN,
     name: 'Login',
     component: Login,
   },
-  // {
-  //   path: '/Tool/:parentId',
-  //   name: 'ToolWithParentId',
-  //   component: Tool,
-  //   props: true,
-  // },
-  // Маршрут без параметра parentId
   {
     path: '/Tool',
     name: 'Tool',
     component: Tool,
-    // props: { parentId: 0 }, // Здесь мы устанавливаем parentId по умолчанию
   },
   {
     path: '/:catchAll(.*)',
@@ -58,6 +35,18 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+})
+
+// Добавление глобального охранника маршрутов
+router.beforeEach((to, from, next) => {
+  const isAuthorized = !!localStorage.getItem('token')
+  if (!isAuthorized && to.path !== Routes.LOGIN) {
+    next({ path: Routes.LOGIN })
+  } else if (isAuthorized && to.path === Routes.LOGIN) {
+    next({ path: '/' }) // Если пользователь уже авторизован и пытается перейти на страницу входа, перенаправляем на главную
+  } else {
+    next() // Во всех остальных случаях выполняем переход на запрашиваемый маршрут
+  }
 })
 
 export default router

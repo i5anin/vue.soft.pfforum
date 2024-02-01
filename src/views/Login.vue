@@ -96,9 +96,9 @@ export default {
 
         if (response.data.status === 'ok') {
           localStorage.setItem('token', response.data.token)
-          this.authorize({ isAuthorized: true }) // Авторизация пользователя
-          this.setUserRole(response.data.role) // Сохранение роли пользователя в Vuex
-          // Здесь можно добавить перенаправление или другие действия после успешной авторизации
+          this.authorize({ isAuthorized: true })
+          this.setUserRole(response.data.role) // Сохраняем роль пользователя
+          this.$router.push('/') // Перенаправляем на главную страницу
         } else {
           this.showError = true
           this.errorMessage = 'Неправильный логин или пароль'

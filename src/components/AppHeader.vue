@@ -107,8 +107,9 @@ export default {
         })
     },
     logout() {
-      localStorage.removeItem('token')
-      this.isAuthorized = false
+      localStorage.removeItem('token') // Если вы используете Vuex для отслеживания статуса аутентификации
+      this.$store.dispatch('auth/logout') // предполагается, что у вас есть действие logout в вашем Vuex store
+      this.$router.push('/Login') // Перенаправление на страницу входа
     },
   },
 }
