@@ -128,7 +128,7 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
   // Даты для определения периода отчета
   const { firstDate, lastDate } = getCurrentWeekDates()
   const envPrefix = process.env.NODE_ENV === 'development' ? 'development ' : ''
-  const subject = `${envPrefix}Бухгалтерия: Журнал испорченного инструмента за неделю с ${firstDate} по ${lastDate}`
+  const subject = `${envPrefix}Бухгалтерия: Журнал выданного инструмента за неделю с ${firstDate} по ${lastDate}`
 
   // Генерация HTML таблицы для тела письма
   let htmlContent = `<h2>${subject}</h2>`
@@ -153,7 +153,7 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
     html: htmlContent, // Включаем HTML
     attachments: [
       {
-        filename: `Damaged Tools Report ${firstDate} - ${lastDate}.xlsx`,
+        filename: `Выдано инструмент ${firstDate} - ${lastDate}.xlsx`,
         content: excelStream,
         contentType:
           'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

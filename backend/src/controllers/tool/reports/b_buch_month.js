@@ -172,20 +172,20 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
 }
 
 // Функция для получения даты начала и конца текущей недели
-function getCurrentWeekDates() {
-  const currentDate = new Date()
-  const firstDayOfWeek = currentDate.getDate() - currentDate.getDay() + 1 // Понедельник
-  const lastDayOfWeek = firstDayOfWeek + 6 // Воскресенье
-
-  const firstDate = new Date(currentDate.setDate(firstDayOfWeek))
-    .toISOString()
-    .split('T')[0]
-  const lastDate = new Date(currentDate.setDate(lastDayOfWeek))
-    .toISOString()
-    .split('T')[0]
-
-  return { firstDate, lastDate }
-}
+// function getCurrentWeekDates() {
+//   const currentDate = new Date()
+//   const firstDayOfWeek = currentDate.getDate() - currentDate.getDay() + 1 // Понедельник
+//   const lastDayOfWeek = firstDayOfWeek + 6 // Воскресенье
+//
+//   const firstDate = new Date(currentDate.setDate(firstDayOfWeek))
+//     .toISOString()
+//     .split('T')[0]
+//   const lastDate = new Date(currentDate.setDate(lastDayOfWeek))
+//     .toISOString()
+//     .split('T')[0]
+//
+//   return { firstDate, lastDate }
+// }
 
 // Объединение функционала
 async function genBuchMonth(req, res) {
