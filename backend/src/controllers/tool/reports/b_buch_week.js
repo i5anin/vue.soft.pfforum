@@ -111,6 +111,15 @@ async function createExcelFileStream(data) {
 
 // Функция для отправки сообщения с файлом на почту
 async function sendEmailWithExcelStream(email, text, excelStream, data) {
+  console.log('SMTP Configuration:', emailConfig)
+
+  // Продолжение с созданием транспорта и отправкой письма...
+
+  // host: process.env.EMAIL_HOST,
+  //   port: process.env.EMAIL_PORT,
+  //   user: process.env.EMAIL_USER,
+  //   pass: process.env.EMAIL_PASS,
+
   const transporter = nodemailer.createTransport({
     host: emailConfig.host,
     port: emailConfig.port,
