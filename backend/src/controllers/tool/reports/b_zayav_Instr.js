@@ -138,7 +138,14 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
 
   let rowNumber = 1
   data.forEach((item) => {
-    const formattedDate = new Date(item.timestamp).toISOString().split('T')[0] // Форматирование даты
+    let formattedDate = ''
+    // Проверяем, существует ли timestamp и можно ли его преобразовать в дату
+    if (item.timestamp && !isNaN(new Date(item.timestamp).getTime())) {
+      formattedDate = new Date(item.timestamp).toISOString().split('T')[0] // Форматирование даты
+    } else {
+      formattedDate = 'Недоступно' // Или другое значение по умолчанию
+    }
+
     htmlContent += `<tr><td>${rowNumber++}</td><td>${
       item.name
     }</td><td>${formattedDate}</td><td>${item.zakaz}</td></tr>`
