@@ -43,6 +43,25 @@ async function getReportData() {
   }
 }
 
+function getCurrentMonthDates() {
+  const currentDate = new Date()
+  const firstDayOfMonth = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    1
+  )
+  const lastDayOfMonth = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth() + 1,
+    0
+  )
+
+  const firstDate = firstDayOfMonth.toISOString().split('T')[0]
+  const lastDate = lastDayOfMonth.toISOString().split('T')[0]
+
+  return { firstDate, lastDate }
+}
+
 // Функция для создания Excel файла и возврата его как потока данных
 async function createExcelFileStream(data) {
   const workbook = new ExcelJS.Workbook()
@@ -91,36 +110,56 @@ async function createExcelFileStream(data) {
 }
 
 // Функция для отправки сообщения с файлом на почту
-async function sendEmailWithExcelStream(email, text, excelStream) {
+async function sendEmailWithExcelStream(email, text, excelStream, data) {
   const transporter = nodemailer.createTransport({
     host: emailConfig.host,
     port: emailConfig.port,
-    secure: false,
+    secure: false, // В зависимости от вашего сервера это может быть true
     auth: {
       user: emailConfig.user,
       pass: emailConfig.pass,
     },
   })
 
-  const { firstDate, lastDate } = getCurrentWeekDates()
-  const filename = `Report ${firstDate} - ${lastDate}.xlsx`
+  // Даты для имени файла
+  const { firstDate, lastDate } = getCurrentMonthDates() // Используем функцию для определения текущего месяца
+  const filename = `Damaged Tools Report ${firstDate} - ${lastDate}.xlsx`
 
+  // Генерация HTML таблицы для тела письма
+  let htmlContent = `<h2>Бухгалтерия: Журнал испорченного инструмента за месяц с ${firstDate} по ${lastDate}</h2>`
+  htmlContent += `<table border="1" style="border-collapse: collapse;"><tr><th>№</th><th>Название</th><th>Дата</th><th>Количество</th></tr>`
+
+  let rowNumber = 1
+  data.forEach((item) => {
+    const formattedDate = new Date(item.timestamp).toISOString().split('T')[0] // Форматируем дату
+    htmlContent += `<tr><td>${rowNumber++}</td><td>${
+      item.name
+    }</td><td>${formattedDate}</td><td>${item.zakaz}</td></tr>`
+  })
+
+  htmlContent += `</table>`
+
+  // Опции письма
   const mailOptions = {
     from: 'report@pf-forum.ru',
     to: email,
-    subject:
-      'Бухгалтерия: Журнал испорченного раз в месяц. Отчет каждый ПТ в 12:00 (за месяц)',
+    subject: 'Бухгалтерия: Журнал испорченного инструмента. Отчет за месяц',
     text: text,
+    html: htmlContent, // Включаем HTML
     attachments: [
       {
         filename,
         content: excelStream,
+        contentType:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       },
     ],
   }
 
+  // Отправка письма
   await transporter.sendMail(mailOptions)
 }
+
 // Функция для получения даты начала и конца текущей недели
 function getCurrentWeekDates() {
   const currentDate = new Date()
@@ -150,7 +189,12 @@ async function genBuchMonth(req, res) {
     const excelStream = await createExcelFileStream(data)
     const emailText = 'Пожалуйста, найдите вложенный отчет в формате Excel.'
 
-    await sendEmailWithExcelStream('isa@pf-forum.ru', emailText, excelStream)
+    await sendEmailWithExcelStream(
+      'isa@pf-forum.ru',
+      emailText,
+      excelStream,
+      data
+    )
 
     res.status(200).send('Отчет успешно отправлен на указанный email.')
   } catch (error) {

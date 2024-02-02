@@ -111,38 +111,7 @@ async function checkStatusChanges() {
   }
 }
 
-function sendEmailNotification(row) {
-  console.log(`Отправка уведомления для инструмента с ID ${row.tool_id}...`)
-  let htmlContent = '<h2>Изменился статус инструмента:</h2>'
-  htmlContent +=
-    '<table border="1"><tr><th>ID Инструмента</th><th>Название</th><th>Количество</th></tr>'
-
-  htmlContent += `<tr><td>${row.tool_id}</td><td>${row.name}</td><td>${row.quantity}</td></tr>`
-
-  htmlContent += '</table>'
-
-  const mailOptions = {
-    from: 'report@pf-forum.ru',
-    to: 'isa@pf-forum.ru',
-    subject: `Бухгалтерия: по окончанию операции  ${row.specs_op_id}`,
-    html: htmlContent,
-  }
-
-  transporter.sendMail(mailOptions, function (error, info) {
-    if (error) {
-      console.log(error)
-    } else {
-      console.log(
-        `Отправлено электронное письмо с указанием номера операции ${row.specs_op_id}\n` +
-          `status info:` +
-          info.response +
-          `\n`
-      )
-    }
-  })
-}
-
 // Schedule the cron job
-cron.schedule('* */15 * * * *', () => {
+cron.schedule('*/15 * * * * *', () => {
   checkStatusChanges()
 })
