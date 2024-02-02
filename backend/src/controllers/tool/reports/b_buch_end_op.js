@@ -33,60 +33,78 @@ const sentNotifications = []
 
 async function checkStatusChanges() {
   try {
-    // console.log('Проверка наличия обновленных строк...')
-
-    // console.log('Получение обновленных строк для отправки электронной почты...')
     // Получаем строки для отправки электронной почты
     const { rows } = await pool.query(`
-        SELECT
-        tool_nom.ID AS tool_id,
-        tool_nom.NAME,
-        tool_history_nom.quantity,
-        tool_history_nom.specs_op_id,
-        tool_history_nom.sent,
-        specs_nom_operations.status_ready
-        FROM
-        dbo.tool_history_nom
-        JOIN dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.ID
-        JOIN dbo.specs_nom_operations ON tool_history_nom.specs_op_id = specs_nom_operations.ID
-        WHERE
-        NOT tool_history_nom.sent
-        AND specs_nom_operations.status_ready
+      SELECT
+          tool_nom.ID AS tool_id,
+          tool_nom.NAME,
+          SUM(tool_history_nom.quantity) AS total_quantity,
+          tool_history_nom.specs_op_id
+      FROM
+          dbo.tool_history_nom
+      JOIN dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.ID
+      JOIN dbo.specs_nom_operations ON tool_history_nom.specs_op_id = specs_nom_operations.ID
+      WHERE
+          NOT tool_history_nom.sent
+          AND specs_nom_operations.status_ready
+      GROUP BY
+          tool_nom.ID,
+          tool_nom.NAME,
+          tool_history_nom.specs_op_id
     `)
 
     if (rows.length === 0) {
       console.log('Нет обновленных строк среди завершенных операций.')
       return
-    } else {
-      console.log('Обнаружено обновление данных:')
     }
 
-    for (const row of rows) {
-      console.log(row)
-      console.log('row =', row.tool_id)
+    // Группируем строки по specs_op_id
+    const groupedBySpecsOpId = rows.reduce((acc, row) => {
+      ;(acc[row.specs_op_id] = acc[row.specs_op_id] || []).push(row)
+      return acc
+    }, {})
 
-      // Проверяем, было ли уже отправлено уведомление для данного инструмента
+    for (const [specsOpId, rows] of Object.entries(groupedBySpecsOpId)) {
+      console.log(`Отправка уведомления для операции с ID ${specsOpId}...`)
+      let htmlContent = '<h2>Изменился статус следующих инструментов:</h2>'
+      htmlContent +=
+        '<table border="1"><tr><th>ID Инструмента</th><th>Название</th><th>Количество</th></tr>'
+
+      // Добавляем строки для каждого инструмента
+      rows.forEach((row) => {
+        htmlContent += `<tr><td>${row.tool_id}</td><td>${row.name}</td><td>${row.total_quantity}</td></tr>`
+      })
+
+      htmlContent += '</table>'
+
+      const mailOptions = {
+        from: 'report@pf-forum.ru',
+        to: 'isa@pf-forum.ru',
+        subject: `Бухгалтерия: обновление статуса операции ${specsOpId}`,
+        html: htmlContent,
+      }
+
+      // Отправка уведомления
+      transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+          console.log(error)
+        } else {
+          console.log(
+            `Отправлено уведомление для операции ${specsOpId}. Status info: ${info.response}`
+          )
+        }
+      })
+
+      // Обновляем статус отправки для обработанных строк
       await pool.query(
-        `
-          UPDATE dbo.tool_history_nom
-          SET sent = TRUE
-          FROM
-          dbo.specs_nom_operations
-          WHERE
-          NOT tool_history_nom.sent
-          AND specs_nom_operations.status_ready
-          AND tool_history_nom.specs_op_id = specs_nom_operations.ID
-      `
+        `UPDATE dbo.tool_history_nom
+         SET sent = TRUE
+         WHERE specs_op_id = $1 AND NOT sent`,
+        [specsOpId]
       )
 
-      // Добавляем лог измененного ID истории инструмента
-      console.log(
-        `Изменен статус для инструмента с ID истории инструмента: ${row.tool_id}`
-      )
-
-      sendEmailNotification(row)
-      // Добавляем ID инструмента в массив отправленных уведомлений
-      sentNotifications.push(row.tool_id)
+      // Добавляем ID операции в массив отправленных уведомлений
+      sentNotifications.push(specsOpId)
     }
   } catch (error) {
     console.error('Ошибка при проверке статуса изменений:', error)
