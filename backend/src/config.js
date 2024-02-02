@@ -21,9 +21,14 @@ module.exports = {
   },
   port: process.env.PORT,
   emailConfig: {
-    host: process.env.EMAIL_HOST,
-    port: process.env.EMAIL_PORT,
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    host: 'server87.hosting.reg.ru',
+    port: 25,
+    user: 'report@pf-forum.ru',
+    pass: 'gE0pU0iH4lzB0jQ0',
   },
 }
+
+// EMAIL_HOST=server87.hosting.reg.ru
+// EMAIL_PORT=25
+// EMAIL_USER=report@pf-forum.ru
+// EMAIL_PASS=gE0pU0iH4lzB0jQ0
