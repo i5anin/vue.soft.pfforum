@@ -37,7 +37,7 @@
             :class="{ 'bg-blue-darken-2': item.type === 'sum' }"
           >
             <td v-for="header in currentHeaders" :key="header.value">
-              <template v-if="header.value === 'date'">
+              <template v-if="header.value === 'timestamp'">
                 {{ formatDate(item[header.value]) }}
               </template>
               <template v-else>
@@ -82,13 +82,13 @@ export default {
         { title: 'Инструмент', value: 'name_tool' },
         { title: 'Кол-во', value: 'quantity', width: '90px' },
         { title: 'Выдано', value: 'user_fio' },
-        { title: 'Дата', value: 'date' },
+        { title: 'Дата', value: 'timestamp' },
         { title: 'Операция', value: 'no_oper' },
         { title: 'Тип', value: 'type_oper' },
       ],
       headersAll: [
         { title: 'Инструмент', value: 'name_tool' },
-        { title: 'Дата начальная', value: 'date' },
+        { title: 'Дата начальная', value: 'timestamp' },
         { title: 'Кол-во', value: 'quantity', width: '90px' },
       ],
       filteredData: [],

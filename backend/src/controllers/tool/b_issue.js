@@ -73,10 +73,16 @@ async function getFioOperators(req, res) {
 async function issueTool(req, res) {
   try {
     // Извлекаем данные из тела запроса
-    const { specs_op_id, id_user, id_tool, quantity, date } = req.body
+    const { specs_op_id, id_user, id_tool, quantity, timestamp } = req.body
 
     // Проверяем наличие всех необходимых параметров
-    if (!specs_op_id || !id_user || !id_tool || quantity == null || !date) {
+    if (
+      !specs_op_id ||
+      !id_user ||
+      !id_tool ||
+      quantity == null ||
+      !timestamp
+    ) {
       return res.status(400).send('Отсутствует один из обязательных параметров')
     }
 
@@ -97,7 +103,7 @@ async function issueTool(req, res) {
 
     // SQL запрос для вставки данных в таблицу tool_history_nom и возвращения идентификатора
     const insertQuery = `
-      INSERT INTO dbo.tool_history_nom (specs_op_id, id_user, id_tool, quantity, date)
+      INSERT INTO dbo.tool_history_nom (specs_op_id, id_user, id_tool, quantity, timestamp)
       VALUES ($1, $2, $3, $4, $5)
       RETURNING id
     `
@@ -108,7 +114,7 @@ async function issueTool(req, res) {
       id_user,
       id_tool,
       quantity,
-      date,
+      timestamp,
     ])
 
     // Проверяем, была ли строка успешно добавлена
@@ -142,7 +148,7 @@ async function issueTool(req, res) {
       id_user,
       id_tool,
       quantity,
-      date,
+      timestamp,
       updatedSklad: updatedSklad.rows[0].sklad,
     })
   } catch (error) {
@@ -155,7 +161,7 @@ async function issueTool(req, res) {
         message: error.message,
         stack: error.stack,
       },
-      requestData: { specs_op_id, id_user, id_tool, quantity, date },
+      requestData: { specs_op_id, id_user, id_tool, quantity, timestamp },
     })
   }
 }

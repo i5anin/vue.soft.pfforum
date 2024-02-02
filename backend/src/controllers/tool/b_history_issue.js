@@ -100,7 +100,7 @@ async function getToolHistoryId(req, res) {
              thn.quantity,
              thn.id_user,
              thn.id_tool,
-             thn.timestamp,
+             thn.timestamp  AS date,
              o.fio                                               AS user_fio, -- Поле user_fio из таблицы operators
              tn.name                                             AS name_tool, -- Поле name_tool из таблицы tool_nom
              tn.property                                         -- Поле property из таблицы tool_nom

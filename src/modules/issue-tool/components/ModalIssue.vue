@@ -351,7 +351,7 @@ export default {
           id_user: this.selectedFio.value,
           id_tool: this.toolId,
           quantity: parseInt(this.toolModel.issue),
-          date: new Date().toISOString(),
+          timestamp: new Date().toISOString(),
         }
 
         console.log('Отправка данных инструмента на сервер:', issueHistoryData)
