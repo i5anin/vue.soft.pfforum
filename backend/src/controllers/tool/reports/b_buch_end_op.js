@@ -114,4 +114,12 @@ async function checkStatusChanges() {
 // Schedule the cron job
 cron.schedule('0 */15 * * * *', () => {
   checkStatusChanges()
+    .then(() => {
+      console.log('Задача выполнена успешно.')
+    })
+    .catch((error) => {
+      console.error('Ошибка при выполнении задачи: ', error)
+    })
 })
+
+module.exports = { checkStatusChanges }
