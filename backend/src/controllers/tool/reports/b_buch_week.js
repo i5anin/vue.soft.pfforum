@@ -110,32 +110,28 @@ async function createExcelFileStream(data) {
 }
 
 // Функция для отправки сообщения с файлом на почту
+// Функция для отправки сообщения с файлом на почту
 async function sendEmailWithExcelStream(email, text, excelStream, data) {
-  console.log('SMTP Configuration:', emailConfig)
+  // console.log('SMTP Configuration:', emailConfig)
 
-  // Продолжение с созданием транспорта и отправкой письма...
-
-  // host: process.env.EMAIL_HOST,
-  //   port: process.env.EMAIL_PORT,
-  //   user: process.env.EMAIL_USER,
-  //   pass: process.env.EMAIL_PASS,
-
+  // Создание транспорта для отправки письма
   const transporter = nodemailer.createTransport({
     host: emailConfig.host,
     port: emailConfig.port,
-    secure: false, // В зависимости от вашего сервера это может быть true
+    secure: emailConfig.secure, // В зависимости от вашего сервера это может быть true
     auth: {
       user: emailConfig.user,
       pass: emailConfig.pass,
     },
   })
 
-  // Даты для имени файла
-  const { firstDate, lastDate } = getCurrentMonthDates() // Используем функцию для определения текущего месяца
-  const filename = `Damaged Tools Report ${firstDate} - ${lastDate}.xlsx`
+  // Даты для определения периода отчета
+  const { firstDate, lastDate } = getCurrentWeekDates()
+  const envPrefix = process.env.NODE_ENV === 'development' ? 'development ' : ''
+  const subject = `${envPrefix}Бухгалтерия: Журнал испорченного инструмента за неделю с ${firstDate} по ${lastDate}`
 
   // Генерация HTML таблицы для тела письма
-  let htmlContent = `<h2>Бухгалтерия: Журнал испорченного инструмента за неделю с ${firstDate} по ${lastDate}</h2>`
+  let htmlContent = `<h2>${subject}</h2>`
   htmlContent += `<table border="1" style="border-collapse: collapse;"><tr><th>№</th><th>Название</th><th>Дата</th><th>Количество</th></tr>`
 
   let rowNumber = 1
@@ -152,12 +148,12 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
   const mailOptions = {
     from: 'report@pf-forum.ru',
     to: email,
-    subject: 'Бухгалтерия: Журнал испорченного инструмента. Отчет за неделю',
+    subject: subject,
     text: text,
     html: htmlContent, // Включаем HTML
     attachments: [
       {
-        filename,
+        filename: `Damaged Tools Report ${firstDate} - ${lastDate}.xlsx`,
         content: excelStream,
         contentType:
           'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -166,7 +162,13 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
   }
 
   // Отправка письма
-  await transporter.sendMail(mailOptions)
+  try {
+    await transporter.sendMail(mailOptions)
+    console.log('Отчет успешно отправлен на указанный email.')
+  } catch (error) {
+    console.error('Ошибка при отправке письма:', error)
+    throw error
+  }
 }
 
 // Функция для получения даты начала и конца текущей недели
