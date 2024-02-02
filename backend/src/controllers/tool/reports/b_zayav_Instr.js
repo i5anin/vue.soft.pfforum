@@ -2,6 +2,8 @@ const { Pool } = require('pg')
 const ExcelJS = require('exceljs')
 const { getNetworkDetails } = require('../../../db_type')
 const config = require('../../../config')
+const nodemailer = require('nodemailer')
+const { emailConfig } = require('../../../config')
 
 // Настройка подключения к базе данных
 const networkDetails = getNetworkDetails()
@@ -12,65 +14,30 @@ const dbConfig =
 const pool = new Pool(dbConfig)
 
 // Функция для получения данных из базы данных
-// Функция для получения данных о расходе
-async function getConsumptionData() {
-  try {
-    const query = `
-      SELECT id_tool, SUM(quantity) as total_consumption
-      FROM dbo.tool_history_nom
-      GROUP BY id_tool;
-    `
-    const { rows } = await pool.query(query)
-    return rows
-  } catch (error) {
-    console.error('Ошибка при получении данных о расходе:', error)
-    throw error
-  }
-}
-
-// Функция для получения данных об испорченном инструменте
-async function getDamagedToolData() {
-  try {
-    const query = `
-    SELECT id_tool, SUM(quantity) as total_consumption
-    FROM dbo.tool_history_nom
-    GROUP BY id_tool;
-    `
-    const { rows } = await pool.query(query)
-    return rows
-  } catch (error) {
-    console.error(
-      'Ошибка при получении данных об испорченном инструменте:',
-      error
-    )
-    throw error
-  }
-}
-
-// Обновленная функция для получения данных из базы данных
 async function getReportData() {
   try {
-    const consumptionData = await getConsumptionData()
-    const damagedToolData = await getDamagedToolData()
-
     const query = `
-      SELECT id, name, sklad, norma, parent_id, property, "limit"
-      FROM dbo.tool_nom;
+SELECT
+    tn.id AS id_tool,
+    tn.name,
+    tn.sklad,
+    tn.norma,
+    COALESCE(SUM(thd.quantity), 0) AS damaged_last_7_days
+FROM
+    dbo.tool_nom tn
+LEFT JOIN
+    dbo.tool_history_damaged thd ON tn.id = thd.id_tool
+    AND thd.timestamp >= CURRENT_DATE - INTERVAL '7 days'
+GROUP BY
+    tn.id,
+    tn.name,
+    tn.sklad,
+    tn.norma
+ORDER BY
+    tn.id;
+
     `
     const { rows } = await pool.query(query)
-
-    // Обновление данных для каждого инструмента
-    rows.forEach((row) => {
-      const consumption = consumptionData.find(
-        (item) => item.id_tool === row.id
-      )
-      const damaged = damagedToolData.find((item) => item.id_tool === row.id)
-
-      row.consumption = consumption ? consumption.total_consumption : 0
-      row.damaged = damaged ? damaged.total_damaged : 0
-      row.zakaz = row.norma - row.consumption - row.damaged
-    })
-
     return rows
   } catch (error) {
     console.error('Ошибка при получении данных:', error)
@@ -78,49 +45,158 @@ async function getReportData() {
   }
 }
 
-// Функция для создания Excel файла
-async function createExcelFile(data) {
+function getCurrentMonthDates() {
+  const currentDate = new Date()
+  const firstDayOfMonth = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    1
+  )
+  const lastDayOfMonth = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth() + 1,
+    0
+  )
+
+  const firstDate = firstDayOfMonth.toISOString().split('T')[0]
+  const lastDate = lastDayOfMonth.toISOString().split('T')[0]
+
+  return { firstDate, lastDate }
+}
+
+// Функция для создания Excel файла и возврата его как потока данных
+async function createExcelFileStream(data) {
   const workbook = new ExcelJS.Workbook()
-  const worksheet = workbook.addWorksheet('Report')
+  const worksheet = workbook.addWorksheet('Заказ')
 
-  // Заголовки столбцов
-  worksheet.columns = [
-    { header: 'Название', key: 'name', width: 40 },
-    { header: 'Заявка', key: 'zakaz', width: 10 },
-    { header: 'Дата генерации отчёта', key: 'date', width: 20 }, // новый столбец
-  ]
+  worksheet.mergeCells('A1:E1')
+  const titleRow = worksheet.getCell('A1')
+  titleRow.value =
+    'Заказ: Журнал испорченного раз в неделю. Отчет каждый ЧТ в 12:00 (за неделю)'
+  titleRow.font = { bold: true, size: 14 }
 
-  // Добавление данных в лист
+  // Определение дат начала и окончания недели
+  let endDate = new Date()
+  endDate.setDate(endDate.getDate() - endDate.getDay() - 2)
+  let startDate = new Date(endDate)
+  startDate.setDate(startDate.getDate() - 6)
+
+  // Форматирование дат
+  startDate = startDate.toISOString().split('T')[0]
+  endDate = endDate.toISOString().split('T')[0]
+
+  worksheet.addRow([
+    'Дата начала недели:',
+    startDate,
+    '',
+    'Дата окончания недели:',
+    endDate,
+  ])
+  worksheet.addRow([])
+
+  worksheet.getRow(3).values = ['№', 'Название', 'Кол-во']
+  worksheet.getRow(3).font = { bold: true }
+
+  let rowNumber = 1
   data.forEach((item) => {
     if (item.zakaz > 0) {
-      item.date = new Date() // добавление даты генерации
-      worksheet.addRow(item)
+      worksheet.addRow([rowNumber, item.name, item.zakaz])
+      rowNumber++
     }
   })
 
-  // Стили для заголовков
-  worksheet.getRow(1).font = { bold: true }
+  const stream = new require('stream').PassThrough()
+  await workbook.xlsx.write(stream)
+  stream.end()
+  return stream
+}
 
-  return workbook
+// Функция для отправки сообщения с файлом на почту
+// Функция для отправки сообщения с файлом на почту
+async function sendEmailWithExcelStream(email, text, excelStream, data) {
+  // console.log('SMTP Configuration:', emailConfig)
+
+  // Использование значений из переменных окружения, если они определены, иначе из config
+  const transporter = nodemailer.createTransport({
+    host: emailConfig.host,
+    port: emailConfig.port,
+    secure: emailConfig.secure, // В зависимости от вашего сервера это может быть true
+    auth: {
+      user: emailConfig.user,
+      pass: emailConfig.pass,
+    },
+  })
+
+  // Даты для имени файла и темы письма
+  const { firstDate, lastDate } = getCurrentMonthDates()
+  const envPrefix = process.env.NODE_ENV === 'development' ? 'development ' : ''
+  const subject = `${envPrefix}Заказ: Журнал испорченного инструмента за месяц с ${firstDate} по ${lastDate}`
+
+  // Генерация HTML таблицы для тела письма
+  let htmlContent = `<h2>${subject}</h2>`
+  htmlContent += `<table border="1" style="border-collapse: collapse;"><tr><th>№</th><th>Название</th><th>Дата</th><th>Количество</th></tr>`
+
+  let rowNumber = 1
+  data.forEach((item) => {
+    const formattedDate = new Date(item.timestamp).toISOString().split('T')[0] // Форматирование даты
+    htmlContent += `<tr><td>${rowNumber++}</td><td>${
+      item.name
+    }</td><td>${formattedDate}</td><td>${item.zakaz}</td></tr>`
+  })
+
+  htmlContent += `</table>`
+
+  // Опции письма
+  const mailOptions = {
+    from: 'report@pf-forum.ru',
+    to: email,
+    subject: subject,
+    text: text,
+    html: htmlContent, // Включение HTML
+    attachments: [
+      {
+        filename: `Поврежденный инструмент ${firstDate} - ${lastDate}.xlsx`,
+        content: excelStream,
+        contentType:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      },
+    ],
+  }
+
+  // Отправка письма
+  try {
+    await transporter.sendMail(mailOptions)
+    console.log('Отчет успешно отправлен на указанный email.')
+  } catch (error) {
+    console.error('Ошибка при отправке письма:', error)
+    throw error
+  }
 }
 
 // Объединение функционала
 async function genZayavInstr(req, res) {
   try {
     const data = await getReportData()
-    const workbook = await createExcelFile(data)
 
-    res.setHeader(
-      'Content-Type',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    if (data.length === 0) {
+      res.status(404).send('Нет данных для создания отчета.')
+      return
+    }
+
+    const excelStream = await createExcelFileStream(data)
+    const emailText = 'Пожалуйста, найдите вложенный отчет в формате Excel.'
+
+    await sendEmailWithExcelStream(
+      'isa@pf-forum.ru',
+      emailText,
+      excelStream,
+      data
     )
-    res.setHeader('Content-Disposition', 'attachment; filename=Report.xlsx')
 
-    await workbook.xlsx.write(res)
-    res.end()
+    res.status(200).send('Отчет успешно отправлен на указанный email.')
   } catch (error) {
-    console.error('Ошибка при генерации отчета:', error)
-    res.status(500).send('Ошибка при генерации отчета')
+    console.error('Ошибка при генерации и отправке отчета:', error)
+    res.status(500).send('Ошибка при генерации и отправке отчета')
   }
 }
 
