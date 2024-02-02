@@ -54,7 +54,7 @@ async function checkStatusChanges() {
     `)
 
     if (rows.length === 0) {
-      console.log('Нет обновленных строк среди завершенных операций.')
+      console.log('Нет обновлений среди завершенных операций.')
       return
     }
 
@@ -143,7 +143,6 @@ function sendEmailNotification(row) {
 }
 
 // Schedule the cron job
-cron.schedule('*/10 * * * * *', () => {
-  console.log('Запуск задачи каждые 10 секунд')
+cron.schedule('* */15 * * * *', () => {
   checkStatusChanges()
 })

@@ -18,22 +18,22 @@ async function getReportData() {
   try {
     const query = `
       SELECT
-          tool_history_nom.id_tool,
+          tool_history_damaged.id_tool,
           tool_nom.name,
-          tool_history_nom.date,
-          SUM(tool_history_nom.quantity) as zakaz
+          tool_history_damaged.timestamp,
+          SUM(tool_history_damaged.quantity) as zakaz
       FROM
-          dbo.tool_history_nom
+          dbo.tool_history_damaged
       JOIN
-          dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.id
+          dbo.tool_nom ON tool_history_damaged.id_tool = tool_nom.id
       WHERE
-          tool_history_nom.date >= CURRENT_DATE - INTERVAL '30 days'
+          tool_history_damaged.timestamp >= CURRENT_DATE - INTERVAL '30 days'
       GROUP BY
-          tool_history_nom.id_tool,
+          tool_history_damaged.id_tool,
           tool_nom.name,
-          tool_history_nom.date
+          tool_history_damaged.timestamp
       ORDER BY
-          tool_history_nom.date;
+          tool_history_damaged.timestamp;
     `
     const { rows } = await pool.query(query)
     return rows
