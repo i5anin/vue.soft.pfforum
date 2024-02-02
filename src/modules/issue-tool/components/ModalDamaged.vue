@@ -221,7 +221,7 @@ export default {
 
     popupTitle() {
       return this.tool?.id != null
-        ? `Инструмент испорчен ID: ${this.tool.id}`
+        ? `Инструмент поврежден ID: ${this.tool.id}`
         : 'Ошибка нет ID'
     },
   },

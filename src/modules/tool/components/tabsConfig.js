@@ -48,7 +48,7 @@ const tabs = [
     access: ['Admin', 'Editor'],
   },
   {
-    name: 'История испорченного',
+    name: 'История поврежденного',
     url: '#history_damaged',
     component: HistoryDamaged,
     access: ['Admin', 'Editor'],

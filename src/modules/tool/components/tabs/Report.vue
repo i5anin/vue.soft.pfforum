@@ -45,7 +45,7 @@ export default {
           action: this.genBuchEndOp,
         },
         {
-          name: 'Отчет в бухгалтерию журнал испорченного',
+          name: 'Отчет в бухгалтерию журнал поврежденного',
           info: 'раз в месяц каждый ПТ в 12:00 (за месяц)',
           action: this.genBuchMonth,
         },

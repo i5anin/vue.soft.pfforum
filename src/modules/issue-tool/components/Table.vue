@@ -61,7 +61,7 @@
 
       <template v-slot:item.damaged="{ item }">
         <v-btn color="red" @click="(event) => onDamagedTool(event, item)">
-          Испорчен
+          Поврежденн
         </v-btn>
       </template>
     </v-data-table-server>
@@ -135,7 +135,7 @@ export default {
             : []),
           // { title: 'Норма', key: 'norma', sortable: false },
           // { title: 'Заказ', key: 'zakaz', sortable: false },
-          { title: 'Испорчен', key: 'damaged', sortable: false },
+          { title: 'Поврежден', key: 'damaged', sortable: false },
         ]
       },
     },

@@ -112,6 +112,6 @@ async function checkStatusChanges() {
 }
 
 // Schedule the cron job
-cron.schedule('*/15 * * * * *', () => {
+cron.schedule('0 */15 * * * *', () => {
   checkStatusChanges()
 })
