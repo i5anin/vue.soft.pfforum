@@ -27,12 +27,12 @@ async function getDamaged(req, res) {
 
     // Запрос для получения агрегированных данных истории повреждений
     const dataQuery = `
-      SELECT
+ SELECT
         tool_history_damaged.id,
         tool_history_damaged.id_tool,
         tool_nom.name AS tool_name,
         tool_history_damaged.id_user,
-        operators.fio,
+        operators.fio AS user_name,
         tool_history_damaged.cnc_code,
         cnc.cnc_name,
         tool_history_damaged.comment,
@@ -42,7 +42,7 @@ async function getDamaged(req, res) {
       INNER JOIN dbo.tool_nom ON tool_history_damaged.id_tool = tool_nom.id
       INNER JOIN dbo.operators ON tool_history_damaged.id_user = operators.id
       LEFT JOIN dbo.cnc ON tool_history_damaged.cnc_code = cnc.cnc_code
-      ORDER BY tool_history_damaged.id
+      ORDER BY tool_history_damaged.timestamp DESC
       LIMIT ${limit}
       OFFSET ${offset};
     `
