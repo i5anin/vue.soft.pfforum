@@ -54,14 +54,14 @@ async function getToolHistory(req, res) {
         CAST(SUM(thn.quantity) AS INTEGER) AS quantity_tool,
         CAST(COUNT(*) AS INTEGER) AS recordscount,
         COUNT(DISTINCT sno.id) AS operation_count,
-        MIN(thn.date) AS date,
+        MIN(thn.timestamp) AS timestamp,
         CAST(dbo.kolvo_prod_ready(sn.ID) AS INTEGER) AS quantity_prod
       FROM dbo.tool_history_nom thn
              INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
              INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
       ${searchConditions}
       GROUP BY sn.ID, sn.NAME, sn.description
-      ORDER BY MIN(thn.date) DESC, sn.NAME, sn.description
+      ORDER BY MIN(thn.timestamp) DESC, sn.NAME, sn.description
       LIMIT ${limit}
       OFFSET ${offset};
     `
@@ -78,7 +78,7 @@ async function getToolHistory(req, res) {
         quantity_tool: parseInt(row.quantity_tool, 10),
         quantity_prod: parseInt(row.quantity_prod, 10),
         recordscount: parseInt(row.recordscount, 10), // Преобразование к числу
-        date: row.date, // Дата начала использования
+        date: row.timestamp, // Дата начала использования
       })),
     })
   } catch (err) {
@@ -100,7 +100,7 @@ async function getToolHistoryId(req, res) {
              thn.quantity,
              thn.id_user,
              thn.id_tool,
-             thn.date,
+             thn.timestamp,
              o.fio                                               AS user_fio, -- Поле user_fio из таблицы operators
              tn.name                                             AS name_tool, -- Поле name_tool из таблицы tool_nom
              tn.property                                         -- Поле property из таблицы tool_nom
@@ -171,7 +171,7 @@ async function getToolHistoryByPartId(req, res) {
         thn.quantity,
         o.fio AS user_fio,
         thn.id_user,
-        thn.date,
+        thn.timestamp,
         tn.name AS name_tool,
         thn.id_tool
       FROM dbo.tool_history_nom thn
@@ -181,7 +181,7 @@ async function getToolHistoryByPartId(req, res) {
         INNER JOIN dbo.operators o ON thn.id_user = o.id
         INNER JOIN dbo.tool_nom tn ON thn.id_tool = tn.id
       WHERE sn.ID = $1
-      ORDER BY thn.date DESC;
+      ORDER BY thn.timestamp DESC;
     `
     const operationsResult = await pool.query(operationsQuery, [idPart])
 
