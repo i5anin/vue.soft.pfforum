@@ -116,12 +116,12 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
 
   // Использование значений из переменных окружения, если они определены, иначе из config
   const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST,
-    port: process.env.EMAIL_PORT,
-    secure: process.env.EMAIL_SECURE, // В зависимости от вашего сервера это может быть true
+    host: emailConfig.host,
+    port: emailConfig.port,
+    secure: emailConfig.secure, // В зависимости от вашего сервера это может быть true
     auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
+      user: emailConfig.user,
+      pass: emailConfig.pass,
     },
   })
 
@@ -153,7 +153,7 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
     html: htmlContent, // Включение HTML
     attachments: [
       {
-        filename: `Damaged Tools Report ${firstDate} - ${lastDate}.xlsx`,
+        filename: `Поврежденный инструмент ${firstDate} - ${lastDate}.xlsx`,
         content: excelStream,
         contentType:
           'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -170,22 +170,6 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
     throw error
   }
 }
-
-// Функция для получения даты начала и конца текущей недели
-// function getCurrentWeekDates() {
-//   const currentDate = new Date()
-//   const firstDayOfWeek = currentDate.getDate() - currentDate.getDay() + 1 // Понедельник
-//   const lastDayOfWeek = firstDayOfWeek + 6 // Воскресенье
-//
-//   const firstDate = new Date(currentDate.setDate(firstDayOfWeek))
-//     .toISOString()
-//     .split('T')[0]
-//   const lastDate = new Date(currentDate.setDate(lastDayOfWeek))
-//     .toISOString()
-//     .split('T')[0]
-//
-//   return { firstDate, lastDate }
-// }
 
 // Объединение функционала
 async function genBuchMonth(req, res) {

@@ -43,25 +43,6 @@ async function getReportData() {
   }
 }
 
-function getCurrentMonthDates() {
-  const currentDate = new Date()
-  const firstDayOfMonth = new Date(
-    currentDate.getFullYear(),
-    currentDate.getMonth(),
-    1
-  )
-  const lastDayOfMonth = new Date(
-    currentDate.getFullYear(),
-    currentDate.getMonth() + 1,
-    0
-  )
-
-  const firstDate = firstDayOfMonth.toISOString().split('T')[0]
-  const lastDate = lastDayOfMonth.toISOString().split('T')[0]
-
-  return { firstDate, lastDate }
-}
-
 // Функция для создания Excel файла и возврата его как потока данных
 async function createExcelFileStream(data) {
   const workbook = new ExcelJS.Workbook()
