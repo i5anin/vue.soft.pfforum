@@ -31,7 +31,7 @@ import { authApi } from '@/api/login'
 
 export default {
   data() {
-    return { tab: 'Редактор', tabs }
+    return { tab: 'Дерево', tabs }
   },
   watch: {
     tab() {
@@ -52,8 +52,17 @@ export default {
     async checkAccess() {
       try {
         const response = await authApi.checkLogin()
-        console.log('Статус авторизации:', response.status)
-        console.log('Роль пользователя:', response.role)
+        if (response.status === 'ok') {
+          // Фильтрация вкладок на основе роли пользователя
+          this.tabs = tabs.filter((tab) => tab.access.includes(response.role))
+          if (this.tabs.length > 0) {
+            this.tab = this.tabs[0].name // Установка активной вкладки на первую доступную
+          }
+          console.log('Статус авторизации:', response.status)
+          console.log('Роль пользователя:', response.role)
+        } else {
+          console.error('Ошибка доступа:', response.message)
+        }
       } catch (error) {
         console.error('Ошибка проверки авторизации:', error.message)
       }

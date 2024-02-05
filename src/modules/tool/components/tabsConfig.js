@@ -21,7 +21,7 @@ const tabs = [
     name: 'Дерево',
     url: '#tree',
     component: ToolTabTree,
-    access: ['Admin', 'Editor'],
+    access: ['Admin', 'Editor', 'Issue', 'Sklad'],
   },
   {
     name: 'Параметры',
