@@ -61,12 +61,16 @@ async function checkLogin(req, res) {
   try {
     const { token } = req.body
 
-    // Проверяем действительность токена
+    // Проверяем действительность токена и получаем роль пользователя
     const tokenQuery = 'SELECT * FROM dbo.vue_users WHERE token = $1'
     const tokenResult = await pool.query(tokenQuery, [token])
 
     if (tokenResult.rows.length > 0) {
-      res.json({ status: 'ok', user: tokenResult.rows[0] })
+      // Пользователь с таким токеном найден, отправляем данные пользователя вместе с его ролью
+      const user = tokenResult.rows[0]
+      const role = user.role // Предполагаем, что колонка с ролью называется 'role'
+
+      res.json({ status: 'ok', user: user.login, role: role })
     } else {
       res
         .status(401)
@@ -82,6 +86,6 @@ async function checkLogin(req, res) {
 
 module.exports = {
   getDatabaseInfo,
-  login,
   checkLogin,
+  login,
 }

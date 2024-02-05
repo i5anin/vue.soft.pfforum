@@ -24,6 +24,7 @@ const authStore = {
     logout({ commit }) {
       commit('SET_AUTHORIZED', false)
       commit('SET_USER_ROLE', null)
+      localStorage.removeItem('token') // предполагается, что токен сохраняется в localStorage
     },
   },
 }

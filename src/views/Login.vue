@@ -44,8 +44,9 @@
             color="blue"
             size="large"
             variant="tonal"
-            >Войти</v-btn
           >
+            Войти
+          </v-btn>
           <v-alert
             v-if="showError"
             type="error"
@@ -62,43 +63,39 @@
 
 <script>
 import axiosInstance from '@/api/axiosConfig'
-import { mapActions } from 'vuex'
+import { mapState, mapMutations } from 'vuex'
 
 export default {
   data: () => ({
     login: '',
     password: '',
     visible: false,
-    isAuthorized: false,
     showError: false,
     errorMessage: '',
     formValid: false,
     loginRules: [(v) => !!v || 'Логин обязателен'],
     passwordRules: [(v) => !!v || 'Пароль обязателен'],
   }),
-  created() {
-    this.isAuthorized = !!localStorage.getItem('token')
+  computed: {
+    ...mapState('authStore', ['isAuthorized']),
   },
   methods: {
-    ...mapActions('authStore', ['setAuthorization', 'setUserRole']),
+    ...mapMutations('authStore', ['SET_AUTHORIZED', 'SET_USER_ROLE']),
     toggleVisibility() {
       this.visible = !this.visible
     },
     async submit() {
-      await this.$refs.form.validate()
       if (!this.formValid) return
-
       try {
         const response = await axiosInstance.post('/login', {
           login: this.login,
           password: this.password,
         })
-
         if (response.data.status === 'ok') {
           localStorage.setItem('token', response.data.token)
-          this.$store.dispatch('AuthStore/setAuthorization', true) // Обновите состояние аутентификации
-          this.$store.dispatch('AuthStore/setUserRole', response.data.role) // Обновите роль пользователя
-          this.$router.push('/') // Перенаправляем на главную страницу
+          this.SET_AUTHORIZED(true)
+          this.SET_USER_ROLE(response.data.role)
+          this.$router.push('/')
         } else {
           this.showError = true
           this.errorMessage = 'Неправильный логин или пароль'

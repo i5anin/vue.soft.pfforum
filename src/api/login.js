@@ -2,7 +2,7 @@ import axiosInstance from '@/api/axiosConfig'
 import { handleApiError, handleResponse } from '@/api/errorHandler'
 
 export async function getToolParams() {
-  return axiosLogin
+  return axiosInstance
     .get('/check-login')
     .then(handleResponse)
     .catch(handleApiError)
