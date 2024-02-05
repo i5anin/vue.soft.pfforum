@@ -13,16 +13,11 @@ export const toolApi = {
     onlyInStock = true,
     filters = {} // Добавьте новый параметр для динамических фильтров
   ) => {
-    if (parentId === null || parentId === undefined) {
-      console.error(
-        'Критическая ошибка: данные о папке отсутствуют (расположение текущего каталога не известно)'
-      )
-      return Promise.reject(new Error('Отсутствует parentId'))
-    }
-
     // Соединение статических и динамических параметров
     const params = { search, page, limit, includeNull, onlyInStock, ...filters }
-    params.parent_id = parentId // Добавляем parentId к параметрам запроса
+    if (parentId !== null) {
+      params.parent_id = parentId
+    }
 
     return axiosInstance
       .get('/tools', { params })
