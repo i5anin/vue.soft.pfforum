@@ -161,16 +161,13 @@ export default {
       // Сбор всех параметров фильтрации в один объект
       const dynamicFilters = this.paramsList.reduce((acc, curr) => {
         if (curr.selectedValue) {
-          acc[`param_${curr.key}`] = curr.selectedValue // Используйте p_ для согласованности с API
+          acc[`param_${curr.key}`] = curr.selectedValue
           console.log(`Фильтр для параметра ${curr.key}: ${curr.selectedValue}`)
         }
         return acc
       }, {})
 
       console.log('Сформированные динамические фильтры:', dynamicFilters)
-
-      // Помечаем, что начинаем загрузку
-      this.isLoading = true
 
       // Вызов API с сформированными параметрами
       toolApi
@@ -181,16 +178,19 @@ export default {
           this.filters.includeNull,
           this.filters.parentId,
           this.filters.onlyInStock,
-          dynamicFilters // Передаем как дополнительный параметр
+          dynamicFilters
         )
         .then((data) => {
           console.log('Данные получены от API:', data)
-          // Обернуть установку isLoading в this.$nextTick()
-          this.$nextTick(() => {
-            this.formattedTools = data.items
-            this.toolsTotalCount = data.totalCount
-            this.isLoading = false // Загрузка завершена
-          })
+          // Проверка на успешную загрузку данных
+          if (data && Array.isArray(data.items)) {
+            // Обернуть установку isLoading в this.$nextTick()
+            this.$nextTick(() => {
+              this.formattedTools = data.items
+              this.toolsTotalCount = data.totalCount
+              this.isLoading = false // Загрузка завершена только если данные успешно получены
+            })
+          }
         })
         .catch((error) => {
           console.error('Ошибка при получении данных:', error)
@@ -200,6 +200,7 @@ export default {
           })
         })
     },
+
     onIssueTool(event, item) {
       event.stopPropagation() // Предотвратить всплытие события
       console.log('Выдать инструмент:', item)
