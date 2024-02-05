@@ -18,24 +18,27 @@ async function getReportData() {
   try {
     const query = `
 SELECT
-    tn.id AS id_tool,
-    tn.name,
-    tn.sklad,
-    tn.norma,
-    COALESCE(SUM(thd.quantity), 0) AS damaged_last_7_days
+    tool_nom.id AS id_tool,
+    tool_nom.name,
+    tool_nom.sklad,
+    tool_nom.norma,
+    tool_nom.norma - tool_nom.sklad AS zakaz,
+    COALESCE(SUM(tool_history_damaged.quantity), 0) AS damaged_last_7_days
 FROM
-    dbo.tool_nom tn
+    dbo.tool_nom
 LEFT JOIN
-    dbo.tool_history_damaged thd ON tn.id = thd.id_tool
-    AND thd.timestamp >= CURRENT_DATE - INTERVAL '7 days'
+    dbo.tool_history_damaged ON tool_nom.id = tool_history_damaged.id_tool
+    AND tool_history_damaged.timestamp >= CURRENT_DATE - INTERVAL '7 days'
+WHERE
+    tool_nom.norma IS NOT NULL
+    AND (tool_nom.norma - tool_nom.sklad) > 0
 GROUP BY
-    tn.id,
-    tn.name,
-    tn.sklad,
-    tn.norma
+    tool_nom.id,
+    tool_nom.name,
+    tool_nom.sklad,
+    tool_nom.norma
 ORDER BY
-    tn.id;
-
+    tool_nom.id;
     `
     const { rows } = await pool.query(query)
     return rows
@@ -134,7 +137,7 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
 
   // Генерация HTML таблицы для тела письма
   let htmlContent = `<h2>${subject}</h2>`
-  htmlContent += `<table border="1" style="border-collapse: collapse;"><tr><th>№</th><th>Название</th><th>Дата</th><th>Количество</th></tr>`
+  htmlContent += `<table border="1" style="border-collapse: collapse;"><tr><th>№</th><th>Название</th><th>Количество</th></tr>`
 
   let rowNumber = 1
   data.forEach((item) => {
@@ -146,9 +149,9 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
       formattedDate = 'Недоступно' // Или другое значение по умолчанию
     }
 
-    htmlContent += `<tr><td>${rowNumber++}</td><td>${
-      item.name
-    }</td><td>${formattedDate}</td><td>${item.zakaz}</td></tr>`
+    htmlContent += `<tr><td>${rowNumber++}</td><td>${item.name}</td><td>${
+      item.zakaz
+    }</td></tr>`
   })
 
   htmlContent += `</table>`
