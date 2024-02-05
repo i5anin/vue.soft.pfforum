@@ -18,12 +18,6 @@ const tabs = [
     access: ['Admin', 'Editor'],
   },
   {
-    name: 'Дерево',
-    url: '#tree',
-    component: ToolTabTree,
-    access: ['Admin', 'Editor', 'Issue', 'Sklad'],
-  },
-  {
     name: 'Параметры',
     url: '#params',
     component: ToolTabParam,
@@ -58,6 +52,12 @@ const tabs = [
     url: '#nalad',
     component: NaladCatalog,
     access: ['Nalad'],
+  },
+  {
+    name: 'Дерево',
+    url: '#tree',
+    component: ToolTabTree,
+    access: ['Admin', 'Editor', 'Issue', 'Sklad'],
   },
   { name: 'Отчёты', url: '#report', component: Report, access: ['Admin'] },
 ]
