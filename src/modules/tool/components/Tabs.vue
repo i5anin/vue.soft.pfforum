@@ -28,6 +28,7 @@
 // Предполагается, что tabsConfig - это ваш конфигурационный файл вкладок
 import tabs from './tabsConfig'
 import { authApi } from '@/api/login'
+import {} from 'vue-router'
 
 export default {
   data() {

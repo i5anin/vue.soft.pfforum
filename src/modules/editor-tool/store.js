@@ -7,11 +7,8 @@ export default {
     idParent: { id: 1, label: null },
     isLoading: false,
     paramsList: [],
-    shagOptions: [],
-    gabaritOptions: [],
-    widthOptions: [],
     nameOptions: [],
-
+    additionalFilters: {},
     tool: null,
     tools: [],
     toolsTotalCount: 0,
@@ -19,9 +16,6 @@ export default {
       currentPage: 1,
       itemsPerPage: 15,
       search: '',
-      types: [],
-      groups: [],
-      materials: [],
       selectedParams: [],
       includeNull: false,
     },
@@ -54,6 +48,9 @@ export default {
     setTools(state, tools) {
       state.tools = tools
     },
+    setAdditionalFilters(state, additionalFilters) {
+      state.additionalFilters = additionalFilters
+    },
   },
   actions: {
     async fetchToolById({ commit }, id) {
@@ -64,7 +61,26 @@ export default {
         console.error('Ошибка при загрузке инструмента:', error)
       }
     },
-
+    async fetchAdditionalFilters(/* { commit, state } */) {
+      // const { id: parentId } = state.idParent
+      // const paramsList = await toolApi.getAdditionalFilters(parentId)
+      // const additionalFilters = paramsList.reduce(
+      //   (acc, curr) =>
+      //     curr.selectedValue
+      //       ? {
+      //           ...acc,
+      //           [`param_${curr.key}`]: {
+      //             value: null,
+      //             label: curr.label,
+      //             options: curr.values,
+      //           },
+      //         }
+      //       : acc,
+      //   {}
+      // ) // { param_1: { value: null, options: ['Сверло ', 'Резец', 'Пластина', 'Метчик '] } }
+      //
+      // commit('setAdditionalFilters', additionalFilters)
+    },
     async fetchToolsByFilter({ commit, state }) {
       // console.log('РЕДАКТОР VUEX')
       commit('setIsLoading', true)
@@ -78,7 +94,11 @@ export default {
           itemsPerPage,
           includeNull,
           parentId,
-          selectedParams
+          selectedParams,
+          Object.entries(state.additionalFilters).reduce(
+            (acc, [key, { value }]) => (value ? { ...acc, [key]: value } : acc),
+            {}
+          )
         )
         commit('setParamsList', paramsList)
         commit('setTools', tools) // Инструменты

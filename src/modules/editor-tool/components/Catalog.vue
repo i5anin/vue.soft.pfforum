@@ -59,6 +59,7 @@
     }"
     @page-changed="onPageChanged"
     @page-limit-changed="onUpdateItemsPerPage"
+    @params-filter-changed="onParamsFilterChanged"
     @changes-saved="fetchToolsByFilter"
   />
 </template>
@@ -102,6 +103,7 @@ export default {
           id: currentItem.id,
           label: currentItem.label,
         })
+        this.fetchAdditionalFilters()
         this.fetchToolsByFilter()
       },
     },
@@ -122,10 +124,16 @@ export default {
       'setCurrentPage',
       'setItemsPerPage',
     ]),
-    ...mapActions('EditorToolStore', ['fetchToolsByFilter']),
+    ...mapActions('EditorToolStore', [
+      'fetchToolsByFilter',
+      'fetchAdditionalFilters',
+    ]),
     async onPageChanged(page) {
       this.setCurrentPage(page)
       await this.fetchToolsByFilter()
+    },
+    onParamsFilterChanged(paramsFilters) {
+      this.fetchToolsByFilter(paramsFilters)
     },
     async onUpdateItemsPerPage(itemsPerPage) {
       this.setItemsPerPage(itemsPerPage)
