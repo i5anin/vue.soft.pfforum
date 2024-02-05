@@ -62,8 +62,7 @@
 </template>
 
 <script>
-import axiosInstance from '@/api/axiosConfig'
-import { mapState, mapMutations } from 'vuex'
+import { mapState, mapActions, mapMutations } from 'vuex'
 
 export default {
   data: () => ({
@@ -81,20 +80,18 @@ export default {
   },
   methods: {
     ...mapMutations('authStore', ['SET_AUTHORIZED', 'SET_USER_ROLE']),
+    ...mapActions('authStore', ['login', 'logout']),
     toggleVisibility() {
       this.visible = !this.visible
     },
     async submit() {
       if (!this.formValid) return
       try {
-        const response = await axiosInstance.post('/login', {
+        const success = await this.login({
           login: this.login,
           password: this.password,
         })
-        if (response.data.status === 'ok') {
-          localStorage.setItem('token', response.data.token)
-          this.SET_AUTHORIZED(true)
-          this.SET_USER_ROLE(response.data.role)
+        if (success) {
           this.$router.push('/')
         } else {
           this.showError = true
@@ -102,8 +99,7 @@ export default {
         }
       } catch (error) {
         this.showError = true
-        this.errorMessage = 'Ошибка авторизации'
-        console.error('Login error:', error)
+        this.errorMessage = error.message
       }
     },
   },

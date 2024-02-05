@@ -1,5 +1,4 @@
 // store/modules/authStore.js
-
 const authStore = {
   namespaced: true,
   state: {
@@ -15,16 +14,26 @@ const authStore = {
     },
   },
   actions: {
-    setAuthorization({ commit }, isAuthorized) {
-      commit('SET_AUTHORIZED', isAuthorized)
-    },
-    setUserRole({ commit }, role) {
-      commit('SET_USER_ROLE', role)
+    async login({ commit }, { login, password }) {
+      try {
+        const response = await axiosInstance.post('/login', { login, password })
+        if (response.data.status === 'ok') {
+          localStorage.setItem('token', response.data.token)
+          commit('SET_AUTHORIZED', true)
+          commit('SET_USER_ROLE', response.data.role)
+          return true // Успешный вход
+        } else {
+          return false // Неправильный логин или пароль
+        }
+      } catch (error) {
+        console.error('Login error:', error)
+        throw new Error('Ошибка авторизации')
+      }
     },
     logout({ commit }) {
+      localStorage.removeItem('token')
       commit('SET_AUTHORIZED', false)
       commit('SET_USER_ROLE', null)
-      localStorage.removeItem('token') // предполагается, что токен сохраняется в localStorage
     },
   },
 }
