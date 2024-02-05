@@ -25,24 +25,60 @@
 </template>
 
 <script>
+// Предполагается, что tabsConfig - это ваш конфигурационный файл вкладок
 import tabs from './tabsConfig'
+import { authApi } from '@/api/login'
 
 export default {
   data() {
-    return {
-      tab: 'Редактор',
-      tabs,
-    }
+    return { tab: 'Редактор', tabs }
   },
   watch: {
     tab() {
+      // Обновление URL в адресной строке при смене вкладки
       let current_tab = this.tabs.find((el) => el.name === this.tab)
       window.location.hash = current_tab.url
     },
   },
   mounted() {
+    // Проверка текущей вкладки по URL в адресной строке
     let current_tab = this.tabs.find((el) => el.url === window.location.hash)
     if (current_tab !== undefined) this.tab = current_tab.name
+
+    // Добавляем запрос на проверку доступов
+    this.checkAccess()
+  },
+  methods: {
+    async checkAccess() {
+      try {
+        const response = await authApi.checkLogin()
+        console.log('Статус авторизации:', response.status)
+        console.log('Роль пользователя:', response.role)
+      } catch (error) {
+        console.error('Ошибка проверки авторизации:', error.message)
+      }
+    },
+
+    async submit() {
+      if (!this.formValid) return
+      try {
+        const response = await authApi.login({
+          login: this.login,
+          password: this.password,
+        })
+        if (response.status === 'ok') {
+          localStorage.setItem('token', response.token)
+          this.$router.push('/')
+        } else {
+          this.showError = true
+          this.errorMessage = 'Неправильный логин или пароль'
+        }
+      } catch (error) {
+        this.showError = true
+        this.errorMessage = error.message
+        console.error('Ошибка входа:', error)
+      }
+    },
   },
 }
 </script>

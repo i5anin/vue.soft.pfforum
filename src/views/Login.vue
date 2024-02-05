@@ -44,9 +44,8 @@
             color="blue"
             size="large"
             variant="tonal"
+            >Войти</v-btn
           >
-            Войти
-          </v-btn>
           <v-alert
             v-if="showError"
             type="error"
@@ -62,44 +61,52 @@
 </template>
 
 <script>
-import { mapState, mapActions, mapMutations } from 'vuex'
+import axiosInstance from '@/api/axiosConfig'
+import { mapActions } from 'vuex'
 
 export default {
   data: () => ({
     login: '',
     password: '',
     visible: false,
+    isAuthorized: false,
     showError: false,
     errorMessage: '',
     formValid: false,
     loginRules: [(v) => !!v || 'Логин обязателен'],
     passwordRules: [(v) => !!v || 'Пароль обязателен'],
   }),
-  computed: {
-    ...mapState('authStore', ['isAuthorized']),
+  created() {
+    this.isAuthorized = !!localStorage.getItem('token')
   },
   methods: {
-    ...mapMutations('authStore', ['SET_AUTHORIZED', 'SET_USER_ROLE']),
-    ...mapActions('authStore', ['login', 'logout']),
+    ...mapActions('authStore', ['setAuthorization', 'setUserRole']),
     toggleVisibility() {
       this.visible = !this.visible
     },
     async submit() {
+      await this.$refs.form.validate()
       if (!this.formValid) return
+
       try {
-        const success = await this.login({
+        const response = await axiosInstance.post('/login', {
           login: this.login,
           password: this.password,
         })
-        if (success) {
-          this.$router.push('/')
+
+        if (response.data.status === 'ok') {
+          localStorage.setItem('token', response.data.token)
+          // this.$store.dispatch('AuthStore/setAuthorization', true) // Обновите состояние аутентификации
+          // this.$store.dispatch('AuthStore/setUserRole', response.data.role) // Обновите роль пользователя
+          this.$router.push('/') // Перенаправляем на главную страницу
         } else {
           this.showError = true
           this.errorMessage = 'Неправильный логин или пароль'
         }
       } catch (error) {
         this.showError = true
-        this.errorMessage = error.message
+        this.errorMessage = 'Ошибка авторизации'
+        console.error('Login error:', error)
       }
     },
   },

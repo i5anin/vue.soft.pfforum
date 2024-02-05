@@ -1,13 +1,26 @@
+// api/authApi.js
 import axiosInstance from '@/api/axiosConfig'
-import { handleApiError, handleResponse } from '@/api/errorHandler'
+import { handleApiError } from '@/api/errorHandler'
 
-export async function getToolParams() {
-  return axiosInstance
-    .get('/check-login')
-    .then(handleResponse)
-    .catch(handleApiError)
+function handleResponse(response) {
+  return response.data
+}
 
-    .get('/login')
-    .then(handleResponse)
-    .catch(handleApiError)
+export const authApi = {
+  // Проверка авторизации пользователя
+  checkLogin: async () => {
+    const token = localStorage.getItem('token') // Получение токена из локального хранилища
+    return axiosInstance
+      .post('/check-login', { token }) // Отправка токена на сервер для проверки
+      .then(handleResponse)
+      .catch(handleApiError)
+  },
+
+  // Выполнение входа пользователя
+  login: async (loginData) => {
+    return axiosInstance
+      .post('/login', loginData)
+      .then(handleResponse)
+      .catch(handleApiError)
+  },
 }
