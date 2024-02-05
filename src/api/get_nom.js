@@ -10,9 +10,11 @@ export const toolApi = {
     limit = 10,
     includeNull = false,
     parentId = null,
-    onlyInStock = true
+    onlyInStock = true,
+    filters = {} // Добавьте новый параметр для динамических фильтров
   ) => {
-    const params = { search, page, limit, includeNull, onlyInStock }
+    // Соединение статических и динамических параметров
+    const params = { search, page, limit, includeNull, onlyInStock, ...filters }
     if (parentId !== null) {
       params.parent_id = parentId
     }

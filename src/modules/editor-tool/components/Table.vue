@@ -6,6 +6,8 @@
           :label="elem.label"
           :items="elem.values"
           v-model="elem.selectedValue"
+          @update:modelValue="fetchFilteredTools"
+          clearable="true"
         />
       </v-col>
     </v-row>
@@ -77,6 +79,7 @@
 import EditToolModal from './Modal.vue'
 import ToolFilter from '@/modules/tool/components/ToolFilter.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
+import { toolApi } from '@/api'
 
 export default {
   emits: ['changes-saved', 'canceled', 'page-changed', 'page-limit-changed'],
@@ -113,6 +116,9 @@ export default {
   },
   data() {
     return {
+      toolsTotalCount: 0,
+      formattedTools: [],
+      selectedValue: null,
       activeTabType: 'Catalog', // Например, 'Catalog', 'Sklad', 'Give' и т.д.
       openDialog: false,
       isDataLoaded: false,
@@ -152,6 +158,47 @@ export default {
     // console.log(this.paramsList)
   },
   methods: {
+    async fetchFilteredTools() {
+      console.log('Вызов fetchFilteredTools')
+
+      // Сбор всех параметров фильтрации в один объект
+      const dynamicFilters = this.paramsList.reduce((acc, curr) => {
+        if (curr.selectedValue) {
+          acc[`p_${curr.key}`] = curr.selectedValue // Используйте p_ для согласованности с API
+          console.log(`Фильтр для параметра ${curr.key}: ${curr.selectedValue}`)
+        }
+        return acc
+      }, {})
+
+      // Вызов API с сформированными параметрами
+      toolApi
+        .getTools(
+          this.filters.search,
+          this.filters.currentPage,
+          this.filters.itemsPerPage,
+          this.filters.includeNull,
+          this.filters.parentId,
+          this.filters.onlyInStock,
+          dynamicFilters // Передаем как дополнительный параметр
+        )
+        .then((data) => {
+          console.log('Данные получены от API:', data)
+          // Обернуть установку this.isLoading в this.$nextTick()
+          this.$nextTick(() => {
+            this.formattedTools = data.items
+            this.toolsTotalCount = data.totalCount
+            this.isLoading = false // Загрузка завершена
+          })
+        })
+        .catch((error) => {
+          console.error('Ошибка при получении данных:', error)
+          // Обернуть установку this.isLoading в this.$nextTick()
+          this.$nextTick(() => {
+            this.isLoading = false // Загрузка завершена
+          })
+        })
+    },
+
     onIssueTool(event, item) {
       event.stopPropagation() // Предотвратить всплытие события
       console.log('Выдать инструмент:', item)

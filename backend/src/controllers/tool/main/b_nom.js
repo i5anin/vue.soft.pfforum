@@ -38,6 +38,7 @@ async function getTools(req, res) {
 
     let conditions = []
 
+    // Обработка стандартных параметров
     if (search) {
       conditions.push(`tool_nom.name ILIKE '%${search.replace(/'/g, "''")}%'`)
     }
@@ -49,6 +50,19 @@ async function getTools(req, res) {
     if (onlyInStock === 'true') {
       conditions.push(`tool_nom.sklad > 0`)
     }
+
+    // Обработка динамических параметров
+    let dynamicParams = Object.entries(req.query)
+      .filter(([key, value]) => key.startsWith('param_') && value)
+      .map(([key, value]) => {
+        const paramId = key.split('_')[1] // Получаем идентификатор параметра
+        return `tool_nom.property ->> '${paramId}' = '${value.replace(
+          /'/g,
+          "''"
+        )}'`
+      })
+
+    conditions = [...conditions, ...dynamicParams]
 
     const whereClause = conditions.length
       ? `WHERE ${conditions.join(' AND ')}`
