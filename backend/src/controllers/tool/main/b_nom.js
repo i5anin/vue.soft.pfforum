@@ -142,11 +142,27 @@ async function getTools(req, res) {
       propertyValues[key] = Array.from(propertyValues[key])
     })
 
+    const paramsList = Array.from(uniqueParams)
+      .map((key) => {
+        // Фильтрация параметров, имеющих более одного значения
+        const values = propertyValues[key]
+        if (values && values.length > 1) {
+          return {
+            key: key,
+            label: paramsMapping[key]?.info || key,
+            values: values,
+          }
+        }
+        return null
+      })
+      .filter((item) => item != null) // Исключение null значений после фильтрации
+
     res.json({
       currentPage: page,
       itemsPerPage: limit,
       totalCount,
       tools: formattedTools,
+      paramsList,
     })
   } catch (err) {
     console.error(err)
