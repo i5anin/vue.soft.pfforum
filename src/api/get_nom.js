@@ -5,16 +5,13 @@ import { handleApiError, handleResponse } from '@/api/errorHandler'
 export const toolApi = {
   /**
    * Получение инструментов с возможностью фильтрации и пагинации.
-   *
-   * @param {Object} options Объект с параметрами запроса.
-   * @param {string} [options.search=''] Поиск по ключевым словам.
-   * @param {number} [options.page=1] Номер страницы для пагинации.
-   * @param {number} [options.limit=10] Количество элементов на странице.
-   * @param {boolean} [options.includeNull=false] Включать ли в результаты элементы с нулевыми значениями.
-   * @param {number} options.parentId Идентификатор родительской категории.
-   * @param {boolean} [options.onlyInStock=true] Показывать только те элементы, которые есть в наличии.
-   * @param {Object} [options.filters={}] Объект с дополнительными фильтрами.
-   * @returns {Promise} Промис с результатом запроса.
+   * @param search Поиск по ключевым словам.
+   * @param page Номер страницы для пагинации.
+   * @param limit Количество элементов на странице.
+   * @param includeNull  Включать ли в результаты элементы с нулевыми значениями.
+   * @param parentId Идентификатор родительской категории.
+   * @param onlyInStock Показывать только те элементы, которые есть в наличии.
+   * @param filters Объект с дополнительными фильтрами.
    */
   getTools: async (
     search = '',
