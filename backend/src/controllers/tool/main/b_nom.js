@@ -142,27 +142,11 @@ async function getTools(req, res) {
       propertyValues[key] = Array.from(propertyValues[key])
     })
 
-    const paramsList = Array.from(uniqueParams)
-      .map((key) => {
-        // Фильтрация параметров, имеющих более одного значения
-        const values = propertyValues[key]
-        if (values && values.length > 1) {
-          return {
-            key: key,
-            label: paramsMapping[key]?.info || key,
-            values: values,
-          }
-        }
-        return null
-      })
-      .filter((item) => item != null) // Исключение null значений после фильтрации
-
     res.json({
       currentPage: page,
       itemsPerPage: limit,
       totalCount,
       tools: formattedTools,
-      paramsList,
     })
   } catch (err) {
     console.error(err)
@@ -321,7 +305,7 @@ async function getToolById(req, res) {
         sklad: toolData.sklad,
         norma: toolData.norma,
         parent_id: toolData.parent_id,
-        folder_name: toolData.folder_name, // Добавление названия папки
+        folder_name: toolData.folder_name,
         property: toolData.property,
       }
 
