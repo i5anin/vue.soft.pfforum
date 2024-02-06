@@ -338,9 +338,12 @@ async function getToolById(req, res) {
 async function getFilterParamsByParentId(req, res) {
   let { parent_id } = req.params // Получаем parent_id из параметров запроса
 
-  // Преобразуем parent_id в число и проверяем, что это целое число
+  // Преобразуем parent_id в число, если это возможно
   parent_id = Number(parent_id)
-  if (!Number.isInteger(parent_id)) {
+
+  // Проверяем, является ли результат преобразования допустимым целым числом
+  if (isNaN(parent_id) || !Number.isInteger(parent_id)) {
+    // Возвращаем ошибку клиенту, если parent_id не является целым числом
     return res.status(400).json({ error: 'Parent ID must be an integer' })
   }
 

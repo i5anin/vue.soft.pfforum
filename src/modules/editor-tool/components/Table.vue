@@ -174,15 +174,15 @@ export default {
   },
 
   async mounted() {
-    await this.$store.dispatch(
-      'moduleName/fetchAdditionalFilters',
-      this.parentId
-    )
+    // await this.$store.dispatch(
+    //   'moduleName/fetchAdditionalFilters',
+    //   this.parentId
+    // )
     // await this.fetchFilterParams()
   },
   methods: {
     async fetchFilterParams() {
-      console.log(this.parentId)
+      console.log('parentId = ', this.parentId)
       if (this.parentId)
         this.filterParamsList = await toolEditorApi.filterParamsByParentId(
           this.parentId
