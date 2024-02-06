@@ -16,40 +16,25 @@ export const toolApi = {
    * @param {Object} [options.filters={}] Объект с дополнительными фильтрами.
    * @returns {Promise} Промис с результатом запроса.
    */
-  getTools: async ({
+  getTools: async (
     search = '',
     page = 1,
     limit = 10,
     includeNull = false,
     parentId = null,
     onlyInStock = true,
-    filters = {},
-  }) => {
-    // Логирование аргументов функции
-    console.log(`Вызов getTools с аргументами:
-    search: ${search},
-    page: ${page},
-    limit: ${limit},
-    includeNull: ${includeNull},
-    parentId: ${parentId},
-    onlyInStock: ${onlyInStock},
-    filters: ${JSON.stringify(filters)}
-  `)
-
+    filters = {}
+  ) => {
     if (parentId === null || parentId === undefined) {
-      console.error('Отсутствует parentId')
-      return
+      console.error(
+        'Критическая ошибка: расположение текущего каталога не известно'
+      )
+      return Promise.reject(new Error('Отсутствует parentId'))
     }
-    const params = {
-      search,
-      page,
-      limit,
-      includeNull,
-      onlyInStock,
-      parentId,
-      ...filters,
-    }
-    console.log('Отправка запроса с параметрами:', params)
+
+    // Соединение статических и динамических параметров
+    const params = { search, page, limit, includeNull, onlyInStock, ...filters }
+    params.parent_id = parentId // Добавляем parentId к параметрам запроса
 
     return axiosInstance
       .get('/tools', { params })
