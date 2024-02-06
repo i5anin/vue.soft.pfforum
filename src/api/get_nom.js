@@ -11,11 +11,11 @@ export const toolApi = {
     includeNull = false,
     parentId = null,
     onlyInStock = true,
-    filters = {} // Добавьте новый параметр для динамических фильтров
+    filters = {}
   ) => {
     if (parentId === null || parentId === undefined) {
       console.error(
-        'Критическая ошибка: данные о папке отсутствуют (расположение текущего каталога не известно)'
+        'Критическая ошибка: расположение текущего каталога не известно'
       )
       return Promise.reject(new Error('Отсутствует parentId'))
     }
