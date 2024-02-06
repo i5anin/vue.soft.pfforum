@@ -61,26 +61,30 @@ export default {
         console.error('Ошибка при загрузке инструмента:', error)
       }
     },
-    async fetchAdditionalFilters(/* { commit, state } */) {
-      // const { id: parentId } = state.idParent
-      // const paramsList = await toolApi.getAdditionalFilters(parentId)
-      // const additionalFilters = paramsList.reduce(
-      //   (acc, curr) =>
-      //     curr.selectedValue
-      //       ? {
-      //           ...acc,
-      //           [`param_${curr.key}`]: {
-      //             value: null,
-      //             label: curr.label,
-      //             options: curr.values,
-      //           },
-      //         }
-      //       : acc,
-      //   {}
-      // ) // { param_1: { value: null, options: ['Сверло ', 'Резец', 'Пластина', 'Метчик '] } }
-      //
-      // commit('setAdditionalFilters', additionalFilters)
+    async fetchAdditionalFilters({ commit }, parentId) {
+      const filterParams = await toolEditorApi.filterParamsByParentId(parentId)
+      commit('setParamsList', filterParams) // Предполагается, что у вас уже есть мутация setParamsList
     },
+    // async fetchAdditionalFilters(/* { commit, state } */) {
+    // const { id: parentId } = state.idParent
+    // const paramsList = await toolApi.getAdditionalFilters(parentId)
+    // const additionalFilters = paramsList.reduce(
+    //   (acc, curr) =>
+    //     curr.selectedValue
+    //       ? {
+    //           ...acc,
+    //           [`param_${curr.key}`]: {
+    //             value: null,
+    //             label: curr.label,
+    //             options: curr.values,
+    //           },
+    //         }
+    //       : acc,
+    //   {}
+    // )
+    // { param_1: { value: null, options: ['Сверло ', 'Резец', 'Пластина', 'Метчик '] } }
+    // commit('setAdditionalFilters', additionalFilters)
+    // },
     async fetchToolsByFilter({ commit, state }) {
       // console.log('РЕДАКТОР VUEX')
       commit('setIsLoading', true)
