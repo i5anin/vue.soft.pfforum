@@ -49,6 +49,8 @@
     </v-main>
   </v-app>
   <filling-table
+    v-if="currentItem && currentItem.id"
+    :parentId="currentItem.id"
     v-bind="{
       toolsTotalCount,
       formattedTools,
@@ -80,7 +82,7 @@ export default {
   data() {
     return {
       tree: [],
-      currentItem: null,
+      currentItem: { id: null },
       selectedItem: null,
       isEditing: false,
       editableLabel: '',
@@ -120,7 +122,11 @@ export default {
       'filters',
       'isLoading',
       'paramsList',
+      'filterParamsList',
     ]),
+    parentId() {
+      return this.currentItem ? this.currentItem.id : null
+    },
   },
   methods: {
     // обновить IdParent

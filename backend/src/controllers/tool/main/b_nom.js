@@ -336,10 +336,12 @@ async function getToolById(req, res) {
 }
 
 async function getFilterParamsByParentId(req, res) {
-  const { parent_id } = req.params // Получаем parent_id из параметров запроса
+  let { parent_id } = req.params // Получаем parent_id из параметров запроса
 
-  if (!parent_id) {
-    return res.status(400).json({ error: 'Parent ID is required' })
+  // Преобразуем parent_id в число и проверяем, что это целое число
+  parent_id = Number(parent_id)
+  if (!Number.isInteger(parent_id)) {
+    return res.status(400).json({ error: 'Parent ID must be an integer' })
   }
 
   try {

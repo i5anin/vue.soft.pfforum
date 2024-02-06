@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-row cols="12" sm="4">
-      <v-col v-for="filter in paramsList" :key="filter.key">
+      <v-col v-for="filter in filterParamsList" :key="filter.key">
         <v-select
           :label="filter.label"
           :items="filter.values"
@@ -80,6 +80,7 @@ import EditToolModal from './Modal.vue'
 import ToolFilter from '@/modules/tool/components/ToolFilter.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { toolApi } from '@/api'
+import { toolEditorApi } from '@/modules/editor-tool/api/editor'
 
 export default {
   emits: [
@@ -95,6 +96,14 @@ export default {
     ToolFilter,
   },
   props: {
+    parentId: {
+      type: Number, // или String, в зависимости от типа идентификатора
+      required: true,
+    },
+    // filterParamsList: {
+    //   type: Array,
+    //   default: () => [],
+    // },
     toolsTotalCount: {
       type: Number,
       default: 0,
@@ -122,6 +131,27 @@ export default {
   },
   data() {
     return {
+      filterParamsList: [
+        // todo: срочно заменить на toolEditorApi.filterParamsByParentId(parent_id) = возвращает тоже самое по стуктуре но в динамике
+        {
+          key: '2',
+          label: 'Группа',
+          values: [
+            '№6. 35 градусов двухгранная  "рыбка".',
+            '№5. 55 градусов 4х-гранная ',
+          ],
+        },
+        {
+          key: '3',
+          label: 'Материал',
+          values: ['сталь', 'нержавеющая сталь'],
+        },
+        {
+          key: '12',
+          label: 'Радиус',
+          values: ['0.4', '0.8'],
+        },
+      ],
       selectedValue: null,
       activeTabType: 'Catalog', // Например, 'Catalog', 'Sklad', 'Give' и т.д.
       openDialog: false,
@@ -132,6 +162,14 @@ export default {
     }
   },
   watch: {
+    parentId: {
+      immediate: true,
+      handler(newValue, oldValue) {
+        if (newValue !== oldValue) {
+          this.fetchFilterParams()
+        }
+      },
+    },
     paramsList: {
       immediate: true,
       handler(newVal) {
@@ -156,12 +194,20 @@ export default {
   },
 
   async mounted() {
-    this.isDataLoaded = true
-  },
-  updated() {
-    // console.log(this.paramsList)
+    await this.fetchFilterParams()
   },
   methods: {
+    async fetchFilterParams() {
+      try {
+        this.filterParamsList = await toolEditorApi.filterParamsByParentId(
+          this.parentId
+        ) // Предполагается, что API возвращает данные в подходящем формате
+        this.isDataLoaded = true // Установите флаг загрузки данных, если это необходимо
+      } catch (error) {
+        console.error('Ошибка при загрузке параметров фильтрации:', error)
+        // Обработайте ошибку, возможно, показав сообщение пользователю
+      }
+    },
     onParamsFilterUpdate() {
       // this.$emit(
       //   'params-filter-changed',
@@ -187,7 +233,7 @@ export default {
     },
     onChangePage(page) {
       this.filters.currentPage = page
-      this.fetchTools() // Обновите этот вызов функции, чтобы он включал текущие фильтры
+      this.fetchTools()
     },
     onUpdateItemsPerPage(itemsPerPage) {
       this.filters.itemsPerPage = itemsPerPage

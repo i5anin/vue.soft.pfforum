@@ -161,6 +161,7 @@ export default {
     // параметры фильтра
     paramsOptions: (state) => state.paramsOptions,
     paramsList: (state) => state.paramsList,
+    filterParamsList: (state) => state.filterParamsList,
     nameOptions: (state) => state.nameOptions,
     toolsTotalCount: (state) => state.toolsTotalCount,
   },
