@@ -98,6 +98,9 @@ export default {
     },
   },
   watch: {
+    'currentItem.id': function (newParentId) {
+      this.$store.dispatch('fetchFilterParamsByParentId', newParentId)
+    },
     type(newValue) {
       console.log('Тип вкладки изменен:', newValue)
     },
@@ -107,7 +110,7 @@ export default {
           id: currentItem.id,
           label: currentItem.label,
         })
-        // this.fetchAdditionalFilters()
+        this.fetchAdditionalFilters()
         this.fetchToolsByFilter()
       },
     },
@@ -123,9 +126,6 @@ export default {
     ]),
     parentId() {
       return this.currentItem ? this.currentItem.id : null
-    },
-    filterParamsList() {
-      return this.$store.state.moduleName.paramsList
     },
   },
   methods: {
@@ -243,10 +243,10 @@ export default {
         : null
     },
 
-    // async selectItem(item) {
-    //   this.currentItem = item
-    //   await toolEditorApi.filterParamsByParentId(item.id)
-    // },
+    async selectItem(item) {
+      this.currentItem = item
+      await toolEditorApi.filterParamsByParentId(item.id)
+    },
     startEditing() {
       this.isEditing = true
       this.editableLabel = this.currentItem ? this.currentItem.label : ''
