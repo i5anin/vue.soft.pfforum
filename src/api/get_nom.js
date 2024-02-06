@@ -22,6 +22,7 @@ export const toolApi = {
     onlyInStock = true,
     filters = {}
   ) => {
+    console.log(filters)
     if (parentId === null || parentId === undefined) {
       console.error(
         'Критическая ошибка: расположение текущего каталога не известно'
@@ -30,8 +31,15 @@ export const toolApi = {
     }
 
     // Соединение статических и динамических параметров
-    const params = { search, page, limit, includeNull, onlyInStock, ...filters }
-    params.parent_id = parentId // Добавляем parentId к параметрам запроса
+    const params = {
+      search,
+      page,
+      limit,
+      includeNull,
+      onlyInStock,
+      parent_id: parentId,
+      ...filters,
+    }
 
     return axiosInstance
       .get('/tools', { params })

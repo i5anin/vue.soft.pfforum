@@ -188,25 +188,45 @@ export default {
     },
 
     async fetchTools() {
-      // Здесь мы убеждаемся, что parentId доступен и выводим его в консоль
       console.log('Используемый parentId:', this.parentId)
 
-      const { currentPage, itemsPerPage, search, includeNull, selectedParams } =
-        this.filters
+      const {
+        currentPage,
+        itemsPerPage,
+        search,
+        includeNull,
+        parentId,
+        ...selectedParams
+      } = this.filters
+
+      // Формирование динамической части строки запроса для фильтров
+      const filterParams = Object.entries(selectedParams).reduce(
+        (acc, [key, value]) => {
+          if (
+            value !== null &&
+            value !== undefined &&
+            key.startsWith('param_')
+          ) {
+            acc[`param_${key.split('_')[1]}`] = value
+          }
+          return acc
+        },
+        {}
+      )
+      console.log(filterParams)
       const queryParams = {
         search,
         page: currentPage,
         limit: itemsPerPage,
         includeNull,
-        parentId: this.parentId, // Убедитесь, что parentId корректно определен в состоянии компонента
-        ...selectedParams,
+        parent_id: parentId, // Убедитесь, что parentId корректно определен в состоянии компонента
+        ...filterParams, // Добавляем динамические фильтры
       }
 
       // Выводим в консоль параметры запроса для проверки
       console.log('Параметры запроса:', queryParams)
 
       try {
-        console.log('toolApi.getTools 2')
         const { tools, totalCount } = await toolApi.getTools(queryParams)
         this.formattedTools = tools
         this.toolsTotalCount = totalCount
