@@ -6,7 +6,7 @@
           :label="filter.label"
           :items="filter.values"
           v-model="filters[filter.key]"
-          @change="onParamsFilterUpdate"
+          @update:model-value="onParamsFilterUpdate"
         />
       </v-col>
     </v-row>
@@ -132,6 +132,7 @@ export default {
   data() {
     return {
       filterParamsList: [],
+      filters: {},
       selectedValue: null,
       activeTabType: 'Catalog', // Например, 'Catalog', 'Sklad', 'Give' и т.д.
       openDialog: false,
@@ -181,6 +182,39 @@ export default {
     // await this.fetchFilterParams()
   },
   methods: {
+    onParamsFilterUpdate() {
+      console.log(this.filters)
+      this.fetchTools()
+    },
+
+    async fetchTools() {
+      // Здесь мы убеждаемся, что parentId доступен и выводим его в консоль
+      console.log('Используемый parentId:', this.parentId)
+
+      const { currentPage, itemsPerPage, search, includeNull, selectedParams } =
+        this.filters
+      const queryParams = {
+        search,
+        page: currentPage,
+        limit: itemsPerPage,
+        includeNull,
+        parentId: this.parentId, // Убедитесь, что parentId корректно определен в состоянии компонента
+        ...selectedParams,
+      }
+
+      // Выводим в консоль параметры запроса для проверки
+      console.log('Параметры запроса:', queryParams)
+
+      try {
+        console.log('toolApi.getTools 2')
+        const { tools, totalCount } = await toolApi.getTools(queryParams)
+        this.formattedTools = tools
+        this.toolsTotalCount = totalCount
+      } catch (error) {
+        console.error('Ошибка при получении данных инструментов:', error)
+      }
+    },
+
     async fetchFilterParams() {
       console.log('parentId = ', this.parentId)
       if (this.parentId)
@@ -189,19 +223,19 @@ export default {
         )
       this.isDataLoaded = true
     },
-    onParamsFilterUpdate() {
-      // this.$emit(
-      //   'params-filter-changed',
-      //   this.paramsList.reduce(
-      //     (acc, curr) =>
-      //       curr.selectedValue
-      //         ? { ...acc, [`param_${curr.key}`]: curr.selectedValue }
-      //         : acc,
-      //     {}
-      //   )
-      // )
-      this.fetchTools()
-    },
+    // onParamsFilterUpdate() {
+    //   // this.$emit(
+    //   //   'params-filter-changed',
+    //   //   this.paramsList.reduce(
+    //   //     (acc, curr) =>
+    //   //       curr.selectedValue
+    //   //         ? { ...acc, [`param_${curr.key}`]: curr.selectedValue }
+    //   //         : acc,
+    //   //     {}
+    //   //   )
+    //   // )
+    //   this.fetchTools()
+    // },
     onIssueTool(event, item) {
       event.stopPropagation() // Предотвратить всплытие события
       console.log('Выдать инструмент:', item)
@@ -235,18 +269,25 @@ export default {
       this.editingToolId = tool.id
       this.openDialog = true
     },
-    fetchTools() {
-      // Предполагается, что toolApi.getTools включает возможность передачи параметров фильтрации
-      toolApi
-        .getTools({ ...this.filters })
-        .then((data) => {
-          this.formattedTools = data.tools
-          this.toolsTotalCount = data.totalCount
-        })
-        .catch((error) => {
-          console.error('Ошибка при получении данных инструментов:', error)
-        })
-    },
+    // async fetchTools() {
+    //   const filters = Object.entries(this.filters).reduce(
+    //     (acc, [key, value]) => {
+    //       // Формируем строку запроса с параметрами в формате param_key=value
+    //       if (value !== null && value !== undefined)
+    //         acc += `&param_${key}=${value}`
+    //       return acc
+    //     },
+    //     ''
+    //   )
+    //
+    //   try {
+    //     const data = await toolApi.getTools(filters)
+    //     this.formattedTools = data.tools
+    //     this.toolsTotalCount = data.totalCount
+    //   } catch (error) {
+    //     console.error('Ошибка при получении данных инструментов:', error)
+    //   }
+    // },
   },
 }
 </script>

@@ -3,26 +3,53 @@ import axiosInstance from '@/api/axiosConfig'
 import { handleApiError, handleResponse } from '@/api/errorHandler'
 
 export const toolApi = {
-  // Получить инструменты с фильтрацией и пагинацией
-  getTools: async (
+  /**
+   * Получение инструментов с возможностью фильтрации и пагинации.
+   *
+   * @param {Object} options Объект с параметрами запроса.
+   * @param {string} [options.search=''] Поиск по ключевым словам.
+   * @param {number} [options.page=1] Номер страницы для пагинации.
+   * @param {number} [options.limit=10] Количество элементов на странице.
+   * @param {boolean} [options.includeNull=false] Включать ли в результаты элементы с нулевыми значениями.
+   * @param {number} options.parentId Идентификатор родительской категории.
+   * @param {boolean} [options.onlyInStock=true] Показывать только те элементы, которые есть в наличии.
+   * @param {Object} [options.filters={}] Объект с дополнительными фильтрами.
+   * @returns {Promise} Промис с результатом запроса.
+   */
+  getTools: async ({
     search = '',
     page = 1,
     limit = 10,
     includeNull = false,
     parentId = null,
     onlyInStock = true,
-    filters = {}
-  ) => {
-    if (parentId === null || parentId === undefined) {
-      console.error(
-        'Критическая ошибка: расположение текущего каталога не известно'
-      )
-      return Promise.reject(new Error('Отсутствует parentId'))
-    }
+    filters = {},
+  }) => {
+    // Логирование аргументов функции
+    console.log(`Вызов getTools с аргументами:
+    search: ${search},
+    page: ${page},
+    limit: ${limit},
+    includeNull: ${includeNull},
+    parentId: ${parentId},
+    onlyInStock: ${onlyInStock},
+    filters: ${JSON.stringify(filters)}
+  `)
 
-    // Соединение статических и динамических параметров
-    const params = { search, page, limit, includeNull, onlyInStock, ...filters }
-    params.parent_id = parentId // Добавляем parentId к параметрам запроса
+    if (parentId === null || parentId === undefined) {
+      console.error('Отсутствует parentId')
+      return
+    }
+    const params = {
+      search,
+      page,
+      limit,
+      includeNull,
+      onlyInStock,
+      parentId,
+      ...filters,
+    }
+    console.log('Отправка запроса с параметрами:', params)
 
     return axiosInstance
       .get('/tools', { params })
