@@ -131,27 +131,7 @@ export default {
   },
   data() {
     return {
-      filterParamsList: [
-        // todo: срочно заменить на toolEditorApi.filterParamsByParentId(parent_id) = возвращает тоже самое по стуктуре но в динамике
-        {
-          key: '2',
-          label: 'Группа',
-          values: [
-            '№6. 35 градусов двухгранная  "рыбка".',
-            '№5. 55 градусов 4х-гранная ',
-          ],
-        },
-        {
-          key: '3',
-          label: 'Материал',
-          values: ['сталь', 'нержавеющая сталь'],
-        },
-        {
-          key: '12',
-          label: 'Радиус',
-          values: ['0.4', '0.8'],
-        },
-      ],
+      filterParamsList: [],
       selectedValue: null,
       activeTabType: 'Catalog', // Например, 'Catalog', 'Sklad', 'Give' и т.д.
       openDialog: false,
@@ -194,19 +174,20 @@ export default {
   },
 
   async mounted() {
-    await this.fetchFilterParams()
+    await this.$store.dispatch(
+      'moduleName/fetchAdditionalFilters',
+      this.parentId
+    )
+    // await this.fetchFilterParams()
   },
   methods: {
     async fetchFilterParams() {
-      try {
+      console.log(this.parentId)
+      if (this.parentId)
         this.filterParamsList = await toolEditorApi.filterParamsByParentId(
           this.parentId
-        ) // Предполагается, что API возвращает данные в подходящем формате
-        this.isDataLoaded = true // Установите флаг загрузки данных, если это необходимо
-      } catch (error) {
-        console.error('Ошибка при загрузке параметров фильтрации:', error)
-        // Обработайте ошибку, возможно, показав сообщение пользователю
-      }
+        )
+      this.isDataLoaded = true
     },
     onParamsFilterUpdate() {
       // this.$emit(

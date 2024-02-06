@@ -62,8 +62,8 @@ export default {
       }
     },
     async fetchAdditionalFilters({ commit }, parentId) {
-      const filterParams = await toolEditorApi.filterParamsByParentId(parentId)
-      commit('setParamsList', filterParams) // Предполагается, что у вас уже есть мутация setParamsList
+      const filterParams = await toolEditorApi.filterParamsByParentId(parentId) // Вызов API для получения параметров фильтрации по ID родителя
+      commit('setParamsList', filterParams) // Коммит результата в state через mutation 'setParamsList'
     },
     // async fetchAdditionalFilters(/* { commit, state } */) {
     // const { id: parentId } = state.idParent
