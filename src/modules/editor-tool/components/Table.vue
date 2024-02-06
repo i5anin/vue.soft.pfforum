@@ -1,15 +1,16 @@
 <template>
   <v-container>
     <v-row cols="12" sm="4">
-      <v-col v-for="elem in paramsList" :key="elem.key">
+      <v-col v-for="filter in paramsList" :key="filter.key">
         <v-select
-          :label="elem.label"
-          :items="elem.values"
-          v-model="elem.value"
-          @update:modelValue="onParamsFilterUpdate"
+          :label="filter.label"
+          :items="filter.values"
+          v-model="filters[filter.key]"
+          @change="onParamsFilterUpdate"
         />
       </v-col>
     </v-row>
+
     <tool-filter :namespace="namespace">
       <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>
     </tool-filter>
@@ -162,16 +163,17 @@ export default {
   },
   methods: {
     onParamsFilterUpdate() {
-      this.$emit(
-        'params-filter-changed',
-        this.paramsList.reduce(
-          (acc, curr) =>
-            curr.selectedValue
-              ? { ...acc, [`param_${curr.key}`]: curr.selectedValue }
-              : acc,
-          {}
-        )
-      )
+      // this.$emit(
+      //   'params-filter-changed',
+      //   this.paramsList.reduce(
+      //     (acc, curr) =>
+      //       curr.selectedValue
+      //         ? { ...acc, [`param_${curr.key}`]: curr.selectedValue }
+      //         : acc,
+      //     {}
+      //   )
+      // )
+      this.fetchTools()
     },
     onIssueTool(event, item) {
       event.stopPropagation() // Предотвратить всплытие события
@@ -183,11 +185,13 @@ export default {
     colorClassGrey(item) {
       return { grey: !item.sklad || item.sklad === 0 }
     },
-    async onChangePage(page) {
-      this.$emit('page-changed', page)
+    onChangePage(page) {
+      this.filters.currentPage = page
+      this.fetchTools() // Обновите этот вызов функции, чтобы он включал текущие фильтры
     },
-    async onUpdateItemsPerPage(itemsPerPage) {
-      this.$emit('page-limit-changed', itemsPerPage)
+    onUpdateItemsPerPage(itemsPerPage) {
+      this.filters.itemsPerPage = itemsPerPage
+      this.fetchTools()
     },
     onClosePopup() {
       this.openDialog = false
@@ -203,6 +207,18 @@ export default {
     onEditRow(event, { item: tool }) {
       this.editingToolId = tool.id
       this.openDialog = true
+    },
+    fetchTools() {
+      // Предполагается, что toolApi.getTools включает возможность передачи параметров фильтрации
+      toolApi
+        .getTools({ ...this.filters })
+        .then((data) => {
+          this.formattedTools = data.tools
+          this.toolsTotalCount = data.totalCount
+        })
+        .catch((error) => {
+          console.error('Ошибка при получении данных инструментов:', error)
+        })
     },
   },
 }

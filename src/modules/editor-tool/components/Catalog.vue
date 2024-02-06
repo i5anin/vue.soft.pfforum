@@ -70,6 +70,8 @@ import FillingTable from '@/modules/editor-tool/components/Table.vue'
 import { toolTreeApi } from '@/modules/tool/api/tree'
 import { normSpaces } from '@/modules/tool/components/normSpaces'
 import CatalogBreadcrumbs from '@/modules/tool/components/CatalogBreadcrumbs.vue'
+import { toolApi } from '@/api'
+import { toolEditorApi } from '@/modules/editor-tool/api/editor'
 
 export default {
   name: 'CatalogTab',
@@ -233,9 +235,8 @@ export default {
     },
 
     async selectItem(item) {
-      console.log('Выбранная папка каталога id:', item.id, item.label)
       this.currentItem = item
-      if (!this.tree.includes(item)) this.tree.push(item)
+      await toolEditorApi.filterParamsByParentId(item.id)
     },
     startEditing() {
       this.isEditing = true
