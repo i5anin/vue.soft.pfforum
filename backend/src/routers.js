@@ -25,6 +25,7 @@ router.get('/tools', nomController.getTools) //ALL
 router.post('/tool', nomController.addTool)
 router.put('/tool/:id', nomController.editTool)
 router.delete('/tool/:id', nomController.deleteTool)
+router.get('/filter-params/:parent_id', nomController.getFilterParamsByParentId)
 // param
 router.get('/tools-params', paramController.getToolParams)
 router.post('/tools-params', paramController.addToolParam)

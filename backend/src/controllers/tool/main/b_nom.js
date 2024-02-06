@@ -170,6 +170,54 @@ async function getTools(req, res) {
   }
 }
 
+async function getFilterParamsByParentId(req, res) {
+  const { parent_id } = req.params // Получаем parent_id из параметров запроса
+
+  if (!parent_id) {
+    return res.status(400).json({ error: 'Parent ID is required' })
+  }
+
+  try {
+    // Получаем маппинг параметров
+    const paramsMapping = await getParamsMapping()
+
+    // SQL запрос для извлечения всех свойств инструментов в определенной категории
+    const query = `
+      SELECT tool_nom.property
+      FROM dbo.tool_nom
+      WHERE tool_nom.parent_id = $1`
+
+    const { rows } = await pool.query(query, [parent_id])
+
+    // Агрегируем уникальные значения для каждого параметра
+    const paramsAggregation = {}
+
+    rows.forEach((row) => {
+      Object.entries(row.property || {}).forEach(([key, value]) => {
+        if (!paramsAggregation[key]) {
+          paramsAggregation[key] = new Set()
+        }
+        paramsAggregation[key].add(value)
+      })
+    })
+
+    // Преобразование агрегированных данных в требуемый формат
+    const paramsList = Object.entries(paramsAggregation)
+      .map(([key, valuesSet]) => ({
+        key: key,
+        label: paramsMapping[key] ? paramsMapping[key].info : key, // Используем маппинг для заполнения label
+        values: Array.from(valuesSet),
+      }))
+      .filter((param) => param.values.length > 1) // Исключаем параметры с одним значением
+
+    // Отправка результата
+    res.json(paramsList)
+  } catch (err) {
+    console.error(err)
+    res.status(500).send('Server error')
+  }
+}
+
 async function deleteTool(req, res) {
   const { id } = req.params
   try {
@@ -342,4 +390,5 @@ module.exports = {
   addTool,
   editTool,
   deleteTool,
+  getFilterParamsByParentId,
 }
