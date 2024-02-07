@@ -57,12 +57,8 @@ export default {
   actions: {
     // Действия для асинхронной работы с API и обновления состояния
     async fetchToolById({ commit }, id) {
-      try {
-        const tool = await toolApi.getToolById(id) // Получает инструмент по ID
-        commit('setTool', tool) // Коммитит выбранный инструмент в состояние
-      } catch (error) {
-        console.error('Ошибка при загрузке инструмента:', error) // Логирует ошибку
-      }
+      const tool = await toolApi.getToolById(id) // Получает инструмент по ID
+      commit('setTool', tool) // Коммитит выбранный инструмент в состояние
     },
     async fetchAdditionalFilters({ commit }, parentId) {
       const filterParams = await toolEditorApi.filterParamsByParentId(parentId) // Получает параметры фильтрации по ID родителя
