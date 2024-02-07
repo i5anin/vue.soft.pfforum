@@ -3,6 +3,7 @@
     <v-row cols="12" sm="4">
       <v-col v-for="filter in filterParamsList" :key="filter.key">
         <v-select
+          clearable="true"
           :label="filter.label"
           :items="filter.values"
           v-model="filters[filter.key]"
