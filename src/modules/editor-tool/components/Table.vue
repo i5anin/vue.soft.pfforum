@@ -184,7 +184,7 @@ export default {
   },
   methods: {
     onParamsFilterUpdate() {
-      console.log(this.filters)
+      console.log('Таблица. this.fetchTools()=', this.filters)
       this.fetchTools()
     },
 
@@ -217,13 +217,15 @@ export default {
 
       console.log('Таблица. filterParams:', filterParams)
 
+      console.log(this.parentId)
+
       const queryParams = {
         search,
         page: currentPage,
         limit: itemsPerPage,
         includeNull,
         parent_id: this.parentId, // Используем this.parentId напрямую
-        ...filterParams,
+        filterParams,
       }
 
       console.log('Таблица. Параметры запроса:', queryParams)
