@@ -21,7 +21,10 @@ router.post('/check-login', loginController.checkLogin)
 router.get('/database-info', loginController.getDatabaseInfo)
 // nom
 router.get('/tool/:id', nomController.getToolById) //1 элемент
-router.get('/tools', nomController.getTools) //ALL
+
+router.get('/tools', nomController.getTools) //ALL get
+router.post('/tools', nomController.getTools) //ALL post
+
 router.post('/tool', nomController.addTool)
 router.put('/tool/:id', nomController.editTool)
 router.delete('/tool/:id', nomController.deleteTool)
