@@ -1,7 +1,4 @@
 <template>
-  <!-- Временно добавьте для отладки -->
-  <!--  <pre>{{ filters }}</pre>-->
-
   <v-app class="custom-container">
     <v-app-bar app dark>
       <v-toolbar-title>
@@ -53,7 +50,7 @@
   </v-app>
   <filling-table
     v-if="currentItem && currentItem.id"
-    :folderId="currentItem.id"
+    :parentId="currentItem.id"
     v-bind="{
       toolsTotalCount,
       formattedTools,
@@ -95,21 +92,21 @@ export default {
   props: {
     type: String,
     item: Object,
-    folderId: {
+    parentId: {
       type: Object,
       default: () => ({ id: null, label: null }),
     },
   },
   watch: {
-    // 'currentItem.id': function (newFolderId) {
-    //   this.$store.dispatch('fetchFilterParamsByFolderId', newFolderId)
+    // 'currentItem.id': function (newParentId) {
+    //   this.$store.dispatch('fetchFilterParamsByParentId', newParentId)
     // },
     type(newValue) {
       console.log('Тип вкладки изменен:', newValue)
     },
     currentItem: {
       handler(currentItem) {
-        this.updateIdFolder({
+        this.updateIdParent({
           id: currentItem.id,
           label: currentItem.label,
         })
@@ -127,14 +124,14 @@ export default {
       'paramsList',
       'filterParamsList',
     ]),
-    folderId() {
+    parentId() {
       return this.currentItem ? this.currentItem.id : null
     },
   },
   methods: {
-    // обновить IdFolder
+    // обновить IdParent
     ...mapMutations('EditorToolStore', [
-      'updateIdFolder',
+      'updateIdParent',
       'setCurrentPage',
       'setItemsPerPage',
     ]),
@@ -248,7 +245,7 @@ export default {
 
     async selectItem(item) {
       this.currentItem = item
-      await toolEditorApi.filterParamsByFolderId(item.id)
+      await toolEditorApi.filterParamsByParentId(item.id)
     },
     startEditing() {
       this.isEditing = true

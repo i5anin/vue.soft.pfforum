@@ -44,7 +44,7 @@ async function getTools(req, res) {
     }
 
     if (parent_id) {
-      conditions.push(`tool_nom.folder_id = ${parent_id}`)
+      conditions.push(`tool_nom.parent_id = ${parent_id}`)
     }
 
     if (onlyInStock === 'true') {
@@ -355,7 +355,7 @@ async function getFilterParamsByParentId(req, res) {
     const query = `
       SELECT tool_nom.property
       FROM dbo.tool_nom
-      WHERE tool_nom.folder_id = $1`
+      WHERE tool_nom.parent_id = $1`
 
     const { rows } = await pool.query(query, [parent_id])
 

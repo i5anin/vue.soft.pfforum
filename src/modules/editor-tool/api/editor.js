@@ -27,9 +27,9 @@ export const toolEditorApi = {
       .then(handleResponse)
       .catch(handleApiError),
 
-  filterParamsByFolderId: async (folder_id) =>
+  filterParamsByParentId: async (parent_id) =>
     axiosInstance
-      .get(`/filter-params/${folder_id}`)
+      .get(`/filter-params/${parent_id}`)
       .then(handleResponse)
       .catch(handleApiError),
 }

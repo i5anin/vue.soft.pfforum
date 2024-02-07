@@ -97,7 +97,7 @@ export default {
     ToolFilter,
   },
   props: {
-    folderId: {
+    parentId: {
       type: Number, // или String, в зависимости от типа идентификатора
       required: true,
     },
@@ -133,12 +133,7 @@ export default {
   data() {
     return {
       filterParamsList: [],
-      filters: {
-        search: '',
-        currentPage: 1,
-        itemsPerPage: 15,
-        includeNull: false,
-      },
+      filters: {},
       selectedValue: null,
       activeTabType: 'Catalog', // Например, 'Catalog', 'Sklad', 'Give' и т.д.
       openDialog: false,
@@ -149,7 +144,7 @@ export default {
     }
   },
   watch: {
-    folderId: {
+    parentId: {
       immediate: true,
       handler(newValue, oldValue) {
         if (newValue !== oldValue) {
@@ -194,34 +189,42 @@ export default {
     },
 
     async fetchTools() {
-      console.log('Используемый folderId:', this.folderId)
+      console.log('Используемый parentId:', this.parentId)
 
-      // Деструктуризация текущих фильтров
       const {
         currentPage,
         itemsPerPage,
         search,
         includeNull,
-        ...dynamicFilters
+        parentId,
+        ...selectedParams
       } = this.filters
 
-      // Подготовка параметров запроса, включая динамические фильтры
+      // Формирование динамической части строки запроса для фильтров
+      const filterParams = Object.entries(selectedParams).reduce(
+        (acc, [key, value]) => {
+          if (
+            value !== null &&
+            value !== undefined &&
+            key.startsWith('param_')
+          ) {
+            acc[`param_${key.split('_')[1]}`] = value
+          }
+          return acc
+        },
+        {}
+      )
+      console.log(filterParams)
       const queryParams = {
         search,
         page: currentPage,
         limit: itemsPerPage,
         includeNull,
-        folder_id: this.folderId, // Убедитесь, что folderId определен
+        parent_id: parentId, // Убедитесь, что parentId корректно определен в состоянии компонента
+        ...filterParams, // Добавляем динамические фильтры
       }
 
-      // Добавление динамических фильтров к queryParams
-      Object.entries(dynamicFilters).forEach(([key, value]) => {
-        if (value) {
-          // Предполагается, что ключи фильтров уже имеют нужный формат (например, param_1)
-          queryParams[key] = value
-        }
-      })
-
+      // Выводим в консоль параметры запроса для проверки
       console.log('Параметры запроса:', queryParams)
 
       try {
@@ -234,10 +237,10 @@ export default {
     },
 
     async fetchFilterParams() {
-      console.log('FolderId = ', this.folderId)
-      if (this.folderId)
-        this.filterParamsList = await toolEditorApi.filterParamsByFolderId(
-          this.folderId
+      console.log('parentId = ', this.parentId)
+      if (this.parentId)
+        this.filterParamsList = await toolEditorApi.filterParamsByParentId(
+          this.parentId
         )
       this.isDataLoaded = true
     },
