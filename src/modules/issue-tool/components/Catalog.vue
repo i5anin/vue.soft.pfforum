@@ -57,7 +57,7 @@ export default {
 
   props: {
     item: Object,
-    parentId: {
+    folderId: {
       type: Object,
       default: () => ({ id: null, label: null }),
     },
@@ -68,7 +68,7 @@ export default {
     },
     currentItem: {
       handler(currentItem) {
-        this.updateIdParent({
+        this.updateIdFolder({
           id: currentItem.id,
           label: currentItem.label,
         })
@@ -86,9 +86,9 @@ export default {
     ]),
   },
   methods: {
-    // обновить IdParent
+    // обновить IdFolder
     ...mapMutations('IssueToolStore', [
-      'updateIdParent',
+      'updateIdFolder',
       'setCurrentPage',
       'setItemsPerPage',
     ]),

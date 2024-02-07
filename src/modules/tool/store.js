@@ -3,7 +3,7 @@
 // export default {
 //   namespaced: true,
 //   state: () => ({
-//     idParent: { id: 1, label: null },
+//     idFolder: { id: 1, label: null },
 //     isLoading: false,
 //     paramsList: [],
 //     shagOptions: [],

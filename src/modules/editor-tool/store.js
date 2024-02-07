@@ -4,7 +4,7 @@ import { toolApi } from '@/api' // Импортируем API инструмен
 export default {
   namespaced: true, // Включаем пространство имен для модуля
   state: () => ({
-    idParent: { id: 1, label: null }, // Состояние для хранения ID и метки родительского элемента
+    idFolder: { id: 1, label: null }, // Состояние для хранения ID и метки родительского элемента
     isLoading: false, // Состояние для отслеживания загрузки данных
     paramsList: [], // Список параметров для фильтрации
     nameOptions: [], // Опции для выбора имени
@@ -23,8 +23,8 @@ export default {
   }),
   mutations: {
     // Мутации для обновления состояния
-    updateIdParent(state, idParentData) {
-      state.idParent = { ...idParentData } // Обновляет ID и метку родительского элемента
+    updateIdFolder(state, idFolderData) {
+      state.idFolder = { ...idFolderData } // Обновляет ID и метку родительского элемента
     },
     setParamsList(state, params) {
       state.paramsList = params // Устанавливает список параметров
@@ -68,10 +68,10 @@ export default {
     // Объявление асинхронного метода fetchAdditionalFilters внутри объекта actions Vuex модуля
     async fetchAdditionalFilters({ commit, state }) {
       // Извлекаем parentId из текущего состояния модуля
-      const { id: parentId } = state.idParent
+      const { id: folderId } = state.idFolder
 
       // Асинхронно получаем список дополнительных фильтров по parentId с помощью API
-      const paramsList = await toolEditorApi.filterParamsByParentId(parentId)
+      const paramsList = await toolEditorApi.filterParamsByFolderId(folderId)
 
       // Преобразуем полученный список фильтров в объект additionalFilters,
       // где каждый ключ — это 'param_' + ключ фильтра, а значение — объект с полями value, label и options
@@ -98,14 +98,14 @@ export default {
       commit('setIsLoading', true) // Устанавливает состояние загрузки в true
       const { currentPage, itemsPerPage, search, includeNull, selectedParams } =
         state.filters // Деструктурирует фильтры из состояния
-      const { id: parentId } = state.idParent // Получает ID родителя
+      const { id: folderId } = state.idFolder // Получает ID родителя
       try {
         const { tools, totalCount, paramsList } = await toolApi.getTools(
           search,
           currentPage,
           itemsPerPage,
           includeNull,
-          parentId,
+          folderId,
           selectedParams,
           Object.entries(state.additionalFilters).reduce(
             (acc, [key, { value }]) => (value ? { ...acc, [key]: value } : acc),
@@ -136,14 +136,14 @@ export default {
   },
   getters: {
     // Геттеры для доступа к состоянию
-    idParent: (state) => state.idParent, // Возвращает ID и метку родительского элемента
+    idFolder: (state) => state.idFolder, // Возвращает ID и метку родительского элемента
     filters: (state) => ({ ...state.filters }), // Возвращает копию фильтров
     tool: (state) => {
       if (state.tool) {
         return {
           ...state.tool,
           property: state.tool.property,
-          parent_id: state.tool.parent_id,
+          folder_id: state.tool.folder_id,
           folder_name: state.tool.folder_name,
         } // Возвращает выбранный инструмент с дополнительными свойствами
       }

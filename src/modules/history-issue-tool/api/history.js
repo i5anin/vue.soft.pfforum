@@ -20,11 +20,11 @@ export const issueHistoryApi = {
     page = 1,
     limit = 100,
     includeNull = false,
-    parentId = null
+    folderId = null
   ) => {
     const params = { search, page, limit, includeNull }
-    if (parentId !== null) {
-      params.parent_id = parentId
+    if (folderId !== null) {
+      params.folder_id = folderId
     }
 
     return axiosInstance

@@ -3,7 +3,7 @@ import { toolApi } from '@/api'
 export default {
   namespaced: true,
   state: () => ({
-    idParent: { id: 1, label: null },
+    idFolder: { id: 1, label: null },
     isLoading: false,
     paramsList: [],
     shagOptions: [],
@@ -26,8 +26,8 @@ export default {
     },
   }),
   mutations: {
-    updateIdParent(state, idParentData) {
-      state.idParent = { ...idParentData }
+    updateIdFolder(state, idFolderData) {
+      state.idFolder = { ...idFolderData }
     },
     setParamsList(state, params) {
       state.paramsList = params
@@ -69,14 +69,14 @@ export default {
       commit('setIsLoading', true)
       const { currentPage, itemsPerPage, search, includeNull, selectedParams } =
         state.filters
-      const { id: parentId } = state.idParent
+      const { id: folderId } = state.idFolder
       try {
         const { tools, totalCount, paramsList } = await toolApi.getTools(
           search,
           currentPage,
           itemsPerPage,
           includeNull,
-          parentId,
+          folderId,
           selectedParams
         )
         commit('setParamsList', paramsList)
@@ -90,14 +90,14 @@ export default {
     },
   },
   getters: {
-    idParent: (state) => state.idParent,
+    idFolder: (state) => state.idFolder,
     filters: (state) => ({ ...state.filters }),
     tool: (state) => {
       if (state.tool) {
         return {
           ...state.tool,
           property: state.tool.property,
-          parent_id: state.tool.parent_id,
+          folder_id: state.tool.folder_id,
           folder_name: state.tool.folder_name,
         }
       }

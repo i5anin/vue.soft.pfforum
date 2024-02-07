@@ -8,9 +8,9 @@ function handleResponse(response) {
 export const toolTreeApi = {
   getTree: async () =>
     axiosInstance.get('/tools-tree').then(handleResponse).catch(handleApiError),
-  addFolder: async (name, parentId) =>
+  addFolder: async (name, folderId) =>
     axiosInstance
-      .post('/tools-tree', { name, parentId })
+      .post('/tools-tree', { name, folderId })
       .then(handleResponse)
       .catch(handleApiError),
   deleteFolder: async (itemId) =>

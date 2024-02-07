@@ -26,8 +26,8 @@ async function getToolsTree(req, res) {
 async function buildTreeData(parentId = 0) {
   const { rows } = await pool.query(
     `SELECT t.id, t.parent_id, t.name,
-      (SELECT COUNT(*) FROM dbo.tool_nom n WHERE n.parent_id = t.id) as element_count,
-      (SELECT COUNT(*) FROM dbo.tool_nom n WHERE n.parent_id = t.id AND n.sklad > 0) as available_count
+      (SELECT COUNT(*) FROM dbo.tool_nom n WHERE n.folder_id = t.id) as element_count,
+      (SELECT COUNT(*) FROM dbo.tool_nom n WHERE n.folder_id = t.id AND n.sklad > 0) as available_count
     FROM dbo.tool_tree t
     WHERE t.parent_id = $1`,
     [parentId]

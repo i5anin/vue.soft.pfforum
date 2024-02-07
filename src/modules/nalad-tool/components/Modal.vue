@@ -113,7 +113,7 @@ export default {
   components: { Modal },
   //реактивные данные
   data: () => ({
-    localParentId: null,
+    localFolderId: null,
     toolModel: { name: null, property: {}, norma: null, sklad: null },
     toolParamOptions: [],
     selectedParams: [],
@@ -122,7 +122,7 @@ export default {
     confirmDeleteDialog: false,
     typeSelected: false,
     selectedType: '',
-    parentIdRules: [
+    folderIdRules: [
       (v) => !!v || 'ID папки обязательно',
       (v) => v > 1 || 'ID папки должен быть больше 1',
       (v) => v !== '' || 'ID папки не должен быть пустым',
@@ -141,11 +141,11 @@ export default {
       immediate: true,
       handler(newTool) {
         if (newTool) {
-          this.localParentId = newTool.parent_id
+          this.localFolderId = newTool.folder_id
           this.currentFolderName = newTool.folder_name
         } else {
-          this.localParentId = this.idParent.id
-          this.currentFolderName = this.idParent.label
+          this.localFolderId = this.idFolder.id
+          this.currentFolderName = this.idFolder.label
         }
       },
     },
@@ -181,9 +181,9 @@ export default {
       'nameOptions',
       'tool',
     ]),
-    ...mapState('StorageToolStore', ['idParent']),
+    ...mapState('StorageToolStore', ['idFolder']),
     currentFolderName() {
-      return this.toolId === null ? this.idParent.label : this.tool.folder_name
+      return this.toolId === null ? this.idFolder.label : this.tool.folder_name
     },
     selectedParamsInfo() {
       return this.selectedParams
@@ -214,8 +214,8 @@ export default {
           this.toolModel.norma = this.tool.norma
         })
       } else {
-        this.localParentId = this.idParent.id
-        this.currentFolderName = this.idParent.label
+        this.localFolderId = this.idFolder.id
+        this.currentFolderName = this.idFolder.label
       }
     },
     logModelValue(paramId) {
