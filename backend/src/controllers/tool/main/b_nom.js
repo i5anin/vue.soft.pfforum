@@ -31,14 +31,9 @@ function removeNullProperties(obj) {
 
 async function getTools(req, res) {
   try {
-    // Объединение параметров из тела POST запроса и строки запроса GET запроса
-    const params = req.method === 'POST' ? { ...req.body } : { ...req.query }
-
-    const search = params.search || ''
-    const parent_id = params.parent_id
-    const onlyInStock = params.onlyInStock
-    const page = parseInt(params.page || 1, 10)
-    const limit = parseInt(params.limit || 15, 10)
+    const { search, parent_id, onlyInStock } = req.query
+    const page = parseInt(req.query.page || 1, 10)
+    const limit = parseInt(req.query.limit || 15, 10)
     const offset = (page - 1) * limit
 
     let conditions = []
@@ -57,7 +52,7 @@ async function getTools(req, res) {
     }
 
     // Обработка динамических параметров
-    let dynamicParams = Object.entries(params)
+    let dynamicParams = Object.entries(req.query)
       .filter(([key, value]) => key.startsWith('param_') && value)
       .map(([key, value]) => {
         const paramId = key.split('_')[1] // Получаем идентификатор параметра
@@ -94,27 +89,80 @@ async function getTools(req, res) {
       LIMIT ${limit} OFFSET ${offset}
     `
 
-    const [countResult, toolsResult] = await Promise.all([
+    const [countResult, toolsResult, paramsMapping] = await Promise.all([
       pool.query(countQuery),
       pool.query(toolQuery),
+      getParamsMapping(),
     ])
 
     const totalCount = parseInt(countResult.rows[0].count, 10)
 
-    const formattedTools = toolsResult.rows.map((tool) => ({
-      id: tool.id,
-      name: tool.name,
-      property: tool.property,
-      sklad: tool.sklad,
-      norma: tool.norma,
-      limit: tool.limit,
-    }))
+    const uniqueParams = new Set()
+    const propertyValues = {} // Объект для хранения уникальных значений свойств
+
+    const formattedTools = toolsResult.rows.map((tool) => {
+      let formattedProperty = {}
+
+      if (tool.property) {
+        const propertyObj = tool.property
+
+        formattedProperty = Object.entries(propertyObj).reduce(
+          (acc, [key, value]) => {
+            if (value !== '' && value !== null && paramsMapping[key]) {
+              acc[key] = {
+                info: paramsMapping[key].info,
+                value: value,
+              }
+              uniqueParams.add(key) // Добавление ключа свойства в uniqueParams
+
+              // Добавление уникальных значений для каждого свойства
+              if (!propertyValues[key]) {
+                propertyValues[key] = new Set()
+              }
+              propertyValues[key].add(value)
+            }
+            return acc
+          },
+          {}
+        )
+      }
+
+      return {
+        id: tool.id,
+        name: tool.name,
+        property: formattedProperty,
+        sklad: tool.sklad,
+        norma: tool.norma,
+        limit: tool.limit,
+      }
+    })
+
+    // Преобразование Set в массив для каждого свойства
+    Object.keys(propertyValues).forEach((key) => {
+      propertyValues[key] = Array.from(propertyValues[key])
+    })
+
+    const paramsList = Array.from(uniqueParams)
+      .map((key) => {
+        // Фильтрация параметров, имеющих более одного значения
+        const values = propertyValues[key]
+        if (values && values.length > 1) {
+          return {
+            key: key,
+            label: paramsMapping[key]?.info || key,
+            values: values,
+          }
+        }
+        return null
+      })
+      .filter((item) => item != null) // Исключение null значений после фильтрации
 
     res.json({
       currentPage: page,
       itemsPerPage: limit,
       totalCount,
       tools: formattedTools,
+      paramsList,
     })
   } catch (err) {
     console.error(err)
