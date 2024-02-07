@@ -60,30 +60,40 @@ export default {
       const tool = await toolApi.getToolById(id) // Получает инструмент по ID
       commit('setTool', tool) // Коммитит выбранный инструмент в состояние
     },
-    async fetchAdditionalFilters({ commit }, parentId) {
-      const filterParams = await toolEditorApi.filterParamsByParentId(parentId) // Получает параметры фильтрации по ID родителя
-      commit('setParamsList', filterParams) // Коммитит параметры фильтрации в состояние
-    },
-    // async fetchAdditionalFilters(/* { commit, state } */) {
-    // const { id: parentId } = state.idParent
-    // const paramsList = await toolApi.getAdditionalFilters(parentId)
-    // const additionalFilters = paramsList.reduce(
-    //   (acc, curr) =>
-    //     curr.selectedValue
-    //       ? {
-    //           ...acc,
-    //           [`param_${curr.key}`]: {
-    //             value: null,
-    //             label: curr.label,
-    //             options: curr.values,
-    //           },
-    //         }
-    //       : acc,
-    //   {}
-    // )
-    // { param_1: { value: null, options: ['Сверло ', 'Резец', 'Пластина', 'Метчик '] } }
-    // commit('setAdditionalFilters', additionalFilters)
+    // async fetchAdditionalFilters({ commit }, parentId) {
+    //   const filterParams = await toolEditorApi.filterParamsByParentId(parentId) // Получает параметры фильтрации по ID родителя
+    //   commit('setParamsList', filterParams) // Коммитит параметры фильтрации в состояние
     // },
+
+    // Объявление асинхронного метода fetchAdditionalFilters внутри объекта actions Vuex модуля
+    async fetchAdditionalFilters({ commit, state }) {
+      // Извлекаем parentId из текущего состояния модуля
+      const { id: parentId } = state.idParent
+
+      // Асинхронно получаем список дополнительных фильтров по parentId с помощью API
+      const paramsList = await toolEditorApi.filterParamsByParentId(parentId)
+
+      // Преобразуем полученный список фильтров в объект additionalFilters,
+      // где каждый ключ — это 'param_' + ключ фильтра, а значение — объект с полями value, label и options
+      const additionalFilters = paramsList.reduce((acc, curr) => {
+        // Для каждого фильтра в списке проверяем, выбрано ли для него значение (selectedValue)
+        if (curr.selectedValue) {
+          // Если для фильтра выбрано значение, добавляем его в аккумулирующий объект (acc)
+          acc[`param_${curr.key}`] = {
+            value: null, // Инициализируем value как null (может быть использовано для хранения выбранного значения фильтра)
+            label: curr.label, // Сохраняем метку фильтра
+            options: curr.values, // Сохраняем доступные значения для фильтра
+          }
+        }
+        // Возвращаем аккумулирующий объект для следующего элемента в массиве
+        return acc
+      }, {}) // Начальное значение аккумулирующего объекта — пустой объект
+
+      // Вызываем мутацию setAdditionalFilters, передавая ей объект additionalFilters
+      // для обновления состояния модуля соответствующими дополнительными фильтрами
+      commit('setAdditionalFilters', additionalFilters)
+    },
+
     async fetchToolsByFilter({ commit, state }) {
       commit('setIsLoading', true) // Устанавливает состояние загрузки в true
       const { currentPage, itemsPerPage, search, includeNull, selectedParams } =
@@ -112,20 +122,16 @@ export default {
       }
     },
     async onSaveToolModel({ dispatch }, toolModel) {
-      try {
-        // Отправляет данные на сервер для сохранения модели инструмента
-        const result = await toolEditorApi.addTool({
-          name: toolModel.name,
-          property: Object.fromEntries(
-            Object.entries(toolModel.property).filter(
-              ([, value]) => value != null
-            ) // Фильтрует свойства инструмента, удаляя null значения
-          ),
-        })
-        if (result) dispatch('fetchToolsByFilter') // Перезагружает список инструментов после сохранения
-      } catch (error) {
-        console.error('Ошибка при сохранении инструмента:', error) // Логирует ошибку
-      }
+      // Отправляет данные на сервер для сохранения модели инструмента
+      const result = await toolEditorApi.addTool({
+        name: toolModel.name,
+        property: Object.fromEntries(
+          Object.entries(toolModel.property).filter(
+            ([, value]) => value != null
+          ) // Фильтрует свойства инструмента, удаляя null значения
+        ),
+      })
+      if (result) dispatch('fetchToolsByFilter') // Перезагружает список инструментов после сохранения
     },
   },
   getters: {
