@@ -22,21 +22,13 @@ export const toolApi = {
     onlyInStock = true,
     filters = {}
   ) => {
-    console.log(`Вызов API getTools с параметрами:
-      Поиск: ${search}
-      Текущая страница: ${page}
-      Лимит страницы: ${limit}
-      Включать нулевые значения: ${includeNull}
-      ID папки: ${parentId}
-      Только в наличии: ${onlyInStock}
-      Фильтры: ${JSON.stringify(filters)}`)
-
-    // if (parentId === null || parentId === undefined) {
-    //   console.error(
-    //     'Критическая ошибка: расположение текущего каталога не известно'
-    //   )
-    //   return Promise.reject(new Error('Отсутствует parentId'))
-    // }
+    console.log(filters)
+    if (parentId === null || parentId === undefined) {
+      console.error(
+        'Критическая ошибка: расположение текущего каталога не известно'
+      )
+      return Promise.reject(new Error('Отсутствует parentId'))
+    }
 
     // Соединение статических и динамических параметров
     const params = {

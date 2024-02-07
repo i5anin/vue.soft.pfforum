@@ -189,18 +189,18 @@ export default {
     },
 
     async fetchTools() {
-      console.log('Таблица. Используемый parentId:', this.parentId)
+      console.log('Используемый parentId:', this.parentId)
 
-      // Исправление: Использование this.parentId напрямую
       const {
         currentPage,
         itemsPerPage,
         search,
         includeNull,
+        parentId,
         ...selectedParams
       } = this.filters
 
-      // Удаление parentId из деструктуризации, т.к. оно берется из props
+      // Формирование динамической части строки запроса для фильтров
       const filterParams = Object.entries(selectedParams).reduce(
         (acc, [key, value]) => {
           if (
@@ -208,25 +208,24 @@ export default {
             value !== undefined &&
             key.startsWith('param_')
           ) {
-            acc[key] = value // Исправлено: сохранение полного ключа фильтра
+            acc[`param_${key.split('_')[1]}`] = value
           }
           return acc
         },
         {}
       )
-
-      console.log('Таблица. filterParams:', filterParams)
-
+      console.log(filterParams)
       const queryParams = {
         search,
         page: currentPage,
         limit: itemsPerPage,
         includeNull,
-        parent_id: this.parentId, // Используем this.parentId напрямую
-        ...filterParams,
+        parent_id: parentId, // Убедитесь, что parentId корректно определен в состоянии компонента
+        ...filterParams, // Добавляем динамические фильтры
       }
 
-      console.log('Таблица. Параметры запроса:', queryParams)
+      // Выводим в консоль параметры запроса для проверки
+      console.log('Параметры запроса:', queryParams)
 
       try {
         const { tools, totalCount } = await toolApi.getTools(queryParams)
@@ -238,7 +237,7 @@ export default {
     },
 
     async fetchFilterParams() {
-      console.log('Таблица. parentId = ', this.parentId)
+      console.log('parentId = ', this.parentId)
       if (this.parentId)
         this.filterParamsList = await toolEditorApi.filterParamsByParentId(
           this.parentId
@@ -258,7 +257,10 @@ export default {
     //   // )
     //   this.fetchTools()
     // },
-
+    onIssueTool(event, item) {
+      event.stopPropagation() // Предотвратить всплытие события
+      console.log('Выдать инструмент:', item)
+    },
     calculateOrder(tool) {
       if (tool.norma != null) return tool.norma - tool.sklad
     },
