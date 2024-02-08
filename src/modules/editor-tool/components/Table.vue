@@ -184,14 +184,14 @@ export default {
   },
   methods: {
     onParamsFilterUpdate() {
-      console.log('Таблица. this.fetchTools()=', this.filters)
+      console.log('Таблица. this.filters = ', this.filters)
       this.fetchTools()
     },
 
     async fetchTools() {
       console.log('Таблица. Используемый parentId:', this.parentId)
 
-      // Исправление: Использование this.parentId напрямую
+      // Деструктуризация текущих фильтров, не включая parentId, так как он не является частью объекта filters
       const {
         currentPage,
         itemsPerPage,
@@ -200,38 +200,36 @@ export default {
         ...selectedParams
       } = this.filters
 
-      // Удаление parentId из деструктуризации, т.к. оно берется из props
+      // Формирование filterParams без изменений
+      // Преобразование selectedParams, добавляя префикс 'param_', если его нет
       const filterParams = Object.entries(selectedParams).reduce(
         (acc, [key, value]) => {
-          if (
-            value !== null &&
-            value !== undefined &&
-            key.startsWith('param_')
-          ) {
-            acc[key] = value // Исправлено: сохранение полного ключа фильтра
+          // Допустим, ключи приходят в виде чисел или строк без префикса 'param_'
+          const prefixedKey = `param_${key}` // Добавляем префикс 'param_'
+          if (value !== null && value !== undefined) {
+            acc[prefixedKey] = value // Сохраняем с добавлением префикса
           }
           return acc
         },
         {}
       )
 
-      console.log('Таблица. filterParams:', filterParams)
+      console.log(selectedParams)
+      console.log(filterParams)
 
-      console.log(this.parentId)
-
-      const queryParams = {
-        search,
-        page: currentPage,
-        limit: itemsPerPage,
-        includeNull,
-        parent_id: this.parentId, // Используем this.parentId напрямую
-        filterParams,
-      }
-
-      console.log('Таблица. Параметры запроса:', queryParams)
+      // console.log('Таблица. filterParams:', filterParams)
+      // console.log('Таблица. Параметры запроса:', queryParams)
 
       try {
-        const { tools, totalCount } = await toolApi.getTools(queryParams)
+        const { tools, totalCount } = await toolApi.getTools(
+          search,
+          currentPage,
+          itemsPerPage,
+          includeNull,
+          this.parentId,
+          'false',
+          filterParams
+        )
         this.formattedTools = tools
         this.toolsTotalCount = totalCount
       } catch (error) {
