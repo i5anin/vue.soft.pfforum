@@ -44,7 +44,7 @@
       width="true"
     >
       <template v-slot:item.index="{ index }">
-        <td class="index">{{ index + 1 }}</td>
+        <td class="index grey">{{ index + 1 }}</td>
       </template>
       <!--name-->
       <template v-slot:item.name="{ item }">

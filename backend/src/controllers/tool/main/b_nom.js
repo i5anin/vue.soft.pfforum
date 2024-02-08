@@ -34,9 +34,9 @@ async function getTools(req, res) {
     // Объединение параметров из тела POST-запроса и параметров строки запроса GET-запроса
     const params = { ...req.query, ...req.body }
 
-    console.log('Query params:', req.query)
-    console.log('Body params:', req.body)
-    console.log('Merged params:', params)
+    // console.log('Query params:', req.query)
+    // console.log('Body params:', req.body)
+    // console.log('Merged params:', params)
 
     const { search, parent_id, onlyInStock, page = 1, limit = 50 } = params
 
