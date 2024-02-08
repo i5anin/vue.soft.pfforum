@@ -63,6 +63,8 @@
     @page-limit-changed="onUpdateItemsPerPage"
     @params-filter-changed="onParamsFilterChanged"
     @changes-saved="fetchToolsByFilter"
+    @update:formattedTools="formattedTools = $event"
+    @update:toolsTotalCount="toolsTotalCount = $event"
   />
 </template>
 
