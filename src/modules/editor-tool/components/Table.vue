@@ -221,13 +221,13 @@ export default {
       // console.log('Таблица. Параметры запроса:', queryParams)
 
       try {
-        const { tools, totalCount } = await toolApi.getTools(
+        const { tools, totalCount } = await toolApi.getToolsPost(
           search,
           currentPage,
           itemsPerPage,
           includeNull,
           this.parentId,
-          'false',
+          false,
           filterParams
         )
         this.formattedTools = tools

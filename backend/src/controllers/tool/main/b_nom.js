@@ -31,14 +31,22 @@ function removeNullProperties(obj) {
 
 async function getTools(req, res) {
   try {
-    const { search, parent_id, onlyInStock } = req.query
-    const page = parseInt(req.query.page || 1, 10)
-    const limit = parseInt(req.query.limit || 15, 10)
-    const offset = (page - 1) * limit
+    // Объединение параметров из тела POST-запроса и параметров строки запроса GET-запроса
+    const params = { ...req.query, ...req.body }
+
+    console.log('Query params:', req.query)
+    console.log('Body params:', req.body)
+    console.log('Merged params:', params)
+
+    const { search, parent_id, onlyInStock, page = 1, limit = 50 } = params
+
+    const pageNumber = parseInt(page, 10)
+    const limitNumber = parseInt(limit, 10)
+    const offset = (pageNumber - 1) * limitNumber
 
     let conditions = []
 
-    // Обработка стандартных параметров
+    // Обработка стандартных параметров для фильтрации
     if (search) {
       conditions.push(`tool_nom.name ILIKE '%${search.replace(/'/g, "''")}%'`)
     }
@@ -51,11 +59,11 @@ async function getTools(req, res) {
       conditions.push(`tool_nom.sklad > 0`)
     }
 
-    // Обработка динамических параметров
-    let dynamicParams = Object.entries(req.query)
+    // Обработка динамических параметров для фильтрации
+    let dynamicParams = Object.entries(params)
       .filter(([key, value]) => key.startsWith('param_') && value)
       .map(([key, value]) => {
-        const paramId = key.split('_')[1] // Получаем идентификатор параметра
+        const paramId = key.split('_')[1] // Извлечение ID параметра
         return `tool_nom.property ->> '${paramId}' = '${value.replace(
           /'/g,
           "''"
@@ -68,6 +76,7 @@ async function getTools(req, res) {
       ? `WHERE ${conditions.join(' AND ')}`
       : ''
 
+    // SQL запросы для получения инструментов и их количества
     const countQuery = `
       SELECT COUNT(*)
       FROM dbo.tool_nom as tool_nom
@@ -86,9 +95,10 @@ async function getTools(req, res) {
       ORDER BY
         CASE WHEN tool_nom.sklad > 0 THEN 1 ELSE 2 END,
         tool_nom.name
-      LIMIT ${limit} OFFSET ${offset}
+      LIMIT ${limitNumber} OFFSET ${offset}
     `
 
+    // Выполнение запросов и получение данных параметров одновременно
     const [countResult, toolsResult, paramsMapping] = await Promise.all([
       pool.query(countQuery),
       pool.query(toolQuery),
@@ -97,8 +107,9 @@ async function getTools(req, res) {
 
     const totalCount = parseInt(countResult.rows[0].count, 10)
 
+    // Обработка инструментов и параметров для ответа
     const uniqueParams = new Set()
-    const propertyValues = {} // Объект для хранения уникальных значений свойств
+    const propertyValues = {}
 
     const formattedTools = toolsResult.rows.map((tool) => {
       let formattedProperty = {}
@@ -113,9 +124,8 @@ async function getTools(req, res) {
                 info: paramsMapping[key].info,
                 value: value,
               }
-              uniqueParams.add(key) // Добавление ключа свойства в uniqueParams
+              uniqueParams.add(key)
 
-              // Добавление уникальных значений для каждого свойства
               if (!propertyValues[key]) {
                 propertyValues[key] = new Set()
               }
@@ -137,14 +147,12 @@ async function getTools(req, res) {
       }
     })
 
-    // Преобразование Set в массив для каждого свойства
     Object.keys(propertyValues).forEach((key) => {
       propertyValues[key] = Array.from(propertyValues[key])
     })
 
     const paramsList = Array.from(uniqueParams)
       .map((key) => {
-        // Фильтрация параметров, имеющих более одного значения
         const values = propertyValues[key]
         if (values && values.length > 1) {
           return {
@@ -155,11 +163,12 @@ async function getTools(req, res) {
         }
         return null
       })
-      .filter((item) => item != null) // Исключение null значений после фильтрации
+      .filter((item) => item != null)
 
+    // Отправка ответа
     res.json({
-      currentPage: page,
-      itemsPerPage: limit,
+      currentPage: pageNumber,
+      itemsPerPage: limitNumber,
       totalCount,
       tools: formattedTools,
       paramsList,

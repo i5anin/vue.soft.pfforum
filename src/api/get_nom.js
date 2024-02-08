@@ -55,6 +55,32 @@ export const toolApi = {
       .catch(handleApiError)
   },
 
+  // Новый метод для POST запроса
+  getToolsPost: async (
+    search = '',
+    page = 1,
+    limit = 10,
+    includeNull = false,
+    parentId = null,
+    onlyInStock = true,
+    filters = {}
+  ) => {
+    const data = {
+      search,
+      page,
+      limit,
+      includeNull,
+      onlyInStock,
+      parent_id: parentId,
+      ...filters,
+    }
+
+    return axiosInstance
+      .post('/tools', data)
+      .then(handleResponse)
+      .catch(handleApiError)
+  },
+
   // Получить инструмент по ID
   getToolById: async (id) => {
     return axiosInstance
