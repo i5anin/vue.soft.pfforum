@@ -218,8 +218,9 @@ export default {
         )
 
         // Обновляем данные в компоненте
-        this.$emit('update:formattedTools', tools)
-        this.$emit('update:toolsTotalCount', totalCount)
+        this.$emit('changes-saved')
+        // this.$emit('update:formattedTools', tools)
+        // this.$emit('update:toolsTotalCount', totalCount)
 
         // Обновляем данные в компоненте
         this.formattedTools = tools
@@ -257,7 +258,7 @@ export default {
     },
     onSaveChanges() {
       this.openDialog = false
-      this.$emit('changes-saved')
+      this.$emit('changes-saved-post')
     },
     onAddTool() {
       this.editingToolId = null
