@@ -14,7 +14,7 @@ yarn-error.log*
 pnpm-debug.log*
 
 # Editor directories and files
-.idea
+#.idea
 .vscode
 *.suo
 *.ntvs*
@@ -23,3 +23,5 @@ pnpm-debug.log*
 *.sw?
 qodana.yaml
 *.env*
+*.xml
+*.iml
