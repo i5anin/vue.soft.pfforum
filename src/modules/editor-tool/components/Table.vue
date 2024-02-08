@@ -154,7 +154,7 @@ export default {
     },
     paramsList: {
       immediate: true,
-      handler(newVal) {
+      handler: function (newVal) {
         this.toolTableHeaders = [
           { title: '№', key: 'index', sortable: false },
           { title: 'Маркировка', key: 'name', sortable: false },
@@ -191,36 +191,29 @@ export default {
     async fetchTools() {
       console.log('Таблица. Используемый parentId:', this.parentId)
 
-      // Деструктуризация текущих фильтров, не включая parentId, так как он не является частью объекта filters
-      const {
-        currentPage,
-        itemsPerPage,
-        search,
-        includeNull,
-        ...selectedParams
-      } = this.filters
-
-      // Формирование filterParams без изменений
-      // Преобразование selectedParams, добавляя префикс 'param_', если его нет
-      const filterParams = Object.entries(selectedParams).reduce(
-        (acc, [key, value]) => {
-          // Допустим, ключи приходят в виде чисел или строк без префикса 'param_'
-          const prefixedKey = `param_${key}` // Добавляем префикс 'param_'
-          if (value !== null && value !== undefined) {
-            acc[prefixedKey] = value // Сохраняем с добавлением префикса
-          }
-          return acc
-        },
-        {}
-      )
-
-      console.log(selectedParams)
-      console.log(filterParams)
-
-      // console.log('Таблица. filterParams:', filterParams)
-      // console.log('Таблица. Параметры запроса:', queryParams)
-
       try {
+        // Деструктурируем свойства фильтров
+        const {
+          currentPage,
+          itemsPerPage,
+          search,
+          includeNull,
+          ...selectedParams
+        } = this.filters
+
+        // Создаем объект filterParams с правильными ключами
+        const filterParams = {}
+        for (const [key, value] of Object.entries(selectedParams)) {
+          if (value !== null && value !== undefined) {
+            const prefixedKey = key.startsWith('param_') ? key : `param_${key}`
+            filterParams[prefixedKey] = value
+          }
+        }
+
+        console.log(selectedParams)
+        console.log(filterParams)
+
+        // Выполняем запрос данных
         const { tools, totalCount } = await toolApi.getToolsPost(
           search,
           currentPage,
@@ -230,6 +223,12 @@ export default {
           false,
           filterParams
         )
+
+        // Обновляем данные в компоненте
+        this.$emit('update:formattedTools', tools)
+        this.$emit('update:toolsTotalCount', totalCount)
+
+        // Обновляем данные в компоненте
         this.formattedTools = tools
         this.toolsTotalCount = totalCount
       } catch (error) {
