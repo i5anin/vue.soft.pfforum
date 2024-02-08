@@ -175,13 +175,6 @@ export default {
     },
   },
 
-  async mounted() {
-    // await this.$store.dispatch(
-    //   'moduleName/fetchAdditionalFilters',
-    //   this.parentId
-    // )
-    // await this.fetchFilterParams()
-  },
   methods: {
     onParamsFilterUpdate() {
       console.log('Таблица. this.filters = ', this.filters)
@@ -210,7 +203,7 @@ export default {
           }
         }
 
-        console.log(selectedParams)
+        // console.log(selectedParams)
         console.log(filterParams)
 
         // Выполняем запрос данных
