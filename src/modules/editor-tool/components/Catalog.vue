@@ -18,20 +18,20 @@
           <span v-else @click="startEditing">
             {{ currentItem ? currentItem.label : 'Редактор' }}
             <v-btn icon small @click.stop="startEditing">
-              <v-icon>mdi-pencil</v-icon>
+              <v-icon icon="mdi-pencil" />
             </v-btn>
             <v-btn icon small @click.stop="addItem">
-              <v-icon>mdi-plus</v-icon>
+              <v-icon icon="mdi-plus" />
             </v-btn>
             <v-btn icon small @click.stop="deleteItem(currentItem.id)">
-              <v-icon>mdi-delete</v-icon>
+              <v-icon icon="mdi-delete" />
             </v-btn>
           </span>
         </div>
       </v-toolbar-title>
       <v-spacer />
       <v-btn icon @click="goBack">
-        <v-icon>mdi-arrow-left</v-icon>
+        <v-icon icon="mdi-arrow-left" />
       </v-btn>
     </v-app-bar>
     <v-main>
