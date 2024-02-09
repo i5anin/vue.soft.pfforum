@@ -1,4 +1,4 @@
-// src/config/tabsConfig.js
+import { markRaw } from 'vue'
 
 import ToolTabParam from '@/modules/tool/components/tabs/Param.vue'
 import HistoryIssue from '@/modules/history-issue-tool/components/Table.vue'
@@ -14,52 +14,57 @@ const tabs = [
   {
     name: 'Редактор',
     url: '#editor',
-    component: EditorCatalog,
+    component: markRaw(EditorCatalog),
     access: ['Admin', 'Editor'],
   },
   {
     name: 'Параметры',
     url: '#params',
-    component: ToolTabParam,
+    component: markRaw(ToolTabParam),
     access: ['Admin', 'Editor'],
   },
   {
     name: 'Выдача',
     url: '#issue',
-    component: IssueCatalog,
+    component: markRaw(IssueCatalog),
     access: ['Admin', 'Editor', 'Issue'],
   },
   {
     name: 'Склад',
     url: '#storage',
-    component: StorageCatalog,
+    component: markRaw(StorageCatalog),
     access: ['Admin', 'Editor', 'Sklad'],
   },
   {
     name: 'История выдачи',
     url: '#history_issue',
-    component: HistoryIssue,
+    component: markRaw(HistoryIssue),
     access: ['Admin', 'Editor'],
   },
   {
     name: 'История поврежденного',
     url: '#history_damaged',
-    component: HistoryDamaged,
+    component: markRaw(HistoryDamaged),
     access: ['Admin', 'Editor'],
   },
   {
     name: 'Наладчик',
     url: '#nalad',
-    component: NaladCatalog,
+    component: markRaw(NaladCatalog),
     access: ['Nalad'],
   },
   {
     name: 'Дерево',
     url: '#tree',
-    component: ToolTabTree,
+    component: markRaw(ToolTabTree),
     access: ['Admin', 'Editor', 'Issue', 'Sklad'],
   },
-  { name: 'Отчёты', url: '#report', component: Report, access: ['Admin'] },
+  {
+    name: 'Отчёты',
+    url: '#report',
+    component: markRaw(Report),
+    access: ['Admin'],
+  },
 ]
 
 export default tabs
