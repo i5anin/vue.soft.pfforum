@@ -130,7 +130,7 @@ async function dellFolderTree(req, res) {
 }
 
 async function updateFolderTree(req, res) {
-  console.log('Request body:', req.body) // Для отладки
+  // console.log('Request body:', req.body) // Для отладки
   try {
     const { id, newName } = req.body // Получение ID и нового названия из тела запроса
 

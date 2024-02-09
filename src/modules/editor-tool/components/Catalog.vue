@@ -78,14 +78,13 @@ import CatalogBreadcrumbs from '@/modules/tool/components/CatalogBreadcrumbs.vue
 import { toolEditorApi } from '@/modules/editor-tool/api/editor'
 
 export default {
-  name: 'CatalogTab',
+  name: 'CatalogEditor',
   components: { FillingTable, CatalogBreadcrumbs },
 
   data() {
     return {
       tree: [],
       currentItem: { id: null },
-      selectedItem: null,
       isEditing: false,
       editableLabel: '',
     }
@@ -100,9 +99,6 @@ export default {
     },
   },
   watch: {
-    type(newValue) {
-      console.log('Тип вкладки изменен:', newValue)
-    },
     currentItem: {
       handler(currentItem) {
         this.updateIdParent({
@@ -128,7 +124,6 @@ export default {
     },
   },
   methods: {
-    // обновить IdParent
     ...mapMutations('EditorToolStore', [
       'updateIdParent',
       'setCurrentPage',
@@ -149,7 +144,6 @@ export default {
       this.setItemsPerPage(itemsPerPage)
       await this.fetchToolsByFilter()
     },
-    //переименовать текущий элемент
     async renameCurrentItem() {
       const itemId = this.currentItem.id
       const newName = this.editableLabel
@@ -177,12 +171,10 @@ export default {
         try {
           await toolTreeApi.deleteFolder(itemId)
           alert('Элемент успешно удален.')
-
           if (this.tree.length > 1) {
             this.tree.pop()
             this.currentItem = this.tree[this.tree.length - 1]
           }
-
           // Вызываем refreshTree для обновления дерева и currentItem
           await this.refreshTree()
         } catch (error) {
@@ -193,26 +185,18 @@ export default {
     },
 
     async addItem() {
-      console.log('Начало добавления новой папки') // Логирование начала процесса добавления
-
-      // Проверяем, выбран ли текущий элемент
-      if (!this.currentItem || !this.currentItem.nodes) {
-        console.log('Не выбрана категория для добавления новой папки')
+      console.log(this.currentItem)
+      if (!this.currentItem || !this.currentItem.nodes)
         return alert('Выберите категорию для добавления нового элемента.')
-      }
 
-      // Запрашиваем название новой папки
       let branchName = prompt('Введите название новой ветки:')
       if (branchName) {
         branchName = normSpaces(branchName)
-        console.log(`Введенное название папки: ${branchName}`) // Логирование введенного названия
-
         try {
           const newBranch = await toolTreeApi.addFolder(
             branchName,
             this.currentItem.id
           )
-          // Создаем объект новой папки
           const newFolder = {
             id: newBranch.newBranchId,
             label: branchName,
@@ -265,28 +249,17 @@ export default {
       if (this.tree.length > 1) {
         this.tree.pop() // Удаляем последний элемент истории
         this.currentItem = this.tree[this.tree.length - 1] // Обновляем currentItem на предыдущий элемент
-        console.log(
-          'Кнопка возврат:',
-          this.currentItem.id,
-          this.currentItem.label
-        )
       }
     },
     goTo(index) {
       this.currentItem = this.tree[index]
-      console.log(
-        'Хлебные крошки. Выбранный элемент:',
-        this.currentItem.id,
-        this.currentItem.label
-      )
-
       this.tree = this.tree.slice(0, index + 1)
       this.currentItem = this.tree[index]
     },
   },
   async created() {
     const toolsTree = await toolTreeApi.getTree()
-    if (toolsTree && toolsTree.length > 0) {
+    if (toolsTree && toolsTree.length) {
       this.currentItem = toolsTree[0]
       this.tree.push(this.currentItem)
     }
