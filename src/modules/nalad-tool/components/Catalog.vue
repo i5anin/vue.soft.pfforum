@@ -42,9 +42,8 @@
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import TabMainTable from '../components/Table.vue'
 import { toolTreeApi } from '@/modules/tool/api/tree'
-// import { normSpaces } from '@/modules/tool/components/normSpaces'
+import { normSpaces } from '@/modules/tool/components/normSpaces'
 import CatalogBreadcrumbs from '@/modules/tool/components/CatalogBreadcrumbs.vue'
-import StorageToolStore from '@/modules/storage-tool/store'
 
 export default {
   name: 'StorageCatalog',
@@ -105,20 +104,6 @@ export default {
     async onUpdateItemsPerPage(itemsPerPage) {
       this.setItemsPerPage(itemsPerPage)
       await this.fetchToolsByFilter()
-    },
-
-    async refreshTree() {
-      const updatedTree = await toolTreeApi.getTree()
-      this.tree = updatedTree
-      // TODO: сделать нормальный поиск во вложенных node'ах
-      const updatedCurrentItem = updatedTree.find(
-        (item) => item.id === this.currentItem.id // Проверяем, если текущий элемент присутствует в обновленном дереве
-      )
-      this.currentItem = updatedCurrentItem // Если текущий элемент не найден, обновляем его на первый элемент из дерева или на null, если дерево пустое
-        ? updatedCurrentItem
-        : updatedTree.length > 0
-        ? updatedTree[0]
-        : null
     },
 
     async selectItem(item) {
