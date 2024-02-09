@@ -16,7 +16,7 @@
           />
           <!-- Показываем название и иконку, если редактирование не активно -->
           <span v-else @click="startEditing">
-            {{ currentItem ? currentItem.label : 'Выберите элемент' }}
+            {{ currentItem ? currentItem.label : 'Редактор' }}
             <v-btn icon small @click.stop="startEditing">
               <v-icon>mdi-pencil</v-icon>
             </v-btn>
@@ -48,7 +48,7 @@
       </v-container>
     </v-main>
   </v-app>
-  <filling-table
+  <editor-table
     v-if="currentItem && currentItem.id"
     :parentId="currentItem.id"
     v-bind="{
@@ -71,7 +71,7 @@
 
 <script>
 import { mapActions, mapGetters, mapMutations } from 'vuex'
-import FillingTable from '@/modules/editor-tool/components/Table.vue'
+import EditorTable from '@/modules/editor-tool/components/Table.vue'
 import { toolTreeApi } from '@/modules/tool/api/tree'
 import { normSpaces } from '@/modules/tool/components/normSpaces'
 import CatalogBreadcrumbs from '@/modules/tool/components/CatalogBreadcrumbs.vue'
@@ -79,7 +79,7 @@ import { toolEditorApi } from '@/modules/editor-tool/api/editor'
 
 export default {
   name: 'CatalogEditor',
-  components: { FillingTable, CatalogBreadcrumbs },
+  components: { EditorTable, CatalogBreadcrumbs },
 
   data() {
     return {
@@ -216,9 +216,11 @@ export default {
       const updatedTree = await toolTreeApi.getTree()
       this.tree = updatedTree
       const updatedCurrentItem = updatedTree.find(
-        (item) => item.id === this.currentItem.id // Проверяем, если текущий элемент присутствует в обновленном дереве
+        // Проверяем, если текущий элемент присутствует в обновленном дереве
+        (item) => item.id === this.currentItem.id
       )
-      this.currentItem = updatedCurrentItem // Если текущий элемент не найден, обновляем его на первый элемент из дерева или на null, если дерево пустое
+      // Если текущий элемент не найден, обновляем его на первый элемент из дерева или на null, если дерево пустое
+      this.currentItem = updatedCurrentItem
         ? updatedCurrentItem
         : updatedTree.length > 0
         ? updatedTree[0]
