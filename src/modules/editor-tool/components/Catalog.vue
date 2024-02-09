@@ -234,7 +234,6 @@ export default {
     async refreshTree() {
       const updatedTree = await toolTreeApi.getTree()
       this.tree = updatedTree
-      // TODO: сделать нормальный поиск во вложенных node'ах
       const updatedCurrentItem = updatedTree.find(
         (item) => item.id === this.currentItem.id // Проверяем, если текущий элемент присутствует в обновленном дереве
       )
