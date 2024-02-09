@@ -2,7 +2,7 @@
   <v-app class="custom-container">
     <v-app-bar app dark>
       <div class="text-h6 pl-5">
-        {{ currentItem ? currentItem.label : 'Выдача' }}
+        {{ currentItem ? currentItem.label : 'Наладка' }}
       </div>
       <v-spacer />
       <v-btn icon @click="goBack">
@@ -106,81 +106,6 @@ export default {
       this.setItemsPerPage(itemsPerPage)
       await this.fetchToolsByFilter()
     },
-    //переименовать текущий элемент
-    // async renameCurrentItem() {
-    //   const itemId = this.currentItem.id
-    //   const newName = this.editableLabel
-    //
-    //   try {
-    //     const response = await renameFolder(itemId, newName)
-    //     if (response && response.message) {
-    //       alert('Элемент успешно переименован.')
-    //       this.currentItem.label = newName // Обновляем название текущего элемента без перестроения всего дерева
-    //       const historyItem = this.tree.find((item) => item.id === itemId) // Необходимо обновить элемент в истории, если он там есть
-    //       if (historyItem) historyItem.label = newName
-    //     } else {
-    //       alert('Произошла ошибка при переименовании.')
-    //     }
-    //   } catch (error) {
-    //     console.error('Ошибка при переименовании:', error)
-    //     alert('Произошла ошибка при переименовании.')
-    //   }
-    // },
-
-    // async deleteItem() {
-    //   if (!this.currentItem) return alert('Не выбран элемент для удаления.')
-    //   const itemId = this.currentItem.id
-    //   if (confirm(`Уверены, что хотите удалить ${this.currentItem.label}?`)) {
-    //     try {
-    //       await deleteFolder(itemId)
-    //       alert('Элемент успешно удален.')
-    //
-    //       if (this.tree.length > 1) {
-    //         this.tree.pop()
-    //         this.currentItem = this.tree[this.tree.length - 1]
-    //       }
-    //
-    //       // Вызываем refreshTree для обновления дерева и currentItem
-    //       await this.refreshTree()
-    //     } catch (error) {
-    //       console.error('Ошибка при удалении:', error)
-    //       alert('Произошла ошибка при удалении.')
-    //     }
-    //   }
-    // },
-
-    // async addItem() {
-    //   console.log('Начало добавления новой папки') // Логирование начала процесса добавления
-    //
-    //   // Проверяем, выбран ли текущий элемент
-    //   if (!this.currentItem || !this.currentItem.nodes) {
-    //     console.log('Не выбрана категория для добавления новой папки')
-    //     return alert('Выберите категорию для добавления нового элемента.')
-    //   }
-    //
-    //   // Запрашиваем название новой папки
-    //   let branchName = prompt('Введите название новой ветки:')
-    //   if (branchName) {
-    //     branchName = normSpaces(branchName)
-    //     console.log(`Введенное название папки: ${branchName}`) // Логирование введенного названия
-    //
-    //     try {
-    //       const newBranch = await addFolder(branchName, this.currentItem.id)
-    //       // Создаем объект новой папки
-    //       const newFolder = {
-    //         id: newBranch.newBranchId,
-    //         label: branchName,
-    //         elements: 0,
-    //         nodes: [],
-    //       }
-    //       this.currentItem.nodes.push(newFolder) // Добавляем новую папку в список дочерних элементов текущего элемента
-    //       this.currentItem = newFolder // Обновляем текущий элемент, чтобы отображать новую папку
-    //       this.tree.push(newFolder) // Добавляем новую папку в историю для навигации
-    //     } catch (error) {
-    //       alert('Произошла ошибка при добавлении ветки.')
-    //     }
-    //   }
-    // },
 
     async refreshTree() {
       const updatedTree = await toolTreeApi.getTree()

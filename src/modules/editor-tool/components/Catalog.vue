@@ -100,9 +100,6 @@ export default {
     },
   },
   watch: {
-    // 'currentItem.id': function (newParentId) {
-    //   this.$store.dispatch('fetchFilterParamsByParentId', newParentId)
-    // },
     type(newValue) {
       console.log('Тип вкладки изменен:', newValue)
     },
