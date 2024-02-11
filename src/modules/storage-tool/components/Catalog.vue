@@ -111,6 +111,21 @@ export default {
       this.currentItem = item
       if (!this.tree.includes(item)) this.tree.push(item)
     },
+    startEditing() {
+      this.isEditing = true
+      this.editableLabel = this.currentItem ? this.currentItem.label : ''
+    },
+
+    finishEditing() {
+      if (
+        this.isEditing &&
+        this.currentItem &&
+        this.editableLabel !== this.currentItem.label
+      ) {
+        this.renameCurrentItem()
+      }
+      this.isEditing = false
+    },
 
     goBack() {
       if (this.tree.length > 1) {

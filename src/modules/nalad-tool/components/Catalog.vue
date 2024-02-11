@@ -97,7 +97,6 @@ export default {
       'setItemsPerPage',
     ]),
     ...mapActions('StorageToolStore', ['fetchToolsByFilter']),
-
     async onPageChanged(page) {
       this.setCurrentPage(page)
       await this.fetchToolsByFilter()
@@ -111,6 +110,21 @@ export default {
       console.log('Выбранная папка каталога id:', item.id, item.label)
       this.currentItem = item
       if (!this.tree.includes(item)) this.tree.push(item)
+    },
+    startEditing() {
+      this.isEditing = true
+      this.editableLabel = this.currentItem ? this.currentItem.label : ''
+    },
+
+    finishEditing() {
+      if (
+        this.isEditing &&
+        this.currentItem &&
+        this.editableLabel !== this.currentItem.label
+      ) {
+        this.renameCurrentItem()
+      }
+      this.isEditing = false
     },
 
     goBack() {
