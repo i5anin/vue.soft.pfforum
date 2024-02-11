@@ -40,8 +40,8 @@ async function getTools(req, res) {
 
     const { search, parent_id, onlyInStock, page = 1, limit = 50 } = params
 
-    const pageNumber = page
-    const limitNumber = limit
+    const pageNumber = parseInt(page, 10)
+    const limitNumber = parseInt(limit, 10)
     const offset = (pageNumber - 1) * limitNumber
 
     let conditions = []
