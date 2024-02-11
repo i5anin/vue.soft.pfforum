@@ -132,7 +132,9 @@ export default {
   },
   data() {
     return {
+      formattedTools: [],
       filterParamsList: [],
+      paramsList: [],
       filters: {},
       selectedValue: null,
       activeTabType: 'Catalog', // Например, 'Catalog', 'Sklad', 'Give' и т.д.
@@ -155,6 +157,8 @@ export default {
     paramsList: {
       immediate: true,
       handler: function (newVal) {
+        console.log('watch table headers')
+
         this.toolTableHeaders = [
           { title: '№', key: 'index', sortable: false },
           { title: 'Маркировка', key: 'name', sortable: false },
@@ -173,6 +177,21 @@ export default {
         ]
       },
     },
+  },
+  updated() {
+    if (!this.formattedTools.length) {
+      this.formattedTools = this.$props.formattedTools
+      this.paramsList = this.$props.paramsList
+
+      // this.toolTableHeaders = [
+      //   { title: '№', key: 'index', sortable: false },
+      //   { title: 'Маркировка', key: 'name', sortable: false },
+      //   { title: 'Норма', key: 'norma', sortable: false },
+      //   { title: 'Склад', key: 'sklad', sortable: false },
+      //   { title: 'Заказ', key: 'zakaz', sortable: false },
+      //   { title: 'Лимит', key: 'limit', sortable: false },
+      // ]
+    }
   },
 
   methods: {
@@ -224,6 +243,14 @@ export default {
 
         // Обновляем данные в компоненте
         this.formattedTools = tools
+
+        // this.toolTableHeaders = [
+        //   { title: 'Норма', key: 'norma', sortable: false },
+        //   { title: 'Склад', key: 'sklad', sortable: false },
+        //   { title: 'Заказ', key: 'zakaz', sortable: false },
+        //   { title: 'Лимит', key: 'limit', sortable: false },
+        // ]
+
         this.toolsTotalCount = totalCount
       } catch (error) {
         console.error('Ошибка при получении данных инструментов:', error)
