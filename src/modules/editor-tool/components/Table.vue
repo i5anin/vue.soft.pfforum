@@ -15,6 +15,7 @@
     <tool-filter :namespace="namespace">
       <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>
     </tool-filter>
+
     <edit-tool-modal
       v-if="openDialog"
       :persistent="true"
@@ -22,6 +23,7 @@
       @canceled="onClosePopup"
       @changes-saved="onSaveChanges"
     />
+
     <v-data-table-server
       v-if="isDataLoaded"
       noDataText="Нет данных"
@@ -273,12 +275,14 @@ export default {
       return { grey: !item.sklad || item.sklad === 0 }
     },
     onChangePage(page) {
-      this.filters.currentPage = page
-      this.fetchTools()
+      this.$emit('page-changed', page)
+      // this.filters.currentPage = page
+      // this.fetchTools()
     },
     onUpdateItemsPerPage(itemsPerPage) {
-      this.filters.itemsPerPage = itemsPerPage
-      this.fetchTools()
+      this.$emit('page-limit-changed', itemsPerPage)
+      // this.filters.itemsPerPage = itemsPerPage
+      // this.fetchTools()
     },
     onClosePopup() {
       this.openDialog = false
