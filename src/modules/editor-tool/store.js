@@ -17,11 +17,16 @@ export default {
       currentPage: 1, // Текущая страница
       itemsPerPage: 15, // Количество элементов на странице
       search: '', // Поисковый запрос
-      selectedParams: [], // Выбранные параметры для фильтрации
+      selectedParams: {}, // Сюда будут помещены значения фильтров
       includeNull: false, // Включать ли элементы с нулевыми значениями
     },
   }),
   mutations: {
+    updateFilter(state, { filterName, value }) {
+      if (Object.prototype.hasOwnProperty.call(state.filters, filterName)) {
+        state.filters[filterName] = value
+      }
+    },
     // Мутации для обновления состояния
     updateIdParent(state, idParentData) {
       state.idParent = { ...idParentData } // Обновляет ID и метку родительского элемента
@@ -95,6 +100,7 @@ export default {
     },
 
     async fetchToolsByFilter({ commit, state }) {
+      console.log('fetchToolsByFilter')
       commit('setIsLoading', true) // Устанавливает состояние загрузки в true
       const { currentPage, itemsPerPage, search, includeNull, selectedParams } =
         state.filters // Деструктурирует фильтры из состояния

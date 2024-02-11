@@ -3,11 +3,12 @@
     <v-row cols="12" sm="4">
       <v-col v-for="filter in filterParamsList" :key="filter.key">
         <v-select
-          clearable="true"
+          :key="filter.key"
+          clearable
           :label="filter.label"
           :items="filter.values"
           v-model="filters[filter.key]"
-          @update:model-value="onParamsFilterUpdate"
+          @update:model-value="updateFilter(filter.key, $event)"
         />
       </v-col>
     </v-row>
@@ -82,6 +83,7 @@ import ToolFilter from '@/modules/tool/components/ToolFilter.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { toolApi } from '@/api'
 import { toolEditorApi } from '@/modules/editor-tool/api/editor'
+import { mapActions } from 'vuex'
 
 export default {
   emits: [
@@ -137,11 +139,11 @@ export default {
       paramsList: [],
       filters: {},
       selectedValue: null,
-      activeTabType: 'Catalog', // Например, 'Catalog', 'Sklad', 'Give' и т.д.
+      activeTabType: 'Catalog',
       openDialog: false,
       isDataLoaded: false,
-      editingToolId: null, //редактирование идентификатора инструмента
-      toolTableHeaders: [], //заголовки таблиц инструментов,
+      editingToolId: null,
+      toolTableHeaders: [],
       toolsList: {},
     }
   },
@@ -169,7 +171,6 @@ export default {
                 sortable: true,
               }))
             : []),
-          // { title: 'Действие', key: 'actions', sortable: false },
           { title: 'Норма', key: 'norma', sortable: false },
           { title: 'Склад', key: 'sklad', sortable: false },
           { title: 'Заказ', key: 'zakaz', sortable: false },
@@ -182,19 +183,15 @@ export default {
     if (!this.formattedTools.length) {
       this.formattedTools = this.$props.formattedTools
       this.paramsList = this.$props.paramsList
-
-      // this.toolTableHeaders = [
-      //   { title: '№', key: 'index', sortable: false },
-      //   { title: 'Маркировка', key: 'name', sortable: false },
-      //   { title: 'Норма', key: 'norma', sortable: false },
-      //   { title: 'Склад', key: 'sklad', sortable: false },
-      //   { title: 'Заказ', key: 'zakaz', sortable: false },
-      //   { title: 'Лимит', key: 'limit', sortable: false },
-      // ]
     }
   },
 
   methods: {
+    ...mapActions('EditorToolStore', ['fetchToolsByFilter']),
+    updateFilter(filterKey, value) {
+      this.$store.commit('updateFilter', { filterName: filterKey, value })
+      this.fetchToolsByFilter()
+    },
     onParamsFilterUpdate() {
       console.log('Таблица. this.filters = ', this.filters)
       this.fetchTools()
@@ -238,20 +235,12 @@ export default {
 
         // Обновляем данные в компоненте
         this.$emit('changes-saved')
-        // this.$emit('update:formattedTools', tools)
-        // this.$emit('update:toolsTotalCount', totalCount)
+        this.$emit('update:formattedTools', tools)
+        this.$emit('update:toolsTotalCount', totalCount)
 
         // Обновляем данные в компоненте
-        this.formattedTools = tools
-
-        // this.toolTableHeaders = [
-        //   { title: 'Норма', key: 'norma', sortable: false },
-        //   { title: 'Склад', key: 'sklad', sortable: false },
-        //   { title: 'Заказ', key: 'zakaz', sortable: false },
-        //   { title: 'Лимит', key: 'limit', sortable: false },
-        // ]
-
-        this.toolsTotalCount = totalCount
+        // this.formattedTools = tools
+        // this.toolsTotalCount = totalCount
       } catch (error) {
         console.error('Ошибка при получении данных инструментов:', error)
       }
