@@ -157,7 +157,7 @@ export default {
     paramsList: {
       immediate: true,
       handler: function (newVal) {
-        console.log('Новое значение paramsList:', newVal)
+        console.log('watch table headers')
 
         this.toolTableHeaders = [
           { title: '№', key: 'index', sortable: false },
