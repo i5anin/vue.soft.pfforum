@@ -34,10 +34,6 @@ async function getTools(req, res) {
     // Объединение параметров из тела POST-запроса и параметров строки запроса GET-запроса
     const params = { ...req.query, ...req.body }
 
-    // console.log('Query params:', req.query)
-    // console.log('Body params:', req.body)
-    // console.log('Merged params:', params)
-
     const { search, parent_id, onlyInStock, page = 1, limit = 50 } = params
 
     const pageNumber = parseInt(page, 10)
@@ -213,11 +209,10 @@ async function addTool(req, res) {
   const { name, parent_id, property, sklad, norma } = req.body
 
   try {
-    if (parent_id <= 1) {
+    if (parent_id <= 1)
       return res
         .status(400)
         .json({ error: 'parent_id must be greater than 1.' })
-    }
 
     // Проверка существования parent_id в таблице dbo.tool_tree
     const parentCheckResult = await pool.query(
@@ -265,22 +260,20 @@ async function editTool(req, res) {
   const { name, parent_id, property, sklad, norma, limit } = req.body
 
   try {
-    if (parent_id <= 1) {
+    if (parent_id <= 1)
       return res
         .status(400)
         .json({ error: 'parent_id must be greater than 1.' })
-    }
 
     const parentCheckResult = await pool.query(
       'SELECT id FROM dbo.tool_tree WHERE id = $1',
       [parent_id]
     )
 
-    if (parentCheckResult.rowCount === 0) {
+    if (parentCheckResult.rowCount === 0)
       return res
         .status(400)
         .json({ error: 'Specified parent_id does not exist.' })
-    }
 
     const propertyWithoutNull = removeNullProperties(property)
     const propertyString = JSON.stringify(propertyWithoutNull)
