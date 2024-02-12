@@ -6,9 +6,9 @@ export default {
     idParent: { id: 1, label: null },
     isLoading: false,
     paramsList: [],
-    shagOptions: [],
-    gabaritOptions: [],
-    widthOptions: [],
+    // shagOptions: [],
+    // gabaritOptions: [],
+    // widthOptions: [],
     nameOptions: [],
 
     tool: null,
@@ -30,6 +30,7 @@ export default {
       state.idParent = { ...idParentData }
     },
     setParamsList(state, params) {
+      console.log('Обновленный список параметров:', params)
       state.paramsList = params
     },
     setIsLoading(state, isLoading) {

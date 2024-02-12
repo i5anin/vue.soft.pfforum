@@ -71,7 +71,7 @@
 <script>
 import IssueModal from './ModalIssue.vue'
 import DamagedModal from './ModalDamaged.vue'
-import ToolFilter from '@/modules/tool/components/ToolFilter.vue'
+// import ToolFilter from '@/modules/tool/components/ToolFilter.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 
 export default {
@@ -79,7 +79,6 @@ export default {
   components: {
     VDataTableServer,
     IssueModal,
-    ToolFilter,
     DamagedModal,
   },
   props: {

@@ -33,8 +33,8 @@ import {} from 'vue-router'
 export default {
   data() {
     return {
-      tab: null, // изначально null, пока не определится доступная вкладка
-      tabs: [], // изначально пустой массив
+      tab: null,
+      tabs,
     }
   },
   watch: {
@@ -62,8 +62,8 @@ export default {
           if (this.tabs.length > 0) {
             this.tab = this.tabs[0].name // Установка активной вкладки на первую доступную
           }
-          console.log('Статус авторизации:', response.status)
-          console.log('Роль пользователя:', response.role)
+          // console.log('Статус авторизации:', response.status)
+          // console.log('Роль пользователя:', response.role)
         } else {
           console.error('Ошибка доступа:', response.message)
         }
