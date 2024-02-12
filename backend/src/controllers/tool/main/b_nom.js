@@ -307,10 +307,10 @@ async function getToolById(req, res) {
   try {
     // Измененный запрос для получения данных инструмента и названия папки
     const query = `
-      SELECT t.*, tt.name as folder_name
-      FROM dbo.tool_nom t
-      LEFT JOIN dbo.tool_tree tt ON t.parent_id = tt.id
-      WHERE t.id = $1`
+      SELECT dbo.tool_nom.*, dbo.tool_tree.name as folder_name
+      FROM dbo.tool_nom
+      LEFT JOIN dbo.tool_tree ON dbo.tool_nom.parent_id = dbo.tool_tree.id
+      WHERE dbo.tool_nom.id = $1`
 
     const result = await pool.query(query, [id])
 
@@ -320,10 +320,8 @@ async function getToolById(req, res) {
       // Создание JSON-ответа с данными инструмента и названием папки
       const jsonResponse = {
         id: toolData.id,
-        type_id: toolData.type_id,
-        mat_id: toolData.mat_id,
-        name: toolData.name,
         parent_id: toolData.parent_id,
+        name: toolData.name,
         folder_name: toolData.folder_name, // тут можно понимать в какой мы папке
         property: toolData.property,
         sklad: toolData.sklad,
