@@ -32,7 +32,10 @@ import {} from 'vue-router'
 
 export default {
   data() {
-    return { tab: 'Дерево', tabs }
+    return {
+      tab: null, // изначально null, пока не определится доступная вкладка
+      tabs: [], // изначально пустой массив
+    }
   },
   watch: {
     tab() {
