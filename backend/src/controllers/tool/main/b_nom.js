@@ -262,17 +262,15 @@ async function addTool(req, res) {
 
 async function editTool(req, res) {
   const { id } = req.params
-  const { name, parent_id, property, sklad, norma } = req.body
+  const { name, parent_id, property, sklad, norma, limit } = req.body
 
   try {
-    // Проверка, что parent_id больше 1
     if (parent_id <= 1) {
       return res
         .status(400)
         .json({ error: 'parent_id must be greater than 1.' })
     }
 
-    // Проверка существования parent_id в таблице dbo.tool_tree
     const parentCheckResult = await pool.query(
       'SELECT id FROM dbo.tool_tree WHERE id = $1',
       [parent_id]
@@ -287,10 +285,9 @@ async function editTool(req, res) {
     const propertyWithoutNull = removeNullProperties(property)
     const propertyString = JSON.stringify(propertyWithoutNull)
 
-    // Обновляем поля sklad и norma в запросе
     const result = await pool.query(
-      'UPDATE dbo.tool_nom SET name=$1, parent_id=$2, property=$3, sklad=$4, norma=$5 WHERE id=$6 RETURNING *',
-      [name, parent_id, propertyString, sklad, norma, id]
+      'UPDATE dbo.tool_nom SET name=$1, parent_id=$2, property=$3, sklad=$4, norma=$5, "limit"=$7 WHERE id=$6 RETURNING *',
+      [name, parent_id, propertyString, sklad, norma, id, limit]
     )
 
     if (result.rowCount > 0) {

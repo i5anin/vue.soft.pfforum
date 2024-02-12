@@ -53,14 +53,24 @@
                 required
               />
             </div>
-            <h2 class="text-h6">Склад:</h2>
+            <v-divider class="my-1"></v-divider>
             <v-text-field
+              type="number"
               density="compact"
               label="Норма"
               required
               v-model="toolModel.norma"
             />
             <v-text-field
+              type="number"
+              density="compact"
+              label="Лимит"
+              required
+              v-model="toolModel.limit"
+            />
+            <v-divider class="my-1"></v-divider>
+            <v-text-field
+              type="number"
               density="compact"
               label="Склад"
               required
@@ -120,7 +130,13 @@ export default {
   components: { Modal },
   data: () => ({
     localParentId: null,
-    toolModel: { name: null, property: {} },
+    toolModel: {
+      name: null,
+      property: {},
+      limit: null,
+      norma: null,
+      sklad: null,
+    },
     toolParamOptions: [],
     selectedParams: [],
     geometryOptions: [],
@@ -215,6 +231,7 @@ export default {
         this.fetchToolById(this.toolId).then(() => {
           this.toolModel.sklad = this.tool.sklad
           this.toolModel.norma = this.tool.norma
+          this.toolModel.limit = this.tool.limit
         })
       } else {
         this.localParentId = this.idParent.id
