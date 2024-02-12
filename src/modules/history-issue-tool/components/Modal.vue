@@ -88,7 +88,7 @@ export default {
       ],
       headersAll: [
         { title: 'Инструмент', value: 'name_tool' },
-        { title: 'Дата начальная', value: 'timestamp' },
+        { title: 'Дата первой выдачи', value: 'timestamp' },
         { title: 'Кол-во', value: 'quantity', width: '90px' },
       ],
       filteredData: [],

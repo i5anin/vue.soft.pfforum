@@ -67,8 +67,8 @@ export default {
         { title: 'Название', value: 'name', sortable: false, width: '300px' },
         { title: 'Обозначение', value: 'description', sortable: false },
         {
-          title: 'Дата запуска в производство',
-          value: 'date',
+          title: 'Дата первой выдачи',
+          value: 'timestamp',
           sortable: false,
         },
         {
@@ -104,8 +104,8 @@ export default {
       this.filters.itemsPerPage = itemsPerPage
       await this.fetchAndFormatToolHistory()
     },
-    formatDate(date) {
-      return format(parseISO(date), 'dd.MM.yyyy')
+    formatDate(timestamp) {
+      return format(parseISO(timestamp), 'dd.MM.yyyy')
     },
     async fetchAndFormatToolHistory() {
       this.isLoading = true
@@ -117,7 +117,7 @@ export default {
         )
         this.toolsHistory = response.toolsHistory.map((tool) => ({
           ...tool,
-          date: this.formatDate(tool.date),
+          timestamp: this.formatDate(tool.timestamp),
         }))
         this.totalCount = response.totalCount
       } catch (error) {
