@@ -35,7 +35,7 @@
               min="1"
               required
             />
-            <v-select
+            <v-combobox
               v-model="selectedFio"
               :items="fioOptions"
               item-title="text"
