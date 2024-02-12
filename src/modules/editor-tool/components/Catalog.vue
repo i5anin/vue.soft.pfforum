@@ -48,9 +48,7 @@
       </v-container>
     </v-main>
   </v-app>
-  <editor-table
-    v-if="currentItem && currentItem.id"
-    :parentId="currentItem.id"
+  <TabMainTable
     v-bind="{
       toolsTotalCount,
       formattedTools,
@@ -61,37 +59,32 @@
     }"
     @page-changed="onPageChanged"
     @page-limit-changed="onUpdateItemsPerPage"
-    @params-filter-changed="onParamsFilterChanged"
     @changes-saved="fetchToolsByFilter"
-    @changes-saved-post="fetchToolsByFilter"
-    @update:formattedTools="formattedTools = $event"
-    @update:toolsTotalCount="toolsTotalCount = $event"
   />
 </template>
 
 <script>
-import { mapActions, mapGetters, mapMutations } from 'vuex'
-import EditorTable from '@/modules/editor-tool/components/Table.vue'
 import { toolTreeApi } from '@/modules/tool/api/tree'
-import { normSpaces } from '@/modules/tool/components/normSpaces'
+import { mapActions, mapGetters, mapMutations } from 'vuex'
+import TabMainTable from '@/modules/editor-tool/components/Table.vue'
 import CatalogBreadcrumbs from '@/modules/tool/components/CatalogBreadcrumbs.vue'
-import { toolEditorApi } from '@/modules/editor-tool/api/editor'
+import { normSpaces } from '@/modules/tool/components/normSpaces'
 
 export default {
-  name: 'CatalogEditor',
-  components: { EditorTable, CatalogBreadcrumbs },
+  name: 'EditorCatalog',
+  components: { TabMainTable, CatalogBreadcrumbs },
 
   data() {
     return {
       tree: [],
-      currentItem: { id: null },
+      currentItem: null,
+      selectedItem: null,
       isEditing: false,
       editableLabel: '',
     }
   },
 
   props: {
-    type: String,
     item: Object,
     parentId: {
       type: Object,
@@ -99,46 +92,39 @@ export default {
     },
   },
   watch: {
+    type(newValue) {
+      console.log('Тип вкладки изменен:', newValue)
+    },
     currentItem: {
       handler(currentItem) {
         this.updateIdParent({
           id: currentItem.id,
           label: currentItem.label,
         })
-        this.fetchAdditionalFilters()
         this.fetchToolsByFilter()
       },
     },
   },
   computed: {
-    ...mapGetters('EditorToolStore', [
+    ...mapGetters('IssueToolStore', [
       'toolsTotalCount',
       'formattedTools',
       'filters',
       'isLoading',
       'paramsList',
-      'filterParamsList',
     ]),
-    parentId() {
-      return this.currentItem ? this.currentItem.id : null
-    },
   },
   methods: {
-    ...mapMutations('EditorToolStore', [
+    // обновить IdParent
+    ...mapMutations('IssueToolStore', [
       'updateIdParent',
       'setCurrentPage',
       'setItemsPerPage',
     ]),
-    ...mapActions('EditorToolStore', [
-      'fetchToolsByFilter',
-      'fetchAdditionalFilters',
-    ]),
+    ...mapActions('IssueToolStore', ['fetchToolsByFilter']),
     async onPageChanged(page) {
       this.setCurrentPage(page)
       await this.fetchToolsByFilter()
-    },
-    onParamsFilterChanged(paramsFilters) {
-      this.fetchToolsByFilter(paramsFilters)
     },
     async onUpdateItemsPerPage(itemsPerPage) {
       this.setItemsPerPage(itemsPerPage)
@@ -163,7 +149,6 @@ export default {
         alert('Произошла ошибка при переименовании.')
       }
     },
-
     async deleteItem() {
       if (!this.currentItem) return alert('Не выбран элемент для удаления.')
       const itemId = this.currentItem.id
@@ -183,7 +168,6 @@ export default {
         }
       }
     },
-
     async addItem() {
       console.log(this.currentItem)
       if (!this.currentItem || !this.currentItem.nodes)
@@ -211,16 +195,14 @@ export default {
         }
       }
     },
-
     async refreshTree() {
       const updatedTree = await toolTreeApi.getTree()
       this.tree = updatedTree
+      // TODO: сделать нормальный поиск во вложенных node'ах
       const updatedCurrentItem = updatedTree.find(
-        // Проверяем, если текущий элемент присутствует в обновленном дереве
-        (item) => item.id === this.currentItem.id
+        (item) => item.id === this.currentItem.id // Проверяем, если текущий элемент присутствует в обновленном дереве
       )
-      // Если текущий элемент не найден, обновляем его на первый элемент из дерева или на null, если дерево пустое
-      this.currentItem = updatedCurrentItem
+      this.currentItem = updatedCurrentItem // Если текущий элемент не найден, обновляем его на первый элемент из дерева или на null, если дерево пустое
         ? updatedCurrentItem
         : updatedTree.length > 0
         ? updatedTree[0]
@@ -228,8 +210,9 @@ export default {
     },
 
     async selectItem(item) {
+      console.log('Выбранная папка каталога id:', item.id, item.label)
       this.currentItem = item
-      await toolEditorApi.filterParamsByParentId(item.id)
+      if (!this.tree.includes(item)) this.tree.push(item)
     },
     startEditing() {
       this.isEditing = true
@@ -251,17 +234,28 @@ export default {
       if (this.tree.length > 1) {
         this.tree.pop() // Удаляем последний элемент истории
         this.currentItem = this.tree[this.tree.length - 1] // Обновляем currentItem на предыдущий элемент
+        console.log(
+          'Кнопка возврат:',
+          this.currentItem.id,
+          this.currentItem.label
+        )
       }
     },
     goTo(index) {
       this.currentItem = this.tree[index]
+      console.log(
+        'Хлебные крошки. Выбранный элемент:',
+        this.currentItem.id,
+        this.currentItem.label
+      )
+
       this.tree = this.tree.slice(0, index + 1)
       this.currentItem = this.tree[index]
     },
   },
   async created() {
     const toolsTree = await toolTreeApi.getTree()
-    if (toolsTree && toolsTree.length) {
+    if (toolsTree && toolsTree.length > 0) {
       this.currentItem = toolsTree[0]
       this.tree.push(this.currentItem)
     }

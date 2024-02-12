@@ -6,7 +6,7 @@
       </div>
       <v-spacer />
       <v-btn icon @click="goBack">
-        <v-icon>mdi-arrow-left</v-icon>
+        <v-icon icon="mdi-arrow-left" />
       </v-btn>
     </v-app-bar>
     <v-main>
