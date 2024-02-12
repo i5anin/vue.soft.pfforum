@@ -103,10 +103,10 @@ export default {
       type: Number, // или String, в зависимости от типа идентификатора
       required: true,
     },
-    // filterParamsList: {
-    //   type: Array,
-    //   default: () => [],
-    // },
+    filterParamsList: {
+      type: Array,
+      default: () => [],
+    },
     toolsTotalCount: {
       type: Number,
       default: 0,
@@ -199,7 +199,7 @@ export default {
   methods: {
     onParamsFilterUpdate() {
       console.log('Таблица. this.filters = ', this.filters)
-      this.fetchTools()
+      // this.fetchTools()
     },
 
     async fetchTools() {
@@ -246,13 +246,6 @@ export default {
         // Обновляем данные в компоненте
         this.formattedTools = tools
 
-        // this.toolTableHeaders = [
-        //   { title: 'Норма', key: 'norma', sortable: false },
-        //   { title: 'Склад', key: 'sklad', sortable: false },
-        //   { title: 'Заказ', key: 'zakaz', sortable: false },
-        //   { title: 'Лимит', key: 'limit', sortable: false },
-        // ]
-
         this.toolsTotalCount = totalCount
       } catch (error) {
         console.error('Ошибка при получении данных инструментов:', error)
@@ -287,10 +280,10 @@ export default {
     onClosePopup() {
       this.openDialog = false
     },
-    onSaveChanges() {
-      this.openDialog = false
-      this.$emit('changes-saved-post')
-    },
+    // onSaveChanges() {
+    //   this.openDialog = false
+    //   this.$emit('changes-saved-post')
+    // },
     onAddTool() {
       this.editingToolId = null
       this.openDialog = true
