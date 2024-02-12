@@ -174,7 +174,8 @@ export default {
       console.log('Выдать инструмент:', item)
     },
     calculateOrder(tool) {
-      if (tool.norma || tool.sklad) return tool.norma - tool.sklad
+      const order = tool.norma - tool.sklad
+      return order < 0 ? '' : order
     },
 
     async onChangePage(page) {
