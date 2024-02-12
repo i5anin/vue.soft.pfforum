@@ -227,6 +227,7 @@ export default {
       'fetchToolById',
     ]),
     initializeLocalState() {
+      console.log(this.toolModel)
       if (this.toolId) {
         this.fetchToolById(this.toolId).then(() => {
           this.toolModel.sklad = this.tool.sklad
