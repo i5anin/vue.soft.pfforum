@@ -137,9 +137,9 @@ export default {
       try {
         const response = await toolTreeApi.renameFolder(itemId, newName)
         if (response && response.message) {
-          alert('Элемент успешно переименован.')
-          this.currentItem.label = newName // Обновляем название текущего элемента без перестроения всего дерева
-          const historyItem = this.tree.find((item) => item.id === itemId) // Необходимо обновить элемент в истории, если он там есть
+          alert('Папка успешно переименована.')
+          this.currentItem.label = newName // Обновляем название текущего папки без перестроения всего дерева
+          const historyItem = this.tree.find((item) => item.id === itemId) // Необходимо обновить папка в истории, если он там есть
           if (historyItem) historyItem.label = newName
         } else {
           alert('Произошла ошибка при переименовании.')
@@ -150,12 +150,12 @@ export default {
       }
     },
     async deleteItem() {
-      if (!this.currentItem) return alert('Не выбран элемент для удаления.')
+      if (!this.currentItem) return alert('Не выбрана папка для удаления.')
       const itemId = this.currentItem.id
       if (confirm(`Уверены, что хотите удалить ${this.currentItem.label}?`)) {
         try {
           await toolTreeApi.deleteFolder(itemId)
-          alert('Элемент успешно удален.')
+          alert('Папка успешно удалена.')
           if (this.tree.length > 1) {
             this.tree.pop()
             this.currentItem = this.tree[this.tree.length - 1]
@@ -171,7 +171,7 @@ export default {
     async addItem() {
       console.log(this.currentItem)
       if (!this.currentItem || !this.currentItem.nodes)
-        return alert('Выберите категорию для добавления нового элемента.')
+        return alert('Выберите категорию для добавления новой папки.')
 
       let branchName = prompt('Введите название новой ветки:')
       if (branchName) {
@@ -244,7 +244,7 @@ export default {
     goTo(index) {
       this.currentItem = this.tree[index]
       console.log(
-        'Хлебные крошки. Выбранный элемент:',
+        'Хлебные крошки. Выбрана папка:',
         this.currentItem.id,
         this.currentItem.label
       )
