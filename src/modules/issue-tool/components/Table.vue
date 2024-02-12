@@ -7,6 +7,7 @@
       v-if="openDialog && currentModal === 'issue'"
       :persistent="true"
       :tool-id="editingToolId"
+      :mark-label="this.markLabel"
       @canceled="onClosePopup"
       @changes-saved="onSaveChanges"
     />
@@ -15,6 +16,7 @@
       v-if="openDialog && currentModal === 'damaged'"
       :persistent="true"
       :tool-id="editingToolId"
+      :mark-label="this.markLabel"
       @canceled="onClosePopup"
       @changes-saved="onSaveChanges"
     />
@@ -145,12 +147,16 @@ export default {
   },
   methods: {
     onIssueTool(event, item) {
+      console.log(item.name)
+      this.markLabel = item.name
       event.stopPropagation()
       this.editingToolId = item.id
       this.currentModal = 'issue'
       this.openDialog = true
     },
     onDamagedTool(event, item) {
+      console.log(item.name)
+      this.markLabel = item.name
       event.stopPropagation()
       this.editingToolId = item.id
       this.currentModal = 'damaged'

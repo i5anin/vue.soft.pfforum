@@ -27,7 +27,6 @@
                 density="compact"
                 label="Маркировка"
                 v-model="toolModel.name"
-                :items="nameOptions"
                 item-text="text"
                 item-value="value"
                 required
@@ -37,7 +36,6 @@
             <!-- правый столбец -->
             <v-combobox
               :chips="true"
-              multiple
               v-model="selectedParams"
               :items="toolParamOptions"
               label="Параметры"
@@ -194,17 +192,11 @@ export default {
   },
 
   computed: {
-    ...mapGetters('EditorToolStore', [
-      'widthOptions',
-      'shagOptions',
-      'gabaritOptions',
-      'nameOptions',
-      'tool',
-    ]),
+    ...mapGetters('EditorToolStore', ['nameOptions', 'tool']),
     ...mapState('EditorToolStore', ['idParent']),
-    currentFolderName() {
-      // return this.toolId === null ? this.idParent.label : this.tool.folder_name
-    },
+    // currentFolderName() {
+    //   // return this.toolId === null ? this.idParent.label : this.tool.folder_name
+    // },
     selectedParamsInfo() {
       return this.selectedParams
         .map((paramName) =>
@@ -221,12 +213,7 @@ export default {
   },
   methods: {
     ...mapMutations('EditorToolStore', ['setTool']),
-    ...mapActions('EditorToolStore', [
-      'fetchUniqueToolSpecs',
-      'fetchToolsByFilter',
-      'onSaveToolModel',
-      'fetchToolById',
-    ]),
+    ...mapActions('EditorToolStore', ['fetchToolsByFilter', 'fetchToolById']),
     initializeLocalState() {
       if (this.toolId) {
         this.fetchToolById(this.toolId).then(() => {

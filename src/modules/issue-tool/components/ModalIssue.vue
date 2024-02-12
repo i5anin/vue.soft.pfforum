@@ -10,8 +10,7 @@
               <v-combobox
                 density="compact"
                 label="Маркировка"
-                v-model="toolModel.name"
-                :items="nameOptions"
+                v-model="markLabel"
                 item-text="text"
                 item-value="value"
                 required
@@ -123,7 +122,7 @@ export default {
   props: {
     persistent: { type: Boolean, default: false },
     toolId: { type: Number, default: null },
-    radiusOptions: { type: Array },
+    markLabel: { type: String, default: '' },
   },
   components: { Modal },
   data: () => ({
