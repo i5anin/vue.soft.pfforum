@@ -17,7 +17,7 @@
             class="flex-grow-1 mr-2"
             @keyup.enter="fetchAndFormatToolHistory"
           />
-          <v-btn @click="fetchAndFormatToolHistory">Поиск</v-btn>
+          <!--          <v-btn @click="fetchAndFormatToolHistory">Поиск</v-btn>-->
         </v-col>
       </v-row>
     </div>
@@ -66,7 +66,11 @@ export default {
         { title: 'ID партии', value: 'id_part', sortable: false },
         { title: 'Название', value: 'name', sortable: false, width: '300px' },
         { title: 'Обозначение', value: 'description', sortable: false },
-        { title: 'Дата', value: 'date', sortable: false },
+        {
+          title: 'Дата запуска в производство',
+          value: 'date',
+          sortable: false,
+        },
         {
           title: 'Кол-во инструмента',
           value: 'quantity_tool',

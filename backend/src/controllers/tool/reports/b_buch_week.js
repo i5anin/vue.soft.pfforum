@@ -51,7 +51,7 @@ async function createExcelFileStream(data) {
   worksheet.mergeCells('A1:E1')
   const titleRow = worksheet.getCell('A1')
   titleRow.value =
-    'Бухгалтерия: Журнал испорченного раз в месяц. Отчет каждый ПТ в 12:00 (за месяц)'
+    'Бухгалтерия: Журнал уничтожен ого раз в месяц. Отчет каждый ПТ в 12:00 (за месяц)'
   titleRow.font = { bold: true, size: 14 }
 
   // Определение дат начала и окончания недели

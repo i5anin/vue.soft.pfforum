@@ -185,9 +185,8 @@ async function getToolHistoryByPartId(req, res) {
     `
     const operationsResult = await pool.query(operationsQuery, [idPart])
 
-    if (operationsResult.rows.length === 0) {
+    if (operationsResult.rows.length === 0)
       return res.status(404).send('Операции для данной партии не найдены')
-    }
 
     const allTools = {}
     const operationsData = {}

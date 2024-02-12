@@ -40,7 +40,7 @@
               :items="fioOptions"
               item-title="text"
               item-value="value"
-              label="ФИО кто испортил"
+              label="ФИО кто уничтожил"
               return-object
               single-line
               @update:modelValue="handleSelectionChange"
