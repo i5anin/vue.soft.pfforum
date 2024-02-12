@@ -1,5 +1,9 @@
 <template>
   <v-container>
+    <!-- <tool-filter :namespace="namespace">-->
+    <!-- <v-btn color="blue" @click="onAddTool">Редактировать склад</v-btn>-->
+    <!-- </tool-filter>-->
+
     <v-row cols="12" sm="4">
       <v-col v-for="filter in filterParamsList" :key="filter.key">
         <v-select
@@ -16,14 +20,13 @@
       <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>
     </tool-filter>
 
-    <edit-tool-modal
+    <editor-tool-modal
       v-if="openDialog"
       :persistent="true"
       :tool-id="editingToolId"
       @canceled="onClosePopup"
       @changes-saved="onSaveChanges"
     />
-
     <v-data-table-server
       v-if="isDataLoaded"
       noDataText="Нет данных"
@@ -43,10 +46,10 @@
       class="elevation-1"
       hover
       fixed-header
-      width="true"
+      width
     >
       <template v-slot:item.index="{ index }">
-        <td class="index grey">{{ index + 1 }}</td>
+        <td class="index">{{ index + 1 }}</td>
       </template>
       <!--name-->
       <template v-slot:item.name="{ item }">
@@ -55,58 +58,33 @@
         </td>
       </template>
       <template v-slot:item.sklad="{ item }">
-        <td :class="colorClassGrey(item)" style="white-space: nowrap">
+        <td :class="colorClassRed(item)" style="white-space: nowrap">
           {{ item.sklad }}
         </td>
       </template>
       <template v-slot:item.norma="{ item }">
-        <td :class="colorClassGrey(item)" style="white-space: nowrap">
-          {{ item.norma }}
-        </td>
+        <td style="white-space: nowrap">{{ item.norma }}</td>
       </template>
       <template v-slot:item.zakaz="{ item }">
-        <td :class="colorClassGrey(item)" style="white-space: nowrap">
-          {{ calculateOrder(item) }}
-        </td>
-      </template>
-      <template v-slot:item.limit="{ item }">
-        <td :class="colorClassGrey(item)" style="white-space: nowrap">
-          {{ item.limit }}
-        </td>
+        <td style="white-space: nowrap">{{ calculateOrder(item) }}</td>
       </template>
     </v-data-table-server>
   </v-container>
 </template>
 
 <script>
-import EditToolModal from './Modal.vue'
+import EditorToolModal from './Modal.vue'
 import ToolFilter from '@/modules/tool/components/ToolFilter.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
-import { toolApi } from '@/api'
-import { toolEditorApi } from '@/modules/editor-tool/api/editor'
 
 export default {
-  emits: [
-    'changes-saved',
-    'canceled',
-    'page-changed',
-    'page-limit-changed',
-    'params-filter-changed',
-  ],
+  emits: ['changes-saved', 'canceled', 'page-changed', 'page-limit-changed'],
   components: {
     VDataTableServer,
-    EditToolModal,
+    EditorToolModal,
     ToolFilter,
   },
   props: {
-    parentId: {
-      type: Number, // или String, в зависимости от типа идентификатора
-      required: true,
-    },
-    filterParamsList: {
-      type: Array,
-      default: () => [],
-    },
     toolsTotalCount: {
       type: Number,
       default: 0,
@@ -134,17 +112,11 @@ export default {
   },
   data() {
     return {
-      formattedTools: [],
-      filterParamsList: [],
-      paramsList: [],
-      filters: {},
-      selectedValue: null,
       activeTabType: 'Catalog', // Например, 'Catalog', 'Sklad', 'Give' и т.д.
       openDialog: false,
       isDataLoaded: false,
       editingToolId: null, //редактирование идентификатора инструмента
-      toolTableHeaders: [], //заголовки таблиц инструментов,
-      toolsList: {},
+      toolTableHeaders: [], //заголовки таблиц инструментов
     }
   },
   watch: {
@@ -158,12 +130,10 @@ export default {
     },
     paramsList: {
       immediate: true,
-      handler: function (newVal) {
-        console.log('Новое значение paramsList:', newVal)
-
+      handler(newVal) {
         this.toolTableHeaders = [
           { title: '№', key: 'index', sortable: false },
-          { title: 'Маркировка', key: 'name', sortable: false },
+          { title: 'Маркировка', key: 'name', sortable: true },
           ...(newVal && newVal.length > 0
             ? newVal.map((param) => ({
                 title: param.label,
@@ -171,7 +141,6 @@ export default {
                 sortable: true,
               }))
             : []),
-          // { title: 'Действие', key: 'actions', sortable: false },
           { title: 'Норма', key: 'norma', sortable: false },
           { title: 'Склад', key: 'sklad', sortable: false },
           { title: 'Заказ', key: 'zakaz', sortable: false },
@@ -180,78 +149,11 @@ export default {
       },
     },
   },
-  updated() {
-    if (!this.formattedTools.length) {
-      this.formattedTools = this.$props.formattedTools
-      this.paramsList = this.$props.paramsList
 
-      // this.toolTableHeaders = [
-      //   { title: '№', key: 'index', sortable: false },
-      //   { title: 'Маркировка', key: 'name', sortable: false },
-      //   { title: 'Норма', key: 'norma', sortable: false },
-      //   { title: 'Склад', key: 'sklad', sortable: false },
-      //   { title: 'Заказ', key: 'zakaz', sortable: false },
-      //   { title: 'Лимит', key: 'limit', sortable: false },
-      // ]
-    }
+  async mounted() {
+    this.isDataLoaded = true
   },
-
   methods: {
-    onParamsFilterUpdate() {
-      console.log('Таблица. this.filters = ', this.filters)
-      // this.fetchTools()
-    },
-
-    async fetchTools() {
-      console.log('Таблица. Используемый parentId:', this.parentId)
-
-      try {
-        // Деструктурируем свойства фильтров
-        const {
-          currentPage,
-          itemsPerPage,
-          search,
-          includeNull,
-          ...selectedParams
-        } = this.filters
-
-        // Создаем объект filterParams с правильными ключами
-        const filterParams = {}
-        for (const [key, value] of Object.entries(selectedParams)) {
-          if (value !== null && value !== undefined) {
-            const prefixedKey = key.startsWith('param_') ? key : `param_${key}`
-            filterParams[prefixedKey] = value
-          }
-        }
-
-        // console.log(selectedParams)
-        console.log(filterParams)
-
-        // Выполняем запрос данных
-        const { tools, totalCount } = await toolApi.getToolsPost(
-          search,
-          currentPage,
-          itemsPerPage,
-          includeNull,
-          this.parentId,
-          false,
-          filterParams
-        )
-
-        // Обновляем данные в компоненте
-        this.$emit('changes-saved')
-        // this.$emit('update:formattedTools', tools)
-        // this.$emit('update:toolsTotalCount', totalCount)
-
-        // Обновляем данные в компоненте
-        this.formattedTools = tools
-
-        this.toolsTotalCount = totalCount
-      } catch (error) {
-        console.error('Ошибка при получении данных инструментов:', error)
-      }
-    },
-
     async fetchFilterParams() {
       console.log('Таблица. parentId = ', this.parentId)
       if (this.parentId)
@@ -260,30 +162,33 @@ export default {
         )
       this.isDataLoaded = true
     },
-
-    calculateOrder(tool) {
-      if (tool.norma != null) return tool.norma - tool.sklad
-    },
     colorClassGrey(item) {
       return { grey: !item.sklad || item.sklad === 0 }
     },
-    onChangePage(page) {
-      this.$emit('page-changed', page)
-      // this.filters.currentPage = page
-      // this.fetchTools()
+    colorClassRed(item) {
+      return { red: !item.sklad || item.sklad === 0 }
     },
-    onUpdateItemsPerPage(itemsPerPage) {
+    onIssueTool(event, item) {
+      event.stopPropagation() // Предотвратить всплытие события
+      console.log('Выдать инструмент:', item)
+    },
+    calculateOrder(tool) {
+      if (tool.norma || tool.sklad) return tool.norma - tool.sklad
+    },
+
+    async onChangePage(page) {
+      this.$emit('page-changed', page)
+    },
+    async onUpdateItemsPerPage(itemsPerPage) {
       this.$emit('page-limit-changed', itemsPerPage)
-      // this.filters.itemsPerPage = itemsPerPage
-      // this.fetchTools()
     },
     onClosePopup() {
       this.openDialog = false
     },
-    // onSaveChanges() {
-    //   this.openDialog = false
-    //   this.$emit('changes-saved-post')
-    // },
+    onSaveChanges() {
+      this.openDialog = false
+      this.$emit('changes-saved')
+    },
     onAddTool() {
       this.editingToolId = null
       this.openDialog = true
@@ -305,5 +210,9 @@ export default {
 
 .grey {
   color: grey;
+}
+
+.red {
+  color: red;
 }
 </style>
