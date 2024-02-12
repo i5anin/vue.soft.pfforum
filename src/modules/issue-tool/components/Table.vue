@@ -61,7 +61,7 @@
 
       <template v-slot:item.damaged="{ item }">
         <v-btn color="red" @click="(event) => onDamagedTool(event, item)">
-          Поврежденн
+          Поврежден
         </v-btn>
       </template>
     </v-data-table-server>
