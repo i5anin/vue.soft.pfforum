@@ -187,7 +187,7 @@ export default {
 
     popupTitle() {
       return this.tool?.id != null
-        ? `Редактировать инструмент ID: ${this.tool.id}`
+        ? `Редактировать склад ID: ${this.tool.id}`
         : 'Добавить инструмент'
     },
   },

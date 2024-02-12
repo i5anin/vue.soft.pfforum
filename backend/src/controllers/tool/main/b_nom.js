@@ -309,7 +309,7 @@ async function getToolById(req, res) {
     const query = `
       SELECT t.*, tt.name as folder_name
       FROM dbo.tool_nom t
-      LEFT JOIN dbo.tool_tree tt ON t.parent_id = tt.id AND t.parent_id = 1
+      LEFT JOIN dbo.tool_tree tt ON t.parent_id = tt.id
       WHERE t.id = $1`
 
     const result = await pool.query(query, [id])
@@ -323,12 +323,12 @@ async function getToolById(req, res) {
         type_id: toolData.type_id,
         mat_id: toolData.mat_id,
         name: toolData.name,
-        group_id: toolData.group_id,
-        sklad: toolData.sklad,
-        norma: toolData.norma,
         parent_id: toolData.parent_id,
-        folder_name: toolData.folder_name,
+        folder_name: toolData.folder_name, // тут можно понимать в какой мы папке
         property: toolData.property,
+        sklad: toolData.sklad,
+        limit: toolData.limit,
+        norma: toolData.norma,
       }
 
       res.json(jsonResponse)

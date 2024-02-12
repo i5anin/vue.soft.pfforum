@@ -16,8 +16,9 @@
               <v-text-field
                 label="Папка"
                 required
-                :value="currentFolderName"
+                :value="toolModel.folder_name"
                 :disabled="true"
+                v-model="localParentId"
               />
             </div>
             <!--левый столбец -->
@@ -133,9 +134,9 @@ export default {
     toolModel: {
       name: null,
       property: {},
-      limit: null,
-      norma: null,
-      sklad: null,
+      limit: '',
+      sklad: '',
+      norma: '',
     },
     toolParamOptions: [],
     selectedParams: [],
@@ -227,7 +228,6 @@ export default {
       'fetchToolById',
     ]),
     initializeLocalState() {
-      console.log(this.toolModel)
       if (this.toolId) {
         this.fetchToolById(this.toolId).then(() => {
           this.toolModel.sklad = this.tool.sklad
