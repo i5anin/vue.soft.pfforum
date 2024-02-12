@@ -322,7 +322,7 @@ async function getToolById(req, res) {
         id: toolData.id,
         parent_id: toolData.parent_id,
         name: toolData.name,
-        folder_name: toolData.folder_name, // тут можно понимать в какой мы папке
+        folder_name: toolData.folder_name,
         property: toolData.property,
         sklad: toolData.sklad,
         limit: toolData.limit,
