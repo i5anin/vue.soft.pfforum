@@ -31,22 +31,13 @@ function removeNullProperties(obj) {
 
 async function getTools(req, res) {
   try {
-    // Объединение параметров из тела POST-запроса и параметров строки запроса GET-запроса
-    const params = { ...req.query, ...req.body }
-
-    // console.log('Query params:', req.query)
-    // console.log('Body params:', req.body)
-    // console.log('Merged params:', params)
-
-    const { search, parent_id, onlyInStock, page = 1, limit = 50 } = params
-
-    const pageNumber = parseInt(page, 10)
-    const limitNumber = parseInt(limit, 10)
-    const offset = (pageNumber - 1) * limitNumber
+    const { search, parent_id, onlyInStock } = req.query
+    const page = parseInt(req.query.page || 1, 10)
+    const limit = parseInt(req.query.limit || 15, 10)
+    const offset = (page - 1) * limit
 
     let conditions = []
 
-    // Обработка стандартных параметров для фильтрации
     if (search) {
       conditions.push(`tool_nom.name ILIKE '%${search.replace(/'/g, "''")}%'`)
     }
@@ -59,24 +50,10 @@ async function getTools(req, res) {
       conditions.push(`tool_nom.sklad > 0`)
     }
 
-    // Обработка динамических параметров для фильтрации
-    let dynamicParams = Object.entries(params)
-      .filter(([key, value]) => key.startsWith('param_') && value)
-      .map(([key, value]) => {
-        const paramId = key.split('_')[1] // Извлечение ID параметра
-        return `tool_nom.property ->> '${paramId}' = '${value.replace(
-          /'/g,
-          "''"
-        )}'`
-      })
-
-    conditions = [...conditions, ...dynamicParams]
-
     const whereClause = conditions.length
       ? `WHERE ${conditions.join(' AND ')}`
       : ''
 
-    // SQL запросы для получения инструментов и их количества
     const countQuery = `
       SELECT COUNT(*)
       FROM dbo.tool_nom as tool_nom
@@ -95,10 +72,9 @@ async function getTools(req, res) {
       ORDER BY
         CASE WHEN tool_nom.sklad > 0 THEN 1 ELSE 2 END,
         tool_nom.name
-      LIMIT ${limitNumber} OFFSET ${offset}
+      LIMIT ${limit} OFFSET ${offset}
     `
 
-    // Выполнение запросов и получение данных параметров одновременно
     const [countResult, toolsResult, paramsMapping] = await Promise.all([
       pool.query(countQuery),
       pool.query(toolQuery),
@@ -107,9 +83,8 @@ async function getTools(req, res) {
 
     const totalCount = parseInt(countResult.rows[0].count, 10)
 
-    // Обработка инструментов и параметров для ответа
     const uniqueParams = new Set()
-    const propertyValues = {}
+    const propertyValues = {} // Объект для хранения уникальных значений свойств
 
     const formattedTools = toolsResult.rows.map((tool) => {
       let formattedProperty = {}
@@ -124,8 +99,9 @@ async function getTools(req, res) {
                 info: paramsMapping[key].info,
                 value: value,
               }
-              uniqueParams.add(key)
+              uniqueParams.add(key) // Добавление ключа свойства в uniqueParams
 
+              // Добавление уникальных значений для каждого свойства
               if (!propertyValues[key]) {
                 propertyValues[key] = new Set()
               }
@@ -147,12 +123,14 @@ async function getTools(req, res) {
       }
     })
 
+    // Преобразование Set в массив для каждого свойства
     Object.keys(propertyValues).forEach((key) => {
       propertyValues[key] = Array.from(propertyValues[key])
     })
 
     const paramsList = Array.from(uniqueParams)
       .map((key) => {
+        // Фильтрация параметров, имеющих более одного значения
         const values = propertyValues[key]
         if (values && values.length > 1) {
           return {
@@ -163,12 +141,11 @@ async function getTools(req, res) {
         }
         return null
       })
-      .filter((item) => item != null)
+      .filter((item) => item != null) // Исключение null значений после фильтрации
 
-    // Отправка ответа
     res.json({
-      currentPage: pageNumber,
-      itemsPerPage: limitNumber,
+      currentPage: page,
+      itemsPerPage: limit,
       totalCount,
       tools: formattedTools,
       paramsList,
@@ -330,7 +307,7 @@ async function getToolById(req, res) {
         sklad: toolData.sklad,
         norma: toolData.norma,
         parent_id: toolData.parent_id,
-        folder_name: toolData.folder_name,
+        folder_name: toolData.folder_name, // Добавление названия папки
         property: toolData.property,
       }
 
@@ -344,59 +321,6 @@ async function getToolById(req, res) {
   }
 }
 
-async function getFilterParamsByParentId(req, res) {
-  let { parent_id } = req.params // Получаем parent_id из параметров запроса
-
-  // Преобразуем parent_id в число, если это возможно
-  parent_id = Number(parent_id)
-
-  // Проверяем, является ли результат преобразования допустимым целым числом
-  if (isNaN(parent_id) || !Number.isInteger(parent_id)) {
-    // Возвращаем ошибку клиенту, если parent_id не является целым числом
-    return res.status(400).json({ error: 'Parent ID must be an integer' })
-  }
-
-  try {
-    // Получаем маппинг параметров
-    const paramsMapping = await getParamsMapping()
-
-    // SQL запрос для извлечения всех свойств инструментов в определенной категории
-    const query = `
-      SELECT tool_nom.property
-      FROM dbo.tool_nom
-      WHERE tool_nom.parent_id = $1`
-
-    const { rows } = await pool.query(query, [parent_id])
-
-    // Агрегируем уникальные значения для каждого параметра
-    const paramsAggregation = {}
-
-    rows.forEach((row) => {
-      Object.entries(row.property || {}).forEach(([key, value]) => {
-        if (!paramsAggregation[key]) {
-          paramsAggregation[key] = new Set()
-        }
-        paramsAggregation[key].add(value)
-      })
-    })
-
-    // Преобразование агрегированных данных в требуемый формат
-    const paramsList = Object.entries(paramsAggregation)
-      .map(([key, valuesSet]) => ({
-        key: key,
-        label: paramsMapping[key] ? paramsMapping[key].info : key, // Используем маппинг для заполнения label
-        values: Array.from(valuesSet),
-      }))
-      .filter((param) => param.values.length > 1) // Исключаем параметры с одним значением
-
-    // Отправка результата
-    res.json(paramsList)
-  } catch (err) {
-    console.error(err)
-    res.status(500).send('Server error')
-  }
-}
-
 // Экспорт контроллеров
 module.exports = {
   getToolById,
@@ -404,5 +328,4 @@ module.exports = {
   addTool,
   editTool,
   deleteTool,
-  getFilterParamsByParentId,
 }
