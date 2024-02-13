@@ -10,7 +10,7 @@
                 label="ID папки"
                 required
                 type="Number"
-                v-model="localParentId"
+                :value="localParentId ? localParentId : 55"
                 :rules="parentIdRules"
               />
               <v-text-field
@@ -18,7 +18,6 @@
                 required
                 :value="toolModel.folder_name"
                 :disabled="true"
-                v-model="localParentId"
               />
             </div>
             <!--левый столбец -->
@@ -194,13 +193,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('EditorToolStore', [
-      'widthOptions',
-      'shagOptions',
-      'gabaritOptions',
-      'nameOptions',
-      'tool',
-    ]),
+    ...mapGetters('EditorToolStore', ['nameOptions', 'tool']),
     ...mapState('EditorToolStore', ['idParent']),
     currentFolderName() {
       // return this.toolId === null ? this.idParent.label : this.tool.folder_name
@@ -211,6 +204,10 @@ export default {
           this.toolParams.find(({ info }) => info === paramName)
         )
         .filter((selectedParam) => selectedParam != null)
+    },
+    parentIdValue() {
+      // Возвращает localParentId, если он задан, иначе возвращает id из Vuex store
+      return this.localParentId !== null ? this.localParentId : this.idParent.id
     },
 
     popupTitle() {
@@ -227,6 +224,9 @@ export default {
       'onSaveToolModel',
       'fetchToolById',
     ]),
+    updateLocalParentId(value) {
+      this.localParentId = value
+    },
     initializeLocalState() {
       if (this.toolId) {
         this.fetchToolById(this.toolId).then(() => {

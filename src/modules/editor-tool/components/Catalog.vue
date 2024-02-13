@@ -115,11 +115,11 @@ export default {
     ]),
   },
   methods: {
-    // обновить IdParent
     ...mapMutations('IssueToolStore', [
       'updateIdParent',
       'setCurrentPage',
       'setItemsPerPage',
+      'updateIdParent',
     ]),
     ...mapActions('IssueToolStore', ['fetchToolsByFilter']),
     async onPageChanged(page) {
@@ -211,6 +211,7 @@ export default {
 
     async selectItem(item) {
       console.log('Выбранная папка каталога id:', item.id, item.label)
+      this.updateIdParent({ id: item.id, label: item.label })
       this.currentItem = item
       if (!this.tree.includes(item)) this.tree.push(item)
     },
@@ -239,6 +240,10 @@ export default {
           this.currentItem.id,
           this.currentItem.label
         )
+        this.updateIdParent({
+          id: this.currentItem.id,
+          label: this.currentItem.label,
+        })
       }
     },
     goTo(index) {
@@ -248,7 +253,10 @@ export default {
         this.currentItem.id,
         this.currentItem.label
       )
-
+      this.updateIdParent({
+        id: this.currentItem.id,
+        label: this.currentItem.label,
+      })
       this.tree = this.tree.slice(0, index + 1)
       this.currentItem = this.tree[index]
     },
