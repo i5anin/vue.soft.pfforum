@@ -39,7 +39,9 @@ async function checkStatusChanges() {
           tool_nom.ID AS tool_id,
           tool_nom.NAME,
           SUM(tool_history_nom.quantity) AS total_quantity,
-          tool_history_nom.specs_op_id
+          tool_history_nom.specs_op_id,
+      dbo.kolvo_prod_ready(specs_nom_operations.specs_nom_id) AS quantity_prod,
+      specs_nom_operations.specs_nom_id
       FROM
           dbo.tool_history_nom
       JOIN dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.ID
@@ -50,7 +52,8 @@ async function checkStatusChanges() {
       GROUP BY
           tool_nom.ID,
           tool_nom.NAME,
-          tool_history_nom.specs_op_id
+          tool_history_nom.specs_op_id,
+      specs_nom_operations.specs_nom_id
     `)
 
     if (rows.length === 0) {
@@ -64,15 +67,33 @@ async function checkStatusChanges() {
       return acc
     }, {})
 
+    const tableStructure = [
+      // { label: 'tool_id', text: 'ID инструмента' },
+      { label: 'specs_op_id', text: 'ID операции' },
+      { label: 'specs_nom_id', text: 'ID  партии' },
+      { label: 'name', text: 'название инструмента' },
+      { label: 'total_quantity', text: 'кол-во выдано' },
+      { label: 'quantity_prod', text: 'кол-во продукции' },
+    ]
+
     for (const [specsOpId, rows] of Object.entries(groupedBySpecsOpId)) {
       console.log(`Отправка уведомления для операции с ID ${specsOpId}...`)
       let htmlContent = '<h2>Изменился статус следующих инструментов:</h2>'
-      htmlContent +=
-        '<table border="1"><tr><th>ID Инструмента</th><th>Название</th><th>Количество</th></tr>'
+      htmlContent += '<table border="1"><tr>'
 
-      // Добавляем строки для каждого инструмента
+      // Добавляем заголовки в таблицу
+      tableStructure.forEach((header) => {
+        htmlContent += `<th>${header.text}</th>`
+      })
+      htmlContent += '</tr>'
+
+      // Добавляем данные для каждой строки
       rows.forEach((row) => {
-        htmlContent += `<tr><td>${row.tool_id}</td><td>${row.name}</td><td>${row.total_quantity}</td></tr>`
+        htmlContent += '<tr>'
+        tableStructure.forEach((header) => {
+          htmlContent += `<td>${row[header.label] ?? 'N/A'}</td>`
+        })
+        htmlContent += '</tr>'
       })
 
       htmlContent += '</table>'
