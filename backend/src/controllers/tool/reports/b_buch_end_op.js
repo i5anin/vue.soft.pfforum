@@ -112,7 +112,9 @@ async function checkStatusChanges() {
 }
 
 // Schedule the cron job
-cron.schedule('0 */15 * * * *', () => {
+min15 = '0 */15 * * * *'
+sec10 = '*/3 * * * * *'
+cron.schedule(sec10, () => {
   checkStatusChanges()
     .then(() => {
       console.log('Задача выполнена успешно.')
