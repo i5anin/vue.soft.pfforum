@@ -11,7 +11,6 @@
                 density="compact"
                 label="Маркировка"
                 v-model="toolModel.name"
-                :items="nameOptions"
                 item-text="text"
                 item-value="value"
                 required
