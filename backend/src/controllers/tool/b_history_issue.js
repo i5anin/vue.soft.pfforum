@@ -173,7 +173,8 @@ async function getToolHistoryByPartId(req, res) {
         thn.id_user,
         thn.timestamp,
         tn.name AS name_tool,
-        thn.id_tool
+        thn.id_tool,
+        thn.type_issue
       FROM dbo.tool_history_nom thn
         INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
         INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
@@ -185,70 +186,77 @@ async function getToolHistoryByPartId(req, res) {
     `
     const operationsResult = await pool.query(operationsQuery, [idPart])
 
-    if (operationsResult.rows.length === 0)
+    if (operationsResult.rows.length === 0) {
       return res.status(404).send('Операции для данной партии не найдены')
+    }
 
     const allTools = {}
     const operationsData = {}
     let info = null
 
     operationsResult.rows.forEach((row) => {
-      // Собираем данные для all
+      // Map type_issue numeric value to string
+      const typeIssueMap = { 0: 'Себе', 1: 'На ночь', 2: 'Налада' }
+      row.type_issue = typeIssueMap[row.type_issue] || 'Неизвестно' // Default to "Неизвестно" if not in map
+
+      // Collect data for all tools
       if (allTools[row.id_tool]) {
         allTools[row.id_tool].quantity += row.quantity
-        if (new Date(allTools[row.id_tool].date) > new Date(row.date)) {
-          allTools[row.id_tool].date = row.date
+        if (
+          new Date(allTools[row.id_tool].timestamp) < new Date(row.timestamp)
+        ) {
+          allTools[row.id_tool].timestamp = row.timestamp
+          allTools[row.id_tool].type_issue = row.type_issue // Ensure the latest type_issue is reflected
         }
       } else {
-        const {
-          specs_op_id,
-          user_fio,
-          id_user,
-          id_part,
-          name,
-          description,
-          ...rest
-        } = row
-        allTools[row.id_tool] = { ...rest, no_oper: undefined }
+        allTools[row.id_tool] = {
+          type_oper: row.type_oper,
+          quantity: row.quantity,
+          timestamp: row.timestamp,
+          name_tool: row.name_tool,
+          id_tool: row.id_tool,
+          type_issue: row.type_issue,
+        }
       }
 
-      // Собираем данные по операциям
+      // Collect data by operations
       if (!operationsData[row.no_oper]) {
         operationsData[row.no_oper] = []
       }
-      const { specs_op_id, id_part, name, description, ...restOper } = row
-      operationsData[row.no_oper].push(restOper)
+      operationsData[row.no_oper].push({
+        no_oper: row.no_oper,
+        type_oper: row.type_oper,
+        quantity: row.quantity,
+        user_fio: row.user_fio,
+        id_user: row.id_user,
+        timestamp: row.timestamp,
+        name_tool: row.name_tool,
+        id_tool: row.id_tool,
+        type_issue: row.type_issue,
+      })
 
-      // Собираем информацию для info
+      // Collect information for info section
       if (!info) {
-        const {
-          specs_op_id,
-          no_oper,
-          type_oper,
-          quantity,
-          user_fio,
-          id_user,
-          date,
-          name_tool,
-          id_tool,
-          ...restInfo
-        } = row
-        info = restInfo
+        info = {
+          id_part: row.id_part,
+          name: row.NAME,
+          description: row.description,
+          timestamp: row.timestamp,
+        }
       }
     })
-
-    // Сортируем ключи операций
-    const sortedOperations = Object.keys(operationsData).sort()
 
     const finalData = {
       info,
       all: Object.values(allTools),
     }
 
-    // Добавляем отсортированные операции в finalData
-    sortedOperations.forEach((operation) => {
-      finalData[operation] = operationsData[operation]
-    })
+    // Add sorted operations to finalData
+    Object.keys(operationsData)
+      .sort()
+      .forEach((operation) => {
+        finalData[operation] = operationsData[operation]
+      })
 
     res.json(finalData)
   } catch (err) {
