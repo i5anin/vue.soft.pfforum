@@ -64,7 +64,6 @@
               return-object
               single-line
               :rules="issueTypeRules"
-              @update:modelValue="handleTypeIssueChange"
               required
             />
             <h2 class="text-h6">Сколько выдать:</h2>
