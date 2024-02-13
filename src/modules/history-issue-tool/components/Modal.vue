@@ -82,6 +82,7 @@ export default {
         { title: 'Инструмент', value: 'name_tool' },
         { title: 'Кол-во', value: 'quantity', width: '90px' },
         { title: 'Выдано', value: 'user_fio' },
+        { title: 'Тип выдачи', value: 'type_issue' },
         { title: 'Дата', value: 'timestamp' },
         { title: 'Операция', value: 'no_oper' },
         { title: 'Тип', value: 'type_oper' },
