@@ -72,16 +72,18 @@ async function getFioOperators(req, res) {
 
 async function issueTool(req, res) {
   try {
-    // Извлекаем данные из тела запроса
-    const { specs_op_id, id_user, id_tool, quantity, timestamp } = req.body
+    // Извлекаем данные из тела запроса, включая type_issue
+    const { specs_op_id, id_user, id_tool, type_issue, quantity, timestamp } =
+      req.body
 
-    // Проверяем наличие всех необходимых параметров
+    // Проверяем наличие всех необходимых параметров, включая type_issue
     if (
       !specs_op_id ||
       !id_user ||
       !id_tool ||
       quantity == null ||
-      !timestamp
+      !timestamp ||
+      type_issue == null
     ) {
       return res.status(400).send('Отсутствует один из обязательных параметров')
     }
@@ -103,8 +105,8 @@ async function issueTool(req, res) {
 
     // SQL запрос для вставки данных в таблицу tool_history_nom и возвращения идентификатора
     const insertQuery = `
-      INSERT INTO dbo.tool_history_nom (specs_op_id, id_user, id_tool, quantity, timestamp)
-      VALUES ($1, $2, $3, $4, $5)
+      INSERT INTO dbo.tool_history_nom (specs_op_id, id_user, id_tool, type_issue, quantity, timestamp)
+      VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING id
     `
 
@@ -113,6 +115,7 @@ async function issueTool(req, res) {
       specs_op_id,
       id_user,
       id_tool,
+      type_issue,
       quantity,
       timestamp,
     ])
@@ -147,6 +150,7 @@ async function issueTool(req, res) {
       specs_op_id,
       id_user,
       id_tool,
+      type_issue, // Добавляем type_issue в ответ
       quantity,
       timestamp,
       updatedSklad: updatedSklad.rows[0].sklad,
@@ -161,7 +165,14 @@ async function issueTool(req, res) {
         message: error.message,
         stack: error.stack,
       },
-      requestData: { specs_op_id, id_user, id_tool, quantity, timestamp },
+      requestData: {
+        specs_op_id,
+        id_user,
+        id_tool,
+        type_issue,
+        quantity,
+        timestamp,
+      }, // Добавляем type_issue в данные запроса для логирования
     })
   }
 }

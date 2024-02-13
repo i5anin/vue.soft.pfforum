@@ -55,6 +55,18 @@
               single-line
               @update:modelValue="handleSelectionChange"
             />
+            <v-combobox
+              v-model="toolModel.typeIssue"
+              :items="typeIssueOptions"
+              item-text="title"
+              item-value="id"
+              label="Тип выдачи"
+              return-object
+              single-line
+              :rules="issueTypeRules"
+              @update:modelValue="handleTypeIssueChange"
+              required
+            />
             <h2 class="text-h6">Сколько выдать:</h2>
             <v-text-field
               density="compact"
@@ -126,6 +138,11 @@ export default {
   },
   components: { Modal },
   data: () => ({
+    typeIssueOptions: [
+      { title: 'Себе', id: 0 },
+      { title: 'На ночь', id: 1 },
+      { title: 'Наладка', id: 2 },
+    ],
     overNorm: false,
     originalData: [],
     idMapping: {},
@@ -134,13 +151,19 @@ export default {
     fioOptions: [],
     selectedData: { name: null, description: null, no: null, type: null },
     localParentId: null,
-    toolModel: { name: null, property: {}, selectedOperationId: null },
+    toolModel: {
+      name: null,
+      property: {},
+      selectedOperationId: null,
+      typeIssue: null,
+    },
     selectedParams: [],
     toolParams: [],
     confirmDeleteDialog: false,
     typeSelected: false,
     selectedType: '',
     operationMapping: {},
+    issueTypeRules: [(v) => !!v || 'Тип выдачи обязателен для выбора'],
     parentIdRules: [
       (v) => !!v || 'ID папки обязательно',
       (v) => v > 1 || 'ID папки должен быть больше 1',
@@ -198,13 +221,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('IssueToolStore', [
-      'widthOptions',
-      'shagOptions',
-      'gabaritOptions',
-      'nameOptions',
-      'tool',
-    ]),
+    ...mapGetters('IssueToolStore', ['nameOptions', 'tool']),
     ...mapState('IssueToolStore', ['idParent']),
     currentFolderName() {
       return this.toolId === null ? this.idParent.label : this.tool.folder_name
@@ -349,6 +366,7 @@ export default {
           specs_op_id: this.toolModel.selectedOperationId,
           id_user: this.selectedFio.value,
           id_tool: this.toolId,
+          type_issue: this.toolModel.typeIssue.id,
           quantity: parseInt(this.toolModel.issue),
           timestamp: new Date().toISOString(),
         }
