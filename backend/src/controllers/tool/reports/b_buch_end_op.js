@@ -78,7 +78,7 @@ async function checkStatusChanges() {
 
     for (const [specsOpId, rows] of Object.entries(groupedBySpecsOpId)) {
       console.log(`Отправка уведомления для операции с ID ${specsOpId}...`)
-      let htmlContent = '<h2>Изменился статус следующих инструментов:</h2>'
+      let htmlContent = `<h2>Операция ${specsOpId} завершена:</h2>`
       htmlContent += '<table border="1"><tr>'
 
       // Добавляем заголовки в таблицу
@@ -135,7 +135,7 @@ async function checkStatusChanges() {
 // Schedule the cron job
 min15 = '0 */15 * * * *'
 sec10 = '*/3 * * * * *'
-cron.schedule(sec10, () => {
+cron.schedule(min15, () => {
   checkStatusChanges()
     .then(() => {
       console.log('Задача выполнена успешно.')
