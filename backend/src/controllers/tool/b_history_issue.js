@@ -196,7 +196,7 @@ async function getToolHistoryByPartId(req, res) {
 
     operationsResult.rows.forEach((row) => {
       // Map type_issue numeric value to string
-      const typeIssueMap = { 0: 'Себе', 1: 'На ночь', 2: 'Налада' }
+      const typeIssueMap = { 0: 'Себе', 1: 'На ночь', 2: 'Наладка' }
       row.type_issue = typeIssueMap[row.type_issue] || 'Неизвестно' // Default to "Неизвестно" if not in map
 
       // Collect data for all tools
