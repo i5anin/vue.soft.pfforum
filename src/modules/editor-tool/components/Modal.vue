@@ -10,7 +10,8 @@
                 label="ID папки"
                 required
                 type="Number"
-                :value="localParentId ? localParentId : 55"
+                v-model="localParentId"
+                @input="updateParentId"
                 :rules="parentIdRules"
               />
               <v-text-field
@@ -129,7 +130,7 @@ export default {
   },
   components: { Modal },
   data: () => ({
-    localParentId: null,
+    localParentId: this.parentId,
     toolModel: {
       name: null,
       property: {},
@@ -205,10 +206,6 @@ export default {
         )
         .filter((selectedParam) => selectedParam != null)
     },
-    parentIdValue() {
-      // Возвращает localParentId, если он задан, иначе возвращает id из Vuex store
-      return this.localParentId !== null ? this.localParentId : this.idParent.id
-    },
 
     popupTitle() {
       return this.tool?.id != null
@@ -224,10 +221,10 @@ export default {
       'onSaveToolModel',
       'fetchToolById',
     ]),
-    updateLocalParentId(value) {
-      this.localParentId = value
-    },
+
     initializeLocalState() {
+      this.localParentId =
+        this.idParent && this.idParent.id ? this.idParent.id : 55
       if (this.toolId) {
         this.fetchToolById(this.toolId).then(() => {
           this.toolModel.sklad = this.tool.sklad

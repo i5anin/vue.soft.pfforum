@@ -106,7 +106,7 @@ export default {
     },
   },
   computed: {
-    ...mapGetters('IssueToolStore', [
+    ...mapGetters('EditorToolStore', [
       'toolsTotalCount',
       'formattedTools',
       'filters',
@@ -115,13 +115,13 @@ export default {
     ]),
   },
   methods: {
-    ...mapMutations('IssueToolStore', [
+    ...mapMutations('EditorToolStore', [
       'updateIdParent',
       'setCurrentPage',
       'setItemsPerPage',
       'updateIdParent',
     ]),
-    ...mapActions('IssueToolStore', ['fetchToolsByFilter']),
+    ...mapActions('EditorToolStore', ['fetchToolsByFilter']),
     async onPageChanged(page) {
       this.setCurrentPage(page)
       await this.fetchToolsByFilter()

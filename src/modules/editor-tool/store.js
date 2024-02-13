@@ -28,6 +28,7 @@ export default {
   mutations: {
     updateIdParent(state, idParentData) {
       state.idParent = { ...idParentData }
+      console.log('Новый parentId:', state.idParent.id)
     },
     setParamsList(state, params) {
       console.log('Обновленный список параметров:', params)
