@@ -62,13 +62,6 @@
               required
               v-model="toolModel.norma"
             />
-            <!--            <v-text-field-->
-            <!--              type="number"-->
-            <!--              density="compact"-->
-            <!--              label="Лимит"-->
-            <!--              required-->
-            <!--              v-model="toolModel.limit"-->
-            <!--            />-->
             <v-divider class="my-1"></v-divider>
             <v-text-field
               type="number"
@@ -159,20 +152,10 @@ export default {
     tool: {
       deep: true,
       immediate: true,
-      handler(newTool) {
-        if (newTool) {
-          this.localParentId = newTool.parent_id
-          this.currentFolderName = newTool.folder_name
-        } else {
-          this.localParentId = this.idParent.id
-          this.currentFolderName = this.idParent.label
-        }
-      },
     },
   },
 
   async created() {
-    this.initializeLocalState()
     if (this.toolId == null) {
       this.setTool({
         id: null,
@@ -196,9 +179,6 @@ export default {
   computed: {
     ...mapGetters('EditorToolStore', ['nameOptions', 'tool']),
     ...mapState('EditorToolStore', ['idParent']),
-    currentFolderName() {
-      // return this.toolId === null ? this.idParent.label : this.tool.folder_name
-    },
     selectedParamsInfo() {
       return this.selectedParams
         .map((paramName) =>
@@ -222,20 +202,6 @@ export default {
       'fetchToolById',
     ]),
 
-    initializeLocalState() {
-      this.localParentId =
-        this.idParent && this.idParent.id ? this.idParent.id : 55
-      if (this.toolId) {
-        this.fetchToolById(this.toolId).then(() => {
-          this.toolModel.sklad = this.tool.sklad
-          this.toolModel.norma = this.tool.norma
-          this.toolModel.limit = this.tool.limit
-        })
-      } else {
-        this.localParentId = this.idParent.id
-        this.currentFolderName = this.idParent.label
-      }
-    },
     logModelValue(paramId) {
       console.log('Value changed for param ID:', paramId)
     },
