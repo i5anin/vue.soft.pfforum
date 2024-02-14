@@ -10,14 +10,14 @@
                 label="ID папки"
                 required
                 type="Number"
-                v-model="this.idParent.id"
+                v-model="idParent.id"
                 :rules="parentIdRules"
               />
               <v-text-field
                 label="Папка"
                 required
                 type="Text"
-                v-model="this.idParent.label"
+                v-model="idParent.label"
                 :disabled="true"
               />
             </div>
@@ -127,9 +127,9 @@ export default {
       toolModel: {
         name: null,
         property: {},
-        limit: '',
-        sklad: '',
-        norma: '',
+        limit: null,
+        sklad: null,
+        norma: null,
       },
       toolParamOptions: [],
       selectedParams: [],
@@ -170,11 +170,12 @@ export default {
   watch: {
     toolId: {
       immediate: true,
-      async handler(newVal) {
-        if (newVal == null) {
+      async handler(editingToolId) {
+        console.log('editingToolId=', editingToolId)
+        if (editingToolId == null) {
           this.resetToolModel()
         } else {
-          await this.fetchToolById(newVal)
+          await this.fetchToolById(editingToolId)
           this.updateToolModel()
         }
       },
@@ -184,13 +185,15 @@ export default {
     ...mapActions('EditorToolStore', ['fetchToolsByFilter', 'fetchToolById']),
     ...mapMutations('EditorToolStore', ['setTool']),
     resetToolModel() {
+      console.log('Новый инструмент resetToolModel')
       this.toolModel = {
         name: null,
+        limit: null,
+        sklad: null,
+        norma: null,
         property: {},
-        limit: '',
-        sklad: '',
-        norma: '',
       }
+      console.log(this.toolModel)
     },
     updateToolModel() {
       if (this.tool) {
@@ -249,6 +252,16 @@ export default {
     },
   },
   async created() {
+    if (this.toolId == null) {
+      this.setTool({
+        id: null,
+        name: null,
+        property: {},
+      })
+    } else {
+      await this.fetchToolById(this.toolId)
+      if (this.tool.property === null) this.tool.property = {}
+    }
     const rawToolParams = await getToolParams()
     this.toolParams = [...rawToolParams]
     this.toolModel = JSON.parse(JSON.stringify(this.tool))
