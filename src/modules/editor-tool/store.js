@@ -6,9 +6,6 @@ export default {
     idParent: { id: 1, label: null },
     isLoading: false,
     paramsList: [],
-    // shagOptions: [],
-    // gabaritOptions: [],
-    // widthOptions: [],
     nameOptions: [],
 
     tool: null,
@@ -28,7 +25,7 @@ export default {
   mutations: {
     updateIdParent(state, idParentData) {
       state.idParent = { ...idParentData }
-      console.log('Новый parentId:', state.idParent.id)
+      console.log('Новый parentId:', state.idParent)
     },
     setParamsList(state, params) {
       console.log('Обновленный список параметров:', params)

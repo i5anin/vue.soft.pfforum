@@ -10,14 +10,14 @@
                 label="ID папки"
                 required
                 type="Number"
-                v-model="localParentId"
-                @input="updateParentId"
+                v-model="this.idParent.id"
                 :rules="parentIdRules"
               />
               <v-text-field
                 label="Папка"
                 required
-                :value="toolModel.folder_name"
+                type="Text"
+                v-model="this.idParent.label"
                 :disabled="true"
               />
             </div>
@@ -62,13 +62,13 @@
               required
               v-model="toolModel.norma"
             />
-            <v-text-field
-              type="number"
-              density="compact"
-              label="Лимит"
-              required
-              v-model="toolModel.limit"
-            />
+            <!--            <v-text-field-->
+            <!--              type="number"-->
+            <!--              density="compact"-->
+            <!--              label="Лимит"-->
+            <!--              required-->
+            <!--              v-model="toolModel.limit"-->
+            <!--            />-->
             <v-divider class="my-1"></v-divider>
             <v-text-field
               type="number"
@@ -130,7 +130,7 @@ export default {
   },
   components: { Modal },
   data: () => ({
-    localParentId: this.parentId,
+    localParentId: null,
     toolModel: {
       name: null,
       property: {},
@@ -210,7 +210,7 @@ export default {
     popupTitle() {
       return this.tool?.id != null
         ? `Редактировать инструмент ID: ${this.tool.id}`
-        : 'Добавить инструмент'
+        : 'Добавить новый инструмент'
     },
   },
   methods: {
