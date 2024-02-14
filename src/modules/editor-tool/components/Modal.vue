@@ -122,63 +122,38 @@ export default {
     toolId: { type: Number, default: null },
   },
   components: { Modal },
-  data: () => ({
-    localParentId: null,
-    toolModel: {
-      name: null,
-      property: {},
-      limit: '',
-      sklad: '',
-      norma: '',
-    },
-    toolParamOptions: [],
-    selectedParams: [],
-    geometryOptions: [],
-    toolParams: [],
-    confirmDeleteDialog: false,
-    typeSelected: false,
-    selectedType: '',
-    parentIdRules: [
-      (v) => !!v || 'ID папки обязательно',
-      (v) => v > 1 || 'ID папки должен быть больше 1',
-      (v) => v !== '' || 'ID папки не должен быть пустым',
-    ],
-    typeRules: [
-      (v) => !!v || 'Поле обязательно для заполнения',
-      (v) => (v && v.length >= 3) || 'Минимальная длина: 3 символа',
-    ],
-  }),
-  watch: {
-    tool: {
-      deep: true,
-      immediate: true,
-    },
-  },
-
-  async created() {
-    if (this.toolId == null) {
-      this.setTool({
-        id: null,
+  data() {
+    return {
+      toolModel: {
         name: null,
         property: {},
-      })
-    } else {
-      await this.fetchToolById(this.toolId)
-      if (this.tool.property === null) this.tool.property = {}
+        limit: '',
+        sklad: '',
+        norma: '',
+      },
+      toolParamOptions: [],
+      selectedParams: [],
+      geometryOptions: [],
+      toolParams: [],
+      confirmDeleteDialog: false,
+      typeSelected: false,
+      selectedType: '',
+      parentIdRules: [
+        (v) => !!v || 'ID папки обязательно',
+        (v) => v > 1 || 'ID папки должен быть больше 1',
+        (v) => v !== '' || 'ID папки не должен быть пустым',
+      ],
+      typeRules: [
+        (v) => !!v || 'Поле обязательно для заполнения',
+        (v) => (v && v.length >= 3) || 'Минимальная длина: 3 символа',
+      ],
     }
-    const rawToolParams = await getToolParams()
-    this.toolParams = [...rawToolParams]
-    this.toolModel = JSON.parse(JSON.stringify(this.tool))
-    const propertyIds = Object.keys(this.toolModel.property).map((key) => key)
-    this.selectedParams = this.toolParams
-      .filter(({ id }) => propertyIds.includes(String(id)))
-      .map(({ info }) => info)
-    this.toolParamOptions = rawToolParams.map((param) => param.info)
   },
-
   computed: {
     ...mapGetters('EditorToolStore', ['nameOptions', 'tool']),
-    ...mapState('EditorToolStore', ['idParent']),
+    ...mapState('EditorToolStore', {
+      idParent: (state) => state.idParent,
+    }),
     selectedParamsInfo() {
       return this.selectedParams
         .map((paramName) =>
@@ -186,41 +161,56 @@ export default {
         )
         .filter((selectedParam) => selectedParam != null)
     },
-
     popupTitle() {
       return this.tool?.id != null
         ? `Редактировать инструмент ID: ${this.tool.id}`
         : 'Добавить новый инструмент'
     },
   },
+  watch: {
+    toolId: {
+      immediate: true,
+      async handler(newVal) {
+        if (newVal == null) {
+          this.resetToolModel()
+        } else {
+          await this.fetchToolById(newVal)
+          this.updateToolModel()
+        }
+      },
+    },
+  },
   methods: {
+    ...mapActions('EditorToolStore', ['fetchToolsByFilter', 'fetchToolById']),
     ...mapMutations('EditorToolStore', ['setTool']),
-    ...mapActions('EditorToolStore', [
-      'fetchUniqueToolSpecs',
-      'fetchToolsByFilter',
-      'onSaveToolModel',
-      'fetchToolById',
-    ]),
-
+    resetToolModel() {
+      this.toolModel = {
+        name: null,
+        property: {},
+        limit: '',
+        sklad: '',
+        norma: '',
+      }
+    },
+    updateToolModel() {
+      if (this.tool) {
+        this.toolModel = JSON.parse(JSON.stringify(this.tool))
+      }
+    },
     logModelValue(paramId) {
       console.log('Value changed for param ID:', paramId)
     },
-
     prependLastSavedData(data) {
       if (!data) return
       this.prependOptionIfNeeded(data.name, this.nameOptions, 'name')
     },
-
     prependOptionIfNeeded(value, optionsList) {
       if (value && !optionsList.some((option) => option.value === value))
         optionsList.unshift(value)
     },
-
     parseToFloat(value) {
-      if (value === null) return 0
-      return parseFloat(value.toString().replace(',', '.'))
+      return value === null ? 0 : parseFloat(value.toString().replace(',', '.'))
     },
-
     confirmDelete() {
       if (window.confirm('Вы уверены, что хотите удалить этот инструмент?'))
         this.onDelete()
@@ -236,16 +226,11 @@ export default {
         }
       }
     },
-
     onCancel() {
       this.$emit('canceled')
     },
     async onSave() {
-      const toolDataToSend = {
-        ...this.toolModel,
-        parent_id: this.localParentId,
-      }
-
+      const toolDataToSend = { ...this.toolModel, parent_id: this.idParent.id }
       try {
         let response
         if (this.toolId) {
@@ -257,11 +242,21 @@ export default {
         if (response.success === 'OK') this.$emit('changes-saved')
       } catch (error) {
         console.error(
-          'Ошибка при сохранении: ',
+          'Ошибка при сохранении:',
           error.response ? error.response.data : error
         )
       }
     },
+  },
+  async created() {
+    const rawToolParams = await getToolParams()
+    this.toolParams = [...rawToolParams]
+    this.toolModel = JSON.parse(JSON.stringify(this.tool))
+    const propertyIds = Object.keys(this.toolModel.property).map((key) => key)
+    this.selectedParams = this.toolParams
+      .filter(({ id }) => propertyIds.includes(String(id)))
+      .map(({ info }) => info)
+    this.toolParamOptions = rawToolParams.map((param) => param.info)
   },
 }
 </script>
