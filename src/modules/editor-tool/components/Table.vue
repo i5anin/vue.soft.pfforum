@@ -3,6 +3,7 @@
     <!-- <tool-filter :namespace="namespace">-->
     <!-- <v-btn color="blue" @click="onAddTool">Редактировать склад</v-btn>-->
     <!-- </tool-filter>-->
+    <!--    <pre>{{ filterParamsList }}</pre>-->
 
     <v-row cols="12" sm="4">
       <v-col v-for="filter in filterParamsList" :key="filter.key">
@@ -77,6 +78,7 @@ import EditorToolModal from './Modal.vue'
 import ToolFilter from '@/modules/tool/components/ToolFilter.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { toolEditorApi } from '@/modules/editor-tool/api/editor'
+import { mapState } from 'vuex'
 
 export default {
   emits: ['changes-saved', 'canceled', 'page-changed', 'page-limit-changed'],
@@ -111,23 +113,25 @@ export default {
       default: 'tool',
     },
   },
+  computed: {
+    ...mapState('EditorToolStore', ['paramsList', 'idParent']),
+  },
   data() {
     return {
-      activeTabType: 'Catalog', // Например, 'Catalog', 'Sklad', 'Give' и т.д.
+      activeTabType: 'Catalog', // Например, 'catalog', 'sklad', 'give' и т.д.
       openDialog: false,
       isDataLoaded: false,
       editingToolId: null, //редактирование идентификатора инструмента
       toolTableHeaders: [], //заголовки таблиц инструментов
+      filterParamsList: [],
     }
   },
   watch: {
-    parentId: {
-      immediate: true,
-      handler(newValue, oldValue) {
-        if (newValue !== oldValue) {
-          this.fetchFilterParams()
-        }
-      },
+    'idParent.id'(newId) {
+      console.log('idParent.id changed to', newId)
+      if (newId !== undefined) {
+        this.fetchFilterParams()
+      }
     },
     paramsList: {
       immediate: true,
@@ -152,17 +156,40 @@ export default {
   },
 
   async mounted() {
+    await this.fetchFilterParams()
     this.isDataLoaded = true
   },
   methods: {
-    async fetchFilterParams() {
-      console.log('Таблица. parentId = ', this.parentId)
-      if (this.parentId)
-        this.filterParamsList = await toolEditorApi.filterParamsByParentId(
-          this.parentId
-        )
-      this.isDataLoaded = true
+    onParamsFilterUpdate() {
+      this.$store.dispatch('EditorToolStore/fetchToolsByFilter')
     },
+    async fetchFilterParams() {
+      console.log('Извлекать параметры фильтра')
+      if (this.idParent && this.idParent.id) {
+        // Убедитесь, что idParent и его id доступны
+        try {
+          const response = await toolEditorApi.filterParamsByParentId(
+            this.idParent.id
+          )
+          console.log('API response:', response)
+          if (response && Array.isArray(response)) {
+            this.filterParamsList = response.map((item) => ({
+              key: item.key,
+              label: item.label,
+              values: item.values,
+            }))
+          } else {
+            console.log('Некорректный формат ответа от API')
+          }
+          this.isDataLoaded = true
+        } catch (error) {
+          console.error('Ошибка при выполнении fetchFilterParams:', error)
+        }
+      } else {
+        console.log('Родительский идентификатор не определен')
+      }
+    },
+
     colorClassGrey(item) {
       return { grey: !item.sklad || item.sklad === 0 }
     },
