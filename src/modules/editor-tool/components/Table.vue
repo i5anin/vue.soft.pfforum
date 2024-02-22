@@ -1,9 +1,10 @@
 <template>
   <v-container>
-    <!-- <tool-filter :namespace="namespace">-->
-    <!-- <v-btn color="blue" @click="onAddTool">Редактировать склад</v-btn>-->
-    <!-- </tool-filter>-->
-    <!--    <pre>{{ filterParamsList }}</pre>-->
+    <!--    <ToolFilter-->
+    <!--      :filter-params-list="filterParamsList"-->
+    <!--      :filters="filters"-->
+    <!--      @filter-update="onParamsFilterUpdate"-->
+    <!--    />-->
 
     <v-row cols="12" sm="4">
       <v-col v-for="filter in filterParamsList" :key="filter.key">
@@ -79,6 +80,7 @@ import ToolFilter from '@/modules/tool/components/ToolFilter.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { toolEditorApi } from '@/modules/editor-tool/api/editor'
 import { mapState } from 'vuex'
+import { toolApi } from '@/api'
 
 export default {
   emits: ['changes-saved', 'canceled', 'page-changed', 'page-limit-changed'],
@@ -96,14 +98,10 @@ export default {
       type: Array,
       default: () => [],
     },
-    filters: {
-      type: Object,
-      required: true,
-    },
-    isLoading: {
-      type: Boolean,
-      default: false,
-    },
+    // isLoading: {
+    //   type: Boolean,
+    //   default: false,
+    // },
     paramsList: {
       type: Array,
       default: () => [],
@@ -124,6 +122,7 @@ export default {
       editingToolId: null, //редактирование идентификатора инструмента
       toolTableHeaders: [], //заголовки таблиц инструментов
       filterParamsList: [],
+      filters: [],
     }
   },
   watch: {
@@ -160,9 +159,84 @@ export default {
     this.isDataLoaded = true
   },
   methods: {
-    onParamsFilterUpdate() {
-      this.$store.dispatch('EditorToolStore/fetchToolsByFilter')
+    prepareFilterParams() {
+      const params = {
+        search: this.filters.search || '',
+        page: this.filters.currentPage || 1,
+        limit: this.filters.itemsPerPage || 15,
+        parent_id:
+          this.idParent && this.idParent.id ? this.idParent.id : undefined,
+      }
+
+      // Добавляем параметры фильтрации, если они выбраны
+      Object.keys(this.filters).forEach((key) => {
+        // Проверяем, является ли ключ динамическим параметром фильтра
+        if (key.startsWith('param_') && this.filters[key]) {
+          const paramId = key.split('_')[1] // Получаем ID параметра
+          params[`param_${paramId}`] = this.filters[key]
+        }
+      })
+
+      return params
     },
+    fetchFilteredTools() {
+      const params = this.prepareFilterParams()
+
+      // Использование метода POST для отправки параметров фильтрации
+      this.getToolsPost(params)
+        .then((data) => {
+          // Обработка ответа от сервера
+          this.formattedTools = data.items // Обновляем отфильтрованные инструменты
+          this.toolsTotalCount = data.totalCount // Обновляем общее количество инструментов
+        })
+        .catch((error) => {
+          console.error('Ошибка при получении инструментов:', error)
+        })
+        .finally(() => {
+          this.isLoading = false // Скрываем индикатор загрузки
+        })
+    },
+
+    // Метод для POST запроса (используем уже объявленный в API)
+    async getToolsPost(params) {
+      return toolApi.getToolsPost(
+        params.search,
+        params.page,
+        params.limit,
+        params.includeNull,
+        params.parent_id,
+        true, // только в наличии
+        params.filters // Дополнительные фильтры
+      )
+    },
+
+    // Метод для обработки обновления параметров фильтра
+    onParamsFilterUpdate() {
+      console.log('onParamsFilterUpdate')
+      this.isLoading = true // Показываем индикатор загрузки
+      this.fetchFilteredTools() // Перезапускаем запрос с обновлёнными фильтрами
+    },
+
+    async postTools(params) {
+      try {
+        const response = await toolEditorApi.post('/tools', params)
+        console.log('Ответ API:', response)
+        // Обработка ответа
+      } catch (error) {
+        console.error('Ошибка при выполнении POST запроса:', error)
+      }
+    },
+    async getTools(params) {
+      const queryString = new URLSearchParams(params).toString()
+      try {
+        const response = await toolEditorApi.get(`/tools?${queryString}`)
+        console.log('Ответ API:', response)
+        // Обработка ответа
+      } catch (error) {
+        console.error('Ошибка при выполнении GET запроса:', error)
+      }
+    },
+
     async fetchFilterParams() {
       console.log('Извлекать параметры фильтра')
       if (this.idParent && this.idParent.id) {
