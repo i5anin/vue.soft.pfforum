@@ -80,9 +80,7 @@
 import EditorToolModal from './ModalNew.vue'
 import ToolFilter from '@/modules/tool/components/ToolFilter.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
-import { toolEditorApi } from '@/modules/editor-tool/api/editor'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
-import { toolApi } from '@/api'
 
 export default {
   emits: [],
