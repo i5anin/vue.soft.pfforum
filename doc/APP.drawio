@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2024-02-22T12:53:26.920Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36" etag="AWzbWwxUzRJY8vsGbTDH" version="23.1.5" type="device">
+<mxfile host="app.diagrams.net" modified="2024-02-26T05:06:56.740Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36" etag="3kYRXZZZc_qKkMKcyZUS" version="23.1.5" type="device">
   <diagram name="Страница — 1" id="OBi1eS88keLNz1npUpVn">
     <mxGraphModel dx="989" dy="542" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
@@ -156,7 +156,7 @@
           <mxGeometry x="28.5" y="45" width="133" height="20" as="geometry" />
         </mxCell>
         <mxCell id="rmQgF-IMgd2aJ8l7F9f9-74" value="idParent" style="swimlane;whiteSpace=wrap;html=1;strokeColor=#9673a6;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;fillColor=#e1d5e7;rounded=1;" parent="rmQgF-IMgd2aJ8l7F9f9-58" vertex="1">
-          <mxGeometry x="181.75" y="45" width="153.5" height="60" as="geometry">
+          <mxGeometry x="181.75" y="45" width="168.25" height="60" as="geometry">
             <mxRectangle x="236.5" y="160" width="80" height="30" as="alternateBounds" />
           </mxGeometry>
         </mxCell>
@@ -164,7 +164,7 @@
           <mxGeometry x="1.75" y="25" width="150" height="25" as="geometry" />
         </mxCell>
         <mxCell id="rmQgF-IMgd2aJ8l7F9f9-82" value="isLoading" style="swimlane;whiteSpace=wrap;html=1;strokeColor=#9673a6;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;fillColor=#e1d5e7;rounded=1;" parent="rmQgF-IMgd2aJ8l7F9f9-58" vertex="1">
-          <mxGeometry x="180" y="110" width="153.5" height="60" as="geometry">
+          <mxGeometry x="180" y="110" width="170" height="60" as="geometry">
             <mxRectangle x="236.5" y="160" width="80" height="30" as="alternateBounds" />
           </mxGeometry>
         </mxCell>
@@ -180,7 +180,7 @@
           <mxGeometry x="1.75" y="25" width="168.25" height="25" as="geometry" />
         </mxCell>
         <mxCell id="rmQgF-IMgd2aJ8l7F9f9-87" value="shagOptions" style="swimlane;whiteSpace=wrap;html=1;strokeColor=#9673a6;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;fillColor=#e1d5e7;rounded=1;" parent="rmQgF-IMgd2aJ8l7F9f9-58" vertex="1">
-          <mxGeometry x="180" y="265" width="153.5" height="60" as="geometry">
+          <mxGeometry x="181.75" y="255" width="168.25" height="60" as="geometry">
             <mxRectangle x="236.5" y="160" width="80" height="30" as="alternateBounds" />
           </mxGeometry>
         </mxCell>
