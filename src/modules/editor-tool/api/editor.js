@@ -5,7 +5,7 @@ function handleResponse(response) {
   return response.data
 }
 
-export const toolEditorApi = {
+export const editorToolApi = {
   // Добавить новый инструмент
   addTool: async (toolData) =>
     axiosInstance

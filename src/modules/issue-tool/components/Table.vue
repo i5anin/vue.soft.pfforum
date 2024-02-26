@@ -1,10 +1,6 @@
 <template>
   <v-container>
-    <tool-filter
-      :filter-params-list="filterParamsList"
-      :filters="filters"
-      @filter-update="onParamsFilterUpdate"
-    />
+    <tool-filter />
     <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>
     <ModalDamaged
       v-if="openDialog && currentModal === 'damaged'"
@@ -65,6 +61,7 @@
           Выдать
         </v-btn>
       </template>
+
       <template v-slot:item.damaged="{ item }">
         <v-btn color="red" @click="(event) => onDamagedTool(event, item)">
           Поврежден
@@ -77,7 +74,7 @@
 <script>
 import ModalIssue from './ModalIssue.vue'
 import ModalDamaged from './ModalDamaged.vue'
-import ToolFilter from '../../tool/components/ToolFilter.vue'
+import ToolFilter from '@/modules/shared/components/ToolFilter.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
 

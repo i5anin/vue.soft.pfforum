@@ -57,7 +57,7 @@
 
 <script>
 import StorageToolModal from './Modal.vue'
-import ToolFilter from '@/modules/tool/components/ToolFilter.vue'
+import ToolFilter from '@/modules/shared/components/ToolFilter.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 
 export default {

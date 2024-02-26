@@ -1,5 +1,6 @@
 import { toolApi } from '@/api'
-import { toolEditorApi } from '@/modules/editor-tool/api/editor'
+import { issueToolApi } from './api/issue'
+import { editorToolApi } from '@/modules/editor-tool/api/editor'
 
 export default {
   namespaced: true,
@@ -71,7 +72,7 @@ export default {
       }
 
       try {
-        const dynamicFilters = await toolEditorApi.filterParamsByParentId(id)
+        const dynamicFilters = await editorToolApi.filterParamsByParentId(id) //TODO:
         commit(
           'setSelectedDynamicFilters',
           dynamicFilters.reduce((acc, { key }) => ({ ...acc, [key]: null }), {})

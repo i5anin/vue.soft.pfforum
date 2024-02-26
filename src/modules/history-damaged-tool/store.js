@@ -1,4 +1,4 @@
-import { toolEditorApi } from '@/modules/editor-tool/api/editor'
+import { editorToolApi } from '@/modules/editor-tool/api/editor'
 import { toolApi } from '@/api'
 
 export default {
@@ -92,7 +92,7 @@ export default {
     async onSaveToolModel({ dispatch }, toolModel) {
       try {
         // Отправка данных на сервер
-        const result = await toolEditorApi.addTool({
+        const result = await editorToolApi.addTool({
           name: toolModel.name,
           property: Object.fromEntries(
             Object.entries(toolModel.property).filter(
