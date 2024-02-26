@@ -1,5 +1,4 @@
 import { toolApi } from '@/api'
-import { editorToolApi } from '@/modules/editor-tool/api/editor'
 
 export default {
   namespaced: true,
