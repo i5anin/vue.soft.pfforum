@@ -72,7 +72,7 @@ export default {
       }
 
       try {
-        const dynamicFilters = await editorToolApi.filterParamsByParentId(id) //TODO:
+        const dynamicFilters = await toolApi.filterParamsByParentId(id) //TODO:
         commit(
           'setSelectedDynamicFilters',
           dynamicFilters.reduce((acc, { key }) => ({ ...acc, [key]: null }), {})

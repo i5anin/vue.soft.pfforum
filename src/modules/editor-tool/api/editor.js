@@ -26,10 +26,4 @@ export const editorToolApi = {
       .put(`/tool/${id}`, toolData)
       .then(handleResponse)
       .catch(handleApiError),
-
-  filterParamsByParentId: async (parent_id) =>
-    axiosInstance
-      .get(`/filter-params/${parent_id}`)
-      .then(handleResponse)
-      .catch(handleApiError),
 }
