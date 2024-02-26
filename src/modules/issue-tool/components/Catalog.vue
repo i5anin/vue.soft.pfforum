@@ -1,34 +1,9 @@
 <template>
   <v-app class="custom-container">
     <v-app-bar app dark>
-      <v-toolbar-title>
-        <div class="text-h6">
-          <v-text-field
-            v-if="isEditing"
-            v-model="editableLabel"
-            @blur="finishEditing"
-            @keyup.enter="finishEditing"
-            dense
-            solo
-            hide-details
-            :flat="true"
-            :autofocus="true"
-          />
-          <!-- Показываем название и иконку, если редактирование не активно -->
-          <span v-else @click="startEditing">
-            {{ currentItem ? currentItem.label : 'Редактор' }}
-            <v-btn icon small @click.stop="startEditing">
-              <v-icon icon="mdi-pencil" />
-            </v-btn>
-            <v-btn icon small @click.stop="addItem">
-              <v-icon icon="mdi-plus" />
-            </v-btn>
-            <v-btn icon small @click.stop="deleteItem(currentItem.id)">
-              <v-icon icon="mdi-delete" />
-            </v-btn>
-          </span>
-        </div>
-      </v-toolbar-title>
+      <div class="text-h6 pl-5">
+        {{ currentItem ? currentItem.label : 'Выдача' }}
+      </div>
       <v-spacer />
       <v-btn icon @click="goBack">
         <v-icon icon="mdi-arrow-left" />
@@ -51,7 +26,7 @@
   <TabMainTable
     v-if="isTableShown"
     v-bind="{
-      namespace: 'EditorToolStore',
+      namespace: 'IssueToolStore',
     }"
   />
 </template>
@@ -59,12 +34,12 @@
 <script>
 import { toolTreeApi } from '@/modules/tool/api/tree'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
-import TabMainTable from '@/modules/editor-tool/components/Table.vue'
+import TabMainTable from './Table.vue'
 import CatalogBreadcrumbs from '@/modules/tool/components/CatalogBreadcrumbs.vue'
 import { normSpaces } from '@/modules/tool/components/normSpaces'
 
 export default {
-  name: 'EditorCatalog',
+  name: 'IssueCatalog',
   components: { TabMainTable, CatalogBreadcrumbs },
 
   data() {
@@ -88,114 +63,19 @@ export default {
     },
   },
   computed: {
-    ...mapGetters('EditorToolStore', ['parentCatalog']),
+    ...mapGetters('IssueToolStore', ['parentCatalog']),
     isTableShown() {
       return this.parentCatalog.id !== 1
     },
   },
   methods: {
-    ...mapMutations('EditorToolStore', ['setParentCatalog']),
-    ...mapActions('EditorToolStore', ['fetchToolsByFilter']),
-    async renameCurrentItem() {
-      const itemId = this.currentItem.id
-      const newName = this.editableLabel
-
-      try {
-        const response = await toolTreeApi.renameFolder(itemId, newName)
-        if (response && response.message) {
-          alert('Папка успешно переименована.')
-          this.currentItem.label = newName // Обновляем название текущего папки без перестроения всего дерева
-          const historyItem = this.tree.find((item) => item.id === itemId) // Необходимо обновить папка в истории, если он там есть
-          if (historyItem) historyItem.label = newName
-        } else {
-          alert('Произошла ошибка при переименовании.')
-        }
-      } catch (error) {
-        console.error('Ошибка при переименовании:', error)
-        alert('Произошла ошибка при переименовании.')
-      }
-    },
-    async deleteItem() {
-      if (!this.currentItem) return alert('Не выбрана папка для удаления.')
-      const itemId = this.currentItem.id
-      if (confirm(`Уверены, что хотите удалить ${this.currentItem.label}?`)) {
-        try {
-          await toolTreeApi.deleteFolder(itemId)
-          alert('Папка успешно удалена.')
-          if (this.tree.length > 1) {
-            this.tree.pop()
-            this.currentItem = this.tree[this.tree.length - 1]
-          }
-          // Вызываем refreshTree для обновления дерева и currentItem
-          await this.refreshTree()
-        } catch (error) {
-          console.error('Ошибка при удалении:', error)
-          alert('Произошла ошибка при удалении.')
-        }
-      }
-    },
-    async addItem() {
-      console.log(this.currentItem)
-      if (!this.currentItem || !this.currentItem.nodes)
-        return alert('Выберите категорию для добавления новой папки.')
-
-      let branchName = prompt('Введите название новой ветки:')
-      if (branchName) {
-        branchName = normSpaces(branchName)
-        try {
-          const newBranch = await toolTreeApi.addFolder(
-            branchName,
-            this.currentItem.id
-          )
-          const newFolder = {
-            id: newBranch.newBranchId,
-            label: branchName,
-            elements: 0,
-            nodes: [],
-          }
-          this.currentItem.nodes.push(newFolder) // Добавляем новую папку в список дочерних элементов текущего элемента
-          this.currentItem = newFolder // Обновляем текущий элемент, чтобы отображать новую папку
-          this.tree.push(newFolder) // Добавляем новую папку в историю для навигации
-        } catch (error) {
-          alert('Произошла ошибка при добавлении ветки.')
-        }
-      }
-    },
-    async refreshTree() {
-      const updatedTree = await toolTreeApi.getTree()
-      this.tree = updatedTree
-      // TODO: сделать нормальный поиск во вложенных node'ах
-      const updatedCurrentItem = updatedTree.find(
-        (item) => item.id === this.currentItem.id // Проверяем, если текущий элемент присутствует в обновленном дереве
-      )
-      this.currentItem = updatedCurrentItem // Если текущий элемент не найден, обновляем его на первый элемент из дерева или на null, если дерево пустое
-        ? updatedCurrentItem
-        : updatedTree.length > 0
-        ? updatedTree[0]
-        : null
-    },
-
+    ...mapMutations('IssueToolStore', ['setParentCatalog']),
+    ...mapActions('IssueToolStore', ['fetchToolsByFilter']),
     async selectItem(item) {
       this.setParentCatalog({ id: item.id, label: item.label })
       this.currentItem = item
       if (!this.tree.includes(item)) this.tree.push(item)
     },
-    startEditing() {
-      this.isEditing = true
-      this.editableLabel = this.currentItem ? this.currentItem.label : ''
-    },
-
-    finishEditing() {
-      if (
-        this.isEditing &&
-        this.currentItem &&
-        this.editableLabel !== this.currentItem.label
-      ) {
-        this.renameCurrentItem()
-      }
-      this.isEditing = false
-    },
-
     goBack() {
       if (this.tree.length > 1) {
         this.tree.pop() // Удаляем последний элемент истории
