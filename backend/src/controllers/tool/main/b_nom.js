@@ -167,7 +167,7 @@ async function getTools(req, res) {
       itemsPerPage: limitNumber,
       totalCount,
       tools: formattedTools,
-      paramsList,
+      // paramsList, TODO:DEL
     })
   } catch (err) {
     console.error(err)

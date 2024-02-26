@@ -6,7 +6,7 @@
       </div>
       <v-spacer />
       <v-btn icon @click="goBack">
-        <v-icon>mdi-arrow-left</v-icon>
+        <v-icon icon="mdi-arrow-left" />
       </v-btn>
     </v-app-bar>
     <v-main>
@@ -24,29 +24,22 @@
     </v-main>
   </v-app>
   <TabMainTable
+    v-if="isTableShown"
     v-bind="{
-      toolsTotalCount,
-      formattedTools,
-      filters,
-      isLoading,
-      paramsList,
-      namespace: 'StorageToolStore',
+      namespace: 'EditorToolStore',
     }"
-    @page-changed="onPageChanged"
-    @page-limit-changed="onUpdateItemsPerPage"
-    @changes-saved="fetchToolsByFilter"
   />
 </template>
 
 <script>
 import { toolTreeApi } from '@/modules/tool/api/tree'
-import { mapActions, mapGetters, mapMutations } from 'vuex'
-import TabMainTable from '@/modules/storage-tool/components/Table.vue'
+import { mapActions, mapMutations, mapGetters } from 'vuex'
+import TabMainTable from '@/modules/editor-tool/components/Table.vue'
 import CatalogBreadcrumbs from '@/modules/shared/components/CatalogBreadcrumbs.vue'
 import { normSpaces } from '@/modules/shared/normSpaces'
 
 export default {
-  name: 'StorageCatalog',
+  name: 'EditorCatalog',
   components: { TabMainTable, CatalogBreadcrumbs },
 
   data() {
@@ -58,21 +51,10 @@ export default {
       editableLabel: '',
     }
   },
-
-  props: {
-    item: Object,
-    parentId: {
-      type: Object,
-      default: () => ({ id: null, label: null }),
-    },
-  },
   watch: {
-    type(newValue) {
-      console.log('Тип вкладки изменен:', newValue)
-    },
     currentItem: {
       handler(currentItem) {
-        this.updateIdParent({
+        this.setParentCatalog({
           id: currentItem.id,
           label: currentItem.label,
         })
@@ -81,35 +63,112 @@ export default {
     },
   },
   computed: {
-    ...mapGetters('StorageToolStore', [
-      'toolsTotalCount',
-      'formattedTools',
-      'filters',
-      'isLoading',
-      'paramsList',
-    ]),
+    ...mapGetters('EditorToolStore', ['parentCatalog']),
+    isTableShown() {
+      return this.parentCatalog.id !== 1
+    },
   },
   methods: {
-    // обновить IdParent
-    ...mapMutations('StorageToolStore', [
-      'updateIdParent',
-      'setCurrentPage',
-      'setItemsPerPage',
-    ]),
-    ...mapActions('StorageToolStore', ['fetchToolsByFilter']),
-    async onPageChanged(page) {
-      this.setCurrentPage(page)
-      await this.fetchToolsByFilter()
+    ...mapMutations('EditorToolStore', ['setParentCatalog']),
+    ...mapActions('EditorToolStore', ['fetchToolsByFilter']),
+    async renameCurrentItem() {
+      const itemId = this.currentItem.id
+      const newName = this.editableLabel
+
+      try {
+        const response = await toolTreeApi.renameFolder(itemId, newName)
+        if (response && response.message) {
+          alert('Папка успешно переименована.')
+          this.currentItem.label = newName // Обновляем название текущего папки без перестроения всего дерева
+          const historyItem = this.tree.find((item) => item.id === itemId) // Необходимо обновить папка в истории, если он там есть
+          if (historyItem) historyItem.label = newName
+        } else {
+          alert('Произошла ошибка при переименовании.')
+        }
+      } catch (error) {
+        console.error('Ошибка при переименовании:', error)
+        alert('Произошла ошибка при переименовании.')
+      }
     },
-    async onUpdateItemsPerPage(itemsPerPage) {
-      this.setItemsPerPage(itemsPerPage)
-      await this.fetchToolsByFilter()
+    async deleteItem() {
+      if (!this.currentItem) return alert('Не выбрана папка для удаления.')
+      const itemId = this.currentItem.id
+      if (confirm(`Уверены, что хотите удалить ${this.currentItem.label}?`)) {
+        try {
+          await toolTreeApi.deleteFolder(itemId)
+          alert('Папка успешно удалена.')
+          if (this.tree.length > 1) {
+            this.tree.pop()
+            this.currentItem = this.tree[this.tree.length - 1]
+          }
+          // Вызываем refreshTree для обновления дерева и currentItem
+          await this.refreshTree()
+        } catch (error) {
+          console.error('Ошибка при удалении:', error)
+          alert('Произошла ошибка при удалении.')
+        }
+      }
+    },
+    async addItem() {
+      console.log(this.currentItem)
+      if (!this.currentItem || !this.currentItem.nodes)
+        return alert('Выберите категорию для добавления новой папки.')
+
+      let branchName = prompt('Введите название новой ветки:')
+      if (branchName) {
+        branchName = normSpaces(branchName)
+        try {
+          const newBranch = await toolTreeApi.addFolder(
+            branchName,
+            this.currentItem.id
+          )
+          const newFolder = {
+            id: newBranch.newBranchId,
+            label: branchName,
+            elements: 0,
+            nodes: [],
+          }
+          this.currentItem.nodes.push(newFolder) // Добавляем новую папку в список дочерних элементов текущего элемента
+          this.currentItem = newFolder // Обновляем текущий элемент, чтобы отображать новую папку
+          this.tree.push(newFolder) // Добавляем новую папку в историю для навигации
+        } catch (error) {
+          alert('Произошла ошибка при добавлении ветки.')
+        }
+      }
+    },
+    async refreshTree() {
+      const updatedTree = await toolTreeApi.getTree()
+      this.tree = updatedTree
+      // TODO: сделать нормальный поиск во вложенных node'ах
+      const updatedCurrentItem = updatedTree.find(
+        (item) => item.id === this.currentItem.id // Проверяем, если текущий элемент присутствует в обновленном дереве
+      )
+      this.currentItem = updatedCurrentItem // Если текущий элемент не найден, обновляем его на первый элемент из дерева или на null, если дерево пустое
+        ? updatedCurrentItem
+        : updatedTree.length > 0
+        ? updatedTree[0]
+        : null
     },
 
     async selectItem(item) {
-      console.log('Выбранная папка каталога id:', item.id, item.label)
+      this.setParentCatalog({ id: item.id, label: item.label })
       this.currentItem = item
       if (!this.tree.includes(item)) this.tree.push(item)
+    },
+    startEditing() {
+      this.isEditing = true
+      this.editableLabel = this.currentItem ? this.currentItem.label : ''
+    },
+
+    finishEditing() {
+      if (
+        this.isEditing &&
+        this.currentItem &&
+        this.editableLabel !== this.currentItem.label
+      ) {
+        this.renameCurrentItem()
+      }
+      this.isEditing = false
     },
 
     goBack() {
@@ -121,16 +180,23 @@ export default {
           this.currentItem.id,
           this.currentItem.label
         )
+        this.setParentCatalog({
+          id: this.currentItem.id,
+          label: this.currentItem.label,
+        })
       }
     },
     goTo(index) {
       this.currentItem = this.tree[index]
       console.log(
-        'Хлебные крошки. Выбранный элемент:',
+        'Хлебные крошки. Выбрана папка:',
         this.currentItem.id,
         this.currentItem.label
       )
-
+      this.setParentCatalog({
+        id: this.currentItem.id,
+        label: this.currentItem.label,
+      })
       this.tree = this.tree.slice(0, index + 1)
       this.currentItem = this.tree[index]
     },

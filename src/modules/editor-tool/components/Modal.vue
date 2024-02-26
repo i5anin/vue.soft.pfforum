@@ -57,7 +57,7 @@
             <v-text-field
               type="number"
               density="compact"
-              label="Норма"
+              label="Нормативный запас"
               required
               v-model="toolModel.norma"
             />

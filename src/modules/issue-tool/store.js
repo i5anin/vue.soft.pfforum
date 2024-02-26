@@ -88,7 +88,7 @@ export default {
         itemsPerPage,
         search,
         includeNull,
-        onlyInStock = null,
+        onlyInStock = true,
         selectedDynamicFilters,
       } = state.filters
       const { id: parentId } = state.parentCatalog
