@@ -22,22 +22,6 @@ export const toolApi = {
     onlyInStock = true,
     filters = {}
   ) => {
-    // console.log(`Вызов API getTools с параметрами:
-    //   Поиск: ${search}
-    //   Текущая страница: ${page}
-    //   Лимит страницы: ${limit}
-    //   Включать нулевые значения: ${includeNull}
-    //   ID папки: ${parentId}
-    //   Только в наличии: ${onlyInStock}
-    //   Фильтры: ${JSON.stringify(filters)}`)
-
-    // if (parentId === null || parentId === undefined) {
-    //   console.error(
-    //     'Критическая ошибка: расположение текущего каталога не известно'
-    //   )
-    //   return Promise.reject(new Error('Отсутствует parentId'))
-    // }
-
     // Соединение статических и динамических параметров
     const params = {
       search,
@@ -56,7 +40,7 @@ export const toolApi = {
   },
 
   // Новый метод для POST запроса
-  getToolsPost: async (
+  /*getToolsPost: async (
     search = '',
     page = 1,
     limit = 10,
@@ -79,15 +63,17 @@ export const toolApi = {
       .post('/tools', data)
       .then(handleResponse)
       .catch(handleApiError)
-  },
+  },*/
 
-  // Получить инструмент по ID
+  // Получить инструмент по ID инструмента
   getToolById: async (id) => {
     return axiosInstance
       .get(`/tool/${id}`)
       .then(handleResponse)
       .catch(handleApiError)
   },
+
+  // Получить фильтры по ID папки
   filterParamsByParentId: async (parent_id) =>
     axiosInstance
       .get(`/filter-params/${parent_id}`)
