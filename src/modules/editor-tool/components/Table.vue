@@ -1,28 +1,28 @@
 <template>
   <v-container>
-    <!--    <ToolFilter-->
-    <!--      :filter-params-list="filterParamsList"-->
-    <!--      :filters="filters"-->
-    <!--      @filter-update="onParamsFilterUpdate"-->
-    <!--    />-->
+    <ToolFilter
+      :filter-params-list="filterParamsList"
+      :filters="filters"
+      @filter-update="onParamsFilterUpdate"
+    />
 
-    <v-row cols="12" sm="4">
-      <v-col v-for="filter in dynamicFilters" :key="filter.key">
-        <v-select
-          clearable="true"
-          :label="filter.label"
-          :items="filter.values"
-          :value="filters.selectedDynamicFilters[filter.key]"
-          @update:model-value="
-            (value) => onParamsFilterUpdate({ key: filter.key, value })
-          "
-        />
-      </v-col>
-    </v-row>
+    <!--    <v-row cols="12" sm="4">-->
+    <!--      <v-col v-for="filter in dynamicFilters" :key="filter.key">-->
+    <!--        <v-select-->
+    <!--          clearable="true"-->
+    <!--          :label="filter.label"-->
+    <!--          :items="filter.values"-->
+    <!--          :value="filters.selectedDynamicFilters[filter.key]"-->
+    <!--          @update:model-value="-->
+    <!--            (value) => onParamsFilterUpdate({ key: filter.key, value })-->
+    <!--          "-->
+    <!--        />-->
+    <!--      </v-col>-->
+    <!--    </v-row>-->
 
-    <tool-filter :namespace="namespace">
-      <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>
-    </tool-filter>
+    <!--    <tool-filter :namespace="namespace">-->
+    <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>
+    <!--    </tool-filter>-->
 
     <editor-tool-modal
       v-if="openDialog"
@@ -78,7 +78,7 @@
 
 <script>
 import EditorToolModal from './Modal.vue'
-import ToolFilter from '@/modules/tool/components/ToolFilter.vue'
+import ToolFilter from '../../tool/components/ToolFilter.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
 

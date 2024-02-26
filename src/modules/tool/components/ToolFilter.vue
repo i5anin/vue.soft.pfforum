@@ -1,127 +1,74 @@
 <template>
-  <v-row>
-    <v-col cols="12" md="3">
-      <!--      <v-text-field-->
-      <!--        v-model="filterModel.search"-->
-      <!--        label="Маркировка (поиск по всем)"-->
-      <!--        outlined-->
-      <!--        :clearable="true"-->
-      <!--      />-->
-    </v-col>
-    <!--    <v-col cols="12" md="2">-->
-    <!--      <v-combobox-->
-    <!--        :chips="true"-->
-    <!--        multiple-->
-    <!--        v-model="filterModel.types"-->
-    <!--        item-text="name"-->
-    <!--        item-value="id"-->
-    <!--        label="Тип"-->
-    <!--        return-object-->
-    <!--      />-->
-    <!--    </v-col>-->
-    <!--    <v-col cols="12" md="2">-->
-    <!--      <v-combobox-->
-    <!--        :chips="true"-->
-    <!--        multiple-->
-    <!--        v-model="filterModel.groups"-->
-    <!--        item-text="name"-->
-    <!--        item-value="id"-->
-    <!--        label="Группа"-->
-    <!--        return-object-->
-    <!--      />-->
-    <!--    </v-col>-->
-    <!--    <v-col cols="12" md="2">-->
-    <!--      <v-combobox-->
-    <!--        :chips="true"-->
-    <!--        multiple-->
-    <!--        v-model="filterModel.materials"-->
-    <!--        item-text="name"-->
-    <!--        item-value="id"-->
-    <!--        label="Материал"-->
-    <!--        return-object-->
-    <!--      />-->
-    <!--    </v-col>-->
-    <!--    <v-col cols="12" md="3">-->
-    <!--      <v-combobox-->
-    <!--        :chips="true"-->
-    <!--        multiple-->
-    <!--        v-model="filterModel.selectedParams"-->
-    <!--        :items="paramsOptions"-->
-    <!--        label="Параметры"-->
-    <!--        return-object-->
-    <!--      />-->
-    <!--    </v-col>-->
-  </v-row>
-  <v-row>
-    <v-col cols="12" md="3">
-      <!--      <v-checkbox-->
-      <!--        label="Незаполненные данные"-->
-      <!--        v-model="filterModel.includeNull"-->
-      <!--        :color="checkboxColor"-->
-      <!--      />-->
-    </v-col>
-    <v-col cols="12" md="3">
-      <!-- <v-checkbox label="Склад" v-model="Sklad" :color="checkboxSklad" />-->
-    </v-col>
-    <v-col class="pa-3 text-right">
-      <slot name="default" />
-    </v-col>
-  </v-row>
+  <div>
+    <v-row cols="12" sm="6">
+      <v-col v-for="filter in dynamicFilters" :key="filter.key">
+        <v-select
+          clearable="true"
+          :label="filter.label"
+          :items="filter.values"
+          :value="filters.selectedDynamicFilters[filter.key]"
+          @update:model-value="
+            (value) => onParamsFilterUpdate({ key: filter.key, value })
+          "
+        />
+      </v-col>
+    </v-row>
+  </div>
 </template>
 
 <script>
+import EditorToolModal from '../../editor-tool/components/Modal.vue'
+import { VDataTableServer } from 'vuetify/labs/VDataTable'
+import { mapActions, mapMutations, mapGetters } from 'vuex'
+
 export default {
-  name: 'ToolFilter',
-  props: {
-    namespace: {
-      type: String,
-      required: true,
-    },
+  emits: [],
+  components: {
+    VDataTableServer,
+    EditorToolModal,
   },
-  data: () => ({
-    filterModel: {
-      search: '',
-    },
-  }),
   computed: {
-    filters() {
-      // console.log(this.$store.getters)
-      return this.$store.getters[`${this.namespace}/filters`]
-    },
-    paramsOptions() {
-      return this.$store.getters[`${this.namespace}/paramsOptions`]
-    },
-    checkboxColor() {
-      return this.filters.includeNull ? 'red' : ''
-    },
+    ...mapGetters('EditorToolStore', [
+      'toolsTotalCount',
+      'formattedTools',
+      'dynamicFilters',
+      'filters',
+      'parentCatalog',
+      'isLoading',
+    ]),
   },
-  watch: {
-    filters: {
-      immediate: true,
-      handler(filters) {
-        if (this.filterModel != null) {
-          return
-        }
-        this.filterModel = filters
-      },
-    },
-    filterModel: {
-      deep: true,
-      handler(filters) {
-        this.setFilters({ ...filters })
-        this.fetchToolsByFilter()
-      },
-    },
+  data() {
+    return {
+      openDialog: false,
+      isDataLoaded: false,
+      editingToolId: null, //редактирование идентификатора инструмента
+      toolTableHeaders: [], //заголовки таблиц инструментов
+      filterParamsList: [],
+    }
+  },
+
+  async mounted() {
+    await this.fetchToolsDynamicFilters()
+    this.isDataLoaded = true
   },
   methods: {
-    fetchToolsByFilter() {
-      this.$store.actions[`${this.namespace}/fetchToolsByFilter`]()
-    },
-    setFilters(filters) {
-      this.$store.mutations[`${this.namespace}/setFilters`](filters)
+    ...mapActions('EditorToolStore', [
+      'fetchToolsDynamicFilters',
+      'fetchToolsByFilter',
+    ]),
+    ...mapMutations('EditorToolStore', [
+      'setCurrentPage',
+      'setItemsPerPage',
+      'setSelectedDynamicFilters',
+    ]),
+    // Метод для обработки обновления параметров фильтра
+    onParamsFilterUpdate({ key, value }) {
+      this.setSelectedDynamicFilters({
+        ...this.filters.selectedDynamicFilters,
+        [key]: value,
+      })
+      this.fetchToolsByFilter()
     },
   },
 }
 </script>
-
-<style scoped></style>
