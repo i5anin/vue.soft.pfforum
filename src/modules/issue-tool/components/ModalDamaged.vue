@@ -89,7 +89,7 @@
 </template>
 
 <script>
-import Modal from '@/components/shared/Modal.vue'
+import Modal from '@/modules/shared/components/Modal.vue'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { issueToolApi } from '@/modules/issue-tool/api/issue'
 

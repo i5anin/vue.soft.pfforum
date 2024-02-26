@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import SidebarMenuItem from '@/components/SidebarMenuItem.vue'
+import SidebarMenuItem from '@/main-app/SidebarMenuItem.vue'
 
 export default {
   props: {

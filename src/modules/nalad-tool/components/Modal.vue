@@ -96,7 +96,7 @@
 </template>
 
 <script>
-import Modal from '@/components/shared/Modal.vue'
+import Modal from '@/modules/shared/components/Modal.vue'
 import { getToolParams } from '@/api'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { toolInventoryApi } from '@/modules/storage-tool/api/storage'

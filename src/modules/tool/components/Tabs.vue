@@ -26,16 +26,13 @@
 
 <script>
 // Предполагается, что tabsConfig - это ваш конфигурационный файл вкладок
-import tabs from './tabsConfig'
+import tabs from './configTabs'
 import { authApi } from '@/api/login'
-import {} from 'vue-router'
+// import {} from 'vue-router'
 
 export default {
   data() {
-    return {
-      tab: null,
-      tabs: [],
-    }
+    return { tab: null, tabs: [] }
   },
   watch: {
     tab() {

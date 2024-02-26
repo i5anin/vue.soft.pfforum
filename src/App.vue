@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import { AppHeader, AppContent, AppFooter } from '@/components'
+import { AppHeader, AppContent, AppFooter } from '@/main-app'
 // import Modal from '@/components/shared/Modal.vue'
 // import { Routes } from '@/router'
 

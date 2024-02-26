@@ -42,8 +42,8 @@
 import { toolTreeApi } from '@/modules/tool/api/tree'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import TabMainTable from '@/modules/storage-tool/components/Table.vue'
-import CatalogBreadcrumbs from '@/modules/tool/components/CatalogBreadcrumbs.vue'
-import { normSpaces } from '@/modules/tool/components/normSpaces'
+import CatalogBreadcrumbs from '@/modules/shared/components/CatalogBreadcrumbs.vue'
+import { normSpaces } from '@/modules/shared/normSpaces'
 
 export default {
   name: 'StorageCatalog',

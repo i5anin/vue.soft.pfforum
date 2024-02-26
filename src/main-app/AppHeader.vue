@@ -64,8 +64,8 @@
 </template>
 
 <script>
-import MenuList from '@/components/SidebarMenuList.vue'
-import { originalMenuItems, plotsMenuItems } from '@/data/menuItems'
+import MenuList from '@/main-app/SidebarMenuList.vue'
+import { originalMenuItems, plotsMenuItems } from '@/main-app/data/menuItems'
 
 export default {
   name: 'AppHeader',

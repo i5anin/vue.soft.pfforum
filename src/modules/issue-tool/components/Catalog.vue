@@ -35,8 +35,8 @@
 import { toolTreeApi } from '@/modules/tool/api/tree'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
 import TabMainTable from './Table.vue'
-import CatalogBreadcrumbs from '@/modules/tool/components/CatalogBreadcrumbs.vue'
-import { normSpaces } from '@/modules/tool/components/normSpaces'
+import CatalogBreadcrumbs from '@/modules/shared/components/CatalogBreadcrumbs.vue'
+import { normSpaces } from '@/modules/shared/normSpaces'
 
 export default {
   name: 'IssueCatalog',

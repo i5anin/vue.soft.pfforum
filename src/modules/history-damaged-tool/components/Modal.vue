@@ -62,7 +62,7 @@
 </template>
 
 <script>
-import Modal from '@/components/shared/Modal.vue'
+import Modal from '@/modules/shared/components/Modal.vue'
 // import { detailHistoryApi } from '../api/damaged'
 import { format, parseISO } from 'date-fns'
 
