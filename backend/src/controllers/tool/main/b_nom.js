@@ -375,7 +375,7 @@ async function getFilterParamsByParentId(req, res) {
         label: paramsMapping[key] ? paramsMapping[key].info : key, // Используем маппинг для заполнения label
         values: Array.from(valuesSet),
       }))
-      .filter((param) => param.values.length > 1) // Исключаем параметры с одним значением
+      .filter((param) => param.values.length > 0) // Исключаем параметры с одним значением
 
     // Отправка результата
     res.json(paramsList)

@@ -104,12 +104,12 @@ export default {
     },
     dynamicFilters: {
       immediate: true,
-      handler(dynamicFilters) {
+      handler(dynamicColumns) {
         this.toolTableHeaders = [
           { title: '№', key: 'index', sortable: false },
           { title: 'Маркировка', key: 'name', sortable: true },
-          ...(dynamicFilters && dynamicFilters.length > 0
-            ? dynamicFilters.map(({ label: title, key }) => ({
+          ...(dynamicColumns && dynamicColumns.length > 0
+            ? dynamicColumns.map(({ label: title, key }) => ({
                 title,
                 key,
                 sortable: true,
