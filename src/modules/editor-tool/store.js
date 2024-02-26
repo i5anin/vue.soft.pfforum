@@ -5,10 +5,7 @@ export default {
   namespaced: true,
   state: () => ({
     isLoading: false,
-    parentCatalog: {
-      id: 1,
-      label: null,
-    },
+    parentCatalog: { id: 1, label: null },
 
     dynamicFilters: [],
     nameOptions: [],

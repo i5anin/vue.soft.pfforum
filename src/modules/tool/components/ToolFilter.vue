@@ -1,5 +1,6 @@
 <template>
   <div>
+    Фильтр
     <v-row cols="12" sm="6">
       <v-col v-for="filter in dynamicFilters" :key="filter.key">
         <v-select

@@ -1,18 +1,13 @@
 <template>
   <v-container>
-    <!-- <tool-filter :namespace="namespace">-->
-    <!-- <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>-->
-    <!-- </tool-filter>-->
-    <issue-modal
-      v-if="openDialog && currentModal === 'issue'"
-      :persistent="true"
-      :tool-id="editingToolId"
-      @canceled="onClosePopup"
-      @changes-saved="onSaveChanges"
+    <tool-filter
+      :filter-params-list="filterParamsList"
+      :filters="filters"
+      @filter-update="onParamsFilterUpdate"
     />
-
-    <damaged-modal
-      v-if="openDialog && currentModal === 'damaged'"
+    <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>
+    <editor-tool-modal
+      v-if="openDialog"
       :persistent="true"
       :tool-id="editingToolId"
       @canceled="onClosePopup"
@@ -33,6 +28,7 @@
       density="compact"
       @update:page="onChangePage"
       @update:items-per-page="onUpdateItemsPerPage"
+      @click:row="onEditRow"
       class="elevation-1"
       hover
       fixed-header
@@ -41,137 +37,142 @@
       <template v-slot:item.index="{ index }">
         <td class="index">{{ index + 1 }}</td>
       </template>
+      <!--name-->
       <template v-slot:item.name="{ item }">
-        <span style="white-space: nowrap">{{ item.name }}</span>
+        <td :class="colorClassGrey(item)" style="white-space: nowrap">
+          {{ item.name }}
+        </td>
       </template>
       <template v-slot:item.sklad="{ item }">
-        <span style="white-space: nowrap">{{ item.sklad }}</span>
+        <td :class="colorClassRed(item)" style="white-space: nowrap">
+          {{ item.sklad }}
+        </td>
       </template>
       <template v-slot:item.norma="{ item }">
-        <span style="white-space: nowrap">{{ item.norma }}</span>
+        <td style="white-space: nowrap">{{ item.norma }}</td>
       </template>
       <template v-slot:item.zakaz="{ item }">
-        <span style="white-space: nowrap">{{ calculateOrder(item) }}</span>
-      </template>
-      <template v-slot:item.issue="{ item }">
-        <v-btn color="primary" @click="(event) => onIssueTool(event, item)">
-          Выдать
-        </v-btn>
-      </template>
-
-      <template v-slot:item.damaged="{ item }">
-        <v-btn color="red" @click="(event) => onDamagedTool(event, item)">
-          Поврежден
-        </v-btn>
+        <td style="white-space: nowrap">{{ calculateOrder(item) }}</td>
       </template>
     </v-data-table-server>
   </v-container>
 </template>
 
 <script>
-import IssueModal from './ModalIssue.vue'
-import DamagedModal from './ModalDamaged.vue'
-// import ToolFilter from '@/modules/tool/components/ToolFilter.vue'
+import EditorToolModal from './Modal.vue'
+import ToolFilter from '../../tool/components/ToolFilter.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
+import { mapActions, mapMutations, mapGetters } from 'vuex'
 
 export default {
-  emits: ['changes-saved', 'canceled', 'page-changed', 'page-limit-changed'],
+  emits: [],
   components: {
     VDataTableServer,
-    IssueModal,
-    DamagedModal,
+    EditorToolModal,
+    ToolFilter,
   },
   props: {
-    toolsTotalCount: {
-      type: Number,
-      default: 0,
-    },
-    formattedTools: {
-      type: Array,
-      default: () => [],
-    },
-    filters: {
-      type: Object,
-      required: true,
-    },
-    isLoading: {
-      type: Boolean,
-      default: false,
-    },
-    paramsList: {
-      type: Array,
-      default: () => [],
-    },
     namespace: {
       type: String,
       default: 'tool',
     },
   },
+  computed: {
+    ...mapGetters('EditorToolStore', [
+      'toolsTotalCount',
+      'formattedTools',
+      'dynamicFilters',
+      'filters',
+      'parentCatalog',
+      'isLoading',
+    ]),
+  },
   data() {
     return {
-      activeTabType: 'Catalog', // Например, 'Catalog', 'Sklad', 'Give' и т.д.
       openDialog: false,
       isDataLoaded: false,
       editingToolId: null, //редактирование идентификатора инструмента
       toolTableHeaders: [], //заголовки таблиц инструментов
+      filterParamsList: [],
     }
   },
   watch: {
-    paramsList: {
+    'parentCatalog.id'(newId) {
+      if (newId != null) {
+        this.fetchToolsDynamicFilters()
+      }
+    },
+    dynamicFilters: {
       immediate: true,
-      handler(newVal) {
+      handler(dynamicFilters) {
         this.toolTableHeaders = [
           { title: '№', key: 'index', sortable: false },
           { title: 'Маркировка', key: 'name', sortable: true },
-          { title: 'Склад', key: 'sklad', sortable: false },
-          { title: 'Выдача', key: 'issue', sortable: false },
-          ...(newVal && newVal.length > 0
-            ? newVal.map((param) => ({
-                title: param.label,
-                key: param.key,
+          ...(dynamicFilters && dynamicFilters.length > 0
+            ? dynamicFilters.map(({ label: title, key }) => ({
+                title,
+                key,
                 sortable: true,
               }))
             : []),
-          // { title: 'Норма', key: 'norma', sortable: false },
-          // { title: 'Заказ', key: 'zakaz', sortable: false },
-          { title: 'Поврежден', key: 'damaged', sortable: false },
+          { title: 'Норма', key: 'norma', sortable: false },
+          { title: 'Склад', key: 'sklad', sortable: false },
+          { title: 'Заказ', key: 'zakaz', sortable: false },
+          { title: 'Лимит', key: 'limit', sortable: false },
         ]
       },
     },
   },
 
   async mounted() {
+    await this.fetchToolsDynamicFilters()
     this.isDataLoaded = true
   },
   methods: {
-    onIssueTool(event, item) {
-      event.stopPropagation()
-      this.editingToolId = item.id
-      this.currentModal = 'issue'
-      this.openDialog = true
-    },
-    onDamagedTool(event, item) {
-      event.stopPropagation()
-      this.editingToolId = item.id
-      this.currentModal = 'damaged'
-      this.openDialog = true
-    },
-    calculateOrder(tool) {
-      if (tool.norma != null) return tool.norma - tool.sklad
+    ...mapActions('EditorToolStore', [
+      'fetchToolsDynamicFilters',
+      'fetchToolsByFilter',
+    ]),
+    ...mapMutations('EditorToolStore', [
+      'setCurrentPage',
+      'setItemsPerPage',
+      'setSelectedDynamicFilters',
+    ]),
+    // Метод для обработки обновления параметров фильтра
+    onParamsFilterUpdate({ key, value }) {
+      this.setSelectedDynamicFilters({
+        ...this.filters.selectedDynamicFilters,
+        [key]: value,
+      })
+      this.fetchToolsByFilter()
     },
     async onChangePage(page) {
-      this.$emit('page-changed', page)
+      this.setCurrentPage(page)
+      await this.fetchToolsByFilter()
     },
     async onUpdateItemsPerPage(itemsPerPage) {
-      this.$emit('page-limit-changed', itemsPerPage)
+      this.setItemsPerPage(itemsPerPage)
+      await this.fetchToolsByFilter()
     },
+
+    colorClassGrey(item) {
+      return { grey: !item.sklad || item.sklad === 0 }
+    },
+    colorClassRed(item) {
+      return { red: !item.sklad || item.sklad === 0 }
+    },
+    calculateOrder(tool) {
+      const order = tool.norma - tool.sklad
+      return order < 0 ? '' : order
+    },
+
     onClosePopup() {
       this.openDialog = false
-      this.currentModal = null
     },
     onSaveChanges() {
       this.openDialog = false
-      this.$emit('changes-saved')
+      this.fetchToolsDynamicFilters()
+      this.fetchToolsByFilter()
     },
     onAddTool() {
       this.editingToolId = null
@@ -190,5 +191,13 @@ export default {
   max-width: 40px !important;
   font-size: 0.9em;
   color: grey;
+}
+
+.grey {
+  color: grey;
+}
+
+.red {
+  color: red;
 }
 </style>
