@@ -60,7 +60,7 @@
 
 <script>
 import EditorToolModal from './Modal.vue'
-import ToolFilter from '../../shared/components/ToolFilter.vue'
+import ToolFilter from './ToolFilter.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
 

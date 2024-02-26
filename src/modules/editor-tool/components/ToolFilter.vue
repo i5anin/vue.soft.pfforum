@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import EditorToolModal from '../../editor-tool/components/Modal.vue'
+import EditorToolModal from './Modal.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
 

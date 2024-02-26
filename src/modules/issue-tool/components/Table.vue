@@ -78,7 +78,7 @@
 <script>
 import ModalIssue from './ModalIssue.vue'
 import ModalDamaged from './ModalDamaged.vue'
-import ToolFilter from '@/modules/shared/components/ToolFilter.vue'
+import ToolFilter from './ToolFilter.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
 
