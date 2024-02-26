@@ -6,20 +6,13 @@
       @filter-update="onParamsFilterUpdate"
     />
     <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>
-    <ModalDamaged
-      v-if="openDialog && currentModal === 'damaged'"
-      :persistent="true"
-      :tool-id="editingToolId"
-      @canceled="onClosePopup"
-      @changes-saved="onSaveChanges"
-    />
-    <ModalIssue
-      v-if="openDialog"
-      :persistent="true"
-      :tool-id="editingToolId"
-      @canceled="onClosePopup"
-      @changes-saved="onSaveChanges"
-    />
+    <!--    <editor-tool-modal-->
+    <!--      v-if="openDialog"-->
+    <!--      :persistent="true"-->
+    <!--      :tool-id="editingToolId"-->
+    <!--      @canceled="onClosePopup"-->
+    <!--      @changes-saved="onSaveChanges"-->
+    <!--    />-->
     <v-data-table-server
       v-if="isDataLoaded"
       noDataText="Нет данных"
@@ -35,6 +28,7 @@
       density="compact"
       @update:page="onChangePage"
       @update:items-per-page="onUpdateItemsPerPage"
+      @click:row="onEditRow"
       class="elevation-1"
       hover
       fixed-header
@@ -60,25 +54,13 @@
       <template v-slot:item.zakaz="{ item }">
         <td style="white-space: nowrap">{{ calculateOrder(item) }}</td>
       </template>
-      <template v-slot:item.issue="{ item }">
-        <v-btn color="primary" @click="(event) => onIssueTool(event, item)">
-          Выдать
-        </v-btn>
-      </template>
-
-      <template v-slot:item.damaged="{ item }">
-        <v-btn color="red" @click="(event) => onDamagedTool(event, item)">
-          Поврежден
-        </v-btn>
-      </template>
     </v-data-table-server>
   </v-container>
 </template>
 
 <script>
-import ModalIssue from './ModalIssue.vue'
-import ModalDamaged from './ModalDamaged.vue'
-import ToolFilter from '@/modules/shared/components/ToolFilter.vue'
+// import EditorToolModal from './Modal.vue'
+import ToolFilter from '../../shared/components/ToolFilter.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
 
@@ -86,9 +68,8 @@ export default {
   emits: [],
   components: {
     VDataTableServer,
+    // EditorToolModal,
     ToolFilter,
-    ModalIssue,
-    ModalDamaged,
   },
   props: {
     namespace: {
@@ -97,7 +78,7 @@ export default {
     },
   },
   computed: {
-    ...mapGetters('IssueToolStore', [
+    ...mapGetters('EditorToolStore', [
       'toolsTotalCount',
       'formattedTools',
       'dynamicFilters',
@@ -127,7 +108,6 @@ export default {
         this.toolTableHeaders = [
           { title: '№', key: 'index', sortable: false },
           { title: 'Маркировка', key: 'name', sortable: true },
-          { title: 'Выдача', key: 'issue', sortable: false },
           ...(dynamicFilters && dynamicFilters.length > 0
             ? dynamicFilters.map(({ label: title, key }) => ({
                 title,
@@ -135,11 +115,10 @@ export default {
                 sortable: true,
               }))
             : []),
-          // { title: 'Норма', key: 'norma', sortable: false },
-          // { title: 'Склад', key: 'sklad', sortable: false },
-          // { title: 'Заказ', key: 'zakaz', sortable: false },
-          // { title: 'Лимит', key: 'limit', sortable: false },
-          { title: 'Поврежден', key: 'damaged', sortable: false },
+          { title: 'Норма', key: 'norma', sortable: false },
+          { title: 'Склад', key: 'sklad', sortable: false },
+          { title: 'Заказ', key: 'zakaz', sortable: false },
+          { title: 'Лимит', key: 'limit', sortable: false },
         ]
       },
     },
@@ -150,11 +129,11 @@ export default {
     this.isDataLoaded = true
   },
   methods: {
-    ...mapActions('IssueToolStore', [
+    ...mapActions('EditorToolStore', [
       'fetchToolsDynamicFilters',
       'fetchToolsByFilter',
     ]),
-    ...mapMutations('IssueToolStore', [
+    ...mapMutations('EditorToolStore', [
       'setCurrentPage',
       'setItemsPerPage',
       'setSelectedDynamicFilters',
@@ -197,6 +176,10 @@ export default {
     },
     onAddTool() {
       this.editingToolId = null
+      this.openDialog = true
+    },
+    onEditRow(event, { item: tool }) {
+      this.editingToolId = tool.id
       this.openDialog = true
     },
   },
