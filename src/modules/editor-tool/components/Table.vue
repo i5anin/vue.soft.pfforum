@@ -7,13 +7,15 @@
     <!--    />-->
 
     <v-row cols="12" sm="4">
-      <v-col v-for="filter in filterParamsList" :key="filter.key">
+      <v-col v-for="filter in dynamicFilters" :key="filter.key">
         <v-select
           clearable="true"
           :label="filter.label"
           :items="filter.values"
-          v-model="filters[filter.key]"
-          @update:model-value="onParamsFilterUpdate"
+          :value="filters.selectedDynamicFilters[filter.key]"
+          @update:model-value="
+            (value) => onParamsFilterUpdate({ key: filter.key, value })
+          "
         />
       </v-col>
     </v-row>
@@ -78,70 +80,56 @@
 import EditorToolModal from './Modal.vue'
 import ToolFilter from '@/modules/tool/components/ToolFilter.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
-import { toolEditorApi } from '@/modules/editor-tool/api/editor'
-import { mapState } from 'vuex'
-import { toolApi } from '@/api'
+import { mapActions, mapMutations, mapGetters } from 'vuex'
 
 export default {
-  emits: ['changes-saved', 'canceled', 'page-changed', 'page-limit-changed'],
+  emits: [],
   components: {
     VDataTableServer,
     EditorToolModal,
     ToolFilter,
   },
   props: {
-    toolsTotalCount: {
-      type: Number,
-      default: 0,
-    },
-    formattedTools: {
-      type: Array,
-      default: () => [],
-    },
-    // isLoading: {
-    //   type: Boolean,
-    //   default: false,
-    // },
-    paramsList: {
-      type: Array,
-      default: () => [],
-    },
     namespace: {
       type: String,
       default: 'tool',
     },
   },
   computed: {
-    ...mapState('EditorToolStore', ['paramsList', 'idParent']),
+    ...mapGetters('EditorToolStore', [
+      'toolsTotalCount',
+      'formattedTools',
+      'dynamicFilters',
+      'filters',
+      'parentCatalog',
+      'isLoading',
+    ]),
   },
   data() {
     return {
-      activeTabType: 'Catalog', // Например, 'catalog', 'sklad', 'give' и т.д.
       openDialog: false,
       isDataLoaded: false,
       editingToolId: null, //редактирование идентификатора инструмента
       toolTableHeaders: [], //заголовки таблиц инструментов
       filterParamsList: [],
-      filters: [],
     }
   },
   watch: {
-    'idParent.id'(newId) {
-      console.log('idParent.id changed to', newId)
-      if (newId !== undefined) {
-        this.fetchFilterParams()
+    'parentCatalog.id'(newId) {
+      if (newId != null) {
+        this.fetchToolsDynamicFilters()
       }
     },
-    paramsList: {
+    dynamicFilters: {
       immediate: true,
-      handler(newVal) {
+      handler(dynamicFilters) {
         this.toolTableHeaders = [
           { title: '№', key: 'index', sortable: false },
           { title: 'Маркировка', key: 'name', sortable: true },
-          ...(newVal && newVal.length > 0
-            ? newVal.map((param) => ({
-                title: param.label,
-                key: param.key,
+          ...(dynamicFilters && dynamicFilters.length > 0
+            ? dynamicFilters.map(({ label: title, key }) => ({
+                title,
+                key,
                 sortable: true,
               }))
             : []),
@@ -155,113 +143,34 @@ export default {
   },
 
   async mounted() {
-    await this.fetchFilterParams()
+    await this.fetchToolsDynamicFilters()
     this.isDataLoaded = true
   },
   methods: {
-    prepareFilterParams() {
-      const params = {
-        search: this.filters.search || '',
-        page: this.filters.currentPage || 1,
-        limit: this.filters.itemsPerPage || 15,
-        parent_id:
-          this.idParent && this.idParent.id ? this.idParent.id : undefined,
-      }
-
-      // Добавляем параметры фильтрации, если они выбраны
-      Object.keys(this.filters).forEach((key) => {
-        // Проверяем, является ли ключ динамическим параметром фильтра
-        if (key.startsWith('param_') && this.filters[key]) {
-          const paramId = key.split('_')[1] // Получаем ID параметра
-          params[`param_${paramId}`] = this.filters[key]
-        }
-      })
-
-      return params
-    },
-    fetchFilteredTools() {
-      const params = this.prepareFilterParams()
-
-      // Использование метода POST для отправки параметров фильтрации
-      this.getToolsPost(params)
-        .then((data) => {
-          // Обработка ответа от сервера
-          this.formattedTools = data.items // Обновляем отфильтрованные инструменты
-          this.toolsTotalCount = data.totalCount // Обновляем общее количество инструментов
-        })
-        .catch((error) => {
-          console.error('Ошибка при получении инструментов:', error)
-        })
-        .finally(() => {
-          this.isLoading = false // Скрываем индикатор загрузки
-        })
-    },
-
-    // Метод для POST запроса (используем уже объявленный в API)
-    async getToolsPost(params) {
-      return toolApi.getToolsPost(
-        params.search,
-        params.page,
-        params.limit,
-        params.includeNull,
-        params.parent_id,
-        true, // только в наличии
-        params.filters // Дополнительные фильтры
-      )
-    },
-
+    ...mapActions('EditorToolStore', [
+      'fetchToolsDynamicFilters',
+      'fetchToolsByFilter',
+    ]),
+    ...mapMutations('EditorToolStore', [
+      'setCurrentPage',
+      'setItemsPerPage',
+      'setSelectedDynamicFilters',
+    ]),
     // Метод для обработки обновления параметров фильтра
-    onParamsFilterUpdate() {
-      console.log('onParamsFilterUpdate')
-      this.isLoading = true // Показываем индикатор загрузки
-      this.fetchFilteredTools() // Перезапускаем запрос с обновлёнными фильтрами
+    onParamsFilterUpdate({ key, value }) {
+      this.setSelectedDynamicFilters({
+        ...this.filters.selectedDynamicFilters,
+        [key]: value,
+      })
+      this.fetchToolsByFilter()
     },
-
-    async postTools(params) {
-      try {
-        const response = await toolEditorApi.post('/tools', params)
-        console.log('Ответ API:', response)
-        // Обработка ответа
-      } catch (error) {
-        console.error('Ошибка при выполнении POST запроса:', error)
-      }
+    async onChangePage(page) {
+      this.setCurrentPage(page)
+      await this.fetchToolsByFilter()
     },
-    async getTools(params) {
-      const queryString = new URLSearchParams(params).toString()
-      try {
-        const response = await toolEditorApi.get(`/tools?${queryString}`)
-        console.log('Ответ API:', response)
-        // Обработка ответа
-      } catch (error) {
-        console.error('Ошибка при выполнении GET запроса:', error)
-      }
-    },
-
-    async fetchFilterParams() {
-      console.log('Извлекать параметры фильтра')
-      if (this.idParent && this.idParent.id) {
-        // Убедитесь, что idParent и его id доступны
-        try {
-          const response = await toolEditorApi.filterParamsByParentId(
-            this.idParent.id
-          )
-          console.log('API response:', response)
-          if (response && Array.isArray(response)) {
-            this.filterParamsList = response.map((item) => ({
-              key: item.key,
-              label: item.label,
-              values: item.values,
-            }))
-          } else {
-            console.log('Некорректный формат ответа от API')
-          }
-          this.isDataLoaded = true
-        } catch (error) {
-          console.error('Ошибка при выполнении fetchFilterParams:', error)
-        }
-      } else {
-        console.log('Родительский идентификатор не определен')
-      }
+    async onUpdateItemsPerPage(itemsPerPage) {
+      this.setItemsPerPage(itemsPerPage)
+      await this.fetchToolsByFilter()
     },
 
     colorClassGrey(item) {
@@ -270,27 +179,18 @@ export default {
     colorClassRed(item) {
       return { red: !item.sklad || item.sklad === 0 }
     },
-    onIssueTool(event, item) {
-      event.stopPropagation() // Предотвратить всплытие события
-      console.log('Выдать инструмент:', item)
-    },
     calculateOrder(tool) {
       const order = tool.norma - tool.sklad
       return order < 0 ? '' : order
     },
 
-    async onChangePage(page) {
-      this.$emit('page-changed', page)
-    },
-    async onUpdateItemsPerPage(itemsPerPage) {
-      this.$emit('page-limit-changed', itemsPerPage)
-    },
     onClosePopup() {
       this.openDialog = false
     },
     onSaveChanges() {
       this.openDialog = false
-      this.$emit('changes-saved')
+      this.fetchToolsDynamicFilters()
+      this.fetchToolsByFilter()
     },
     onAddTool() {
       this.editingToolId = null

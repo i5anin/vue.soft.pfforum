@@ -1,5 +1,4 @@
 <template>
-  <!--  <form @submit.prevent='onSubmit'>-->
   <Modal :title="popupTitle">
     <template #content>
       <v-container>
@@ -10,14 +9,14 @@
                 label="ID папки"
                 required
                 type="Number"
-                v-model="idParent.id"
+                v-model="parentCatalog.id"
                 :rules="parentIdRules"
               />
               <v-text-field
                 label="Папка"
                 required
                 type="Text"
-                v-model="idParent.label"
+                v-model="parentCatalog.label"
                 :disabled="true"
               />
             </div>
@@ -112,7 +111,7 @@
 import Modal from '@/components/shared/Modal.vue'
 import { getToolParams } from '@/api'
 import { toolEditorApi } from '../api/editor'
-import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import { mapActions, mapGetters, mapMutations } from 'vuex'
 
 export default {
   name: 'FillingModal',
@@ -150,10 +149,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('EditorToolStore', ['nameOptions', 'tool']),
-    ...mapState('EditorToolStore', {
-      idParent: (state) => state.idParent,
-    }),
+    ...mapGetters('EditorToolStore', ['nameOptions', 'tool', 'parentCatalog']),
     selectedParamsInfo() {
       return this.selectedParams
         .map((paramName) =>
@@ -233,7 +229,10 @@ export default {
       this.$emit('canceled')
     },
     async onSave() {
-      const toolDataToSend = { ...this.toolModel, parent_id: this.idParent.id }
+      const toolDataToSend = {
+        ...this.toolModel,
+        parent_id: this.parentCatalog.id,
+      }
       try {
         let response
         if (this.toolId) {

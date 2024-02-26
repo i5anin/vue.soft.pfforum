@@ -49,23 +49,16 @@
     </v-main>
   </v-app>
   <TabMainTable
+    v-if="isTableShown"
     v-bind="{
-      toolsTotalCount,
-      formattedTools,
-      filters,
-      isLoading,
-      paramsList,
       namespace: 'EditorToolStore',
     }"
-    @page-changed="onPageChanged"
-    @page-limit-changed="onUpdateItemsPerPage"
-    @changes-saved="fetchToolsByFilter"
   />
 </template>
 
 <script>
 import { toolTreeApi } from '@/modules/tool/api/tree'
-import { mapActions, mapGetters, mapMutations } from 'vuex'
+import { mapActions, mapMutations, mapGetters } from 'vuex'
 import TabMainTable from '@/modules/editor-tool/components/Table.vue'
 import CatalogBreadcrumbs from '@/modules/tool/components/CatalogBreadcrumbs.vue'
 import { normSpaces } from '@/modules/tool/components/normSpaces'
@@ -83,21 +76,10 @@ export default {
       editableLabel: '',
     }
   },
-
-  props: {
-    item: Object,
-    parentId: {
-      type: Object,
-      default: () => ({ id: null, label: null }),
-    },
-  },
   watch: {
-    type(newValue) {
-      console.log('Тип вкладки изменен:', newValue)
-    },
     currentItem: {
       handler(currentItem) {
-        this.updateIdParent({
+        this.setParentCatalog({
           id: currentItem.id,
           label: currentItem.label,
         })
@@ -106,30 +88,14 @@ export default {
     },
   },
   computed: {
-    ...mapGetters('EditorToolStore', [
-      'toolsTotalCount',
-      'formattedTools',
-      'filters',
-      'isLoading',
-      'paramsList',
-    ]),
+    ...mapGetters('EditorToolStore', ['parentCatalog']),
+    isTableShown() {
+      return this.parentCatalog.id !== 1
+    },
   },
   methods: {
-    ...mapMutations('EditorToolStore', [
-      'updateIdParent',
-      'setCurrentPage',
-      'setItemsPerPage',
-      'updateIdParent',
-    ]),
+    ...mapMutations('EditorToolStore', ['setParentCatalog']),
     ...mapActions('EditorToolStore', ['fetchToolsByFilter']),
-    async onPageChanged(page) {
-      this.setCurrentPage(page)
-      await this.fetchToolsByFilter()
-    },
-    async onUpdateItemsPerPage(itemsPerPage) {
-      this.setItemsPerPage(itemsPerPage)
-      await this.fetchToolsByFilter()
-    },
     async renameCurrentItem() {
       const itemId = this.currentItem.id
       const newName = this.editableLabel
@@ -210,8 +176,7 @@ export default {
     },
 
     async selectItem(item) {
-      console.log('Выбранная папка каталога id:', item.id, item.label)
-      this.updateIdParent({ id: item.id, label: item.label })
+      this.setParentCatalog({ id: item.id, label: item.label })
       this.currentItem = item
       if (!this.tree.includes(item)) this.tree.push(item)
     },
@@ -240,7 +205,7 @@ export default {
           this.currentItem.id,
           this.currentItem.label
         )
-        this.updateIdParent({
+        this.setParentCatalog({
           id: this.currentItem.id,
           label: this.currentItem.label,
         })
@@ -253,7 +218,7 @@ export default {
         this.currentItem.id,
         this.currentItem.label
       )
-      this.updateIdParent({
+      this.setParentCatalog({
         id: this.currentItem.id,
         label: this.currentItem.label,
       })

@@ -1,5 +1,5 @@
 import Vuex from 'vuex'
-import EditorToolStore from '@/modules/editor-tool/storeNew'
+import EditorToolStore from '@/modules/editor-tool/store'
 import StorageToolStore from '@/modules/storage-tool/store'
 import IssueToolStore from '@/modules/issue-tool/store'
 import AuthStore from './authStore'
