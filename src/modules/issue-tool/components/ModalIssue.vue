@@ -1,5 +1,4 @@
 <template>
-  <!--  <form @submit.prevent='onSubmit'>-->
   <Modal :title="popupTitle">
     <template #content>
       <v-container>
@@ -51,8 +50,8 @@
               item-title="text"
               item-value="value"
               label="ФИО"
-              return-object
-              single-line
+              return-object="false"
+              single-line="false"
               @update:modelValue="handleSelectionChange"
             />
             <v-combobox
@@ -61,8 +60,8 @@
               item-text="title"
               item-value="id"
               label="Тип выдачи"
-              return-object
-              single-line
+              return-object="false"
+              single-line="false"
               :rules="issueTypeRules"
               required
             />
@@ -92,20 +91,12 @@
       <v-btn
         color="red darken-1"
         variant="text"
-        @click="confirmDelete"
-        class="text-none text-subtitle-1 ml-3"
-      >
-        Удалить
-      </v-btn>
-      <v-spacer />
-      <v-btn
-        color="red darken-1"
-        variant="text"
         @click="onCancel"
         class="text-none text-subtitle-1 ml-3"
       >
         Закрыть
       </v-btn>
+      <v-spacer />
       <v-btn
         prepend-icon="mdi-check-circle"
         @click="onSave"
@@ -114,7 +105,7 @@
         size="large"
         variant="flat"
       >
-        Сохранить
+        Выдать
       </v-btn>
     </template>
   </Modal>
@@ -122,119 +113,88 @@
 
 <script>
 import Modal from '@/modules/shared/components/Modal.vue'
-import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import { getToolParams } from '@/api'
+
+import { mapActions, mapGetters, mapMutations } from 'vuex'
 import { issueToolApi } from '@/modules/issue-tool/api/issue'
 
 export default {
-  name: 'Issue-Modal',
+  name: 'FillingModal',
   emits: ['canceled', 'changes-saved'],
   props: {
     persistent: { type: Boolean, default: false },
     toolId: { type: Number, default: null },
-    radiusOptions: { type: Array },
   },
   components: { Modal },
-  data: () => ({
-    typeIssueOptions: [
-      { title: 'Себе', id: 0 },
-      { title: 'На ночь', id: 1 },
-      { title: 'Наладка', id: 2 },
-    ],
-    overNorm: false,
-    originalData: [],
-    idMapping: {},
-    isModalOpen: true,
-    selectedFio: null,
-    fioOptions: [],
-    selectedData: { name: null, description: null, no: null, type: null },
-    localParentId: null,
-    toolModel: {
-      name: null,
-      property: {},
-      selectedOperationId: null,
-      typeIssue: null,
-    },
-    selectedParams: [],
-    toolParams: [],
-    confirmDeleteDialog: false,
-    typeSelected: false,
-    selectedType: '',
-    operationMapping: {},
-    issueTypeRules: [(v) => !!v || 'Тип выдачи обязателен для выбора'],
-    parentIdRules: [
-      (v) => !!v || 'ID папки обязательно',
-      (v) => v > 1 || 'ID папки должен быть больше 1',
-      (v) => v !== '' || 'ID папки не должен быть пустым',
-    ],
-    typeRules: [
-      (v) => !!v || 'Поле обязательно для заполнения',
-      (v) => (v && v.length >= 3) || 'Минимальная длина: 3 символа',
-    ],
+  data() {
+    return {
+      typeIssueOptions: [
+        { title: 'Себе', id: 0 },
+        { title: 'На ночь', id: 1 },
+        { title: 'Наладка', id: 2 },
+      ],
+      overNorm: false,
+      originalData: [],
+      idMapping: {},
+      isModalOpen: true,
+      selectedFio: null,
+      fioOptions: [],
+      selectedData: { name: null, description: null, no: null, type: null },
+      localParentId: null,
+      toolModel: {
+        name: null,
+        property: {},
+        selectedOperationId: null,
+        typeIssue: null,
+      },
+      selectedParams: [],
+      toolParams: [],
+      confirmDeleteDialog: false,
+      typeSelected: false,
+      selectedType: '',
+      operationMapping: {},
+      issueTypeRules: [(v) => !!v || 'Тип выдачи обязателен для выбора'],
+      parentIdRules: [
+        (v) => !!v || 'ID папки обязательно',
+        (v) => v > 1 || 'ID папки должен быть больше 1',
+        (v) => v !== '' || 'ID папки не должен быть пустым',
+      ],
+      typeRules: [
+        (v) => !!v || 'Поле обязательно для заполнения',
+        (v) => (v && v.length >= 3) || 'Минимальная длина: 3 символа',
+      ],
 
-    options: {
-      idNameDescription: [],
-      numberType: [],
+      options: {
+        idNameDescription: [],
+        numberType: [],
+      },
+    }
+  },
+  computed: {
+    ...mapGetters('IssueToolStore', ['nameOptions', 'tool', 'parentCatalog']),
+    popupTitle() {
+      return this.tool?.id != null
+        ? `Выдать инструмент ID: ${this.tool.id}`
+        : 'Добавить новый инструмент'
     },
-  }),
+  },
   watch: {
-    'tool.sklad': function (newVal) {
-      console.log('tool.sklad changed from ', newVal)
-    },
-
-    tool: {
-      deep: true,
+    toolId: {
       immediate: true,
-      handler(newTool) {
-        // console.log('newTool=', newTool)
-        if (newTool) {
-          this.localParentId = newTool.parent_id
-          this.currentFolderName = newTool.folder_name
+      async handler(editingToolId) {
+        console.log('editingToolId=', editingToolId)
+        if (editingToolId == null) {
+          this.resetToolModel()
         } else {
-          // console.log('localParentId=', this.localParentId)
-          this.localParentId = this.idParent.id
-          this.currentFolderName = this.idParent.label
+          await this.fetchToolById(editingToolId)
+          this.updateToolModel()
         }
       },
     },
   },
-
-  async created() {
-    console.log('Вызов getDetailFio')
-    try {
-      const fioData = await issueToolApi.getDetailFio()
-      this.fioOptions = this.prepareFioOptions(fioData)
-    } catch (error) {
-      console.error('Ошибка при загрузке данных ФИО:', error)
-    }
-    // Дополнительное логирование состояния после обработки
-    this.initializeLocalState()
-    if (this.toolId == null) {
-      this.setTool({
-        id: null,
-        name: null,
-        property: {},
-      })
-    } else {
-      await this.fetchToolById(this.toolId)
-      if (this.tool.property === null) this.tool.property = {}
-    }
-  },
-
-  computed: {
-    ...mapGetters('IssueToolStore', ['nameOptions', 'tool']),
-    ...mapState('IssueToolStore', ['parentCatalog']),
-    currentFolderName() {
-      return this.toolId === null ? this.idParent.label : this.tool.folder_name
-    },
-    popupTitle() {
-      return this.tool?.id != null
-        ? `Редактировать инструмент ID: ${this.tool.id}`
-        : 'Ошибка нет ID'
-    },
-  },
   methods: {
-    ...mapMutations('IssueToolStore', ['setTool']),
     ...mapActions('IssueToolStore', ['fetchToolsByFilter', 'fetchToolById']),
+    ...mapMutations('IssueToolStore', ['setTool']),
 
     handleSelectionChange(selectedItem) {
       console.log(
@@ -242,20 +202,6 @@ export default {
         selectedItem.value
       )
     },
-
-    prepareFioOptions(fioData) {
-      return fioData.map((item) => ({
-        text: item.fio,
-        value: item.id,
-      }))
-    },
-
-    onOperationSelected(value) {
-      const id = this.operationMapping[value]
-      this.toolModel.selectedOperationId = id
-      console.log('Выбран specs_op_id:', id)
-    },
-
     onIdSelected(selectedValue) {
       const id = this.idMapping[selectedValue]
       if (id) {
@@ -268,7 +214,54 @@ export default {
         )
       }
     },
+    formatOperationOptions(data) {
+      const uniqueSet = new Set()
+      data.forEach((item) => {
+        const label = `${item.no} - ${item.cnc_type}`
+        if (!uniqueSet.has(label)) {
+          uniqueSet.add(label)
+          this.operationMapping[label] = item.specs_op_id
+        }
+      })
+      return Array.from(uniqueSet)
+    },
 
+    onOperationSelected(value) {
+      const id = this.operationMapping[value]
+      this.toolModel.selectedOperationId = id
+      console.log('Выбран specs_op_id:', id)
+    },
+    resetToolModel() {
+      console.log('Новый инструмент resetToolModel')
+      this.toolModel = {
+        name: null,
+        limit: null,
+        sklad: null,
+        norma: null,
+        property: {},
+      }
+      console.log(this.toolModel)
+    },
+    updateToolModel() {
+      if (this.tool) {
+        this.toolModel = JSON.parse(JSON.stringify(this.tool))
+      }
+    },
+    prepareFioOptions(fioData) {
+      return fioData.map((item) => ({
+        text: item.fio,
+        value: item.id,
+      }))
+    },
+    async onIdChanged(newId) {
+      try {
+        const result = await issueToolApi.searchById(newId)
+        this.originalData = result // Сохраняем исходные данные для последующего использования
+        this.options.idNameDescription = this.formatToolOptions(result)
+      } catch (error) {
+        console.error('Ошибка при поиске:', error)
+      }
+    },
     formatToolOptions(data) {
       const uniqueSet = new Set()
       this.idMapping = {} // очистка предыдущего сопоставления
@@ -286,29 +279,6 @@ export default {
 
       return Array.from(uniqueSet)
     },
-
-    formatOperationOptions(data) {
-      const uniqueSet = new Set()
-      data.forEach((item) => {
-        const label = `${item.no} - ${item.cnc_type}`
-        if (!uniqueSet.has(label)) {
-          uniqueSet.add(label)
-          this.operationMapping[label] = item.specs_op_id
-        }
-      })
-      return Array.from(uniqueSet)
-    },
-
-    async onIdChanged(newId) {
-      try {
-        const result = await issueToolApi.searchById(newId)
-        this.originalData = result // Сохраняем исходные данные для последующего использования
-        this.options.idNameDescription = this.formatToolOptions(result)
-      } catch (error) {
-        console.error('Ошибка при поиске:', error)
-      }
-    },
-
     initializeLocalState() {
       if (this.toolId) {
         console.log('this.toolId=', this.toolId)
@@ -321,14 +291,6 @@ export default {
         // this.localParentId = this.idParent.id
         this.currentFolderName = this.idParent.label
       }
-    },
-
-    prependOptionIfNeeded(value, optionsList) {
-      if (value && !optionsList.some((option) => option.value === value))
-        optionsList.unshift(value)
-    },
-    confirmDelete() {
-      this.confirmDeleteDialog = true
     },
     onCancel() {
       this.$emit('canceled')
@@ -368,6 +330,27 @@ export default {
         )
       }
     },
+  },
+  async created() {
+    console.log('Вызов getDetailFio')
+    try {
+      const fioData = await issueToolApi.getDetailFio()
+      this.fioOptions = this.prepareFioOptions(fioData)
+    } catch (error) {
+      console.error('Ошибка при загрузке данных ФИО:', error)
+    }
+    // Дополнительное логирование состояния после обработки
+    this.initializeLocalState()
+    if (this.toolId == null) {
+      this.setTool({
+        id: null,
+        name: null,
+        property: {},
+      })
+    } else {
+      await this.fetchToolById(this.toolId)
+      if (this.tool.property === null) this.tool.property = {}
+    }
   },
 }
 </script>

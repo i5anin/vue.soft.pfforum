@@ -112,6 +112,7 @@ import Modal from '@/modules/shared/components/Modal.vue'
 import { getToolParams } from '@/api'
 import { editorToolApi } from '../api/editor'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
+import { issueToolApi } from '@/modules/issue-tool/api/issue'
 
 export default {
   name: 'FillingModal',
@@ -199,16 +200,15 @@ export default {
     logModelValue(paramId) {
       console.log('Value changed for param ID:', paramId)
     },
-    prependLastSavedData(data) {
-      if (!data) return
-      this.prependOptionIfNeeded(data.name, this.nameOptions, 'name')
-    },
     prependOptionIfNeeded(value, optionsList) {
       if (value && !optionsList.some((option) => option.value === value))
         optionsList.unshift(value)
     },
-    parseToFloat(value) {
-      return value === null ? 0 : parseFloat(value.toString().replace(',', '.'))
+    prepareFioOptions(fioData) {
+      return fioData.map((item) => ({
+        text: item.fio,
+        value: item.id,
+      }))
     },
     confirmDelete() {
       if (window.confirm('Вы уверены, что хотите удалить этот инструмент?'))
@@ -251,6 +251,15 @@ export default {
     },
   },
   async created() {
+    console.log('Вызов getDetailFio')
+    try {
+      const fioData = await issueToolApi.getDetailFio()
+      this.fioOptions = this.prepareFioOptions(fioData)
+    } catch (error) {
+      console.error('Ошибка при загрузке данных ФИО:', error)
+    }
+    // Дополнительное логирование состояния после обработки
+    this.initializeLocalState()
     if (this.toolId == null) {
       this.setTool({
         id: null,
@@ -261,14 +270,6 @@ export default {
       await this.fetchToolById(this.toolId)
       if (this.tool.property === null) this.tool.property = {}
     }
-    const rawToolParams = await getToolParams()
-    this.toolParams = [...rawToolParams]
-    this.toolModel = JSON.parse(JSON.stringify(this.tool))
-    const propertyIds = Object.keys(this.toolModel.property).map((key) => key)
-    this.selectedParams = this.toolParams
-      .filter(({ id }) => propertyIds.includes(String(id)))
-      .map(({ info }) => info)
-    this.toolParamOptions = rawToolParams.map((param) => param.info)
   },
 }
 </script>
