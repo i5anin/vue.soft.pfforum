@@ -74,8 +74,6 @@
               v-model="toolModel.issue"
               :rules="issueRules"
             />
-            <!-- <h2 class="text-h6">Комментарий:</h2>-->
-            <!-- <h2 class="text-h6">Внимание идет переиспользование инструмента:</h2>-->
             <v-textarea
               v-if="overNorm"
               class="comment-field"
@@ -182,14 +180,17 @@ export default {
     'tool.sklad': function (newVal) {
       console.log('tool.sklad changed from ', newVal)
     },
+
     tool: {
       deep: true,
       immediate: true,
       handler(newTool) {
+        // console.log('newTool=', newTool)
         if (newTool) {
           this.localParentId = newTool.parent_id
           this.currentFolderName = newTool.folder_name
         } else {
+          // console.log('localParentId=', this.localParentId)
           this.localParentId = this.idParent.id
           this.currentFolderName = this.idParent.label
         }
@@ -221,18 +222,10 @@ export default {
 
   computed: {
     ...mapGetters('IssueToolStore', ['nameOptions', 'tool']),
-    ...mapState('IssueToolStore', ['idParent']),
+    ...mapState('IssueToolStore', ['parentCatalog']),
     currentFolderName() {
       return this.toolId === null ? this.idParent.label : this.tool.folder_name
     },
-    selectedParamsInfo() {
-      return this.selectedParams
-        .map((paramName) =>
-          this.toolParams.find(({ info }) => info === paramName)
-        )
-        .filter((selectedParam) => selectedParam != null)
-    },
-
     popupTitle() {
       return this.tool?.id != null
         ? `Редактировать инструмент ID: ${this.tool.id}`
@@ -241,12 +234,7 @@ export default {
   },
   methods: {
     ...mapMutations('IssueToolStore', ['setTool']),
-    ...mapActions('IssueToolStore', [
-      'fetchUniqueToolSpecs',
-      'fetchToolsByFilter',
-      'onSaveToolModel',
-      'fetchToolById',
-    ]),
+    ...mapActions('IssueToolStore', ['fetchToolsByFilter', 'fetchToolById']),
 
     handleSelectionChange(selectedItem) {
       console.log(
@@ -323,35 +311,22 @@ export default {
 
     initializeLocalState() {
       if (this.toolId) {
+        console.log('this.toolId=', this.toolId)
         this.fetchToolById(this.toolId).then(() => {
           this.toolModel.sklad = this.tool.sklad
           this.toolModel.norma = this.tool.norma
         })
       } else {
-        this.localParentId = this.idParent.id
+        console.log('localParentId=', this.localParentId)
+        // this.localParentId = this.idParent.id
         this.currentFolderName = this.idParent.label
       }
-    },
-
-    logModelValue(paramId) {
-      console.log('Value changed for param ID:', paramId)
-    },
-
-    prependLastSavedData(data) {
-      if (!data) return
-      this.prependOptionIfNeeded(data.name, this.nameOptions, 'name')
     },
 
     prependOptionIfNeeded(value, optionsList) {
       if (value && !optionsList.some((option) => option.value === value))
         optionsList.unshift(value)
     },
-
-    parseToFloat(value) {
-      if (value === null) return 0
-      return parseFloat(value.toString().replace(',', '.'))
-    },
-
     confirmDelete() {
       this.confirmDeleteDialog = true
     },

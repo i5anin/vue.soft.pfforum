@@ -133,7 +133,7 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
   // Даты для имени файла и темы письма
   const { firstDate, lastDate } = getCurrentMonthDates()
   const envPrefix = process.env.NODE_ENV === 'development' ? 'development ' : ''
-  const subject = `${envPrefix}Заказ: Журнал испорченного инструмента за месяц с ${firstDate} по ${lastDate}`
+  const subject = `${envPrefix}Заказ: Журнал испорченного инструмента за неделю с ${firstDate} по ${lastDate}`
 
   // Генерация HTML таблицы для тела письма
   let htmlContent = `<h2>${subject}</h2>`

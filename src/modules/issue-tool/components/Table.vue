@@ -14,7 +14,7 @@
       @changes-saved="onSaveChanges"
     />
     <ModalIssue
-      v-if="openDialog"
+      v-if="openDialog && currentModal === 'issue'"
       :persistent="true"
       :tool-id="editingToolId"
       @canceled="onClosePopup"
@@ -83,7 +83,7 @@ import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
 
 export default {
-  emits: [],
+  emits: ['changes-saved', 'canceled', 'page-changed', 'page-limit-changed'],
   components: {
     VDataTableServer,
     ToolFilter,
@@ -113,6 +113,7 @@ export default {
       editingToolId: null, //редактирование идентификатора инструмента
       toolTableHeaders: [], //заголовки таблиц инструментов
       filterParamsList: [],
+      currentModal: null,
     }
   },
   watch: {
@@ -159,6 +160,20 @@ export default {
       'setItemsPerPage',
       'setSelectedDynamicFilters',
     ]),
+    onIssueTool(event, item) {
+      event.stopPropagation()
+      this.editingToolId = item.id
+      this.currentModal = 'issue'
+      console.log('openDialog')
+      this.openDialog = true
+    },
+    onDamagedTool(event, item) {
+      event.stopPropagation()
+      this.editingToolId = item.id
+      this.currentModal = 'damaged'
+      console.log('openDialog')
+      this.openDialog = true
+    },
     // Метод для обработки обновления параметров фильтра
     onParamsFilterUpdate({ key, value }) {
       this.setSelectedDynamicFilters({

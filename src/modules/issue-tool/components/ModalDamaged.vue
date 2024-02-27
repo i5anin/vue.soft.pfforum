@@ -201,13 +201,8 @@ export default {
   },
 
   computed: {
-    ...mapGetters('IssueToolStore', [
-      'widthOptions',
-      'shagOptions',
-      'nameOptions',
-      'tool',
-    ]),
-    ...mapState('IssueToolStore', ['idParent']),
+    ...mapGetters('IssueToolStore', ['nameOptions', 'tool']),
+    ...mapState('IssueToolStore', ['parentCatalog']),
     currentFolderName() {
       return this.toolId === null ? this.idParent.label : this.tool.folder_name
     },
