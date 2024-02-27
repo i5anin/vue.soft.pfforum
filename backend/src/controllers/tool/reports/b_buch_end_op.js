@@ -101,7 +101,7 @@ async function checkStatusChanges() {
       const mailOptions = {
         from: 'report@pf-forum.ru',
         to: 'isa@pf-forum.ru',
-        subject: `Бухгалтерия: обновление статуса операции ${specsOpId}`,
+        subject: `Бухгалтерия: отчет по завершению операции ${specsOpId}`,
         html: htmlContent,
       }
 
