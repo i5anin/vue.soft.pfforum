@@ -26,7 +26,7 @@
               item-title="cnc_name"
               item-value="cnc_code"
               required
-              single-line
+              single-line="false"
             />
             <v-text-field
               label="Количество"
@@ -41,8 +41,8 @@
               item-title="text"
               item-value="value"
               label="ФИО кто уничтожил"
-              return-object
-              single-line
+              return-object="false"
+              single-line="false"
               @update:modelValue="handleSelectionChange"
             />
             <v-textarea
@@ -60,20 +60,12 @@
       <v-btn
         color="red darken-1"
         variant="text"
-        @click="confirmDelete"
-        class="text-none text-subtitle-1 ml-3"
-      >
-        Удалить
-      </v-btn>
-      <v-spacer />
-      <v-btn
-        color="red darken-1"
-        variant="text"
         @click="onCancel"
         class="text-none text-subtitle-1 ml-3"
       >
         Закрыть
       </v-btn>
+      <v-spacer />
       <v-btn
         prepend-icon="mdi-check-circle"
         @click="onSave"
@@ -140,9 +132,6 @@ export default {
     'tool.sklad': function (newVal) {
       console.log('tool.sklad changed from ', newVal)
     },
-    selectedCnc(newValue) {
-      console.log('Выбранное значение cnc_id:', newValue)
-    },
     selectedFio(newValue) {
       console.log('Выбранное значение fio_id:', newValue)
     },
@@ -206,13 +195,6 @@ export default {
     currentFolderName() {
       return this.toolId === null ? this.idParent.label : this.tool.folder_name
     },
-    selectedParamsInfo() {
-      return this.selectedParams
-        .map((paramName) =>
-          this.toolParams.find(({ info }) => info === paramName)
-        )
-        .filter((selectedParam) => selectedParam != null)
-    },
 
     popupTitle() {
       return this.tool?.id != null
@@ -222,12 +204,7 @@ export default {
   },
   methods: {
     ...mapMutations('IssueToolStore', ['setTool']),
-    ...mapActions('IssueToolStore', [
-      'fetchUniqueToolSpecs',
-      'fetchToolsByFilter',
-      'onSaveToolModel',
-      'fetchToolById',
-    ]),
+    ...mapActions('IssueToolStore', ['fetchToolsByFilter', 'fetchToolById']),
 
     handleSelectionChange(selectedItem) {
       console.log(
@@ -243,43 +220,6 @@ export default {
       }))
     },
 
-    onOperationSelected(value) {
-      const id = this.operationMapping[value]
-      this.toolModel.selectedOperationId = id
-      console.log('Выбран specs_op_id:', id)
-    },
-
-    onIdSelected(selectedValue) {
-      const id = this.idMapping[selectedValue]
-      if (id) {
-        const filteredData = this.originalData.filter((item) => item.id === id)
-        this.options.numberType = this.formatOperationOptions(filteredData)
-      } else {
-        console.error(
-          'Не удалось найти ID для выбранного значения:',
-          selectedValue
-        )
-      }
-    },
-
-    formatToolOptions(data) {
-      const uniqueSet = new Set()
-      this.idMapping = {} // очистка предыдущего сопоставления
-
-      data.forEach((item) => {
-        const formattedItem = item.description
-          ? `${item.id} - ${item.name} - ${item.description}`
-          : `${item.id} - ${item.name}`
-
-        if (!uniqueSet.has(formattedItem)) {
-          uniqueSet.add(formattedItem)
-          this.idMapping[formattedItem] = item.id // создание сопоставления
-        }
-      })
-
-      return Array.from(uniqueSet)
-    },
-
     formatOperationOptions(data) {
       const uniqueSet = new Set()
       data.forEach((item) => {
@@ -290,16 +230,6 @@ export default {
         }
       })
       return Array.from(uniqueSet)
-    },
-
-    async onIdChanged(newId) {
-      try {
-        const result = await issueToolApi.searchById(newId)
-        this.originalData = result // Сохраняем исходные данные для последующего использования
-        this.options.idNameDescription = this.formatToolOptions(result)
-      } catch (error) {
-        console.error('Ошибка при поиске:', error)
-      }
     },
 
     initializeLocalState() {
@@ -314,28 +244,11 @@ export default {
       }
     },
 
-    logModelValue(paramId) {
-      console.log('Value changed for param ID:', paramId)
-    },
-
-    prependLastSavedData(data) {
-      if (!data) return
-      this.prependOptionIfNeeded(data.name, this.nameOptions, 'name')
-    },
-
     prependOptionIfNeeded(value, optionsList) {
       if (value && !optionsList.some((option) => option.value === value))
         optionsList.unshift(value)
     },
 
-    parseToFloat(value) {
-      if (value === null) return 0
-      return parseFloat(value.toString().replace(',', '.'))
-    },
-
-    confirmDelete() {
-      this.confirmDeleteDialog = true
-    },
     onCancel() {
       this.$emit('canceled')
     },
