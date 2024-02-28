@@ -33,27 +33,36 @@ const sentNotifications = []
 
 async function checkStatusChanges() {
   try {
-    // Получаем строки для отправки электронной почты
     const { rows } = await pool.query(`
       SELECT
-          tool_nom.ID AS tool_id,
-          tool_nom.NAME,
-          SUM(tool_history_nom.quantity) AS total_quantity,
-          tool_history_nom.specs_op_id,
-      dbo.kolvo_prod_ready(specs_nom_operations.specs_nom_id) AS quantity_prod,
-      specs_nom_operations.specs_nom_id
+        tool_nom.ID AS tool_id,
+        tool_nom.NAME AS tool_name,
+        SUM(tool_history_nom.quantity) AS total_quantity,
+        tool_history_nom.specs_op_id,
+        dbo.kolvo_prod_ready(specs_nom_operations.specs_nom_id) AS quantity_prod,
+        specs_nom_operations.specs_nom_id,
+        specs_nom.NAME AS specs_name,
+        specs_nom.description,
+        operations_ordersnom.no,
+        dbo.get_full_cnc_type(dbo.get_op_type_code(specs_nom_operations.ID)) as cnc_type
       FROM
-          dbo.tool_history_nom
-      JOIN dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.ID
-      JOIN dbo.specs_nom_operations ON tool_history_nom.specs_op_id = specs_nom_operations.ID
+        dbo.tool_history_nom
+        JOIN dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.ID
+        JOIN dbo.specs_nom_operations ON tool_history_nom.specs_op_id = specs_nom_operations.ID
+        JOIN dbo.specs_nom ON specs_nom_operations.specs_nom_id = specs_nom.ID
+        JOIN dbo.operations_ordersnom ON specs_nom_operations.ordersnom_op_id = operations_ordersnom.ID
       WHERE
-          NOT tool_history_nom.sent
-          AND specs_nom_operations.status_ready
+        NOT tool_history_nom.sent
+        AND specs_nom_operations.status_ready
       GROUP BY
-          tool_nom.ID,
-          tool_nom.NAME,
-          tool_history_nom.specs_op_id,
-      specs_nom_operations.specs_nom_id
+        tool_nom.ID,
+        tool_nom.NAME,
+        tool_history_nom.specs_op_id,
+        specs_nom_operations.specs_nom_id,
+        specs_nom.NAME,
+        specs_nom.description,
+        operations_ordersnom.no,
+        specs_nom_operations.ID
     `)
 
     if (rows.length === 0) {
@@ -61,47 +70,42 @@ async function checkStatusChanges() {
       return
     }
 
-    // Группируем строки по specs_op_id
-    const groupedBySpecsOpId = rows.reduce((acc, row) => {
-      ;(acc[row.specs_op_id] = acc[row.specs_op_id] || []).push(row)
-      return acc
-    }, {})
-
-    const tableStructure = [
-      // { label: 'tool_id', text: 'ID инструмента' },
-      { label: 'specs_op_id', text: 'ID операции' },
-      { label: 'specs_nom_id', text: 'ID  партии' },
-      { label: 'name', text: 'название инструмента' },
-      { label: 'total_quantity', text: 'кол-во выдано' },
-      { label: 'quantity_prod', text: 'кол-во продукции' },
-    ]
-
-    for (const [specsOpId, rows] of Object.entries(groupedBySpecsOpId)) {
-      console.log(`Отправка уведомления для операции с ID ${specsOpId}...`)
-      let htmlContent = `<h2>Операция ${specsOpId} завершена:</h2>`
+    for (const row of rows) {
+      const detailedDescription = `${row.specs_name} - ${row.description} - ${row.no} - ${row.cnc_type}`
+      console.log(
+        `Отправка уведомления для операции: ${detailedDescription}...`
+      )
+      let htmlContent = `<h2>Операция завершена: ${detailedDescription}</h2>`
       htmlContent += '<table border="1"><tr>'
+
+      const tableStructure = [
+        { label: 'specs_op_id', text: 'ID операции' },
+        { label: 'specs_nom_id', text: 'ID партии' },
+        { label: 'tool_name', text: 'Название инструмента' },
+        { label: 'total_quantity', text: 'Кол-во выдано' },
+        { label: 'quantity_prod', text: 'Кол-во продукции' },
+        // { label: 'specs_name', text: 'Название' },
+        // { label: 'description', text: 'Описание' },
+        // { label: 'no', text: 'Номер' },
+        // { label: 'cnc_type', text: 'Тип CNC' },
+      ]
 
       // Добавляем заголовки в таблицу
       tableStructure.forEach((header) => {
         htmlContent += `<th>${header.text}</th>`
       })
-      htmlContent += '</tr>'
+      htmlContent += '</tr><tr>'
 
-      // Добавляем данные для каждой строки
-      rows.forEach((row) => {
-        htmlContent += '<tr>'
-        tableStructure.forEach((header) => {
-          htmlContent += `<td>${row[header.label] ?? 'N/A'}</td>`
-        })
-        htmlContent += '</tr>'
+      // Добавляем данные для строки
+      tableStructure.forEach((header) => {
+        htmlContent += `<td>${row[header.label] ?? 'N/A'}</td>`
       })
-
-      htmlContent += '</table>'
+      htmlContent += '</tr></table>'
 
       const mailOptions = {
         from: 'report@pf-forum.ru',
         to: 'isa@pf-forum.ru',
-        subject: `Бухгалтерия: отчет по завершению операции ${specsOpId}`,
+        subject: `Бухгалтерия: отчет по завершению операции: ${detailedDescription}`,
         html: htmlContent,
       }
 
@@ -111,7 +115,7 @@ async function checkStatusChanges() {
           console.log(error)
         } else {
           console.log(
-            `Отправлено уведомление для операции ${specsOpId}. Status info: ${info.response}`
+            `Отправлено уведомление для операции: ${detailedDescription}. Status info: ${info.response}`
           )
         }
       })
@@ -121,11 +125,8 @@ async function checkStatusChanges() {
         `UPDATE dbo.tool_history_nom
          SET sent = TRUE
          WHERE specs_op_id = $1 AND NOT sent`,
-        [specsOpId]
+        [row.specs_op_id]
       )
-
-      // Добавляем ID операции в массив отправленных уведомлений
-      sentNotifications.push(specsOpId)
     }
   } catch (error) {
     console.error('Ошибка при проверке статуса изменений:', error)
