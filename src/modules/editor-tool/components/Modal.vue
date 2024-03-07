@@ -78,6 +78,7 @@
                 <v-row>
                   <v-combobox
                     v-model="param.info"
+                    :items="toolParamOptions"
                     label="Параметр"
                     single-line
                     solo
@@ -93,6 +94,9 @@
                 </v-row>
               </v-container>
             </div>
+            <v-btn color="primary" @click="addParameterValuePair"
+              >Добавить пару</v-btn
+            >
           </v-col>
         </v-row>
       </v-container>
@@ -153,6 +157,7 @@ export default {
         sklad: null,
         norma: null,
       },
+      parameterValuePairs: [{ parameter: null, value: null }],
       toolParamOptions: [],
       selectedParams: [],
       geometryOptions: [],
@@ -213,6 +218,9 @@ export default {
         property: {},
       }
       console.log(this.toolModel)
+    },
+    addParameterValuePair() {
+      this.parameterValuePairs.push({ parameter: null, value: null })
     },
     updateToolModel() {
       if (this.tool) {
