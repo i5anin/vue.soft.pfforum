@@ -33,23 +33,7 @@
                 :rules="typeRules"
               />
             </div>
-            <v-container>
-              <v-row>
-                <v-combobox
-                  :items="items1"
-                  label="Параметр"
-                  single-line
-                  solo
-                ></v-combobox>
 
-                <v-combobox
-                  :items="items2"
-                  label="Значение"
-                  single-line
-                  solo
-                ></v-combobox>
-              </v-row>
-            </v-container>
             <!-- правый столбец -->
             <v-combobox
               :chips="true"
@@ -86,8 +70,29 @@
               required
               v-model="toolModel.sklad"
             />
-            <h2 class="text-h6"></h2>
-            <div></div>
+
+            <h2 class="text-h6">Характеристики2:</h2>
+
+            <div v-for="param in selectedParamsInfo" :key="param.id">
+              <v-container>
+                <v-row>
+                  <v-combobox
+                    v-model="param.info"
+                    label="Параметр"
+                    single-line
+                    solo
+                  ></v-combobox>
+
+                  <v-combobox
+                    v-model="toolModel.property[param.id]"
+                    :items="items2"
+                    label="Значение"
+                    single-line
+                    solo
+                  ></v-combobox>
+                </v-row>
+              </v-container>
+            </div>
           </v-col>
         </v-row>
       </v-container>
