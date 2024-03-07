@@ -33,6 +33,23 @@
                 :rules="typeRules"
               />
             </div>
+            <v-container>
+              <v-row>
+                <v-combobox
+                  :items="items1"
+                  label="Параметр"
+                  single-line
+                  solo
+                ></v-combobox>
+
+                <v-combobox
+                  :items="items2"
+                  label="Значение"
+                  single-line
+                  solo
+                ></v-combobox>
+              </v-row>
+            </v-container>
             <!-- правый столбец -->
             <v-combobox
               :chips="true"
