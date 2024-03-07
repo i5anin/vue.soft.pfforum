@@ -8,115 +8,72 @@
               <v-text-field
                 label="ID папки"
                 required
-                type="Number"
+                type="number"
                 v-model="parentCatalog.id"
                 :rules="parentIdRules"
               />
               <v-text-field
                 label="Папка"
                 required
-                type="Text"
+                type="text"
                 v-model="parentCatalog.label"
                 :disabled="true"
               />
             </div>
-            <!--левый столбец -->
-            <div>
-              <v-combobox
-                density="compact"
-                label="Маркировка"
-                v-model="toolModel.name"
-                :items="nameOptions"
-                item-text="text"
-                item-value="value"
-                required
-                :rules="typeRules"
-              />
-            </div>
-            <v-container>
-              <v-row>
-                <v-combobox
-                  :items="items1"
-                  label="Параметр"
-                  single-line
-                  solo
-                ></v-combobox>
-
-                <v-combobox
-                  :items="items2"
-                  label="Значение"
-                  single-line
-                  solo
-                ></v-combobox>
+            <v-divider class="my-4"></v-divider>
+            <template
+              v-for="(pair, index) in parameterValuePairs"
+              :key="`pair-${index}`"
+            >
+              <v-row align="center">
+                <v-col cols="5">
+                  <v-combobox
+                    :items="toolParamOptions"
+                    label="Параметр"
+                    v-model="pair.parameter"
+                    item-text="info"
+                    item-value="id"
+                    return-object
+                    dense
+                  ></v-combobox>
+                </v-col>
+                <v-col cols="5">
+                  <v-combobox
+                    :items="valueOptions"
+                    label="Значение"
+                    v-model="pair.value"
+                    item-text="text"
+                    item-value="value"
+                    return-object
+                    dense
+                  ></v-combobox>
+                </v-col>
+                <v-col cols="2">
+                  <v-btn icon @click="removeParameterValuePair(index)">
+                    <v-icon>mdi-close</v-icon>
+                  </v-btn>
+                </v-col>
               </v-row>
-            </v-container>
-            <!-- правый столбец -->
-            <v-combobox
-              :chips="true"
-              multiple
-              v-model="selectedParams"
-              :items="toolParamOptions"
-              label="Параметры"
-              return-object
-            />
-            <h2 class="text-h6">Характеристики:</h2>
-            <!-- динамические параметры -->
-            <div v-for="param in selectedParamsInfo" :key="param.id">
-              <v-combobox
-                density="compact"
-                :label="param.info"
-                v-model="toolModel.property[param.id]"
-                @input="logModelValue(param.id)"
-                required
-              />
-            </div>
-            <v-divider class="my-1"></v-divider>
-            <v-text-field
-              type="number"
-              density="compact"
-              label="Нормативный запас"
-              required
-              v-model="toolModel.norma"
-            />
-            <v-divider class="my-1"></v-divider>
-            <v-text-field
-              type="number"
-              density="compact"
-              label="Склад"
-              required
-              v-model="toolModel.sklad"
-            />
-            <h2 class="text-h6"></h2>
-            <div></div>
+            </template>
+            <v-btn color="primary" @click="addParameterValuePair"
+              >Добавить пару</v-btn
+            >
           </v-col>
         </v-row>
       </v-container>
     </template>
     <template #action>
-      <v-btn
-        color="red darken-1"
-        variant="text"
-        @click="confirmDelete"
-        class="text-none text-subtitle-1 ml-3"
-      >
+      <v-btn color="red darken-1" variant="text" @click="confirmDelete">
         Удалить
       </v-btn>
-      <v-spacer />
-      <v-btn
-        color="red darken-1"
-        variant="text"
-        @click="onCancel"
-        class="text-none text-subtitle-1 ml-3"
-      >
+      <v-spacer></v-spacer>
+      <v-btn color="red darken-1" variant="text" @click="onCancel">
         Закрыть
       </v-btn>
       <v-btn
-        prepend-icon="mdi-check-circle"
-        @click="onSave"
-        class="text-none text-subtitle-1 pl-3"
         color="blue darken-1"
-        size="large"
-        variant="flat"
+        @click="onSave"
+        prepend-icon="mdi-check-circle"
       >
         Сохранить
       </v-btn>
@@ -148,6 +105,8 @@ export default {
         sklad: null,
         norma: null,
       },
+      parentCatalog: { id: null, label: '' },
+      parameterValuePairs: [{ parameter: null, value: null }],
       toolParamOptions: [],
       selectedParams: [],
       geometryOptions: [],
@@ -198,6 +157,12 @@ export default {
   methods: {
     ...mapActions('EditorToolStore', ['fetchToolsByFilter', 'fetchToolById']),
     ...mapMutations('EditorToolStore', ['setTool']),
+    addParameterValuePair() {
+      this.parameterValuePairs.push({ parameter: null, value: null })
+    },
+    removeParameterValuePair(index) {
+      this.parameterValuePairs.splice(index, 1)
+    },
     resetToolModel() {
       console.log('Новый инструмент resetToolModel')
       this.toolModel = {
