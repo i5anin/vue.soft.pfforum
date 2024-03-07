@@ -157,14 +157,6 @@ export default {
   methods: {
     ...mapActions('EditorToolStore', ['fetchToolsByFilter', 'fetchToolById']),
     ...mapMutations('EditorToolStore', ['setTool']),
-    initializeLocalState() {
-      // Здесь ваш код для инициализации состояния
-      console.log('Инициализация локального состояния компонента')
-      // Пример инициализации:
-      this.parentCatalog = { id: null, label: '' }
-      this.parameterValuePairs = [{ parameter: null, value: null }]
-      // и так далее для других необходимых начальных установок
-    },
     addParameterValuePair() {
       this.parameterValuePairs.push({ parameter: null, value: null })
     },
