@@ -153,15 +153,23 @@ export default {
       console.log(this.toolModel)
     },
     addParameterValuePair() {
-      // Предполагаем, что вам нужно добавить новый параметр в toolParams для его поиска через selectedParamsInfo
-      const newToolParam = { id: -1, info: null }
-      this.toolParams.push(newToolParam) // Добавляем новый параметр в массив параметров инструмента
+      // Проверяем, существует ли уже параметр с id: -1
+      const exists = this.toolParams.some((param) => param.id === -1)
 
-      // Добавляем идентификатор нового параметра в selectedParams, чтобы он отобразился через selectedParamsInfo
-      this.selectedParams.push(info)
+      // Если параметр с id: -1 уже существует, выходим из функции, не добавляя новый
+      if (exists) return
+
+      // Создаем новый параметр с id: -1
+      const newToolParam = { id: -1, info: null } // Замените 'Некоторое значение' на желаемое значение
+
+      // Добавляем новый параметр в массив параметров инструмента
+      this.toolParams.push(newToolParam)
+
+      // Добавляем значение info нового параметра в selectedParams, чтобы он отобразился
+      this.selectedParams.push(newToolParam.info)
 
       // Обновляем toolModel.property для сохранения значения нового параметра
-      this.toolModel.property[id] = null // Или другое начальное значение по умолчанию
+      this.toolModel.property[newToolParam.id] = null // Или другое начальное значение
     },
     updateToolModel() {
       if (this.tool) this.toolModel = JSON.parse(JSON.stringify(this.tool))
