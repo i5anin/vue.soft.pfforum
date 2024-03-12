@@ -5,18 +5,16 @@
         <v-row>
           <v-col>
             <h2 class="text-h6">Характеристики новые:</h2>
-            {{ selectedParamsInfo }}
+            <!--            {{ selectedParamsInfo }}-->
             <div v-for="param in selectedParamsInfo" :key="param.id">
               <v-container>
                 <v-row>
                   <v-select
-                    :value="param.info"
-                    @input="updateParamInfo(index, $event)"
+                    v-model="param.info"
                     :items="toolParamOptions"
                     label="Параметр"
                     single-line="true"
                     solo
-                    style="width: 100px"
                   />
                   <v-combobox
                     v-model="toolModel.property[param.id]"
@@ -142,16 +140,6 @@ export default {
   methods: {
     ...mapActions('EditorToolStore', ['fetchToolsByFilter', 'fetchToolById']),
     ...mapMutations('EditorToolStore', ['setTool']),
-    updateParamInfo(paramIndex, newValue) {
-      // Используем this.$set для обновления info у конкретного param в selectedParamsInfo
-      // Это гарантирует реактивность изменений
-      this.$set(this.selectedParamsInfo[paramIndex], 'info', newValue)
-
-      // Также обновляем selectedParams, если необходимо
-      this.selectedParams[paramIndex] = newValue
-
-      // Возможно, потребуется обновить другие связанные данные, в зависимости от вашей логики
-    },
     resetToolModel() {
       console.log('Новый инструмент resetToolModel')
       this.toolModel = {
@@ -236,7 +224,7 @@ export default {
     },
   },
   async created() {
-    console.log('Вызов getDetailFio')
+    // console.log('Вызов getDetailFio')
     try {
       const fioData = await issueToolApi.getDetailFio()
       this.fioOptions = this.prepareFioOptions(fioData)
@@ -264,7 +252,7 @@ export default {
       console.error('Ошибка при загрузке параметров инструмента:', error)
     }
 
-    this.initializeLocalState()
+    // this.initializeLocalState()
     if (this.toolId == null) {
       this.setTool({
         id: null,
