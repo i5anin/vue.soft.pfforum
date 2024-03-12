@@ -10,12 +10,13 @@
               <v-container>
                 <v-row>
                   <v-select
-                    v-model="param.info"
-                    :items="toolParamOptions"
-                    label="Параметр"
-                    single-line="true"
-                    solo
-                    style="width: 100px"
+                    :value="param.info"
+                    @input="updateParamInfo(index, $event)" <!-- index - это индекс param в цикле v-for -->
+                  :items="toolParamOptions"
+                  label="Параметр"
+                  single-line="true"
+                  solo
+                  style="width: 100px"
                   />
                   <v-combobox
                     v-model="toolModel.property[param.id]"
@@ -141,6 +142,16 @@ export default {
   methods: {
     ...mapActions('EditorToolStore', ['fetchToolsByFilter', 'fetchToolById']),
     ...mapMutations('EditorToolStore', ['setTool']),
+    updateParamInfo(paramIndex, newValue) {
+      // Используем this.$set для обновления info у конкретного param в selectedParamsInfo
+      // Это гарантирует реактивность изменений
+      this.$set(this.selectedParamsInfo[paramIndex], 'info', newValue)
+
+      // Также обновляем selectedParams, если необходимо
+      this.selectedParams[paramIndex] = newValue
+
+      // Возможно, потребуется обновить другие связанные данные, в зависимости от вашей логики
+    },
     resetToolModel() {
       console.log('Новый инструмент resetToolModel')
       this.toolModel = {
@@ -173,9 +184,6 @@ export default {
     },
     updateToolModel() {
       if (this.tool) this.toolModel = JSON.parse(JSON.stringify(this.tool))
-    },
-    logModelValue(paramId) {
-      console.log('Value changed for param ID:', paramId)
     },
     prependOptionIfNeeded(value, optionsList) {
       if (value && !optionsList.some((option) => option.value === value))
