@@ -156,36 +156,13 @@ export default {
       }
       console.log(this.toolModel)
     },
-    updateInfo(paramIndex, newInfo) {
-      const selectedParam = this.selectedParamsInfo[paramIndex]
-      if (selectedParam) {
-        this.$set(this.selectedParamsInfo, paramIndex, {
-          ...selectedParam,
-          info: newInfo,
-        })
-        // Также обновляем selectedParams, если нужно
-        // Например, если selectedParams хранит только значения info
-        this.$set(this.selectedParams, paramIndex, newInfo)
-      }
-    },
     addParameterValuePair() {
-      // Проверяем, существует ли уже параметр с id: -1
       const exists = this.toolParams.some((param) => param.id === -1)
-
-      // Если параметр с id: -1 уже существует, выходим из функции, не добавляя новый
       if (exists) return
-
-      // Создаем новый параметр с id: -1
-      const newToolParam = { id: -1, info: null } // Замените 'Некоторое значение' на желаемое значение
-
-      // Добавляем новый параметр в массив параметров инструмента
+      const newToolParam = { id: -1, info: null }
       this.toolParams.push(newToolParam)
-
-      // Добавляем значение info нового параметра в selectedParams, чтобы он отобразился
       this.selectedParams.push(newToolParam.info)
-
-      // Обновляем toolModel.property для сохранения значения нового параметра
-      this.toolModel.property[newToolParam.id] = null // Или другое начальное значение
+      this.toolModel.property[newToolParam.id] = null
     },
     updateToolModel() {
       if (this.tool) this.toolModel = JSON.parse(JSON.stringify(this.tool))
