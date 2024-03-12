@@ -10,8 +10,7 @@
               <v-container>
                 <v-row>
                   <v-select
-                    :value="param.info"
-                    @input="updateInfo(index, $event)"
+                    v-model="param.info"
                     :items="availableToolParamOptions"
                     label="Параметр"
                     single-line="true"
@@ -70,7 +69,7 @@
 import Modal from '@/modules/shared/components/Modal.vue'
 import { getToolParams } from '@/api'
 import { editorToolApi } from '../api/editor'
-import index, { mapActions, mapGetters, mapMutations } from 'vuex'
+import { mapActions, mapGetters, mapMutations } from 'vuex'
 import { issueToolApi } from '@/modules/issue-tool/api/issue'
 
 export default {
@@ -109,9 +108,6 @@ export default {
     }
   },
   computed: {
-    index() {
-      return index
-    },
     ...mapGetters('EditorToolStore', ['nameOptions', 'tool', 'parentCatalog']),
     availableToolParamOptions() {
       // Фильтрация toolParamOptions, чтобы убрать уже выбранные параметры
