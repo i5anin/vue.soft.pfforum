@@ -4,98 +4,33 @@
       <v-container>
         <v-row>
           <v-col>
-            <div class="flex">
-              <v-text-field
-                label="ID папки"
-                required
-                type="Number"
-                v-model="parentCatalog.id"
-                :rules="parentIdRules"
-              />
-              <v-text-field
-                label="Папка"
-                required
-                type="Text"
-                v-model="parentCatalog.label"
-                :disabled="true"
-              />
-            </div>
-            <!--левый столбец -->
-            <div>
-              <v-combobox
-                density="compact"
-                label="Маркировка"
-                v-model="toolModel.name"
-                :items="nameOptions"
-                item-text="text"
-                item-value="value"
-                required
-                :rules="typeRules"
-              />
-            </div>
-
-            <!-- правый столбец -->
-            <v-combobox
-              :chips="true"
-              multiple
-              v-model="selectedParams"
-              :items="toolParamOptions"
-              label="Параметры"
-              return-object="true"
-            />
-            <h2 class="text-h6">Характеристики:</h2>
-            <!-- динамические параметры -->
-            <div v-for="param in selectedParamsInfo" :key="param.id">
-              <v-combobox
-                density="compact"
-                :label="param.info"
-                v-model="toolModel.property[param.id]"
-                @input="logModelValue(param.id)"
-                required
-              />
-            </div>
-            <v-divider class="my-1"></v-divider>
-            <v-text-field
-              type="number"
-              density="compact"
-              label="Нормативный запас"
-              required
-              v-model="toolModel.norma"
-            />
-            <v-divider class="my-1"></v-divider>
-            <v-text-field
-              type="number"
-              density="compact"
-              label="Склад"
-              required
-              v-model="toolModel.sklad"
-            />
-
             <h2 class="text-h6">Характеристики новые:</h2>
-
+            {{ selectedParamsInfo }}
             <div v-for="param in selectedParamsInfo" :key="param.id">
               <v-container>
                 <v-row>
-                  <v-combobox
+                  <v-select
                     v-model="param.info"
                     :items="toolParamOptions"
                     label="Параметр"
                     single-line="true"
                     solo
+                    style="width: 100px"
                   />
                   <v-combobox
                     v-model="toolModel.property[param.id]"
                     :items="items2"
                     label="Значение"
+                    clearable="true"
                     single-line="true"
                     solo
                   />
                 </v-row>
               </v-container>
             </div>
-            <v-btn color="primary" @click="addParameterValuePair"
-              >Добавить пару</v-btn
-            >
+            <v-btn color="primary" @click="addParameterValuePair">
+              Добавить
+            </v-btn>
           </v-col>
         </v-row>
       </v-container>
@@ -218,12 +153,18 @@ export default {
       console.log(this.toolModel)
     },
     addParameterValuePair() {
-      this.parameterValuePairs.push({ parameter: null, value: null })
+      // Предполагаем, что вам нужно добавить новый параметр в toolParams для его поиска через selectedParamsInfo
+      const newToolParam = { id: -1, info: null }
+      this.toolParams.push(newToolParam) // Добавляем новый параметр в массив параметров инструмента
+
+      // Добавляем идентификатор нового параметра в selectedParams, чтобы он отобразился через selectedParamsInfo
+      this.selectedParams.push(info)
+
+      // Обновляем toolModel.property для сохранения значения нового параметра
+      this.toolModel.property[id] = null // Или другое начальное значение по умолчанию
     },
     updateToolModel() {
-      if (this.tool) {
-        this.toolModel = JSON.parse(JSON.stringify(this.tool))
-      }
+      if (this.tool) this.toolModel = JSON.parse(JSON.stringify(this.tool))
     },
     logModelValue(paramId) {
       console.log('Value changed for param ID:', paramId)
