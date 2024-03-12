@@ -5,20 +5,20 @@
         <v-row>
           <v-col>
             <h2 class="text-h6">Характеристики новые:</h2>
-            <!--            {{ selectedParamsInfo }}-->
+            <!--{{ selectedParamsInfo }}-->
             <div v-for="param in selectedParamsInfo" :key="param.id">
               <v-container>
                 <v-row>
                   <v-select
-                    v-model="param.info"
-                    :items="toolParamOptions"
+                    :value="param.info"
+                    @input="updateInfo(index, $event)"
+                    :items="availableToolParamOptions"
                     label="Параметр"
                     single-line="true"
                     solo
                   />
                   <v-combobox
                     v-model="toolModel.property[param.id]"
-                    :items="items2"
                     label="Значение"
                     clearable="true"
                     single-line="true"
@@ -70,7 +70,7 @@
 import Modal from '@/modules/shared/components/Modal.vue'
 import { getToolParams } from '@/api'
 import { editorToolApi } from '../api/editor'
-import { mapActions, mapGetters, mapMutations } from 'vuex'
+import index, { mapActions, mapGetters, mapMutations } from 'vuex'
 import { issueToolApi } from '@/modules/issue-tool/api/issue'
 
 export default {
@@ -109,7 +109,16 @@ export default {
     }
   },
   computed: {
+    index() {
+      return index
+    },
     ...mapGetters('EditorToolStore', ['nameOptions', 'tool', 'parentCatalog']),
+    availableToolParamOptions() {
+      // Фильтрация toolParamOptions, чтобы убрать уже выбранные параметры
+      return this.toolParamOptions.filter(
+        (option) => !this.selectedParams.includes(option)
+      )
+    },
     selectedParamsInfo() {
       return this.selectedParams
         .map((paramName) =>
@@ -150,6 +159,18 @@ export default {
         property: {},
       }
       console.log(this.toolModel)
+    },
+    updateInfo(paramIndex, newInfo) {
+      const selectedParam = this.selectedParamsInfo[paramIndex]
+      if (selectedParam) {
+        this.$set(this.selectedParamsInfo, paramIndex, {
+          ...selectedParam,
+          info: newInfo,
+        })
+        // Также обновляем selectedParams, если нужно
+        // Например, если selectedParams хранит только значения info
+        this.$set(this.selectedParams, paramIndex, newInfo)
+      }
     },
     addParameterValuePair() {
       // Проверяем, существует ли уже параметр с id: -1
