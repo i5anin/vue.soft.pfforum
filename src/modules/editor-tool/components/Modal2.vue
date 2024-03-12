@@ -11,12 +11,12 @@
                 <v-row>
                   <v-select
                     :value="param.info"
-                    @input="updateParamInfo(index, $event)" <!-- index - это индекс param в цикле v-for -->
-                  :items="toolParamOptions"
-                  label="Параметр"
-                  single-line="true"
-                  solo
-                  style="width: 100px"
+                    @input="updateParamInfo(index, $event)"
+                    :items="toolParamOptions"
+                    label="Параметр"
+                    single-line="true"
+                    solo
+                    style="width: 100px"
                   />
                   <v-combobox
                     v-model="toolModel.property[param.id]"
