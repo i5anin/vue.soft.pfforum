@@ -27,3 +27,4 @@ qodana.yaml
 *.iml
 *.zip
 *.meta
+src/desktop.ini
