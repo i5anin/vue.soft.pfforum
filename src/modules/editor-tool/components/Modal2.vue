@@ -5,8 +5,7 @@
         <v-row>
           <v-col>
             <h2 class="text-h6">Характеристики новые:</h2>
-            <!--{{ selectedParamsInfo }}-->
-            <div v-for="param in selectedParamsInfo" :key="param.id">
+            <div v-for="(param, index) in selectedParamsInfo" :key="param.id">
               <v-container>
                 <v-row>
                   <v-select
@@ -15,6 +14,7 @@
                     label="Параметр"
                     single-line="true"
                     solo
+                    @change="selectParam(param.info, index)"
                   />
                   <v-combobox
                     v-model="toolModel.property[param.id]"
@@ -89,13 +89,26 @@ export default {
         sklad: null,
         norma: null,
       },
-      parameterValuePairs: [{ parameter: null, value: null }],
-      toolParamOptions: [],
-      selectedParams: [],
-      toolParams: [],
-      confirmDeleteDialog: false,
-      typeSelected: false,
-      selectedType: '',
+      /*
+      "id": 489,
+      "parent_id": 2,
+      "name": "S32-SVUBR16",
+      "folder_name": "Токарный",
+      "property": {
+        "1": "Резец",
+        "2": "расточной",
+        "3": "универсальная",
+        "11": "32",
+        "13": "35 градусов большая рыбка",
+        "-1": "123"
+      },
+      "sklad": 9,
+      "limit": 0,
+      "norma": null
+      */
+      toolParamOptions: [], //"Тип", "Группа", "Материал", "Ширина", "Габарит", "Шаг", "Длинна общая", "Длинна рабочей части", "Порядковый номер", "Диаметр хвостовика", "Диаметр", "Радиус", "Геометрия"
+      selectedParams: [], // уже выбранные параметры [ "Тип", "Группа", "Материал", "Диаметр", "Геометрия" ]
+      toolParams: [], //глобальные параметры [ { "id": 1, "info": "Тип" }, { "id": 2, "info": "Группа" }, { "id": 3, "info": "Материал" }, { "id": 4, "info": "Ширина" }, { "id": 5, "info": "Габарит" }, { "id": 6, "info": "Шаг" }, { "id": 7, "info": "Длинна общая" }, { "id": 8, "info": "Длинна рабочей части" }, { "id": 9, "info": "Порядковый номер" }, { "id": 10, "info": "Диаметр хвостовика" }, { "id": 11, "info": "Диаметр" }, { "id": 12, "info": "Радиус" }, { "id": 13, "info": "Геометрия" } ]
       parentIdRules: [
         (v) => !!v || 'ID папки обязательно',
         (v) => v > 1 || 'ID папки должен быть больше 1',
@@ -108,9 +121,9 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('EditorToolStore', ['nameOptions', 'tool', 'parentCatalog']),
+    ...mapGetters('EditorToolStore', ['tool', 'parentCatalog']),
     availableToolParamOptions() {
-      // Фильтрация toolParamOptions, чтобы убрать уже выбранные параметры
+      // Фильтрация toolParamOptions, чтобы показывать только те, которые еще не выбраны
       return this.toolParamOptions.filter(
         (option) => !this.selectedParams.includes(option)
       )
@@ -145,6 +158,20 @@ export default {
   methods: {
     ...mapActions('EditorToolStore', ['fetchToolsByFilter', 'fetchToolById']),
     ...mapMutations('EditorToolStore', ['setTool']),
+    selectParam(paramInfo, paramIndex) {
+      const selectedParam = this.toolParams.find((p) => p.info === paramInfo)
+      if (selectedParam) {
+        // Обновляем информацию о параметре в selectedParams
+        this.selectedParams[paramIndex] = selectedParam.info
+        // Обновляем ID и информацию в toolModel.property
+        Vue.set(
+          this.toolModel.property,
+          selectedParam.id,
+          this.toolModel.property[-1]
+        )
+        delete this.toolModel.property[-1] // Удаляем временный ключ -1, если нужно
+      }
+    },
     resetToolModel() {
       console.log('Новый инструмент resetToolModel')
       this.toolModel = {
@@ -161,7 +188,11 @@ export default {
       if (exists) return
       const newToolParam = { id: -1, info: null }
       this.toolParams.push(newToolParam)
-      this.selectedParams.push(newToolParam.info)
+
+      console.log('newToolParam.info=', newToolParam.info)
+      console.log('newToolParam=', newToolParam)
+
+      this.selectedParams.push(newToolParam.info) // Здесь возможна ошибка, так как info: null
       this.toolModel.property[newToolParam.id] = null
     },
     updateToolModel() {
