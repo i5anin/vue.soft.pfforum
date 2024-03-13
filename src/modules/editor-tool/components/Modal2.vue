@@ -14,7 +14,7 @@
                     label="Параметр"
                     single-line="true"
                     solo
-                    @change="selectParam(param.info, index)"
+                    @input="selectParam($event, index)"
                   />
                   <v-combobox
                     v-model="toolModel.property[param.id]"
@@ -159,19 +159,34 @@ export default {
     ...mapActions('EditorToolStore', ['fetchToolsByFilter', 'fetchToolById']),
     ...mapMutations('EditorToolStore', ['setTool']),
     selectParam(paramInfo, paramIndex) {
+      console.log(`Выбор параметра: ${paramInfo}, индекс: ${paramIndex}`)
       const selectedParam = this.toolParams.find((p) => p.info === paramInfo)
+      console.log('Найденный параметр:', selectedParam)
+
       if (selectedParam) {
-        // Обновляем информацию о параметре в selectedParams
+        console.log(`До обновления selectedParams:`, this.selectedParams)
         this.selectedParams[paramIndex] = selectedParam.info
-        // Обновляем ID и информацию в toolModel.property
-        Vue.set(
+        console.log(`После обновления selectedParams:`, this.selectedParams)
+
+        console.log(
+          `До обновления toolModel.property:`,
+          this.toolModel.property
+        )
+        this.$set(
           this.toolModel.property,
           selectedParam.id,
           this.toolModel.property[-1]
         )
-        delete this.toolModel.property[-1] // Удаляем временный ключ -1, если нужно
+        console.log(
+          `После обновления toolModel.property:`,
+          this.toolModel.property
+        )
+
+        console.log('Удаление временного ключа -1')
+        delete this.toolModel.property[-1]
       }
     },
+
     resetToolModel() {
       console.log('Новый инструмент resetToolModel')
       this.toolModel = {
@@ -184,17 +199,25 @@ export default {
       console.log(this.toolModel)
     },
     addParameterValuePair() {
+      console.log('Добавление нового параметра')
       const exists = this.toolParams.some((param) => param.id === -1)
-      if (exists) return
-      const newToolParam = { id: -1, info: null }
-      this.toolParams.push(newToolParam)
+      console.log(`Параметр с id -1 уже существует: ${exists}`)
 
-      console.log('newToolParam.info=', newToolParam.info)
-      console.log('newToolParam=', newToolParam)
+      if (!exists) {
+        const newToolParam = { id: -1, info: null }
+        this.toolParams.push(newToolParam)
 
-      this.selectedParams.push(newToolParam.info) // Здесь возможна ошибка, так как info: null
-      this.toolModel.property[newToolParam.id] = null
+        console.log('Добавлен новый параметр:', newToolParam)
+        console.log('Обновленный список toolParams:', this.toolParams)
+
+        this.selectedParams.push(newToolParam.info)
+        this.toolModel.property[newToolParam.id] = null
+
+        console.log('Обновленный список selectedParams:', this.selectedParams)
+        console.log('Обновленный toolModel.property:', this.toolModel.property)
+      }
     },
+
     updateToolModel() {
       if (this.tool) this.toolModel = JSON.parse(JSON.stringify(this.tool))
     },
