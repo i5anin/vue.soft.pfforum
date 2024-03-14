@@ -180,28 +180,37 @@ export default {
     ...mapMutations('EditorToolStore', ['setTool']),
 
     selectParam(paramInfo, paramIndex) {
+      // Находим выбранный параметр по его информации
       const selectedParam = this.toolParams.find((p) => p.info === paramInfo)
 
       if (selectedParam) {
-        // Обновляем модель выбранного параметра
+        // Обновляем модель выбранного параметра с новым значением информации
         this.selectedParams[paramIndex] = selectedParam.info
 
-        // Перемещаем выбранное значение в toolModel.property с новым id
-        this.$set(
-          this.toolModel.property,
-          selectedParam.id,
+        // Если уже есть значение для этого параметра, мы его сохраняем
+        const existingValue =
           this.toolModel.property[selectedParam.id] ||
-            this.toolModel.property['0']
-        )
-        delete this.toolModel.property['0'] // Удаляем временный ключ
+          this.toolModel.property[0]
 
-        // Удаляем использованный параметр из списка параметров
+        // Обновляем toolModel.property с новым ID, сохраняя существующее значение
+        // Прямое присвоение для обеспечения реактивности в Vue 3
+        this.toolModel.property[selectedParam.id] = existingValue
+
+        // Удаление временного ключа, если он существует
+        if (this.toolModel.property[0] !== undefined) {
+          delete this.toolModel.property[0]
+        }
+
+        // Удаляем выбранный параметр из списка доступных параметров
         this.toolParams.splice(paramIndex, 1)
 
-        // Добавляем новый параметр, если это не последний выбранный параметр
+        // Добавляем новый пустой параметр, если это необходимо, для продолжения добавления новых параметров пользователем
         if (!this.toolParams.find((p) => p.id === 0)) {
           this.addParameterValuePair()
         }
+
+        // Применяем обновление объекта property целиком для обеспечения реактивности
+        this.toolModel.property = { ...this.toolModel.property }
       }
     },
 
