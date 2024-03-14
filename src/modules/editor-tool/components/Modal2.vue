@@ -5,6 +5,7 @@
         <v-row>
           <v-col>
             <h2 class="text-h6">Характеристики новые:</h2>
+            {{ toolModel.property }}
             <div v-for="(param, index) in selectedParamsInfo" :key="param.id">
               <v-container>
                 <v-row>
@@ -14,7 +15,7 @@
                     label="Параметр"
                     single-line="true"
                     solo
-                    @input="selectParam($event, index)"
+                    @update:model-value="(value) => selectParam(value, index)"
                   />
                   <v-combobox
                     v-model="toolModel.property[param.id]"
@@ -159,6 +160,7 @@ export default {
     ...mapActions('EditorToolStore', ['fetchToolsByFilter', 'fetchToolById']),
     ...mapMutations('EditorToolStore', ['setTool']),
     selectParam(paramInfo, paramIndex) {
+      console.log('selectParam')
       console.log(`Выбор параметра: ${paramInfo}, индекс: ${paramIndex}`)
       const selectedParam = this.toolParams.find((p) => p.info === paramInfo)
       console.log('Найденный параметр:', selectedParam)
