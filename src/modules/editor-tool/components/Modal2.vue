@@ -217,11 +217,8 @@ export default {
       console.log(this.toolModel)
     },
     addParameterValuePair() {
-      // Генерируем временный уникальный ID для нового параметра
-      const tempId = Date.now() // Пример простого уникального ID
-
       // Добавляем новый параметр с временным ID
-      const newToolParam = { id: tempId, info: null }
+      const newToolParam = { id: 0, info: null }
       this.toolParams.push(newToolParam)
 
       // Инициализируем значение для нового параметра
