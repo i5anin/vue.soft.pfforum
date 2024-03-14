@@ -27,7 +27,11 @@
                 </v-row>
               </v-container>
             </div>
-            <v-btn color="primary" @click="addParameterValuePair">
+            <v-btn
+              color="primary"
+              @click="addParameterValuePair"
+              v-show="isAddButtonVisible"
+            >
               Добавить
             </v-btn>
           </v-col>
@@ -101,7 +105,7 @@ export default {
         "3": "универсальная",
         "11": "32",
         "13": "35 градусов большая рыбка",
-        "-1": "123"
+        "0": "123"
       },
       "sklad": 9,
       "limit": 0,
@@ -123,6 +127,21 @@ export default {
   },
   computed: {
     ...mapGetters('EditorToolStore', ['tool', 'parentCatalog']),
+
+    isAddButtonVisible() {
+      const uniqueSelectedParamsCount = new Set(
+        Object.keys(this.toolModel.property)
+      ).size
+      const totalAvailableParams = this.toolParams.length
+      const isVisible = uniqueSelectedParamsCount < totalAvailableParams
+
+      // Логирование для отладки
+      console.log('Уникальных выбранных параметров:', uniqueSelectedParamsCount)
+      console.log('Всего доступных параметров:', totalAvailableParams)
+      console.log('Кнопка "Добавить" видима:', isVisible)
+
+      return isVisible
+    },
     availableToolParamOptions() {
       // Фильтрация toolParamOptions, чтобы показывать только те, которые еще не выбраны
       return this.toolParamOptions.filter(
@@ -159,33 +178,30 @@ export default {
   methods: {
     ...mapActions('EditorToolStore', ['fetchToolsByFilter', 'fetchToolById']),
     ...mapMutations('EditorToolStore', ['setTool']),
+
     selectParam(paramInfo, paramIndex) {
-      console.log('selectParam')
-      console.log(`Выбор параметра: ${paramInfo}, индекс: ${paramIndex}`)
       const selectedParam = this.toolParams.find((p) => p.info === paramInfo)
-      console.log('Найденный параметр:', selectedParam)
 
       if (selectedParam) {
-        console.log(`До обновления selectedParams:`, this.selectedParams)
+        // Обновляем модель выбранного параметра
         this.selectedParams[paramIndex] = selectedParam.info
-        console.log(`После обновления selectedParams:`, this.selectedParams)
 
-        console.log(
-          `До обновления toolModel.property:`,
-          this.toolModel.property
-        )
+        // Перемещаем выбранное значение в toolModel.property с новым id
         this.$set(
           this.toolModel.property,
           selectedParam.id,
-          this.toolModel.property[-1]
+          this.toolModel.property[selectedParam.id] ||
+            this.toolModel.property['0']
         )
-        console.log(
-          `После обновления toolModel.property:`,
-          this.toolModel.property
-        )
+        delete this.toolModel.property['0'] // Удаляем временный ключ
 
-        console.log('Удаление временного ключа -1')
-        delete this.toolModel.property[-1]
+        // Удаляем использованный параметр из списка параметров
+        this.toolParams.splice(paramIndex, 1)
+
+        // Добавляем новый параметр, если это не последний выбранный параметр
+        if (!this.toolParams.find((p) => p.id === 0)) {
+          this.addParameterValuePair()
+        }
       }
     },
 
@@ -201,23 +217,16 @@ export default {
       console.log(this.toolModel)
     },
     addParameterValuePair() {
-      console.log('Добавление нового параметра')
-      const exists = this.toolParams.some((param) => param.id === -1)
-      console.log(`Параметр с id -1 уже существует: ${exists}`)
+      // Генерируем временный уникальный ID для нового параметра
+      const tempId = Date.now() // Пример простого уникального ID
 
-      if (!exists) {
-        const newToolParam = { id: -1, info: null }
-        this.toolParams.push(newToolParam)
+      // Добавляем новый параметр с временным ID
+      const newToolParam = { id: tempId, info: null }
+      this.toolParams.push(newToolParam)
 
-        console.log('Добавлен новый параметр:', newToolParam)
-        console.log('Обновленный список toolParams:', this.toolParams)
-
-        this.selectedParams.push(newToolParam.info)
-        this.toolModel.property[newToolParam.id] = null
-
-        console.log('Обновленный список selectedParams:', this.selectedParams)
-        console.log('Обновленный toolModel.property:', this.toolModel.property)
-      }
+      // Инициализируем значение для нового параметра
+      this.selectedParams.push(newToolParam.info)
+      this.$set(this.toolModel.property, newToolParam.id, null)
     },
 
     updateToolModel() {
