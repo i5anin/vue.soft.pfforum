@@ -35,7 +35,25 @@
             </div>
 
             <!-- правый столбец -->
-            <ParameterInput :selected-params-info="selectedParamsInfo" />
+            <v-combobox
+              :chips="true"
+              multiple
+              v-model="selectedParams"
+              :items="toolParamOptions"
+              label="Параметры"
+              return-object="true"
+            />
+            <h2 class="text-h6">Характеристики:</h2>
+            <!-- динамические параметры -->
+            <div v-for="param in selectedParamsInfo" :key="param.id">
+              <v-combobox
+                density="compact"
+                :label="param.info"
+                v-model="toolModel.property[param.id]"
+                @input="logModelValue(param.id)"
+                required
+              />
+            </div>
             <v-divider class="my-1"></v-divider>
             <v-text-field
               type="number"
@@ -52,6 +70,32 @@
               required
               v-model="toolModel.sklad"
             />
+
+            <h2 class="text-h6">Характеристики новые:</h2>
+
+            <div v-for="param in selectedParamsInfo" :key="param.id">
+              <v-container>
+                <v-row>
+                  <v-combobox
+                    v-model="param.info"
+                    :items="toolParamOptions"
+                    label="Параметр"
+                    single-line="true"
+                    solo
+                  />
+                  <v-combobox
+                    v-model="toolModel.property[param.id]"
+                    :items="items2"
+                    label="Значение"
+                    single-line="true"
+                    solo
+                  />
+                </v-row>
+              </v-container>
+            </div>
+            <v-btn color="primary" @click="addParameterValuePair"
+              >Добавить пару</v-btn
+            >
           </v-col>
         </v-row>
       </v-container>
@@ -94,7 +138,6 @@ import { getToolParams } from '@/api'
 import { editorToolApi } from '../api/editor'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import { issueToolApi } from '@/modules/issue-tool/api/issue'
-import ParameterInput from '@/modules/editor-tool/components/ParameterInput.vue'
 
 export default {
   name: 'FillingModal',
@@ -103,7 +146,7 @@ export default {
     persistent: { type: Boolean, default: false },
     toolId: { type: Number, default: null },
   },
-  components: { Modal, ParameterInput },
+  components: { Modal },
   data() {
     return {
       toolModel: {
@@ -264,7 +307,7 @@ export default {
       console.error('Ошибка при загрузке параметров инструмента:', error)
     }
 
-    // this.initializeLocalState()
+    this.initializeLocalState()
     if (this.toolId == null) {
       this.setTool({
         id: null,

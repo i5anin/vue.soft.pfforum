@@ -59,7 +59,7 @@
 </template>
 
 <script>
-import EditorToolModal from './Modal.vue'
+import EditorToolModal from './ParameterInput.vue'
 import ToolFilter from './ToolFilter.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
