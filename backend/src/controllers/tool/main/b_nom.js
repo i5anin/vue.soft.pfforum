@@ -214,6 +214,20 @@ async function addTool(req, res) {
         .status(400)
         .json({ error: 'parent_id must be greater than 1.' })
 
+    // После проверки parent_id
+    if (property && property.id) {
+      const propertyIdCheckResult = await pool.query(
+        'SELECT id FROM dbo.tool_params WHERE id = $1',
+        [property.id]
+      )
+
+      if (propertyIdCheckResult.rowCount === 0) {
+        return res.status(400).json({
+          error: 'Specified property.id does not exist in tool_params.',
+        })
+      }
+    }
+
     // Проверка существования parent_id в таблице dbo.tool_tree
     const parentCheckResult = await pool.query(
       'SELECT id FROM dbo.tool_tree WHERE id = $1',
@@ -264,6 +278,22 @@ async function editTool(req, res) {
       return res
         .status(400)
         .json({ error: 'parent_id must be greater than 1.' })
+
+    // После проверки parent_id
+    if (property && property.id) {
+      const propertyIdCheckResult = await pool.query(
+        'SELECT id FROM dbo.tool_params WHERE id = $1',
+        [property.id]
+      )
+
+      if (propertyIdCheckResult.rowCount === 0) {
+        return res
+          .status(400)
+          .json({
+            error: 'Specified property.id does not exist in tool_params.',
+          })
+      }
+    }
 
     const parentCheckResult = await pool.query(
       'SELECT id FROM dbo.tool_tree WHERE id = $1',
