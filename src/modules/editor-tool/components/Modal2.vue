@@ -198,7 +198,7 @@ export default {
     ...mapActions('EditorToolStore', ['fetchToolsByFilter', 'fetchToolById']),
     ...mapMutations('EditorToolStore', ['setTool']),
 
-    selectParam(paramInfo, paramIndex) {
+    selectParam(paramInfo) {
       const selectedParam = this.toolParams.find((p) => p.info === paramInfo)
       if (selectedParam) {
         // Удаляем временный ключ, если он был использован
