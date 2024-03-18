@@ -223,20 +223,16 @@ export default {
         .filter((info) => info !== null)
     },
     addParameterValuePair() {
-      // Проверяем, существует ли уже параметр с временным ID 0 в toolModel.property
-      if (this.toolModel.property['0'] === undefined) {
-        // Если не существует, создаем новый параметр с временным ID
+      // Проверяем, существует ли уже параметр с временным ID 0 в selectedParams
+      if (!this.selectedParams.includes('0')) {
         const newToolParam = { id: 0, info: null }
-        // Добавляем новый параметр в toolModel.property с пустым значением
-        this.toolModel.property['0'] = '' // Используем пустую строку или null в зависимости от вашей логики
-
-        // Обновляем список toolParams для отображения в пользовательском интерфейсе
-        // Проверка на существование в toolParams не требуется, так как мы управляем toolModel.property
         this.toolParams.push(newToolParam)
 
-        // Обновляем список selectedParams, если это необходимо
-        // Это зависит от того, как вы используете selectedParams в вашем приложении
-        // Возможно, вам потребуется добавить логику обновления selectedParams здесь
+        // Обновляем toolModel.property для добавления нового параметра с временным значением
+        this.toolModel.property[newToolParam.id] = null
+
+        // Обновляем selectedParams, чтобы включить новый временный параметр
+        this.updateSelectedParams()
       }
     },
 
