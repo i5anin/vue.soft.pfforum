@@ -33,7 +33,7 @@
                 :rules="typeRules"
               />
             </div>
-            {{ toolModel.property }}
+            <!--            {{ toolModel.property }}-->
             <h2 class="text-h6">Характеристики:</h2>
             <div v-for="(param, index) in selectedParamsInfo" :key="param.id">
               <v-container>
