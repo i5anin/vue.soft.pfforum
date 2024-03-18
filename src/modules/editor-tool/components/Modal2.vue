@@ -5,18 +5,20 @@
         <v-row>
           <v-col>
             <h2 class="text-h6">Характеристики новые:</h2>
-            <div>
-              <ul>
-                <li v-for="(value, key) in toolModel.property" :key="key">
-                  {{ key }}: {{ value }}
-                </li>
-              </ul>
-            </div>
-            {{ selectedParamsInfo }}
+            <!--            <div>-->
+            <!--              <ul>-->
+            <!--                <li v-for="(value, key) in toolModel.property" :key="key">-->
+            <!--                  {{ key }}: {{ value }}-->
+            <!--                </li>-->
+            <!--              </ul>-->
+            <!--            </div>-->
+            <!--            {{ selectedParamsInfo }}-->
             <div v-for="(param, index) in selectedParamsInfo" :key="param.id">
               <v-container>
                 <v-row>
-                  <v-btn>{{ param.id }}</v-btn>
+                  <v-btn icon @click="removeParameter(param.id)">
+                    <v-icon>mdi-delete</v-icon>
+                  </v-btn>
                   <v-select
                     v-model="param.info"
                     :items="availableToolParamOptions"
@@ -197,6 +199,18 @@ export default {
   methods: {
     ...mapActions('EditorToolStore', ['fetchToolsByFilter', 'fetchToolById']),
     ...mapMutations('EditorToolStore', ['setTool']),
+
+    // Добавьте этот метод в объект methods вашего компонента
+    removeParameter(id) {
+      // Удаляем параметр из toolModel.property
+      delete this.toolModel.property[id]
+
+      // Обновляем состояние, чтобы Vue мог отреагировать на изменения
+      this.toolModel.property = { ...this.toolModel.property }
+
+      // Обновляем selectedParams и selectedParamsInfo
+      this.updateSelectedParams()
+    },
 
     selectParam(paramInfo) {
       const selectedParam = this.toolParams.find((p) => p.info === paramInfo)
