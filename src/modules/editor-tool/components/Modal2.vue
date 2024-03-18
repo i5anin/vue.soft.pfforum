@@ -5,7 +5,7 @@
         <v-row>
           <v-col>
             <h2 class="text-h6">Характеристики новые:</h2>
-            {{ toolModel.property }}
+            <!--            {{ console.log(this.toolModel.property) }}-->
             <div v-for="(param, index) in selectedParamsInfo" :key="param.id">
               <v-container>
                 <v-row>
@@ -136,9 +136,9 @@ export default {
       const isVisible = uniqueSelectedParamsCount < totalAvailableParams
 
       // Логирование для отладки
-      console.log('Уникальных выбранных параметров:', uniqueSelectedParamsCount)
-      console.log('Всего доступных параметров:', totalAvailableParams)
-      console.log('Кнопка "Добавить" видима:', isVisible)
+      // console.log('Уникальных выбранных параметров:', uniqueSelectedParamsCount)
+      // console.log('Всего доступных параметров:', totalAvailableParams)
+      // console.log('Кнопка "Добавить" видима:', isVisible)
 
       return isVisible
     },
@@ -165,7 +165,7 @@ export default {
     toolId: {
       immediate: true,
       async handler(editingToolId) {
-        console.log('editingToolId=', editingToolId)
+        // console.log('editingToolId=', editingToolId)
         if (editingToolId == null) {
           this.resetToolModel()
         } else {
@@ -225,6 +225,7 @@ export default {
       // Добавляем новый параметр с временным ID
       const newToolParam = { id: 0, info: null }
       this.toolParams.push(newToolParam)
+      console.log('добавлен { id: 0, info: null }')
 
       // Инициализируем значение для нового параметра
       this.selectedParams.push(newToolParam.info)
