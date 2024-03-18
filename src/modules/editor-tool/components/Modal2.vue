@@ -5,10 +5,18 @@
         <v-row>
           <v-col>
             <h2 class="text-h6">Характеристики новые:</h2>
-            <!--            {{ console.log(this.toolModel.property) }}-->
+            <div>
+              <ul>
+                <li v-for="(value, key) in toolModel.property" :key="key">
+                  {{ key }}: {{ value }}
+                </li>
+              </ul>
+            </div>
+            {{ selectedParamsInfo }}
             <div v-for="(param, index) in selectedParamsInfo" :key="param.id">
               <v-container>
                 <v-row>
+                  <v-btn>{{ param.id }}</v-btn>
                   <v-select
                     v-model="param.info"
                     :items="availableToolParamOptions"
@@ -134,6 +142,13 @@ export default {
       ).size
       const totalAvailableParams = this.toolParams.length
       const isVisible = uniqueSelectedParamsCount < totalAvailableParams
+      console.log(
+        isVisible,
+        '=',
+        uniqueSelectedParamsCount,
+        '<',
+        totalAvailableParams
+      )
 
       // Логирование для отладки
       // console.log('Уникальных выбранных параметров:', uniqueSelectedParamsCount)
@@ -149,11 +164,15 @@ export default {
       )
     },
     selectedParamsInfo() {
-      return this.selectedParams
-        .map((paramName) =>
-          this.toolParams.find(({ info }) => info === paramName)
-        )
-        .filter((selectedParam) => selectedParam != null)
+      // Возвращаем информацию о выбранных параметрах на основе текущего состояния toolModel.property
+      return Object.entries(this.toolModel.property)
+        .map(([key, value]) => {
+          const param = this.toolParams.find(
+            (param) => param.id.toString() === key
+          )
+          return param ? { ...param, value } : null
+        })
+        .filter((param) => param !== null)
     },
     popupTitle() {
       return this.tool?.id != null
@@ -180,34 +199,48 @@ export default {
     ...mapMutations('EditorToolStore', ['setTool']),
 
     selectParam(paramInfo, paramIndex) {
-      // Находим выбранный параметр по его информации
-
-      const selectedParam = this.toolParams.find((p) => p.info === paramInfo) // выбор селектора {id: 6, info: 'Шаг'}
-
+      const selectedParam = this.toolParams.find((p) => p.info === paramInfo)
       if (selectedParam) {
-        // Обновляем модель выбранного параметра с новым значением информации
-        this.selectedParams[paramIndex] = selectedParam.info // Шаг
+        // Удаляем временный ключ, если он был использован
+        const newProperty = { ...this.toolModel.property }
+        delete newProperty[0]
 
-        // Если уже есть значение для этого параметра, мы его сохраняем
-        // Обновляем toolModel.property с новым ID, сохраняя существующее значение
-        this.toolModel.property[selectedParam.id] =
-          this.toolModel.property[selectedParam.id] ||
-          this.toolModel.property[0]
+        // Обновляем значение выбранного параметра
+        newProperty[selectedParam.id] = this.toolModel.property[0] || ''
 
-        // Удаление временного ключа, если он существует
-        if (this.toolModel.property[0] !== undefined)
-          delete this.toolModel.property[0]
+        this.toolModel.property = newProperty
 
-        // Удаляем выбранный параметр из списка доступных параметров
-        this.toolParams.splice(paramIndex, 1)
-
-        // Добавляем новый пустой параметр, если это необходимо, для продолжения добавления новых параметров пользователем
-        if (!this.toolParams.find((p) => p.id === 0))
-          this.addParameterValuePair()
-
-        // Применяем обновление объекта property целиком для обеспечения реактивности
-        this.toolModel.property = { ...this.toolModel.property }
+        // Важно! Обновляем список selectedParams после выбора параметра
+        this.updateSelectedParams()
       }
+    },
+    updateSelectedParams() {
+      this.selectedParams = Object.keys(this.toolModel.property)
+        .map((id) => {
+          const param = this.toolParams.find((param) => String(param.id) === id)
+          return param ? param.info : null
+        })
+        .filter((info) => info !== null)
+    },
+    addParameterValuePair() {
+      // Проверяем, существует ли уже параметр с временным ID 0 в selectedParams
+      if (!this.selectedParams.includes('0')) {
+        const newToolParam = { id: 0, info: null }
+        this.toolParams.push(newToolParam)
+
+        // Обновляем toolModel.property для добавления нового параметра с временным значением
+        this.toolModel.property[newToolParam.id] = null
+
+        // Обновляем selectedParams, чтобы включить новый временный параметр
+        this.updateSelectedParams()
+      }
+    },
+
+    updateAvailableToolParamOptions() {
+      // Обновляем список доступных параметров на основе выбранных параметров
+      this.availableToolParamOptions = this.toolParamOptions.filter(
+        (option) => !this.selectedParams.includes(option.info)
+      )
     },
 
     resetToolModel() {
@@ -220,19 +253,6 @@ export default {
         property: {},
       }
       console.log(this.toolModel)
-    },
-    addParameterValuePair() {
-      // Добавляем новый параметр с временным ID
-      const newToolParam = { id: 0, info: null }
-      this.toolParams.push(newToolParam)
-      console.log('добавлен { id: 0, info: null }')
-
-      // Инициализируем значение для нового параметра
-      this.selectedParams.push(newToolParam.info)
-
-      // Простое присвоение должно работать для обновления реактивности.
-      // Убедитесь, что toolModel.property реактивен.
-      this.toolModel.property[newToolParam.id] = null
     },
 
     updateToolModel() {
@@ -289,6 +309,7 @@ export default {
     },
   },
   async created() {
+    this.updateAvailableToolParamOptions() // Вызываем при инициализации
     // console.log('Вызов getDetailFio')
     try {
       const fioData = await issueToolApi.getDetailFio()
