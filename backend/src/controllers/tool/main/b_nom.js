@@ -43,17 +43,12 @@ async function getTools(req, res) {
     let conditions = []
 
     // Обработка стандартных параметров для фильтрации
-    if (search) {
+    if (search)
       conditions.push(`tool_nom.name ILIKE '%${search.replace(/'/g, "''")}%'`)
-    }
 
-    if (parent_id) {
-      conditions.push(`tool_nom.parent_id = ${parent_id}`)
-    }
+    if (parent_id) conditions.push(`tool_nom.parent_id = ${parent_id}`)
 
-    if (onlyInStock === 'true') {
-      conditions.push(`tool_nom.sklad > 0`)
-    }
+    if (onlyInStock === 'true') conditions.push(`tool_nom.sklad > 0`)
 
     // Обработка динамических параметров для фильтрации
     let dynamicParams = Object.entries(params)
@@ -287,11 +282,9 @@ async function editTool(req, res) {
       )
 
       if (propertyIdCheckResult.rowCount === 0) {
-        return res
-          .status(400)
-          .json({
-            error: 'Specified property.id does not exist in tool_params.',
-          })
+        return res.status(400).json({
+          error: 'Specified property.id does not exist in tool_params.',
+        })
       }
     }
 
