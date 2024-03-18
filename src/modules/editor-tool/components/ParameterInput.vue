@@ -4,21 +4,10 @@
       <v-container>
         <v-row>
           <v-col>
-            <h2 class="text-h6">Характеристики новые:</h2>
-            <!--            <div>-->
-            <!--              <ul>-->
-            <!--                <li v-for="(value, key) in toolModel.property" :key="key">-->
-            <!--                  {{ key }}: {{ value }}-->
-            <!--                </li>-->
-            <!--              </ul>-->
-            <!--            </div>-->
-            <!--            {{ selectedParamsInfo }}-->
+            <h2 class="text-h6">Характеристики:</h2>
             <div v-for="(param, index) in selectedParamsInfo" :key="param.id">
               <v-container>
                 <v-row>
-                  <v-btn icon @click="removeParameter(param.id)">
-                    <v-icon>mdi-delete</v-icon>
-                  </v-btn>
                   <v-select
                     v-model="param.info"
                     :items="availableToolParamOptions"
@@ -34,6 +23,9 @@
                     single-line="true"
                     solo
                   />
+                  <v-btn icon @click="removeParameter(param.id)">
+                    <v-icon>mdi-delete</v-icon>
+                  </v-btn>
                 </v-row>
               </v-container>
             </div>
@@ -152,11 +144,6 @@ export default {
         totalAvailableParams
       )
 
-      // Логирование для отладки
-      // console.log('Уникальных выбранных параметров:', uniqueSelectedParamsCount)
-      // console.log('Всего доступных параметров:', totalAvailableParams)
-      // console.log('Кнопка "Добавить" видима:', isVisible)
-
       return isVisible
     },
     availableToolParamOptions() {
@@ -202,14 +189,17 @@ export default {
 
     // Добавьте этот метод в объект methods вашего компонента
     removeParameter(id) {
-      // Удаляем параметр из toolModel.property
-      delete this.toolModel.property[id]
+      // Запрашиваем подтверждение у пользователя
+      if (window.confirm('Вы уверены, что хотите удалить этот параметр?')) {
+        // Удаляем параметр из toolModel.property, если пользователь подтвердил удаление
+        delete this.toolModel.property[id]
 
-      // Обновляем состояние, чтобы Vue мог отреагировать на изменения
-      this.toolModel.property = { ...this.toolModel.property }
+        // Обновляем состояние, чтобы Vue мог отреагировать на изменения
+        this.toolModel.property = { ...this.toolModel.property }
 
-      // Обновляем selectedParams и selectedParamsInfo
-      this.updateSelectedParams()
+        // Обновляем selectedParams и selectedParamsInfo
+        this.updateSelectedParams()
+      }
     },
 
     selectParam(paramInfo) {
