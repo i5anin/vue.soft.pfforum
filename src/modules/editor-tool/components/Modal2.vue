@@ -97,7 +97,7 @@ export default {
       /*
       "id": 489,
       "parent_id": 2,
-      "name": "S32-SVUBR16",
+      "name": "S32-SUBURB16",
       "folder_name": "Токарный",
       "property": {
         "1": "Резец",
@@ -112,7 +112,7 @@ export default {
       "norma": null
       */
       toolParamOptions: [], //"Тип", "Группа", "Материал", "Ширина", "Габарит", "Шаг", "Длинна общая", "Длинна рабочей части", "Порядковый номер", "Диаметр хвостовика", "Диаметр", "Радиус", "Геометрия"
-      selectedParams: [], // уже выбранные параметры [ "Тип", "Группа", "Материал", "Диаметр", "Геометрия" ]
+      selectedParams: [], // уже выбранные параметры ["Тип", "Группа", "Материал", "Диаметр", "Геометрия"]
       toolParams: [], //глобальные параметры [ { "id": 1, "info": "Тип" }, { "id": 2, "info": "Группа" }, { "id": 3, "info": "Материал" }, { "id": 4, "info": "Ширина" }, { "id": 5, "info": "Габарит" }, { "id": 6, "info": "Шаг" }, { "id": 7, "info": "Длинна общая" }, { "id": 8, "info": "Длинна рабочей части" }, { "id": 9, "info": "Порядковый номер" }, { "id": 10, "info": "Диаметр хвостовика" }, { "id": 11, "info": "Диаметр" }, { "id": 12, "info": "Радиус" }, { "id": 13, "info": "Геометрия" } ]
       parentIdRules: [
         (v) => !!v || 'ID папки обязательно',
@@ -181,33 +181,29 @@ export default {
 
     selectParam(paramInfo, paramIndex) {
       // Находим выбранный параметр по его информации
-      const selectedParam = this.toolParams.find((p) => p.info === paramInfo)
+
+      const selectedParam = this.toolParams.find((p) => p.info === paramInfo) // выбор селектора {id: 6, info: 'Шаг'}
 
       if (selectedParam) {
         // Обновляем модель выбранного параметра с новым значением информации
-        this.selectedParams[paramIndex] = selectedParam.info
+        this.selectedParams[paramIndex] = selectedParam.info // Шаг
 
         // Если уже есть значение для этого параметра, мы его сохраняем
-        const existingValue =
+        // Обновляем toolModel.property с новым ID, сохраняя существующее значение
+        this.toolModel.property[selectedParam.id] =
           this.toolModel.property[selectedParam.id] ||
           this.toolModel.property[0]
 
-        // Обновляем toolModel.property с новым ID, сохраняя существующее значение
-        // Прямое присвоение для обеспечения реактивности в Vue 3
-        this.toolModel.property[selectedParam.id] = existingValue
-
         // Удаление временного ключа, если он существует
-        if (this.toolModel.property[0] !== undefined) {
+        if (this.toolModel.property[0] !== undefined)
           delete this.toolModel.property[0]
-        }
 
         // Удаляем выбранный параметр из списка доступных параметров
         this.toolParams.splice(paramIndex, 1)
 
         // Добавляем новый пустой параметр, если это необходимо, для продолжения добавления новых параметров пользователем
-        if (!this.toolParams.find((p) => p.id === 0)) {
+        if (!this.toolParams.find((p) => p.id === 0))
           this.addParameterValuePair()
-        }
 
         // Применяем обновление объекта property целиком для обеспечения реактивности
         this.toolModel.property = { ...this.toolModel.property }
@@ -232,7 +228,10 @@ export default {
 
       // Инициализируем значение для нового параметра
       this.selectedParams.push(newToolParam.info)
-      this.$set(this.toolModel.property, newToolParam.id, null)
+
+      // Простое присвоение должно работать для обновления реактивности.
+      // Убедитесь, что toolModel.property реактивен.
+      this.toolModel.property[newToolParam.id] = null
     },
 
     updateToolModel() {
