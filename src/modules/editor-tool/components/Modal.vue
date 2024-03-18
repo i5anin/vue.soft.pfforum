@@ -33,27 +33,40 @@
                 :rules="typeRules"
               />
             </div>
-
-            <!-- правый столбец -->
-            <v-combobox
-              :chips="true"
-              multiple
-              v-model="selectedParams"
-              :items="toolParamOptions"
-              label="Параметры"
-              return-object="true"
-            />
+            {{ toolModel.property }}
             <h2 class="text-h6">Характеристики:</h2>
-            <!-- динамические параметры -->
-            <div v-for="param in selectedParamsInfo" :key="param.id">
-              <v-combobox
-                density="compact"
-                :label="param.info"
-                v-model="toolModel.property[param.id]"
-                @input="logModelValue(param.id)"
-                required
-              />
+            <div v-for="(param, index) in selectedParamsInfo" :key="param.id">
+              <v-container>
+                <v-row>
+                  <v-select
+                    v-model="param.info"
+                    :items="availableToolParamOptions"
+                    label="Параметр"
+                    single-line="true"
+                    solo
+                    @update:model-value="(value) => selectParam(value, index)"
+                  />
+                  <v-combobox
+                    v-model="toolModel.property[param.id]"
+                    label="Значение"
+                    clearable="true"
+                    single-line="true"
+                    solo
+                  />
+                  <v-btn icon @click="removeParameter(param.id)">
+                    <v-icon>mdi-delete</v-icon>
+                  </v-btn>
+                </v-row>
+              </v-container>
             </div>
+            <v-btn
+              color="primary"
+              @click="addParameterValuePair"
+              v-show="isAddButtonVisible"
+            >
+              Добавить
+            </v-btn>
+
             <v-divider class="my-1"></v-divider>
             <v-text-field
               type="number"
@@ -70,32 +83,6 @@
               required
               v-model="toolModel.sklad"
             />
-
-            <h2 class="text-h6">Характеристики новые:</h2>
-
-            <div v-for="param in selectedParamsInfo" :key="param.id">
-              <v-container>
-                <v-row>
-                  <v-combobox
-                    v-model="param.info"
-                    :items="toolParamOptions"
-                    label="Параметр"
-                    single-line="true"
-                    solo
-                  />
-                  <v-combobox
-                    v-model="toolModel.property[param.id]"
-                    :items="items2"
-                    label="Значение"
-                    single-line="true"
-                    solo
-                  />
-                </v-row>
-              </v-container>
-            </div>
-            <v-btn color="primary" @click="addParameterValuePair"
-              >Добавить пару</v-btn
-            >
           </v-col>
         </v-row>
       </v-container>
@@ -176,12 +163,29 @@ export default {
   },
   computed: {
     ...mapGetters('EditorToolStore', ['nameOptions', 'tool', 'parentCatalog']),
+    availableToolParamOptions() {
+      // Фильтрация toolParamOptions, чтобы показывать только те, которые еще не выбраны
+      return this.toolParamOptions.filter(
+        (option) => !this.selectedParams.includes(option)
+      )
+    },
+    isAddButtonVisible() {
+      const uniqueSelectedParamsCount = new Set(
+        Object.keys(this.toolModel.property)
+      ).size
+      const totalAvailableParams = this.toolParams.length
+      return uniqueSelectedParamsCount < totalAvailableParams
+    },
     selectedParamsInfo() {
-      return this.selectedParams
-        .map((paramName) =>
-          this.toolParams.find(({ info }) => info === paramName)
-        )
-        .filter((selectedParam) => selectedParam != null)
+      // Возвращаем информацию о выбранных параметрах на основе текущего состояния toolModel.property
+      return Object.entries(this.toolModel.property)
+        .map(([key, value]) => {
+          const param = this.toolParams.find(
+            (param) => param.id.toString() === key
+          )
+          return param ? { ...param, value } : null
+        })
+        .filter((param) => param !== null)
     },
     popupTitle() {
       return this.tool?.id != null
@@ -206,6 +210,44 @@ export default {
   methods: {
     ...mapActions('EditorToolStore', ['fetchToolsByFilter', 'fetchToolById']),
     ...mapMutations('EditorToolStore', ['setTool']),
+    // Добавьте этот метод в объект methods вашего компонента
+    removeParameter(id) {
+      // Запрашиваем подтверждение у пользователя
+      if (window.confirm('Вы уверены, что хотите удалить этот параметр?')) {
+        // Удаляем параметр из toolModel.property, если пользователь подтвердил удаление
+        delete this.toolModel.property[id]
+
+        // Обновляем состояние, чтобы Vue мог отреагировать на изменения
+        this.toolModel.property = { ...this.toolModel.property }
+
+        // Обновляем selectedParams и selectedParamsInfo
+        this.updateSelectedParams()
+      }
+    },
+    selectParam(paramInfo) {
+      const selectedParam = this.toolParams.find((p) => p.info === paramInfo)
+      if (selectedParam) {
+        // Удаляем временный ключ, если он был использован
+        const newProperty = { ...this.toolModel.property }
+        delete newProperty[0]
+
+        // Обновляем значение выбранного параметра
+        newProperty[selectedParam.id] = this.toolModel.property[0] || ''
+
+        this.toolModel.property = newProperty
+
+        // Важно! Обновляем список selectedParams после выбора параметра
+        this.updateSelectedParams()
+      }
+    },
+    updateSelectedParams() {
+      this.selectedParams = Object.keys(this.toolModel.property)
+        .map((id) => {
+          const param = this.toolParams.find((param) => String(param.id) === id)
+          return param ? param.info : null
+        })
+        .filter((info) => info !== null)
+    },
     resetToolModel() {
       console.log('Новый инструмент resetToolModel')
       this.toolModel = {
@@ -218,7 +260,17 @@ export default {
       console.log(this.toolModel)
     },
     addParameterValuePair() {
-      this.parameterValuePairs.push({ parameter: null, value: null })
+      // Проверяем, существует ли уже параметр с временным ID 0 в selectedParams
+      if (!this.selectedParams.includes('0')) {
+        const newToolParam = { id: 0, info: null }
+        this.toolParams.push(newToolParam)
+
+        // Обновляем toolModel.property для добавления нового параметра с временным значением
+        this.toolModel.property[newToolParam.id] = null
+
+        // Обновляем selectedParams, чтобы включить новый временный параметр
+        this.updateSelectedParams()
+      }
     },
     updateToolModel() {
       if (this.tool) {
@@ -307,7 +359,7 @@ export default {
       console.error('Ошибка при загрузке параметров инструмента:', error)
     }
 
-    this.initializeLocalState()
+    // this.initializeLocalState()
     if (this.toolId == null) {
       this.setTool({
         id: null,

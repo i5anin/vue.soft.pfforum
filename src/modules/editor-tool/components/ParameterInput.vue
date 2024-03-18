@@ -1,75 +1,75 @@
 <template>
-  <Modal :title="popupTitle">
-    <template #content>
-      <v-container>
-        <v-row>
-          <v-col>
-            <h2 class="text-h6">Характеристики:</h2>
-            <div v-for="(param, index) in selectedParamsInfo" :key="param.id">
-              <v-container>
-                <v-row>
-                  <v-select
-                    v-model="param.info"
-                    :items="availableToolParamOptions"
-                    label="Параметр"
-                    single-line="true"
-                    solo
-                    @update:model-value="(value) => selectParam(value, index)"
-                  />
-                  <v-combobox
-                    v-model="toolModel.property[param.id]"
-                    label="Значение"
-                    clearable="true"
-                    single-line="true"
-                    solo
-                  />
-                  <v-btn icon @click="removeParameter(param.id)">
-                    <v-icon>mdi-delete</v-icon>
-                  </v-btn>
-                </v-row>
-              </v-container>
-            </div>
-            <v-btn
-              color="primary"
-              @click="addParameterValuePair"
-              v-show="isAddButtonVisible"
-            >
-              Добавить
-            </v-btn>
-          </v-col>
-        </v-row>
-      </v-container>
-    </template>
-    <template #action>
-      <v-btn
-        color="red darken-1"
-        variant="text"
-        @click="confirmDelete"
-        class="text-none text-subtitle-1 ml-3"
-      >
-        Удалить
-      </v-btn>
-      <v-spacer />
-      <v-btn
-        color="red darken-1"
-        variant="text"
-        @click="onCancel"
-        class="text-none text-subtitle-1 ml-3"
-      >
-        Закрыть
-      </v-btn>
-      <v-btn
-        prepend-icon="mdi-check-circle"
-        @click="onSave"
-        class="text-none text-subtitle-1 pl-3"
-        color="blue darken-1"
-        size="large"
-        variant="flat"
-      >
-        Сохранить
-      </v-btn>
-    </template>
-  </Modal>
+  <!--  <Modal :title="popupTitle">-->
+  <template #content>
+    <v-container>
+      <v-row>
+        <v-col>
+          <h2 class="text-h6">Характеристики:</h2>
+          <div v-for="(param, index) in selectedParamsInfo" :key="param.id">
+            <v-container>
+              <v-row>
+                <v-select
+                  v-model="param.info"
+                  :items="availableToolParamOptions"
+                  label="Параметр"
+                  single-line="true"
+                  solo
+                  @update:model-value="(value) => selectParam(value, index)"
+                />
+                <v-combobox
+                  v-model="toolModel.property[param.id]"
+                  label="Значение"
+                  clearable="true"
+                  single-line="true"
+                  solo
+                />
+                <v-btn icon @click="removeParameter(param.id)">
+                  <v-icon>mdi-delete</v-icon>
+                </v-btn>
+              </v-row>
+            </v-container>
+          </div>
+          <v-btn
+            color="primary"
+            @click="addParameterValuePair"
+            v-show="isAddButtonVisible"
+          >
+            Добавить
+          </v-btn>
+        </v-col>
+      </v-row>
+    </v-container>
+  </template>
+  <template #action>
+    <v-btn
+      color="red darken-1"
+      variant="text"
+      @click="confirmDelete"
+      class="text-none text-subtitle-1 ml-3"
+    >
+      Удалить
+    </v-btn>
+    <v-spacer />
+    <v-btn
+      color="red darken-1"
+      variant="text"
+      @click="onCancel"
+      class="text-none text-subtitle-1 ml-3"
+    >
+      Закрыть
+    </v-btn>
+    <v-btn
+      prepend-icon="mdi-check-circle"
+      @click="onSave"
+      class="text-none text-subtitle-1 pl-3"
+      color="blue darken-1"
+      size="large"
+      variant="flat"
+    >
+      Сохранить
+    </v-btn>
+  </template>
+  <!--  </Modal>-->
 </template>
 
 <script>
