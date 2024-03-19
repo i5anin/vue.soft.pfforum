@@ -29,6 +29,7 @@ router.delete('/tool/:id', nomController.deleteTool)
 router.get('/filter-params/:parent_id', nomController.getFilterParamsByParentId)
 // param
 router.get('/tools-params', paramController.getToolParams)
+router.get('/tools-params/:id', paramController.getToolParamsParentId)
 router.post('/tools-params', paramController.addToolParam)
 router.put('/tools-params/:id', paramController.updateToolParam)
 router.delete('/tools-params/:id', paramController.deleteToolParam)

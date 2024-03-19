@@ -42,6 +42,38 @@ async function getToolParams(req, res) {
   }
 }
 
+async function getToolParamsParentId(req, res) {
+  const parentId = req.params.id // Используем id из параметров маршрута
+
+  try {
+    const query = `
+      SELECT property
+      FROM dbo.tool_nom
+      WHERE parent_id = $1`
+
+    const { rows } = await pool.query(query, [parentId])
+
+    let allValues = new Set()
+
+    rows.forEach((row) => {
+      // Предполагаем, что property является объектом JavaScript
+      const properties = row.property
+      Object.values(properties).forEach((value) => {
+        allValues.add(value)
+      })
+    })
+
+    // Преобразуем Set в массив для возврата
+    const uniqueValues = Array.from(allValues)
+
+    // Возвращаем уникальные значения в ответе
+    res.json({ uniqueValues })
+  } catch (error) {
+    console.error('Ошибка при получении уникальных значений параметра:', error)
+    res.status(500).send('Server error')
+  }
+}
+
 async function deleteToolParam(req, res) {
   const id = req.params.id // Получение ID из параметров запроса
   try {
@@ -85,4 +117,5 @@ module.exports = {
   updateToolParam,
   deleteToolParam,
   addToolParam,
+  getToolParamsParentId,
 }
