@@ -1,17 +1,24 @@
 <template>
   <v-list-item>
-    <div className="tree-node">
-      <div className="node-content">
-        <v-icon :color="appColor">mdi-folder</v-icon>
-        <span>
-          {{ node.label }}
-          <span v-if="node.elements !== 0">
-            [ Доступно: {{ node.available }} / {{ node.elements }} ]
-          </span>
-          <span class="node-id">id: {{ node.id }} </span>
+    <div class="tree-node">
+      <!-- Добавляем кнопку для сворачивания/разворачивания -->
+      <v-btn icon @click.stop="toggle">
+        <v-icon>
+          {{ isExpanded ? 'mdi-chevron-down' : 'mdi-chevron-right' }}
+        </v-icon>
+      </v-btn>
+
+      <v-icon :color="appColor">mdi-folder</v-icon>
+      <span>
+        {{ node.label }}
+        <span v-if="node.elements !== 0">
+          [ Доступно: {{ node.available }} / {{ node.elements }} ]
         </span>
-      </div>
-      <div v-if="node.nodes && node.nodes.length">
+        <span class="node-id">id: {{ node.id }} </span>
+      </span>
+
+      <!-- Отображаем дочерние узлы только если isExpanded истина -->
+      <div v-if="isExpanded && node.nodes && node.nodes.length">
         <tree-node
           v-for="child in node.nodes"
           :key="child.id"
@@ -27,7 +34,16 @@
 export default {
   name: 'TreeNode',
   props: ['node'],
-
+  data() {
+    return {
+      isExpanded: false, // Добавляем состояние для отслеживания свернуто/развернуто
+    }
+  },
+  methods: {
+    toggle() {
+      this.isExpanded = !this.isExpanded // Меняем состояние при клике
+    },
+  },
   computed: {
     appColor() {
       return import.meta.env.VITE_NODE_ENV === 'build' ? 'blue-grey' : 'primary'
@@ -38,6 +54,8 @@ export default {
 
 <style scoped>
 .tree-node {
+  //display: flex;
+  align-items: center;
   position: relative;
 }
 
@@ -63,14 +81,5 @@ export default {
 
 .node-id {
   color: grey;
-}
-
-.child-node::after {
-  content: '';
-  position: absolute;
-  left: -1px;
-  top: 24px;
-  width: 1px;
-  //background: rgb(var(--v-theme-background));
 }
 </style>
