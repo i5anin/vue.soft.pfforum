@@ -225,10 +225,13 @@ export default {
       try {
         const paramsData = await editorToolApi.getToolParamsByParentId(parentId)
         console.log('Полученные данные параметров:', paramsData)
-        this.toolParamOptions = paramsData.reduce((acc, item) => {
-          acc[item.id] = item.values // Преобразуем структуру данных под нужный формат
-          return acc
-        }, {})
+        // Создаем новый объект для обновления, чтобы обеспечить реактивность
+        let newToolParamsOptions = {}
+        paramsData.forEach((item) => {
+          newToolParamsOptions[item.id] = item.values
+        })
+        // Прямое обновление toolParamsOptions
+        this.toolParamsOptions = newToolParamsOptions
       } catch (error) {
         console.error('Ошибка при получении данных о параметрах:', error)
       }
