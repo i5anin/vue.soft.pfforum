@@ -1,6 +1,6 @@
 <template>
   <v-footer v-if="databaseInfo" class="container">
-    Все права защищены 2023
+    Все права защищены 2024
     <v-spacer />
     <span :class="{ 'text-red': isBuildDatabase }">
       Версия {{ databaseInfo.databaseType }}
