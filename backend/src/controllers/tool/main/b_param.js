@@ -53,21 +53,31 @@ async function getToolParamsParentId(req, res) {
 
     const { rows } = await pool.query(query, [parentId])
 
-    let allValues = new Set()
+    // Используем объект для агрегации значений по каждому ключу
+    const paramsAggregation = {}
 
     rows.forEach((row) => {
-      // Предполагаем, что property является объектом JavaScript
-      const properties = row.property
-      Object.values(properties).forEach((value) => {
-        allValues.add(value)
+      const properties = row.property // Считаем, что property уже десериализован из JSON
+      Object.entries(properties).forEach(([key, value]) => {
+        // Если ключа еще нет в агрегации, создаем под него Set
+        if (!paramsAggregation[key]) {
+          paramsAggregation[key] = new Set()
+        }
+        // Добавляем значение в Set для соответствующего ключа
+        paramsAggregation[key].add(value)
       })
     })
 
-    // Преобразуем Set в массив для возврата
-    const uniqueValues = Array.from(allValues)
+    // Преобразуем объект агрегации в массив объектов для возврата
+    const aggregatedValues = Object.entries(paramsAggregation).map(
+      ([key, valueSet]) => ({
+        id: key,
+        values: Array.from(valueSet), // Преобразуем Set в массив
+      })
+    )
 
-    // Возвращаем уникальные значения в ответе
-    res.json({ uniqueValues })
+    // Возвращаем агрегированные значения в ответе
+    res.json(aggregatedValues)
   } catch (error) {
     console.error('Ошибка при получении уникальных значений параметра:', error)
     res.status(500).send('Server error')
