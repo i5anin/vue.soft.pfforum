@@ -74,7 +74,6 @@ async function getTools(req, res) {
       ${whereClause}
     `
 
-    // language=SQL format=false
     const toolQuery = `
       SELECT tool_nom.id,
              tool_nom.name,
@@ -201,49 +200,64 @@ async function deleteTool(req, res) {
   }
 }
 
-async function validateToolData(parent_id, property) {
-  // Проверка parent_id
-  if (parent_id <= 1) {
-    return { error: 'parent_id must be greater than 1.' }
-  }
-
-  // Проверка существования parent_id в таблице dbo.tool_tree
-  const parentCheckResult = await pool.query(
-    'SELECT id FROM dbo.tool_tree WHERE id = $1',
-    [parent_id]
-  )
-  if (parentCheckResult.rowCount === 0) {
-    return { error: 'Specified parent_id does not exist.' }
-  }
-
-  // Проверка property.id на существование в таблице dbo.tool_params
-  if (property && property.id) {
-    const propertyIdCheckResult = await pool.query(
-      'SELECT id FROM dbo.tool_params WHERE id = $1',
-      [property.id]
-    )
-    if (propertyIdCheckResult.rowCount === 0) {
-      return { error: 'Specified property.id does not exist in tool_params.' }
-    }
-  }
-
-  // Все проверки пройдены
-  return { success: true }
-}
-
 async function addTool(req, res) {
   const { name, parent_id, property, sklad, norma } = req.body
 
   try {
-    const validation = await validateToolData(parent_id, property)
-    if (validation.error) {
-      return res.status(400).json({ error: validation.error })
+    if (parent_id <= 1)
+      return res
+        .status(400)
+        .json({ error: 'parent_id must be greater than 1.' })
+
+    // После проверки parent_id
+    if (property && property.id) {
+      const propertyIdCheckResult = await pool.query(
+        'SELECT id FROM dbo.tool_params WHERE id = $1',
+        [property.id]
+      )
+
+      if (propertyIdCheckResult.rowCount === 0) {
+        return res.status(400).json({
+          error: 'Specified property.id does not exist in tool_params.',
+        })
+      }
+    }
+
+    // Проверка существования parent_id в таблице dbo.tool_tree
+    const parentCheckResult = await pool.query(
+      'SELECT id FROM dbo.tool_tree WHERE id = $1',
+      [parent_id]
+    )
+
+    if (parentCheckResult.rowCount === 0) {
+      return res
+        .status(400)
+        .json({ error: 'Specified parent_id does not exist.' })
     }
 
     const propertyWithoutNull = removeNullProperties(property)
     const propertyString = JSON.stringify(propertyWithoutNull)
 
-    // Далее идет логика добавления инструмента...
+    // Добавляем поля sklad и norma в запрос
+    const toolInsertResult = await pool.query(
+      'INSERT INTO dbo.tool_nom (name, parent_id, property, sklad, norma) ' +
+        'VALUES ($1, $2, $3, $4, $5) RETURNING id',
+      [name, parent_id, propertyString, sklad, norma]
+    )
+
+    const toolId = toolInsertResult.rows[0].id
+
+    // Получение полной информации о добавленном инструменте
+    const newToolResult = await pool.query(
+      'SELECT * FROM dbo.tool_nom WHERE id = $1',
+      [toolId]
+    )
+
+    if (newToolResult.rowCount > 0) {
+      res.status(200).json({ success: 'OK', data: newToolResult.rows[0] })
+    } else {
+      res.status(404).json({ error: 'Tool added, but not found.' })
+    }
   } catch (err) {
     console.error('Error:', err.message)
     res.status(500).json({ error: 'Error adding tool: ' + err.message })
@@ -255,10 +269,34 @@ async function editTool(req, res) {
   const { name, parent_id, property, sklad, norma, limit } = req.body
 
   try {
-    const validation = await validateToolData(parent_id, property)
-    if (validation.error) {
-      return res.status(400).json({ error: validation.error })
+    if (parent_id <= 1)
+      return res
+        .status(400)
+        .json({ error: 'parent_id must be greater than 1.' })
+
+    // После проверки parent_id
+    if (property && property.id) {
+      const propertyIdCheckResult = await pool.query(
+        'SELECT id FROM dbo.tool_params WHERE id = $1',
+        [property.id]
+      )
+
+      if (propertyIdCheckResult.rowCount === 0) {
+        return res.status(400).json({
+          error: 'Specified property.id does not exist in tool_params.',
+        })
+      }
     }
+
+    const parentCheckResult = await pool.query(
+      'SELECT id FROM dbo.tool_tree WHERE id = $1',
+      [parent_id]
+    )
+
+    if (parentCheckResult.rowCount === 0)
+      return res
+        .status(400)
+        .json({ error: 'Specified parent_id does not exist.' })
 
     const propertyWithoutNull = removeNullProperties(property)
     const propertyString = JSON.stringify(propertyWithoutNull)
