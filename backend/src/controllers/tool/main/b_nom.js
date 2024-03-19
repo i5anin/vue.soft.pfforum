@@ -29,6 +29,16 @@ function removeNullProperties(obj) {
   return obj
 }
 
+function replaceCommaWithDotInNumbers(obj) {
+  const regex = /(\d),(\d)/g
+  for (const key in obj) {
+    if (typeof obj[key] === 'string') {
+      // Заменяем только запятые, которые находятся между числами
+      obj[key] = obj[key].replace(regex, '$1.$2')
+    }
+  }
+}
+
 async function getTools(req, res) {
   try {
     // Объединение параметров из тела POST-запроса и параметров строки запроса GET-запроса
@@ -202,6 +212,8 @@ async function deleteTool(req, res) {
 
 async function addTool(req, res) {
   const { name, parent_id, property, sklad, norma } = req.body
+  // Преобразование запятых в точки в числах в property
+  replaceCommaWithDotInNumbers(property)
 
   try {
     if (parent_id <= 1)
@@ -267,6 +279,8 @@ async function addTool(req, res) {
 async function editTool(req, res) {
   const { id } = req.params
   const { name, parent_id, property, sklad, norma, limit } = req.body
+  // Преобразование запятых в точки в числах в property
+  replaceCommaWithDotInNumbers(property)
 
   try {
     if (parent_id <= 1)
