@@ -46,14 +46,6 @@
                     solo
                     @update:model-value="(value) => selectParam(value, index)"
                   />
-                  {{
-                    console.log(
-                      'Параметры для',
-                      param.id,
-                      ':',
-                      toolParamsOptions[param.id]
-                    )
-                  }}
                   <v-combobox
                     v-model="toolModel.property[param.id]"
                     :items="toolParamsOptions[param.id]"
