@@ -1,32 +1,35 @@
 <template>
-  <Modal :title="popupTitle">
+  <Modal :title="popupTitle" widthDefault="650px">
     <template #content>
       <v-container>
         <v-row>
           <v-col>
-            <div class="flex">
-              <v-text-field
-                label="ID папки"
-                required
-                type="Number"
-                v-model="parentCatalog.id"
-                :rules="parentIdRules"
-              />
-              <v-text-field
-                label="Папка"
-                required
-                type="Text"
-                v-model="parentCatalog.label"
-                :disabled="true"
-              />
-            </div>
+            <v-row>
+              <v-col cols="6">
+                <v-text-field
+                  label="Папка"
+                  required
+                  type="Text"
+                  v-model="parentCatalog.label"
+                  :disabled="true"
+                />
+              </v-col>
+              <v-col cols="6">
+                <v-text-field
+                  label="ID папки"
+                  required
+                  type="Number"
+                  v-model="parentCatalog.id"
+                  :rules="parentIdRules"
+                />
+              </v-col>
+            </v-row>
             <!--левый столбец -->
             <div>
               <v-combobox
-                density="compact"
+                variant="outlined"
                 label="Маркировка"
                 v-model="toolModel.name"
-                :items="nameOptions"
                 item-text="text"
                 item-value="value"
                 required
@@ -38,26 +41,34 @@
             <div v-for="(param, index) in selectedParamsInfo" :key="param.id">
               <v-container>
                 <v-row>
-                  <v-select
-                    v-model="param.info"
-                    :items="availableToolParamOptions"
-                    label="Параметр"
-                    single-line="true"
-                    solo
-                    @update:model-value="(value) => selectParam(value, index)"
-                  />
-                  <v-combobox
-                    v-model="toolModel.property[param.id]"
-                    :items="toolParamsOptions[param.id]"
-                    label="Значение"
-                    clearable="true"
-                    single-line="true"
-                    solo
-                  />
-
-                  <v-btn icon @click="removeParameter(param.id)">
-                    <v-icon>mdi-delete</v-icon>
-                  </v-btn>
+                  <v-col cols="3" class="pa-1">
+                    <v-select
+                      variant="solo-filled"
+                      density="compact"
+                      v-model="param.info"
+                      :items="availableToolParamOptions"
+                      label="Параметр"
+                      single-line="true"
+                      solo
+                      @update:model-value="(value) => selectParam(value, index)"
+                    />
+                  </v-col>
+                  <v-col cols="7" class="pa-1">
+                    <v-combobox
+                      density="compact"
+                      v-model="toolModel.property[param.id]"
+                      :items="toolParamsOptions[param.id]"
+                      label="Значение"
+                      clearable="true"
+                      single-line="true"
+                      solo
+                    />
+                  </v-col>
+                  <v-col cols="1" class="d-flex justify-end">
+                    <v-btn size="small" icon @click="removeParameter(param.id)">
+                      <v-icon>mdi-delete</v-icon>
+                    </v-btn>
+                  </v-col>
                 </v-row>
               </v-container>
             </div>
@@ -69,22 +80,27 @@
               Добавить
             </v-btn>
 
-            <v-divider class="my-1"></v-divider>
-            <v-text-field
-              type="number"
-              density="compact"
-              label="Нормативный запас"
-              required
-              v-model="toolModel.norma"
-            />
-            <v-divider class="my-1"></v-divider>
-            <v-text-field
-              type="number"
-              density="compact"
-              label="Склад"
-              required
-              v-model="toolModel.sklad"
-            />
+            <v-divider class="my-1" />
+            <v-row>
+              <v-col cols="6">
+                <v-text-field
+                  type="number"
+                  density="compact"
+                  label="Нормативный запас"
+                  required
+                  v-model="toolModel.norma"
+                />
+              </v-col>
+              <v-col cols="6">
+                <v-text-field
+                  type="number"
+                  density="compact"
+                  label="Склад"
+                  required
+                  v-model="toolModel.sklad"
+                />
+              </v-col>
+            </v-row>
           </v-col>
         </v-row>
       </v-container>
