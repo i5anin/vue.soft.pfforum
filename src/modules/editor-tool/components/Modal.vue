@@ -200,7 +200,6 @@ export default {
     toolId: {
       immediate: true,
       async handler(editingToolId) {
-        console.log('editingToolId=', editingToolId)
         if (editingToolId == null) {
           this.resetToolModel()
         } else {
@@ -216,7 +215,6 @@ export default {
     async fetchToolParamsByParentId(parentId) {
       try {
         const paramsData = await editorToolApi.getToolParamsByParentId(parentId)
-        console.log('Полученные данные параметров:', paramsData)
         // Создаем новый объект для обновления, чтобы обеспечить реактивность
         let newToolParamsOptions = {}
         paramsData.forEach((item) => {
@@ -350,7 +348,6 @@ export default {
   },
   async created() {
     this.fetchToolParamsByParentId(this.parentCatalog.id)
-    console.log('Вызов getDetailFio')
     try {
       const fioData = await issueToolApi.getDetailFio()
       this.fioOptions = this.prepareFioOptions(fioData)

@@ -173,7 +173,6 @@ export default {
     toolId: {
       immediate: true,
       async handler(editingToolId) {
-        // console.log('editingToolId=', editingToolId)
         if (editingToolId == null) {
           this.resetToolModel()
         } else {
@@ -314,7 +313,6 @@ export default {
   },
   async created() {
     this.updateAvailableToolParamOptions() // Вызываем при инициализации
-    // console.log('Вызов getDetailFio')
     try {
       const fioData = await issueToolApi.getDetailFio()
       this.fioOptions = this.prepareFioOptions(fioData)
