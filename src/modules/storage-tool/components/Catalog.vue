@@ -26,7 +26,7 @@
   <TabMainTable
     v-if="isTableShown"
     v-bind="{
-      namespace: 'EditorToolStore',
+      namespace: 'StorageToolStore',
     }"
   />
 </template>
@@ -34,12 +34,12 @@
 <script>
 import { toolTreeApi } from '@/modules/tool/api/tree'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
-import TabMainTable from '@/modules/editor-tool/components/Table.vue'
+import TabMainTable from './Table.vue'
 import CatalogBreadcrumbs from '@/modules/shared/components/CatalogBreadcrumbs.vue'
 import { normSpaces } from '@/modules/shared/normSpaces'
 
 export default {
-  name: 'EditorCatalog',
+  name: 'StorageCatalog',
   components: { TabMainTable, CatalogBreadcrumbs },
 
   data() {
@@ -63,14 +63,14 @@ export default {
     },
   },
   computed: {
-    ...mapGetters('EditorToolStore', ['parentCatalog']),
+    ...mapGetters('StorageToolStore', ['parentCatalog']),
     isTableShown() {
       return this.parentCatalog.id !== 1
     },
   },
   methods: {
-    ...mapMutations('EditorToolStore', ['setParentCatalog']),
-    ...mapActions('EditorToolStore', ['fetchToolsByFilter']),
+    ...mapMutations('StorageToolStore', ['setParentCatalog']),
+    ...mapActions('StorageToolStore', ['fetchToolsByFilter']),
     async renameCurrentItem() {
       const itemId = this.currentItem.id
       const newName = this.editableLabel

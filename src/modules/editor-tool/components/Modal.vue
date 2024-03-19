@@ -41,7 +41,7 @@
             <div v-for="(param, index) in selectedParamsInfo" :key="param.id">
               <v-container>
                 <v-row>
-                  <v-col cols="3" class="pa-1">
+                  <v-col cols="6" class="pa-1">
                     <v-select
                       variant="solo-filled"
                       density="compact"
@@ -53,7 +53,7 @@
                       @update:model-value="(value) => selectParam(value, index)"
                     />
                   </v-col>
-                  <v-col cols="7" class="pa-1">
+                  <v-col cols="5" class="pa-1">
                     <v-combobox
                       density="compact"
                       v-model="toolModel.property[param.id]"
@@ -72,13 +72,17 @@
                 </v-row>
               </v-container>
             </div>
-            <v-btn
-              color="primary"
-              @click="addParameterValuePair"
-              v-show="isAddButtonVisible"
-            >
-              Добавить
-            </v-btn>
+            <v-row justify="center">
+              <v-col cols="12" class="text-center mb-4">
+                <v-btn
+                  color="primary"
+                  @click="addParameterValuePair"
+                  v-show="isAddButtonVisible"
+                >
+                  Добавить
+                </v-btn>
+              </v-col>
+            </v-row>
 
             <v-divider class="my-1" />
             <v-row>

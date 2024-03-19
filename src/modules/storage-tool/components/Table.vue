@@ -78,7 +78,7 @@ export default {
     },
   },
   computed: {
-    ...mapGetters('EditorToolStore', [
+    ...mapGetters('StorageToolStore', [
       'toolsTotalCount',
       'formattedTools',
       'dynamicFilters',
@@ -129,11 +129,11 @@ export default {
     this.isDataLoaded = true
   },
   methods: {
-    ...mapActions('EditorToolStore', [
+    ...mapActions('StorageToolStore', [
       'fetchToolsDynamicFilters',
       'fetchToolsByFilter',
     ]),
-    ...mapMutations('EditorToolStore', [
+    ...mapMutations('StorageToolStore', [
       'setCurrentPage',
       'setItemsPerPage',
       'setSelectedDynamicFilters',

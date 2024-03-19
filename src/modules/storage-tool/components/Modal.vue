@@ -5,7 +5,6 @@
       <v-container>
         <v-row>
           <v-col>
-            <!--левый столбец -->
             <div>
               <v-combobox
                 density="compact"
