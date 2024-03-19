@@ -247,10 +247,10 @@ export default {
       if (selectedParam) {
         // Удаляем временный ключ, если он был использован
         const newProperty = { ...this.toolModel.property }
-        delete newProperty[0]
+        delete newProperty[-1]
 
         // Обновляем значение выбранного параметра
-        newProperty[selectedParam.id] = this.toolModel.property[0] || ''
+        newProperty[selectedParam.id] = this.toolModel.property[-1] || ''
 
         this.toolModel.property = newProperty
 
@@ -279,8 +279,8 @@ export default {
     },
     addParameterValuePair() {
       // Проверяем, существует ли уже параметр с временным ID 0 в selectedParams
-      if (!this.selectedParams.includes('0')) {
-        const newToolParam = { id: 0, info: null }
+      if (!this.selectedParams.includes('-1')) {
+        const newToolParam = { id: -1, info: null }
         this.toolParams.push(newToolParam)
 
         // Обновляем toolModel.property для добавления нового параметра с временным значением
