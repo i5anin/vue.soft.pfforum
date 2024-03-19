@@ -20,36 +20,6 @@ async function getParamsMapping() {
   }, {})
 }
 
-async function validateToolData(parent_id, property) {
-  // Проверка parent_id
-  if (parent_id <= 1) {
-    return { error: 'parent_id must be greater than 1.' }
-  }
-
-  // Проверка существования parent_id в таблице dbo.tool_tree
-  const parentCheckResult = await pool.query(
-    'SELECT id FROM dbo.tool_tree WHERE id = $1',
-    [parent_id]
-  )
-  if (parentCheckResult.rowCount === 0) {
-    return { error: 'Specified parent_id does not exist.' }
-  }
-
-  // Проверка property.id на существование в таблице dbo.tool_params
-  if (property && property.id) {
-    const propertyIdCheckResult = await pool.query(
-      'SELECT id FROM dbo.tool_params WHERE id = $1',
-      [property.id]
-    )
-    if (propertyIdCheckResult.rowCount === 0) {
-      return { error: 'Specified property.id does not exist in tool_params.' }
-    }
-  }
-
-  // Все проверки пройдены
-  return { success: true }
-}
-
 function removeNullProperties(obj) {
   Object.keys(obj).forEach((key) => {
     if (obj[key] === null) {
@@ -229,6 +199,36 @@ async function deleteTool(req, res) {
     console.error(error)
     res.status(500).send(error.message)
   }
+}
+
+async function validateToolData(parent_id, property) {
+  // Проверка parent_id
+  if (parent_id <= 1) {
+    return { error: 'parent_id must be greater than 1.' }
+  }
+
+  // Проверка существования parent_id в таблице dbo.tool_tree
+  const parentCheckResult = await pool.query(
+    'SELECT id FROM dbo.tool_tree WHERE id = $1',
+    [parent_id]
+  )
+  if (parentCheckResult.rowCount === 0) {
+    return { error: 'Specified parent_id does not exist.' }
+  }
+
+  // Проверка property.id на существование в таблице dbo.tool_params
+  if (property && property.id) {
+    const propertyIdCheckResult = await pool.query(
+      'SELECT id FROM dbo.tool_params WHERE id = $1',
+      [property.id]
+    )
+    if (propertyIdCheckResult.rowCount === 0) {
+      return { error: 'Specified property.id does not exist in tool_params.' }
+    }
+  }
+
+  // Все проверки пройдены
+  return { success: true }
 }
 
 async function addTool(req, res) {
