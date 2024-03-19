@@ -46,13 +46,23 @@
                     solo
                     @update:model-value="(value) => selectParam(value, index)"
                   />
+                  {{
+                    console.log(
+                      'Параметры для',
+                      param.id,
+                      ':',
+                      toolParamsOptions[param.id]
+                    )
+                  }}
                   <v-combobox
                     v-model="toolModel.property[param.id]"
+                    :items="toolParamsOptions[param.id]"
                     label="Значение"
                     clearable="true"
                     single-line="true"
                     solo
                   />
+
                   <v-btn icon @click="removeParameter(param.id)">
                     <v-icon>mdi-delete</v-icon>
                   </v-btn>
@@ -145,6 +155,7 @@ export default {
       },
       parameterValuePairs: [{ parameter: null, value: null }],
       toolParamOptions: [],
+      toolParamsOptions: {},
       selectedParams: [],
       toolParams: [],
       confirmDeleteDialog: false,
@@ -210,7 +221,18 @@ export default {
   methods: {
     ...mapActions('EditorToolStore', ['fetchToolsByFilter', 'fetchToolById']),
     ...mapMutations('EditorToolStore', ['setTool']),
-    // Добавьте этот метод в объект methods вашего компонента
+    async fetchToolParamsByParentId(parentId) {
+      try {
+        const paramsData = await editorToolApi.getToolParamsByParentId(parentId)
+        console.log('Полученные данные параметров:', paramsData)
+        this.toolParamOptions = paramsData.reduce((acc, item) => {
+          acc[item.id] = item.values // Преобразуем структуру данных под нужный формат
+          return acc
+        }, {})
+      } catch (error) {
+        console.error('Ошибка при получении данных о параметрах:', error)
+      }
+    },
     removeParameter(id) {
       // Запрашиваем подтверждение у пользователя
       if (window.confirm('Вы уверены, что хотите удалить этот параметр?')) {
@@ -224,6 +246,7 @@ export default {
         this.updateSelectedParams()
       }
     },
+
     selectParam(paramInfo) {
       const selectedParam = this.toolParams.find((p) => p.info === paramInfo)
       if (selectedParam) {
@@ -331,6 +354,7 @@ export default {
     },
   },
   async created() {
+    this.fetchToolParamsByParentId(this.parentCatalog.id)
     console.log('Вызов getDetailFio')
     try {
       const fioData = await issueToolApi.getDetailFio()

@@ -26,4 +26,11 @@ export const editorToolApi = {
       .put(`/tool/${id}`, toolData)
       .then(handleResponse)
       .catch(handleApiError),
+
+  // Получить параметры инструмента по parent_id
+  getToolParamsByParentId: async (parentId) =>
+    axiosInstance
+      .get(`/tools-params/${parentId}`)
+      .then(handleResponse)
+      .catch(handleApiError),
 }
