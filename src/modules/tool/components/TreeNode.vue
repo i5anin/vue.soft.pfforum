@@ -1,14 +1,25 @@
 <template>
   <v-list-item>
     <div class="tree-node">
-      <!-- Добавляем кнопку для сворачивания/разворачивания -->
-      <v-btn density="compact" icon @click.stop="toggle">
+      <!-- Показываем кнопку только если есть дочерние узлы -->
+      <v-btn
+        density="compact"
+        icon
+        v-if="node.nodes && node.nodes.length > 0"
+        @click.stop="toggle"
+      >
         <v-icon>
           {{ isExpanded ? 'mdi-chevron-down' : 'mdi-chevron-right' }}
         </v-icon>
       </v-btn>
+      <v-icon class="pl-4 pr-4" v-else :color="appColor" icon="mdi-folder" />
 
-      <v-icon :color="appColor">mdi-folder</v-icon>
+      <v-icon
+        class="pl-4 pr-4"
+        :color="appColor"
+        v-if="node.nodes && node.nodes.length > 0"
+        icon="mdi-folder"
+      />
       <span>
         {{ node.label }}
         <span v-if="node.elements !== 0">
@@ -18,7 +29,7 @@
       </span>
 
       <!-- Отображаем дочерние узлы только если isExpanded истина -->
-      <div v-if="isExpanded && node.nodes && node.nodes.length">
+      <div class="pl-3" v-if="isExpanded && node.nodes && node.nodes.length">
         <tree-node
           v-for="child in node.nodes"
           :key="child.id"
@@ -66,7 +77,7 @@ export default {
 }
 
 .child-node {
-  padding-left: 20px;
+  padding-left: 35px;
   border-left: 1px solid #989898;
 }
 

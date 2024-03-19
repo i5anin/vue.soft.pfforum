@@ -9,7 +9,7 @@
         </v-btn>
 
         <!-- Рекурсивное отображение дерева -->
-        <v-list-item class="mt-3">
+        <v-list-item class="mt-4">
           <tree-node
             v-for="node in treeData"
             :key="node.id"
