@@ -2,7 +2,7 @@
   <v-list-item>
     <div class="tree-node">
       <!-- Добавляем кнопку для сворачивания/разворачивания -->
-      <v-btn icon @click.stop="toggle">
+      <v-btn density="compact" icon @click.stop="toggle">
         <v-icon>
           {{ isExpanded ? 'mdi-chevron-down' : 'mdi-chevron-right' }}
         </v-icon>
