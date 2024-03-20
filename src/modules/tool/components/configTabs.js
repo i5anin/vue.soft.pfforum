@@ -31,12 +31,12 @@ const tabs = [
     component: markRaw(IssueCatalog),
     access: ['Admin', 'Editor', 'Issue'],
   },
-  {
-    name: 'Склад',
-    url: '#storage',
-    component: markRaw(StorageCatalog),
-    access: ['Admin', 'Editor', 'Sklad'],
-  },
+  // {
+  //   name: 'Склад',
+  //   url: '#storage',
+  //   component: markRaw(StorageCatalog),
+  //   access: ['Admin', 'Editor', 'Sklad'],
+  // },
   {
     name: 'История выдачи',
     url: '#history_issue',
