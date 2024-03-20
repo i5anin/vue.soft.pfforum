@@ -29,6 +29,7 @@
               <v-combobox
                 variant="outlined"
                 label="Маркировка"
+                :items="toolNameOptions"
                 v-model="toolModel.name"
                 item-text="text"
                 item-value="value"
@@ -36,7 +37,6 @@
                 :rules="typeRules"
               />
             </div>
-            <!--            {{ toolModel.property }}-->
             <h2 class="text-h6">Характеристики:</h2>
             <div v-for="(param, index) in selectedParamsInfo" :key="param.id">
               <v-container>
@@ -165,6 +165,7 @@ export default {
         sklad: null,
         norma: null,
       },
+      toolNameOptions: [],
       parameterValuePairs: [{ parameter: null, value: null }],
       toolParamOptions: [],
       toolParamsOptions: {},
@@ -232,6 +233,15 @@ export default {
   methods: {
     ...mapActions('EditorToolStore', ['fetchToolsByFilter', 'fetchToolById']),
     ...mapMutations('EditorToolStore', ['setTool']),
+    async fetchToolNamesByParentId(parentId) {
+      try {
+        this.toolNameOptions =
+          await editorToolApi.getToolNamesByParentId(parentId)
+      } catch (error) {
+        console.error('Ошибка при получении названий инструментов:', error)
+      }
+    },
+
     async fetchToolParamsByParentId(parentId) {
       try {
         const paramsData = await editorToolApi.getToolParamsByParentId(parentId)
@@ -368,6 +378,7 @@ export default {
   },
   async created() {
     this.fetchToolParamsByParentId(this.parentCatalog.id)
+    this.fetchToolNamesByParentId(this.parentCatalog.id)
     try {
       const fioData = await issueToolApi.getDetailFio()
       this.fioOptions = this.prepareFioOptions(fioData)
