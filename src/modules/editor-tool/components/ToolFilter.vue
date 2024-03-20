@@ -1,8 +1,14 @@
 <template>
   <div>
-    <v-row cols="12" sm="6">
-      <v-col v-for="filter in dynamicFilters" :key="filter.key">
+    <v-row
+      cols="12"
+      sm="6"
+      v-for="(group, index) in groupedFilters"
+      :key="`group-${index}`"
+    >
+      <v-col v-for="filter in group" :key="filter.key" cols="12" sm="3">
         <v-select
+          density="compact"
           clearable="true"
           :label="filter.label"
           :items="filter.values"
@@ -36,6 +42,14 @@ export default {
       'parentCatalog',
       'isLoading',
     ]),
+    groupedFilters() {
+      const result = []
+      const itemsPerRow = 4 // Меняйте это значение в зависимости от желаемого количества элементов в строке
+      for (let i = 0; i < this.dynamicFilters.length; i += itemsPerRow) {
+        result.push(this.dynamicFilters.slice(i, i + itemsPerRow))
+      }
+      return result
+    },
   },
   data() {
     return {
