@@ -98,7 +98,7 @@ export default {
   },
   computed: {
     popupTitle() {
-      console.log('вызов popupTitle')
+      // console.log('вызов popupTitle')
       if (this.info) {
         return `Инструмент затраченный на партию: ${this.id_part}`
       }

@@ -180,15 +180,15 @@ async function getToolHistoryByPartId(req, res) {
         INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
         INNER JOIN dbo.operations_ordersnom oon ON oon.op_id = sno.ordersnom_op_id
         INNER JOIN dbo.operators o ON thn.id_user = o.id
-        INNER JOIN dbo.tool_nom tn ON thn.id_tool = tn.id
+        LEFT JOIN dbo.tool_nom tn ON thn.id_tool = tn.id
       WHERE sn.ID = $1
       ORDER BY thn.timestamp DESC;
     `
     const operationsResult = await pool.query(operationsQuery, [idPart])
 
-    if (operationsResult.rows.length === 0) {
+    console.log('operationsQuery=', operationsQuery)
+    if (operationsResult.rows.length === 0)
       return res.status(404).send('Операции для данной партии не найдены')
-    }
 
     const allTools = {}
     const operationsData = {}

@@ -29,7 +29,7 @@ export default {
   props: {
     title: {
       type: String,
-      default: 'Заголовок попапа',
+      default: 'По операции',
     },
     modalProps: {
       type: Object,
