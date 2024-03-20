@@ -21,10 +21,10 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
-qodana.yaml
+*.yaml
 *.env*
 *.xml
 *.iml
 *.zip
 *.meta
-src/desktop.ini
+*.ini

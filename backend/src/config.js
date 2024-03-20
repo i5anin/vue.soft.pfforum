@@ -5,7 +5,7 @@ module.exports = {
     database: process.env.DB_TEST_NAME,
     password: process.env.DB_TEST_PASSWORD,
     port: process.env.DB_TEST_PORT,
-    dialect: 'postgres',
+    dialect: process.env.DB_DIALECT,
   },
   dbConfig: {
     user: process.env.DB_USER,
@@ -13,7 +13,7 @@ module.exports = {
     database: process.env.DB_NAME,
     password: process.env.DB_PASSWORD,
     port: process.env.DB_PORT,
-    dialect: 'postgres',
+    dialect: process.env.DB_DIALECT,
   },
   server: {
     host: process.env.HOST,
@@ -21,14 +21,9 @@ module.exports = {
   },
   port: process.env.PORT,
   emailConfig: {
-    host: 'server87.hosting.reg.ru',
-    port: 25,
-    user: 'report@pf-forum.ru',
-    pass: 'gE0pU0iH4lzB0jQ0',
+    host: process.env.MAIL_HOST,
+    port: process.env.MAIL_PORT,
+    user: process.env.MAIL_USER,
+    pass: process.env.MAIL_PASS,
   },
 }
-
-// EMAIL_HOST=server87.hosting.reg.ru
-// EMAIL_PORT=25
-// EMAIL_USER=report@pf-forum.ru
-// EMAIL_PASS=gE0pU0iH4lzB0jQ0
