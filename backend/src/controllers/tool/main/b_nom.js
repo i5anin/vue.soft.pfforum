@@ -183,7 +183,31 @@ async function getTools(req, res) {
 async function deleteTool(req, res) {
   const { id } = req.params
   try {
-    // Проверяем, существует ли инструмент с данным ID
+    // Проверяем наличие инструмента в истории выдачи
+    const toolInIssueHistory = await pool.query(
+      `SELECT 1
+       FROM dbo.tool_history_nom
+       WHERE id_tool = $1`,
+      [id]
+    )
+
+    // Проверяем наличие инструмента в списке уничтоженных
+    const toolInDamagedHistory = await pool.query(
+      `SELECT 1
+       FROM dbo.tool_history_damaged
+       WHERE id_tool = $1`,
+      [id]
+    )
+
+    if (toolInIssueHistory.rowCount > 0 || toolInDamagedHistory.rowCount > 0) {
+      // Если инструмент есть в истории выдачи или среди уничтоженных, возвращаем ошибку
+      return res.status(400).json({
+        error:
+          'Удаление запрещено: инструмент используется в истории выдачи или уничтожен.',
+      })
+    }
+
+    // Если проверки пройдены, удаляем инструмент
     const toolExists = await pool.query(
       `SELECT id
        FROM dbo.tool_nom
@@ -191,7 +215,6 @@ async function deleteTool(req, res) {
       [id]
     )
 
-    // Если инструмент существует, продолжаем операцию удаления
     if (toolExists.rowCount > 0) {
       await pool.query(
         `DELETE
@@ -201,7 +224,6 @@ async function deleteTool(req, res) {
       )
       res.json({ success: 'OK' })
     } else {
-      // Если инструмент не найден, возвращаем ошибку
       res.status(404).json({ error: 'Инструмент с таким ID не найден.' })
     }
   } catch (error) {

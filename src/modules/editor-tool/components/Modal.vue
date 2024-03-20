@@ -139,6 +139,11 @@
       </v-btn>
     </template>
   </Modal>
+  <!-- v-snackbar для отображения сообщений об ошибке -->
+  <v-snackbar v-model="snackbar.show" :color="snackbar.color" bottom right>
+    {{ snackbar.text }}
+    <v-btn color="white" text @click="snackbar.show = false">Закрыть</v-btn>
+  </v-snackbar>
 </template>
 
 <script>
@@ -158,6 +163,11 @@ export default {
   components: { Modal },
   data() {
     return {
+      snackbar: {
+        show: false,
+        color: 'error',
+        text: '',
+      },
       toolModel: {
         name: null,
         property: {},
@@ -233,6 +243,12 @@ export default {
   methods: {
     ...mapActions('EditorToolStore', ['fetchToolsByFilter', 'fetchToolById']),
     ...mapMutations('EditorToolStore', ['setTool']),
+
+    showErrorSnackbar(message) {
+      this.snackbar.text = message
+      this.snackbar.color = 'error'
+      this.snackbar.show = true
+    },
     async fetchToolNamesByParentId(parentId) {
       try {
         this.toolNameOptions =
@@ -341,13 +357,17 @@ export default {
         this.onDelete()
     },
     async onDelete() {
+      // Предполагается, что метод onDelete вызывается, когда пользователь подтверждает удаление
       const { id } = this.toolModel
       if (id != null) {
         try {
           const response = await editorToolApi.deleteTool(id)
-          if (response.success === 'OK') this.$emit('changes-saved')
+          if (response.success === 'OK') {
+            this.$emit('changes-saved')
+          }
         } catch (error) {
           console.error('Ошибка при удалении инструмента:', error)
+          this.showErrorSnackbar('Инструмент используется в истории.')
         }
       }
     },
