@@ -41,13 +41,13 @@ const tabs = [
     name: 'История выдачи',
     url: '#history_issue',
     component: markRaw(HistoryIssue),
-    access: ['Admin', 'Editor'],
+    access: ['Admin', 'Editor', 'Issue'],
   },
   {
     name: 'История поврежденного',
     url: '#history_damaged',
     component: markRaw(HistoryDamaged),
-    access: ['Admin', 'Editor'],
+    access: ['Admin', 'Editor', 'Issue'],
   },
   {
     name: 'Наладчик',
