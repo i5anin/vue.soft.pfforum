@@ -44,7 +44,7 @@
         @click.stop="isRail = !isRail"
       ></v-app-bar-nav-icon>
       <!-- Название -->
-      <v-toolbar-title>PF-FORUM</v-toolbar-title>
+      <v-toolbar-title>{{ appTitle }}</v-toolbar-title>
       <v-spacer />
       <!-- Три кнопки справа -->
       <v-btn icon>
@@ -75,6 +75,9 @@ export default {
     isHovered: false,
   }),
   computed: {
+    appTitle() {
+      return import.meta.env.VITE_APP_TITLE || 'LOGO'
+    },
     appColor() {
       return import.meta.env.VITE_NODE_ENV === 'build' ? 'blue-grey' : 'primary'
     },

@@ -1,9 +1,9 @@
 module.exports = {
   apps: [
     {
-      name: 'soft.vue.pf-forum',
+      name: 'soft.vue',
       script: 'npm',
-      args: 'start'
-    }
-  ]
-};
+      args: 'start',
+    },
+  ],
+}

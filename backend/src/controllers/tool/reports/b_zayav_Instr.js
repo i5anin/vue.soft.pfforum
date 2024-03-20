@@ -158,7 +158,7 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
 
   // Опции письма
   const mailOptions = {
-    from: 'report@pf-forum.ru',
+    from: process.env.MAIL_USER,
     to: email,
     subject: subject,
     text: text,
@@ -197,7 +197,7 @@ async function genZayavInstr(req, res) {
     const emailText = 'Пожалуйста, найдите вложенный отчет в формате Excel.'
 
     await sendEmailWithExcelStream(
-      'isa@pf-forum.ru',
+      process.env.MAIL_TO,
       emailText,
       excelStream,
       data
