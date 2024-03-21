@@ -6,10 +6,10 @@ const config = require('./config')
 const routers = require('./routers')
 const { getNetworkDetails } = require('./db_type')
 const networkDetails = getNetworkDetails()
-const dbConfig = networkDetails.databaseType === 'build'
-  ? config.dbConfig
-  : config.dbConfigTest
-
+const dbConfig =
+  networkDetails.databaseType === 'build'
+    ? config.dbConfig
+    : config.dbConfigTest
 
 const app = express()
 
@@ -25,7 +25,6 @@ app.use((err, req, res, next) => {
   })
 })
 
-
 try {
   const { localIp } = getNetworkDetails()
   app.listen(config.port, localIp, () => {
@@ -34,5 +33,4 @@ try {
   })
 } catch (error) {
   console.error(error.message)
-  // Handle the error appropriately. You might want to exit the process if the IP cannot be determined
 }

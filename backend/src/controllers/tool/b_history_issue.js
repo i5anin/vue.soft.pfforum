@@ -13,7 +13,6 @@ const dbConfig =
 const pool = new Pool(dbConfig)
 
 async function getToolHistory(req, res) {
-  // console.log('Получен запрос истории инструментов:', req.query)
   try {
     const page = parseInt(req.query.page || 1, 10)
     const limit = parseInt(req.query.limit || 15, 10)
