@@ -11,15 +11,6 @@ const dbConfig =
 // Создание пула подключений к БД
 const pool = new Pool(dbConfig)
 
-async function getParamsMapping() {
-  const query = 'SELECT id, info FROM dbo.tool_params'
-  const result = await pool.query(query)
-  return result.rows.reduce((acc, row) => {
-    acc[row.id] = { info: row.info }
-    return acc
-  }, {})
-}
-
 function removeNullProperties(obj) {
   Object.keys(obj).forEach((key) => {
     if (obj[key] === null) {

@@ -144,6 +144,15 @@ async function updateToolParam(req, res) {
   }
 }
 
+async function getParamsMapping() {
+  const query = 'SELECT id, info FROM dbo.tool_params'
+  const result = await pool.query(query)
+  return result.rows.reduce((acc, row) => {
+    acc[row.id] = { info: row.info }
+    return acc
+  }, {})
+}
+
 async function getFilterParamsParentId(req, res) {
   let { parent_id } = req.params // Получаем parent_id из параметров запроса
 
