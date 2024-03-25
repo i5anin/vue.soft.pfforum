@@ -76,7 +76,7 @@ export const toolApi = {
   // Получить фильтры по ID папки
   filterParamsByParentId: async (parent_id) =>
     axiosInstance
-      .get(`/filter-params/${parent_id}`)
+      .get(`/tools-params/${parent_id}`)
       .then(handleResponse)
       .catch(handleApiError),
 }

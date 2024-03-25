@@ -20,15 +20,16 @@ router.post('/check-login', loginController.checkLogin)
 
 router.get('/database-info', loginController.getDatabaseInfo)
 // nom
-router.get('/tool/:id', nomController.getToolById) //1 элемент
 router.get('/tools', nomController.getTools) //GET ALL
 router.post('/tools', nomController.getTools) //POST ALL
+
+router.get('/tool/:id', nomController.getToolById) //1 элемент
 router.post('/tool', nomController.addTool)
 router.put('/tool/:id', nomController.editTool)
 router.delete('/tool/:id', nomController.deleteTool)
-router.get('/filter-params/:parent_id', nomController.getFilterParamsByParentId)
 
 // param
+router.get('/tools-params/:parent_id', paramController.getFilterParamsParentId)
 router.get('/tools-params', paramController.getToolParams)
 router.get('/tools-params/:id', paramController.getToolParamsParentId)
 router.post('/tools-params', paramController.addToolParam)
