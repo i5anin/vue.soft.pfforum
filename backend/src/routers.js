@@ -14,75 +14,52 @@ const reportBuchEndOpController = require('./controllers/tool/reports/b_buch_end
 const reportBuchMonthController = require('./controllers/tool/reports/b_buch_month')
 const reportZakazController = require('./controllers/tool/reports/b_zayav_Instr')
 
-// Аутентификация
+// Маршруты для аутентификации
 router.post('/login', loginController.login)
 router.post('/check-login', loginController.checkLogin)
+
 router.get('/database-info', loginController.getDatabaseInfo)
+// nom
+router.get('/tools', nomController.getTools) //GET ALL
+router.post('/tools', nomController.getTools) //POST ALL
 
-// Tools
-router
-  .route('/tools')
-  .get(nomController.getTools) // GET ALL
-  .post(nomController.getTools) // POST ALL
-
-router
-  .route('/tool/:id')
-  .get(nomController.getToolById) // 1 элемент
-  .put(nomController.editTool)
-  .delete(nomController.deleteTool)
-
+router.get('/tool/:id', nomController.getToolById) //1 элемент
 router.post('/tool', nomController.addTool)
+router.put('/tool/:id', nomController.editTool)
+router.delete('/tool/:id', nomController.deleteTool)
 
-// Params
-router
-  .route('/tools-params/:parent_id')
-  .get(paramController.getFilterParamsParentId)
-
-router
-  .route('/tools-params')
-  .get(paramController.getToolParams)
-  .post(paramController.addToolParam)
-
-router
-  .route('/tools-params/:id')
-  .put(paramController.updateToolParam)
-  .delete(paramController.deleteToolParam)
-
+// param
+router.get('/tools-params/:parent_id', paramController.getFilterParamsParentId)
+router.get('/tools-params', paramController.getToolParams)
+router.get('/tools-params/:id', paramController.getToolParamsParentId)
+router.post('/tools-params', paramController.addToolParam)
+router.put('/tools-params/:id', paramController.updateToolParam)
+router.delete('/tools-params/:id', paramController.deleteToolParam)
 router.get('/tools-params-name/:id', paramController.getToolNameId)
 
-// Tree
-router
-  .route('/tools-tree')
-  .get(treeController.getToolsTree)
-  .post(treeController.addBranch)
-  .put(treeController.updateFolderTree)
-
+// tree
+router.get('/tools-tree', treeController.getToolsTree)
+router.post('/tools-tree', treeController.addBranch)
+router.put('/tools-tree', treeController.updateFolderTree)
 router.delete('/tools-tree/:id', treeController.dellFolderTree)
-
-// Issue
+// issue
 router.get('/detail/id', issueController.findDetailProduction)
 router.get('/operators/fio', issueController.getFioOperators)
 router.post('/issue', issueController.issueTool)
 router.get('/cnc', issueController.getCncData)
-
-// History
-router.route('/history/:id').get(historyController.getToolHistoryId)
-
-router.route('/history').get(historyController.getToolHistory)
-
+// history
+router.get('/history/:id', historyController.getToolHistoryId)
+router.get('/history', historyController.getToolHistory)
 router.get('/history-part', historyController.getToolHistoryByPartId)
-
-// Damaged
+// damaged
 router.get('/damaged-history', damagedController.getDamaged)
 router.post('/tool-history-damaged', damagedController.addToolHistoryDamaged)
-
-// Sklad
+// sklad
 router.post('/sklad/update', skladController.updateToolInventory)
-
-// Reports
-router.get('/report/genBuchWeek', reportBuchWeekController.genBuchWeek)
-router.get('/report/genBuchEndOp', reportBuchEndOpController.checkStatusChanges)
-router.get('/report/genBuchMonth', reportBuchMonthController.genBuchMonth)
-router.get('/report/genZayavInstr', reportZakazController.genZayavInstr)
+// report
+router.get('/report/genBuchWeek', reportBuchWeekController.genBuchWeek) // бухгалтерию исключен сломанный	раз в неделю каждый ПТ в 12:00 (за неделю)
+router.get('/report/genBuchEndOp', reportBuchEndOpController.checkStatusChanges) // бухгалтерию	по завершению операции
+router.get('/report/genBuchMonth', reportBuchMonthController.genBuchMonth) // бухгалтерию журнал уничтоженого	раз в месяц каждый ПТ в 12:00 (за месяц)
+router.get('/report/genZayavInstr', reportZakazController.genZayavInstr) // заявка на инструмент	раз в неделю каждый ЧТ в 12:00 (за неделю)
 
 module.exports = router
