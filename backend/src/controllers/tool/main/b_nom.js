@@ -30,6 +30,15 @@ function replaceCommaWithDotInNumbers(obj) {
   }
 }
 
+async function getParamsMapping() {
+  const query = 'SELECT id, info FROM dbo.tool_params'
+  const result = await pool.query(query)
+  return result.rows.reduce((acc, row) => {
+    acc[row.id] = { info: row.info }
+    return acc
+  }, {})
+}
+
 async function getTools(req, res) {
   try {
     // Объединение параметров из тела POST-запроса и параметров строки запроса GET-запроса
@@ -289,7 +298,7 @@ async function addTool(req, res) {
   }
 }
 
-async function editTool(req, res) {
+async function updateTool(req, res) {
   const { id } = req.params
   const { name, parent_id, property, sklad, norma, limit } = req.body
   // Преобразование запятых в точки в числах в property
@@ -387,6 +396,6 @@ module.exports = {
   getToolById,
   getTools,
   addTool,
-  editTool,
+  updateTool,
   deleteTool,
 }

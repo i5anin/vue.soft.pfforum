@@ -25,7 +25,7 @@ router.post('/tools', nomController.getTools) //POST ALL
 
 router.get('/tool/:id', nomController.getToolById) //1 элемент
 router.post('/tool', nomController.addTool)
-router.put('/tool/:id', nomController.editTool)
+router.put('/tool/:id', nomController.updateTool)
 router.delete('/tool/:id', nomController.deleteTool)
 
 // param
