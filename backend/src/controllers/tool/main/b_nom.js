@@ -233,15 +233,29 @@ async function deleteTool(req, res) {
 }
 
 async function addTool(req, res) {
-  const { name, parent_id, property, sklad, norma } = req.body
-  // Преобразование запятых в точки в числах в property
-  replaceCommaWithDotInNumbers(property)
+  let { name, parent_id, property, sklad, norma } = req.body
+
+  // Преобразование запятых в точки в числах в property и изменение регистра букв
+  Object.keys(property).forEach((key) => {
+    if (typeof property[key] === 'string') {
+      // Преобразование запятых в точки
+      property[key] = property[key].replace(/(\d),(\d)/g, '$1.$2')
+      // Изменение регистра: первая буква заглавная, остальные строчные
+      property[key] = property[key]
+        .split(' ')
+        .map(
+          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+        )
+        .join(' ')
+    }
+  })
 
   try {
-    if (parent_id <= 1)
+    if (parent_id <= 1) {
       return res
         .status(400)
         .json({ error: 'parent_id must be greater than 1.' })
+    }
 
     // После проверки parent_id
     if (property && property.id) {
@@ -298,17 +312,43 @@ async function addTool(req, res) {
   }
 }
 
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase()
+}
+
+function replaceCommaWithDotInNumbersAndCapitalize(obj) {
+  Object.keys(obj).forEach((key) => {
+    if (typeof obj[key] === 'string') {
+      let value = obj[key].trim()
+
+      // Если значение является числом с возможной запятой, заменяем запятую на точку
+      if (/^\d+([.,]\d+)?$/.test(value)) {
+        obj[key] = value.replace(',', '.')
+      } else {
+        // Для строк делаем первую букву первого слова заглавной, остальные слова начинаются со строчной
+        let words = value.split(' ')
+        words = words.map((word, index) =>
+          index === 0 ? capitalizeFirstLetter(word) : word.toLowerCase()
+        )
+        obj[key] = words.join(' ')
+      }
+    }
+  })
+}
+
 async function editTool(req, res) {
   const { id } = req.params
-  const { name, parent_id, property, sklad, norma, limit } = req.body
-  // Преобразование запятых в точки в числах в property
-  replaceCommaWithDotInNumbers(property)
+  let { name, parent_id, property, sklad, norma, limit } = req.body
+
+  // Использование новой функции для обработки свойств property
+  replaceCommaWithDotInNumbersAndCapitalize(property)
 
   try {
-    if (parent_id <= 1)
+    if (parent_id <= 1) {
       return res
         .status(400)
         .json({ error: 'parent_id must be greater than 1.' })
+    }
 
     // После проверки parent_id
     if (property && property.id) {
@@ -316,7 +356,6 @@ async function editTool(req, res) {
         'SELECT id FROM dbo.tool_params WHERE id = $1',
         [property.id]
       )
-
       if (propertyIdCheckResult.rowCount === 0) {
         return res.status(400).json({
           error: 'Specified property.id does not exist in tool_params.',
@@ -328,18 +367,18 @@ async function editTool(req, res) {
       'SELECT id FROM dbo.tool_tree WHERE id = $1',
       [parent_id]
     )
-
-    if (parentCheckResult.rowCount === 0)
+    if (parentCheckResult.rowCount === 0) {
       return res
         .status(400)
         .json({ error: 'Specified parent_id does not exist.' })
+    }
 
     const propertyWithoutNull = removeNullProperties(property)
     const propertyString = JSON.stringify(propertyWithoutNull)
 
     const result = await pool.query(
-      'UPDATE dbo.tool_nom SET name=$1, parent_id=$2, property=$3, sklad=$4, norma=$5, "limit"=$7 WHERE id=$6 RETURNING *',
-      [name, parent_id, propertyString, sklad, norma, id, limit]
+      'UPDATE dbo.tool_nom SET name = $1, parent_id = $2, property = $3, sklad = $4, norma = $5, "limit" = $6 WHERE id = $7 RETURNING *',
+      [name, parent_id, propertyString, sklad, norma, limit, id]
     )
 
     if (result.rowCount > 0) {
