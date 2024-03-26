@@ -316,6 +316,14 @@ function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase()
 }
 
+function isCyrillic(text) {
+  return /[а-яА-ЯЁё]/.test(text)
+}
+
+function isLatin(text) {
+  return /[a-zA-Z]/.test(text)
+}
+
 function replaceCommaWithDotInNumbersAndCapitalize(obj) {
   Object.keys(obj).forEach((key) => {
     if (typeof obj[key] === 'string') {
@@ -325,11 +333,21 @@ function replaceCommaWithDotInNumbersAndCapitalize(obj) {
       if (/^\d+([.,]\d+)?$/.test(value)) {
         obj[key] = value.replace(',', '.')
       } else {
-        // Для строк делаем первую букву первого слова заглавной, остальные слова начинаются со строчной
         let words = value.split(' ')
-        words = words.map((word, index) =>
-          index === 0 ? capitalizeFirstLetter(word) : word.toLowerCase()
-        )
+        words = words.map((word, index) => {
+          if (isCyrillic(word)) {
+            // Для кириллицы первое слово с заглавной буквы, остальные со строчной
+            return index === 0
+              ? capitalizeFirstLetter(word)
+              : word.toLowerCase()
+          } else if (isLatin(word)) {
+            // Для латиницы все буквы слова заглавные
+            return word.toUpperCase()
+          } else {
+            // Если слово не относится ни к кириллице, ни к латинице, не меняем его
+            return word
+          }
+        })
         obj[key] = words.join(' ')
       }
     }
