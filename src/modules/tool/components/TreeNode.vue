@@ -1,34 +1,29 @@
 <template>
   <v-list-item>
     <div class="tree-node">
-      <!-- Показываем кнопку только если есть дочерние узлы -->
+      <!-- Кнопка теперь видима всегда, но отключена когда нет дочерних элементов -->
       <v-btn
+        variant="plain"
         density="compact"
         icon
-        v-if="node.nodes && node.nodes.length > 0"
         @click.stop="toggle"
+        :disabled="!node.nodes || node.nodes.length === 0"
       >
-        <v-icon>
+        <v-icon size="x-small">
           {{ isExpanded ? 'mdi-chevron-down' : 'mdi-chevron-right' }}
         </v-icon>
       </v-btn>
-      <v-icon class="pl-4 pr-4" v-else :color="appColor" icon="mdi-folder" />
 
-      <v-icon
-        class="pl-4 pr-4"
-        :color="appColor"
-        v-if="node.nodes && node.nodes.length > 0"
-        icon="mdi-folder"
-      />
+      <v-icon class="pl-4 pr-4" :color="appColor" icon="mdi-folder" />
+
       <span :class="{ 'text-grey': node.totalElements === 0 }">
         {{ node.label }}
-        <span v-if="node.elements !== 0">
+        <span v-if="node.totalElements !== 0">
           [ Доступно: {{ node.available }} / {{ node.elements }} ]
         </span>
         <span class="node-id">id: {{ node.id }} </span>
       </span>
 
-      <!-- Отображаем дочерние узлы только если isExpanded истина -->
       <div class="pl-3" v-if="isExpanded && node.nodes && node.nodes.length">
         <tree-node
           v-for="child in node.nodes"
