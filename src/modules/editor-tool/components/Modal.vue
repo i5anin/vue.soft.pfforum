@@ -263,10 +263,8 @@ export default {
         const paramsData = await editorToolApi.getToolParamsByParentId(parentId)
         // Создаем новый объект для обновления, чтобы обеспечить реактивность
         let newToolParamsOptions = {}
-
         paramsData.forEach((item) => {
           newToolParamsOptions[item.id] = item.values
-          console.log(item.values)
         })
         // Прямое обновление toolParamsOptions
         this.toolParamsOptions = newToolParamsOptions

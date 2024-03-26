@@ -144,74 +144,11 @@ async function updateToolParam(req, res) {
   }
 }
 
-async function getParamsMapping() {
-  const query = 'SELECT id, info FROM dbo.tool_params'
-  const result = await pool.query(query)
-  return result.rows.reduce((acc, row) => {
-    acc[row.id] = { info: row.info }
-    return acc
-  }, {})
-}
-
-async function getFilterParamsParentId(req, res) {
-  let { parent_id } = req.params // Получаем parent_id из параметров запроса
-
-  // Преобразуем parent_id в число, если это возможно
-  parent_id = Number(parent_id)
-
-  // Проверяем, является ли результат преобразования допустимым целым числом
-  if (isNaN(parent_id) || !Number.isInteger(parent_id)) {
-    // Возвращаем ошибку клиенту, если parent_id не является целым числом
-    return res.status(400).json({ error: 'Parent ID must be an integer' })
-  }
-
-  try {
-    // Получаем маппинг параметров
-    const paramsMapping = await getParamsMapping()
-
-    // SQL запрос для извлечения всех свойств инструментов в определенной категории
-    const query = `
-      SELECT tool_nom.property
-      FROM dbo.tool_nom
-      WHERE tool_nom.parent_id = $1`
-
-    const { rows } = await pool.query(query, [parent_id])
-
-    // Агрегируем уникальные значения для каждого параметра
-    const paramsAggregation = {}
-
-    rows.forEach((row) => {
-      Object.entries(row.property || {}).forEach(([key, value]) => {
-        if (!paramsAggregation[key]) {
-          paramsAggregation[key] = new Set()
-        }
-        paramsAggregation[key].add(value)
-      })
-    })
-
-    // Преобразование агрегированных данных в требуемый формат
-    const paramsList = Object.entries(paramsAggregation)
-      .map(([key, valuesSet]) => ({
-        key: key,
-        label: paramsMapping[key] ? paramsMapping[key].info : key, // Используем маппинг для заполнения label
-        values: Array.from(valuesSet),
-      }))
-      .filter((param) => param.values.length > 0) // Исключаем параметры с одним значением
-
-    // Отправка результата
-    res.json(paramsList)
-  } catch (err) {
-    console.error(err)
-    res.status(500).send('Server error')
-  }
-}
-
 module.exports = {
   getToolParams,
   updateToolParam,
   deleteToolParam,
   addToolParam,
-  getToolNameId,
   getToolParamsParentId,
-  getFilterParamsParentId,
+  getToolNameId,
 }

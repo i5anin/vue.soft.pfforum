@@ -21,13 +21,9 @@
     >
       <div class="flex">
         <v-icon :color="appColor" icon="mdi-folder" class="icon" />
-        <v-list-item-title :class="{ 'text-grey': item.totalElements === 0 }">
+        <v-list-item-title>
           {{ item.label }}
-          <span
-            :class="{ 'text-grey': item.totalElements === 0 }"
-            v-if="item.elements !== 0"
-            style="color: grey"
-          >
+          <span v-if="item.elements !== 0" style="color: grey">
             ({{ item.available }}&nbsp;/&nbsp;{{ item.elements }})
           </span>
         </v-list-item-title>
@@ -84,8 +80,5 @@ export default {
 
 .icon {
   margin-right: 10px;
-}
-.text-grey {
-  color: grey;
 }
 </style>
