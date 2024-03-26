@@ -1,7 +1,6 @@
 <template>
   <v-list-item>
     <div class="tree-node">
-      <!-- Кнопка теперь видима всегда, но отключена когда нет дочерних элементов -->
       <v-btn
         variant="plain"
         density="compact"
@@ -26,10 +25,13 @@
 
       <div class="pl-3" v-if="isExpanded && node.nodes && node.nodes.length">
         <tree-node
-          v-for="child in node.nodes"
+          v-for="(child, index) in node.nodes"
           :key="child.id"
           :node="child"
-          class="child-node"
+          :class="{
+            'child-node': true,
+            'last-child-node': index === node.nodes.length - 1,
+          }"
         />
       </div>
     </div>
@@ -59,18 +61,6 @@ export default {
 </script>
 
 <style scoped>
-.tree-node {
-  //display: flex;
-  align-items: center;
-  position: relative;
-}
-
-.node-content {
-  display: flex;
-  align-items: center;
-  min-height: 40px;
-}
-
 .child-node {
   padding-left: 35px;
   border-left: 1px solid #989898;
@@ -83,6 +73,10 @@ export default {
   top: 24px;
   width: 20px;
   border-bottom: 1px solid #989898;
+}
+
+.last-child-node::before {
+  border-bottom: none; /* Убираем горизонтальную линию для последнего узла */
 }
 
 .node-id {
