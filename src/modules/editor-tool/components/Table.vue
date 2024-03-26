@@ -118,8 +118,8 @@ export default {
           { title: 'Норма', key: 'norma', sortable: false },
           { title: 'Склад', key: 'sklad', sortable: false },
           { title: 'Заказ', key: 'zakaz', sortable: false },
-          // { title: 'Лимит', key: 'limit', sortable: false },
         ]
+        console.log(dynamicColumns)
       },
     },
   },
