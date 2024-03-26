@@ -1,7 +1,6 @@
 <template>
   <v-list-item>
     <div class="tree-node">
-      <v-icon class="pl-4 pr-4" :color="appColor" icon="mdi-folder" />
       <v-btn
         variant="plain"
         density="compact"
@@ -13,6 +12,7 @@
           {{ isExpanded ? 'mdi-chevron-down' : 'mdi-chevron-right' }}
         </v-icon>
       </v-btn>
+      <v-icon class="pl-4 pr-4" :color="appColor" icon="mdi-folder" />
 
       <span :class="{ 'text-grey': node.totalElements === 0 }">
         {{ node.label }}
@@ -81,6 +81,6 @@ export default {
   color: grey;
 }
 .pl-3 {
-  padding-left: 15px !important;
+  padding-left: 43px !important;
 }
 </style>
