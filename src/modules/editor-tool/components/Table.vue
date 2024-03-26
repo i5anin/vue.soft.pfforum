@@ -187,6 +187,10 @@ export default {
 </script>
 
 <style scoped>
+.v-data-table-header__content span {
+  font-size: 0.5rem !important;
+}
+
 .index {
   max-width: 40px !important;
   font-size: 0.9em;
