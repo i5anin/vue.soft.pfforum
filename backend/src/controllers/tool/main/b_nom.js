@@ -394,20 +394,14 @@ async function getToolById(req, res) {
 async function getFilterParamsByParentId(req, res) {
   let { parent_id } = req.params // Получаем parent_id из параметров запроса
 
-  // Преобразуем parent_id в число, если это возможно
   parent_id = Number(parent_id)
 
-  // Проверяем, является ли результат преобразования допустимым целым числом
   if (isNaN(parent_id) || !Number.isInteger(parent_id)) {
-    // Возвращаем ошибку клиенту, если parent_id не является целым числом
     return res.status(400).json({ error: 'Parent ID must be an integer' })
   }
 
   try {
-    // Получаем маппинг параметров
     const paramsMapping = await getParamsMapping()
-
-    // SQL запрос для извлечения всех свойств инструментов в определенной категории
     const query = `
       SELECT tool_nom.property
       FROM dbo.tool_nom
@@ -415,7 +409,6 @@ async function getFilterParamsByParentId(req, res) {
 
     const { rows } = await pool.query(query, [parent_id])
 
-    // Агрегируем уникальные значения для каждого параметра
     const paramsAggregation = {}
 
     rows.forEach((row) => {
@@ -427,16 +420,27 @@ async function getFilterParamsByParentId(req, res) {
       })
     })
 
-    // Преобразование агрегированных данных в требуемый формат
-    const paramsList = Object.entries(paramsAggregation)
-      .map(([key, valuesSet]) => ({
-        key: key,
-        label: paramsMapping[key] ? paramsMapping[key].info : key, // Используем маппинг для заполнения label
-        values: Array.from(valuesSet),
-      }))
-      .filter((param) => param.values.length > 0) // Исключаем параметры с одним значением
+    const isNumeric = (n) => !isNaN(parseFloat(n)) && isFinite(n)
 
-    // Отправка результата
+    const paramsList = Object.entries(paramsAggregation)
+      .map(([key, valuesSet]) => {
+        let valuesArray = Array.from(valuesSet)
+        // Разделяем значения на числовые и текстовые
+        const numericValues = valuesArray
+          .filter((val) => isNumeric(val))
+          .map(Number)
+          .sort((a, b) => a - b)
+        const textValues = valuesArray.filter((val) => !isNumeric(val)).sort()
+        // Объединяем отсортированные массивы
+        valuesArray = [...numericValues, ...textValues]
+        return {
+          key: key,
+          label: paramsMapping[key] ? paramsMapping[key].info : key,
+          values: valuesArray,
+        }
+      })
+      .filter((param) => param.values.length > 0)
+
     res.json(paramsList)
   } catch (err) {
     console.error(err)
