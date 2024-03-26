@@ -1,10 +1,7 @@
 <template>
   <v-list-item>
     <div class="tree-node">
-      <!-- Кнопка теперь видима всегда, но отключена когда нет дочерних элементов -->
-
       <v-icon class="pl-4 pr-4" :color="appColor" icon="mdi-folder" />
-
       <v-btn
         variant="plain"
         density="compact"
@@ -21,7 +18,7 @@
         {{ node.label }}
         <span v-if="node.available !== 0">
           [ Доступно: {{ node.available }} / {{ node.elements }} ]
-          <!-- {{ node.totalElements }} -->
+          <!-- {{ node.totalElements }}  -->
           <!-- {{ node.totalAvailable }} -->
         </span>
         <span class="node-id">id: {{ node.id }} </span>
@@ -84,6 +81,6 @@ export default {
   color: grey;
 }
 .pl-3 {
-  padding-left: 15px;
+  padding-left: 15px !important;
 }
 </style>
