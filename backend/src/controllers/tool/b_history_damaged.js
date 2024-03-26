@@ -39,8 +39,8 @@ async function getDamaged(req, res) {
         tool_history_damaged.quantity,
         tool_history_damaged.timestamp
       FROM dbo.tool_history_damaged
-      INNER JOIN dbo.tool_nom ON tool_history_damaged.id_tool = tool_nom.id
-      INNER JOIN dbo.operators ON tool_history_damaged.id_user = operators.id
+      LEFT JOIN dbo.tool_nom ON tool_history_damaged.id_tool = tool_nom.id
+      LEFT JOIN dbo.operators ON tool_history_damaged.id_user = operators.id
       LEFT JOIN dbo.cnc ON tool_history_damaged.cnc_code = cnc.cnc_code
       ORDER BY tool_history_damaged.timestamp DESC
       LIMIT ${limit}
