@@ -7,7 +7,7 @@
       :key="`group-${index}`"
     >
       <v-col v-for="filter in group" :key="filter.key" cols="12" sm="3">
-        <v-select
+        <v-combobox
           density="compact"
           clearable="true"
           :label="filter.label"

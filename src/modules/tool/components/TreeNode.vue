@@ -20,7 +20,7 @@
         v-if="node.nodes && node.nodes.length > 0"
         icon="mdi-folder"
       />
-      <span>
+      <span :class="{ 'text-grey': node.totalElements === 0 }">
         {{ node.label }}
         <span v-if="node.elements !== 0">
           [ Доступно: {{ node.available }} / {{ node.elements }} ]
@@ -91,6 +91,10 @@ export default {
 }
 
 .node-id {
+  color: grey;
+}
+
+.text-grey {
   color: grey;
 }
 </style>
