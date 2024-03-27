@@ -86,24 +86,24 @@ export default {
       const {
         currentPage,
         itemsPerPage,
-        search,
+        search, // Используем search из filters
         includeNull,
         onlyInStock = null,
         selectedDynamicFilters,
       } = state.filters
       const { id: parentId } = state.parentCatalog
 
+      console.log('Поисковой запрос:', search)
+
       // Формируем URL для запроса
       const params = new URLSearchParams({
-        search: search,
         page: currentPage,
         limit: itemsPerPage,
         includeNull: includeNull,
         onlyInStock: onlyInStock,
+        search: search, // Используем search непосредственно для запроса
       })
-      if (parentId !== null) {
-        params.append('parent_id', parentId)
-      }
+      if (parentId !== null) params.append('parent_id', parentId)
 
       try {
         const { tools, totalCount } = await toolApi.getTools(

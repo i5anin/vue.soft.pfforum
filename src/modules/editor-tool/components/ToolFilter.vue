@@ -1,5 +1,17 @@
 <template>
   <div>
+    <v-row>
+      <v-col cols="12">
+        <v-text-field
+          v-model="searchQuery"
+          append-icon="mdi-magnify"
+          label="Поиск"
+          single-line
+          hide-details
+          @input="onSearch"
+        />
+      </v-col>
+    </v-row>
     <v-row
       cols="12"
       sm="6"
@@ -9,6 +21,7 @@
       <v-col v-for="filter in group" :key="filter.key" cols="12" sm="3">
         <v-combobox
           density="compact"
+          variant="solo"
           clearable="true"
           :label="filter.label"
           :items="filter.values"
@@ -53,6 +66,7 @@ export default {
   },
   data() {
     return {
+      searchQuery: '',
       openDialog: false,
       isDataLoaded: false,
       editingToolId: null, //редактирование идентификатора инструмента
@@ -75,6 +89,11 @@ export default {
       'setItemsPerPage',
       'setSelectedDynamicFilters',
     ]),
+    onSearch() {
+      // Ваш код для обработки поиска
+      // Например, можно вызвать метод для фильтрации списка инструментов, используя searchQuery
+      this.fetchToolsByFilter(this.searchQuery)
+    },
     // Метод для обработки обновления параметров фильтра
     onParamsFilterUpdate({ key, value }) {
       this.setSelectedDynamicFilters({
