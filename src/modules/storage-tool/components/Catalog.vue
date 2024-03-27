@@ -36,7 +36,7 @@ import { toolTreeApi } from '@/modules/tool/api/tree'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
 import TabMainTable from './Table.vue'
 import CatalogBreadcrumbs from '@/modules/shared/components/CatalogBreadcrumbs.vue'
-import { normSpaces } from '@/modules/shared/normSpaces'
+// import { normSpaces } from '@/modules/shared/normSpaces'
 
 export default {
   name: 'StorageCatalog',
@@ -116,7 +116,7 @@ export default {
 
       let branchName = prompt('Введите название новой ветки:')
       if (branchName) {
-        branchName = normSpaces(branchName)
+        // branchName = normSpaces(branchName)
         try {
           const newBranch = await toolTreeApi.addFolder(
             branchName,

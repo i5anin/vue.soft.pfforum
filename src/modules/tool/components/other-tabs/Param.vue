@@ -63,7 +63,7 @@
 
 <script>
 import { getToolParams } from '@/api'
-import { normSpaces } from '@/modules/shared/normSpaces'
+// import { normSpaces } from '@/modules/shared/normSpaces'
 import { toolParamApi } from '@/modules/tool/api/params'
 
 export default {
@@ -99,7 +99,7 @@ export default {
     async saveParam() {
       if (this.paramInfo) {
         // Обработка ввода и нормализация данных
-        const normalizedParamInfo = normSpaces(this.paramInfo)
+        const normalizedParamInfo = this.paramInfo
 
         // Проверка на дублирование параметров
         if (
