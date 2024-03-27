@@ -78,9 +78,7 @@ export default {
     userInfo: {},
   }),
   async created() {
-    const response = await authApi.checkLogin()
-    console.log(response.user)
-    this.userInfo = response
+    this.userInfo = await authApi.checkLogin()
   },
   computed: {
     appTitle() {

@@ -29,7 +29,6 @@ async function getDatabaseInfo(req, res) {
 async function login(req, res) {
   try {
     const { login, password } = req.body
-
     // Проверяем существование пользователя
     const userQuery = 'SELECT * FROM dbo.vue_users WHERE login = $1'
     const userResult = await pool.query(userQuery, [login])
@@ -40,9 +39,18 @@ async function login(req, res) {
     ) {
       // Пользователь найден и пароль совпадает, генерируем токен
       const token = uuidv4()
-      const updateTokenQuery =
-        'UPDATE dbo.vue_users SET token = $1 WHERE login = $2'
-      await pool.query(updateTokenQuery, [token, login])
+      const now = new Date()
+      // Предположим, что IP можно получить напрямую из req.ip, это может отличаться в зависимости от настроек прокси/балансировщика нагрузки
+      const userIP = req.ip
+
+      const updateTokenAndLoginInfoQuery =
+        'UPDATE dbo.vue_users SET token = $1, last_login_date = $2, last_login_ip = $3 WHERE login = $4'
+      await pool.query(updateTokenAndLoginInfoQuery, [
+        token,
+        now,
+        userIP,
+        login,
+      ])
 
       res.json({ status: 'ok', token })
     } else {
@@ -57,6 +65,7 @@ async function login(req, res) {
       .json({ status: 'error', message: 'Внутренняя ошибка сервера' })
   }
 }
+
 async function checkLogin(req, res) {
   try {
     const { token } = req.body
