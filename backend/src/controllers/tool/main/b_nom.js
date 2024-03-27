@@ -233,29 +233,15 @@ async function deleteTool(req, res) {
 }
 
 async function addTool(req, res) {
-  let { name, parent_id, property, sklad, norma } = req.body
-
-  // Преобразование запятых в точки в числах в property и изменение регистра букв
-  Object.keys(property).forEach((key) => {
-    if (typeof property[key] === 'string') {
-      // Преобразование запятых в точки
-      property[key] = property[key].replace(/(\d),(\d)/g, '$1.$2')
-      // Изменение регистра: первая буква заглавная, остальные строчные
-      property[key] = property[key]
-        .split(' ')
-        .map(
-          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-        )
-        .join(' ')
-    }
-  })
+  const { name, parent_id, property, sklad, norma } = req.body
+  // Преобразование запятых в точки в числах в property
+  replaceCommaWithDotInNumbers(property)
 
   try {
-    if (parent_id <= 1) {
+    if (parent_id <= 1)
       return res
         .status(400)
         .json({ error: 'parent_id must be greater than 1.' })
-    }
 
     // После проверки parent_id
     if (property && property.id) {
@@ -312,61 +298,17 @@ async function addTool(req, res) {
   }
 }
 
-function capitalizeFirstLetter(string) {
-  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase()
-}
-
-function isCyrillic(text) {
-  return /[а-яА-ЯЁё]/.test(text)
-}
-
-function isLatin(text) {
-  return /[a-zA-Z]/.test(text)
-}
-
-function replaceCommaWithDotInNumbersAndCapitalize(obj) {
-  Object.keys(obj).forEach((key) => {
-    if (typeof obj[key] === 'string') {
-      let value = obj[key].trim()
-
-      // Если значение является числом с возможной запятой, заменяем запятую на точку
-      if (/^\d+([.,]\d+)?$/.test(value)) {
-        obj[key] = value.replace(',', '.')
-      } else {
-        let words = value.split(' ')
-        words = words.map((word, index) => {
-          if (isCyrillic(word)) {
-            // Для кириллицы первое слово с заглавной буквы, остальные со строчной
-            return index === 0
-              ? capitalizeFirstLetter(word)
-              : word.toLowerCase()
-          } else if (isLatin(word)) {
-            // Для латиницы все буквы слова заглавные
-            return word.toUpperCase()
-          } else {
-            // Если слово не относится ни к кириллице, ни к латинице, не меняем его
-            return word
-          }
-        })
-        obj[key] = words.join(' ')
-      }
-    }
-  })
-}
-
 async function editTool(req, res) {
   const { id } = req.params
-  let { name, parent_id, property, sklad, norma, limit } = req.body
-
-  // Использование новой функции для обработки свойств property
-  replaceCommaWithDotInNumbersAndCapitalize(property)
+  const { name, parent_id, property, sklad, norma, limit } = req.body
+  // Преобразование запятых в точки в числах в property
+  replaceCommaWithDotInNumbers(property)
 
   try {
-    if (parent_id <= 1) {
+    if (parent_id <= 1)
       return res
         .status(400)
         .json({ error: 'parent_id must be greater than 1.' })
-    }
 
     // После проверки parent_id
     if (property && property.id) {
@@ -374,6 +316,7 @@ async function editTool(req, res) {
         'SELECT id FROM dbo.tool_params WHERE id = $1',
         [property.id]
       )
+
       if (propertyIdCheckResult.rowCount === 0) {
         return res.status(400).json({
           error: 'Specified property.id does not exist in tool_params.',
@@ -385,18 +328,18 @@ async function editTool(req, res) {
       'SELECT id FROM dbo.tool_tree WHERE id = $1',
       [parent_id]
     )
-    if (parentCheckResult.rowCount === 0) {
+
+    if (parentCheckResult.rowCount === 0)
       return res
         .status(400)
         .json({ error: 'Specified parent_id does not exist.' })
-    }
 
     const propertyWithoutNull = removeNullProperties(property)
     const propertyString = JSON.stringify(propertyWithoutNull)
 
     const result = await pool.query(
-      'UPDATE dbo.tool_nom SET name = $1, parent_id = $2, property = $3, sklad = $4, norma = $5, "limit" = $6 WHERE id = $7 RETURNING *',
-      [name, parent_id, propertyString, sklad, norma, limit, id]
+      'UPDATE dbo.tool_nom SET name=$1, parent_id=$2, property=$3, sklad=$4, norma=$5, "limit"=$7 WHERE id=$6 RETURNING *',
+      [name, parent_id, propertyString, sklad, norma, id, limit]
     )
 
     if (result.rowCount > 0) {
@@ -451,14 +394,20 @@ async function getToolById(req, res) {
 async function getFilterParamsByParentId(req, res) {
   let { parent_id } = req.params // Получаем parent_id из параметров запроса
 
+  // Преобразуем parent_id в число, если это возможно
   parent_id = Number(parent_id)
 
+  // Проверяем, является ли результат преобразования допустимым целым числом
   if (isNaN(parent_id) || !Number.isInteger(parent_id)) {
+    // Возвращаем ошибку клиенту, если parent_id не является целым числом
     return res.status(400).json({ error: 'Parent ID must be an integer' })
   }
 
   try {
+    // Получаем маппинг параметров
     const paramsMapping = await getParamsMapping()
+
+    // SQL запрос для извлечения всех свойств инструментов в определенной категории
     const query = `
       SELECT tool_nom.property
       FROM dbo.tool_nom
@@ -466,6 +415,7 @@ async function getFilterParamsByParentId(req, res) {
 
     const { rows } = await pool.query(query, [parent_id])
 
+    // Агрегируем уникальные значения для каждого параметра
     const paramsAggregation = {}
 
     rows.forEach((row) => {
@@ -477,27 +427,16 @@ async function getFilterParamsByParentId(req, res) {
       })
     })
 
-    const isNumeric = (n) => !isNaN(parseFloat(n)) && isFinite(n)
-
+    // Преобразование агрегированных данных в требуемый формат
     const paramsList = Object.entries(paramsAggregation)
-      .map(([key, valuesSet]) => {
-        let valuesArray = Array.from(valuesSet)
-        // Разделяем значения на числовые и текстовые
-        const numericValues = valuesArray
-          .filter((val) => isNumeric(val))
-          .map(Number)
-          .sort((a, b) => a - b)
-        const textValues = valuesArray.filter((val) => !isNumeric(val)).sort()
-        // Объединяем отсортированные массивы
-        valuesArray = [...numericValues, ...textValues]
-        return {
-          key: key,
-          label: paramsMapping[key] ? paramsMapping[key].info : key,
-          values: valuesArray,
-        }
-      })
-      .filter((param) => param.values.length > 0)
+      .map(([key, valuesSet]) => ({
+        key: key,
+        label: paramsMapping[key] ? paramsMapping[key].info : key, // Используем маппинг для заполнения label
+        values: Array.from(valuesSet),
+      }))
+      .filter((param) => param.values.length > 0) // Исключаем параметры с одним значением
 
+    // Отправка результата
     res.json(paramsList)
   } catch (err) {
     console.error(err)
