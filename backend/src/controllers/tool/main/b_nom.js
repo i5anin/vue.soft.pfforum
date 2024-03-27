@@ -418,23 +418,33 @@ async function getFilterParamsByParentId(req, res) {
     // Агрегируем уникальные значения для каждого параметра
     const paramsAggregation = {}
 
+    // Existing logic to aggregate unique values for each parameter
     rows.forEach((row) => {
       Object.entries(row.property || {}).forEach(([key, value]) => {
         if (!paramsAggregation[key]) {
-          paramsAggregation[key] = new Set()
+          paramsAggregation[key] = { numbers: new Set(), texts: new Set() }
         }
-        paramsAggregation[key].add(value)
+        // Determine if the value is numerical or textual and add it to the appropriate set
+        const floatValue = parseFloat(value)
+        if (!isNaN(floatValue) && isFinite(value)) {
+          paramsAggregation[key].numbers.add(floatValue)
+        } else {
+          paramsAggregation[key].texts.add(value)
+        }
       })
     })
 
-    // Преобразование агрегированных данных в требуемый формат
+    // Transform the aggregated data into the required format, sorting numerical values before textual values
     const paramsList = Object.entries(paramsAggregation)
-      .map(([key, valuesSet]) => ({
+      .map(([key, { numbers, texts }]) => ({
         key: key,
-        label: paramsMapping[key] ? paramsMapping[key].info : key, // Используем маппинг для заполнения label
-        values: Array.from(valuesSet),
+        label: paramsMapping[key] ? paramsMapping[key].info : key, // Using mapping for labels
+        values: [
+          ...Array.from(numbers).sort((a, b) => a - b),
+          ...Array.from(texts).sort(),
+        ],
       }))
-      .filter((param) => param.values.length > 0) // Исключаем параметры с одним значением
+      .filter((param) => param.values.length > 0) // Exclude parameters with only one value
 
     // Отправка результата
     res.json(paramsList)
