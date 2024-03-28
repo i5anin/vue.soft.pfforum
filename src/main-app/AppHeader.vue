@@ -48,9 +48,9 @@
       <v-toolbar-title>{{ appTitle }}</v-toolbar-title>
       <v-spacer />
       <!-- Три кнопки справа -->
-      <v-btn icon>
-        <v-icon>mdi-magnify</v-icon>
-      </v-btn>
+      <!--      <v-btn icon>-->
+      <!--        <v-icon>mdi-magnify</v-icon>-->
+      <!--      </v-btn>-->
       <v-btn icon>
         <v-icon>mdi-fullscreen</v-icon>
       </v-btn>
