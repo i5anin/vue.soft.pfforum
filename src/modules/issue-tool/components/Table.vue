@@ -62,13 +62,13 @@
       </template>
       <template v-slot:item.issue="{ item }">
         <v-btn color="primary" @click="(event) => onIssueTool(event, item)">
-          Выдать
+          <v-icon icon="mdi-hand-extended" />
         </v-btn>
       </template>
 
       <template v-slot:item.damaged="{ item }">
         <v-btn color="red" @click="(event) => onDamagedTool(event, item)">
-          Поврежден
+          <v-icon icon="mdi-image-broken-variant" />
         </v-btn>
       </template>
     </v-data-table-server>
@@ -128,8 +128,7 @@ export default {
         this.toolTableHeaders = [
           { title: '№', key: 'index', sortable: false },
           { title: 'Маркировка', key: 'name', sortable: true },
-          { title: 'Выдать', key: 'issue', sortable: false },
-          { title: 'Склад', key: 'sklad', sortable: false },
+
           ...(dynamicFilters && dynamicFilters.length > 0
             ? dynamicFilters.map(({ label: title, key }) => ({
                 title,
@@ -141,7 +140,9 @@ export default {
 
           // { title: 'Заказ', key: 'zakaz', sortable: false },
           // { title: 'Лимит', key: 'limit', sortable: false },
+          { title: 'Выдать', key: 'issue', sortable: false },
           { title: 'Поврежден', key: 'damaged', sortable: false },
+          { title: 'Склад', key: 'sklad', sortable: false },
         ]
       },
     },
