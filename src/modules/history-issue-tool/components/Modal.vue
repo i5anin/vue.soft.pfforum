@@ -86,6 +86,7 @@ export default {
         { title: 'Дата', value: 'timestamp' },
         { title: 'Операция', value: 'no_oper' },
         { title: 'Тип', value: 'type_oper' },
+        { title: 'Комментарий', value: 'comment' },
       ],
       headersAll: [
         { title: 'Инструмент', value: 'name_tool' },

@@ -173,13 +173,14 @@ async function getToolHistoryByPartId(req, res) {
         thn.timestamp,
         tn.name AS name_tool,
         thn.id_tool,
-        thn.type_issue
+        thn.type_issue,
+        thn.comment
       FROM dbo.tool_history_nom thn
-        INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
-        INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
-        INNER JOIN dbo.operations_ordersnom oon ON oon.op_id = sno.ordersnom_op_id
-        INNER JOIN dbo.operators o ON thn.id_user = o.id
-        LEFT JOIN dbo.tool_nom tn ON thn.id_tool = tn.id
+             INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
+             INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
+             INNER JOIN dbo.operations_ordersnom oon ON oon.op_id = sno.ordersnom_op_id
+             INNER JOIN dbo.operators o ON thn.id_user = o.id
+             LEFT JOIN dbo.tool_nom tn ON thn.id_tool = tn.id
       WHERE sn.ID = $1
       ORDER BY thn.timestamp DESC;
     `
@@ -232,6 +233,7 @@ async function getToolHistoryByPartId(req, res) {
         name_tool: row.name_tool,
         id_tool: row.id_tool,
         type_issue: row.type_issue,
+        comment: row.comment,
       })
 
       // Collect information for info section
