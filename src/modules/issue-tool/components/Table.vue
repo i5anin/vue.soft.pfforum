@@ -128,7 +128,7 @@ export default {
         this.toolTableHeaders = [
           { title: '№', key: 'index', sortable: false },
           { title: 'Маркировка', key: 'name', sortable: true },
-          { title: 'Выдача', key: 'issue', sortable: false },
+          { title: 'Выдать', key: 'issue', sortable: false },
           { title: 'Склад', key: 'sklad', sortable: false },
           ...(dynamicFilters && dynamicFilters.length > 0
             ? dynamicFilters.map(({ label: title, key }) => ({

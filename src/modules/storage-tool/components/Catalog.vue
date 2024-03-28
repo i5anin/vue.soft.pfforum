@@ -2,7 +2,7 @@
   <v-app class="custom-container">
     <v-app-bar app dark>
       <div class="text-h6 pl-5">
-        {{ currentItem ? currentItem.label : 'Выдача' }}
+        {{ currentItem ? currentItem.label : 'Выдать' }}
       </div>
       <v-spacer />
       <v-btn icon @click="goBack">

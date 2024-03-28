@@ -26,7 +26,7 @@ const tabs = [
     access: ['Admin', 'Editor'],
   },
   {
-    name: 'Выдача',
+    name: 'Выдать / поврежден',
     url: '#issue',
     component: markRaw(IssueCatalog),
     access: ['Admin', 'Editor', 'Issue'],
