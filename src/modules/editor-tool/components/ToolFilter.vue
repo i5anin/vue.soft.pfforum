@@ -10,6 +10,7 @@
           single-line
           hide-details
           @input="onSearch"
+          @update:model-value="onSearch"
         />
       </v-col>
     </v-row>
