@@ -2,10 +2,11 @@
   <v-container>
     <v-row>
       <v-col cols="12">
-        <div class="flex">
+        <div class="d-flex">
           <h2 class="text-h5">Параметры Инструмента</h2>
           <v-spacer />
-          <v-btn color="primary" class="mb-2" @click="startAdding">
+          <v-btn color="primary" @click="startAdding">
+            <v-icon left>mdi-playlist-plus</v-icon>
             Добавить параметр
           </v-btn>
         </div>
@@ -14,7 +15,7 @@
             <v-card-title>{{ dialogTitle }}</v-card-title>
             <v-card-text>
               <v-text-field
-                label="Информация"
+                label="Название"
                 v-model="paramInfo"
                 required
               ></v-text-field>
@@ -35,7 +36,7 @@
           <thead>
             <tr>
               <th class="text-left">№</th>
-              <th class="text-left">Информация</th>
+              <th class="text-left">Название</th>
               <!--<th class="text-left">ID</th>-->
               <th class="text-left">Действия</th>
             </tr>
@@ -85,13 +86,13 @@ export default {
       }
     },
     startAdding() {
-      this.dialogTitle = 'Новый Инструмент'
+      this.dialogTitle = 'Новый параметр'
       this.paramInfo = ''
       this.editingParam = null
       this.showDialog = true
     },
     startEditing(param) {
-      this.dialogTitle = 'Редактировать Инструмент'
+      this.dialogTitle = 'Редактировать название параметра'
       this.paramInfo = param.info
       this.editingParam = param
       this.showDialog = true
