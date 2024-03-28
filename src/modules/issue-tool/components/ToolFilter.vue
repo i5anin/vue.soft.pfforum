@@ -3,11 +3,11 @@
     <v-row v-if="dynamicFilters && dynamicFilters.length > 0">
       <v-col cols="12">
         <v-text-field
+          variant="outlined"
           clearable="true"
           v-model="searchQuery"
           append-icon="mdi-magnify"
           label="Поиск"
-          single-line
           hide-details
           @input="onSearch"
           @update:model-value="onSearch"
