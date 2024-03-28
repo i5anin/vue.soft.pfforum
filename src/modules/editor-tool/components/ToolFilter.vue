@@ -3,6 +3,7 @@
     <v-row>
       <v-col cols="12">
         <v-text-field
+          clearable="true"
           v-model="searchQuery"
           append-icon="mdi-magnify"
           label="Поиск"
