@@ -38,17 +38,10 @@
 </template>
 
 <script>
-import EditorToolModal from './Modal.vue'
-import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
 import store from '@/store/store'
 
 export default {
-  emits: [],
-  components: {
-    VDataTableServer,
-    EditorToolModal,
-  },
   computed: {
     ...mapGetters('EditorToolStore', [
       'toolsTotalCount',
