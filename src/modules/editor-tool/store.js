@@ -22,6 +22,9 @@ export default {
     },
   }),
   mutations: {
+    setSearch(state, search) {
+      state.filters.search = search
+    },
     setParentCatalog(state, parentCatalog) {
       state.parentCatalog = { ...parentCatalog }
     },

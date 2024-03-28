@@ -39,6 +39,7 @@
 import EditorToolModal from './Modal.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
+import store from '@/store/store'
 
 export default {
   emits: [],
@@ -90,9 +91,8 @@ export default {
       'setSelectedDynamicFilters',
     ]),
     onSearch() {
-      // Ваш код для обработки поиска
-      // Например, можно вызвать метод для фильтрации списка инструментов, используя searchQuery
-      this.fetchToolsByFilter(this.searchQuery)
+      store.commit('EditorToolStore/setSearch', this.searchQuery)
+      store.dispatch('EditorToolStore/fetchToolsByFilter')
     },
     // Метод для обработки обновления параметров фильтра
     onParamsFilterUpdate({ key, value }) {
@@ -102,6 +102,7 @@ export default {
       })
       this.fetchToolsByFilter()
     },
+    earchQuery() {},
   },
 }
 </script>
