@@ -102,7 +102,6 @@ export default {
       })
       this.fetchToolsByFilter()
     },
-    earchQuery() {},
   },
 }
 </script>
