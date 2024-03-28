@@ -11,11 +11,12 @@
       <v-row class="fill-height">
         <v-col cols="12" md="5" class="d-flex align-center">
           <v-text-field
+            variant="outlined"
             clearable="true"
             v-model="searchQuery"
             label="Поиск по партии, названию, обозначению"
             class="flex-grow-1 mr-2"
-            @keyup.enter="fetchAndFormatToolHistory"
+            @input="debouncedFetchAndFormatToolHistory"
           />
           <!--          <v-btn @click="fetchAndFormatToolHistory">Поиск</v-btn>-->
         </v-col>
@@ -54,6 +55,7 @@ export default {
   components: { EditToolModal, VDataTableServer },
   data() {
     return {
+      debouncedFetchAndFormatToolHistory: null,
       searchQuery: '',
       openDialog: false,
       filters: { itemsPerPage: 15, currentPage: 1 },
@@ -92,10 +94,26 @@ export default {
   },
   watch: {
     searchQuery(newQuery, oldQuery) {
-      if (newQuery !== oldQuery) this.fetchAndFormatToolHistory()
+      if (newQuery !== oldQuery) this.debouncedFetchAndFormatToolHistory()
     },
   },
+  created() {
+    this.debouncedFetchAndFormatToolHistory = this.debounce(
+      () => this.fetchAndFormatToolHistory(),
+      500
+    )
+  },
   methods: {
+    debounce(func, wait) {
+      let timeout
+      return function (...args) {
+        clearTimeout(timeout)
+        timeout = setTimeout(() => {
+          func.apply(this, args)
+        }, wait)
+      }
+    },
+
     async onChangePage(page) {
       this.filters.currentPage = page
       await this.fetchAndFormatToolHistory()
