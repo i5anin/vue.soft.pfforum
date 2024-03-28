@@ -7,16 +7,29 @@
             <tr>
               <th class="text-left">Название</th>
               <th class="text-left">Информация</th>
-              <th class="text-left" />
+              <th class="text-left">Ближайшая дата</th>
+              <th class="text-left">На почту</th>
+              <th class="text-left">Загрузить</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(report, index) in reports" :key="index">
               <td>{{ report.name }}</td>
               <td>{{ report.info }}</td>
+              <td></td>
+
               <td>
-                <v-btn color="primary" @click="report.action(report)">
-                  Сформировать
+                <v-btn
+                  color="primary"
+                  disabled="true"
+                  @click="report.action(report)"
+                >
+                  Email
+                </v-btn>
+              </td>
+              <td>
+                <v-btn color="green" @click="report.action(report)">
+                  Exel
                 </v-btn>
               </td>
             </tr>
@@ -27,7 +40,6 @@
   </v-container>
 </template>
 <script>
-import { startOfWeek, endOfWeek, format } from 'date-fns'
 import { reportApi } from '../../api/report'
 
 export default {

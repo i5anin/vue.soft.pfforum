@@ -231,7 +231,6 @@ export default {
       console.log('Выбран specs_op_id:', id)
     },
     resetToolModel() {
-      console.log('Новый инструмент resetToolModel')
       this.toolModel = {
         name: null,
         limit: null,
