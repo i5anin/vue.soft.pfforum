@@ -19,11 +19,7 @@
               <td></td>
 
               <td>
-                <v-btn
-                  color="primary"
-                  disabled="true"
-                  @click="report.action(report)"
-                >
+                <v-btn color="primary" @click="report.action(report)">
                   Email
                 </v-btn>
               </td>

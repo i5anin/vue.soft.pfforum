@@ -65,7 +65,7 @@ const tabs = [
     name: 'Отчёты',
     url: '#report',
     component: markRaw(Report),
-    access: ['Admin'],
+    access: ['Admin', 'Editor'],
   },
 ]
 
