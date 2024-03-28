@@ -47,6 +47,9 @@
       <!-- Название -->
       <v-toolbar-title>{{ appTitle }}</v-toolbar-title>
       <v-spacer />
+      <v-chip class="ma-2" dark>
+        {{ userInfo.user }}
+      </v-chip>
       <!-- Три кнопки справа -->
       <!--      <v-btn icon>-->
       <!--        <v-icon>mdi-magnify</v-icon>-->
