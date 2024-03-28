@@ -311,7 +311,6 @@ export default {
         .filter((info) => info !== null)
     },
     resetToolModel() {
-      console.log('Новый инструмент resetToolModel')
       this.toolModel = {
         name: null,
         limit: null,

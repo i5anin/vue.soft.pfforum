@@ -5,7 +5,7 @@
       :filters="filters"
       @filter-update="onParamsFilterUpdate"
     />
-    <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>
+    <!--    <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>-->
     <editor-tool-modal
       v-if="openDialog"
       :persistent="true"

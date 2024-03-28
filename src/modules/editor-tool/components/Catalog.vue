@@ -21,7 +21,7 @@
               <v-icon icon="mdi-pencil" />
             </v-btn>
             <v-btn icon small @click.stop="addItem">
-              <v-icon icon="mdi-plus" />
+              <v-icon icon="mdi-folder-plus" />
             </v-btn>
             <v-btn icon small @click.stop="deleteItem(currentItem.id)">
               <v-icon icon="mdi-delete" />

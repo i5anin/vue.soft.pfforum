@@ -5,7 +5,14 @@
       :filters="filters"
       @filter-update="onParamsFilterUpdate"
     />
-    <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>
+    <div class="text-right">
+      <v-btn color="blue" @click="onAddTool">
+        <template v-slot:prepend>
+          <v-icon>mdi-file-plus</v-icon>
+        </template>
+        Новый инструмент
+      </v-btn>
+    </div>
     <editor-tool-modal
       v-if="openDialog"
       :persistent="true"

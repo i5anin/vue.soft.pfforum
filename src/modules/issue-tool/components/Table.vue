@@ -5,7 +5,6 @@
       :filters="filters"
       @filter-update="onParamsFilterUpdate"
     />
-    <v-btn color="blue" @click="onAddTool">Новый инструмент</v-btn>
     <ModalDamaged
       v-if="openDialog && currentModal === 'damaged'"
       :persistent="true"
