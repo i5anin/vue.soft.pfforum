@@ -75,11 +75,13 @@ export default {
       editingToolId: null, //редактирование идентификатора инструмента
       toolTableHeaders: [], //заголовки таблиц инструментов
       filterParamsList: [],
+      debouncedSearch: null,
     }
   },
 
   async mounted() {
     await this.fetchToolsDynamicFilters()
+    this.debouncedSearch = this.debounce(this.onActualSearch, 500)
     this.isDataLoaded = true
   },
   methods: {
@@ -92,9 +94,23 @@ export default {
       'setItemsPerPage',
       'setSelectedDynamicFilters',
     ]),
-    onSearch() {
+    onActualSearch() {
       store.commit('EditorToolStore/setSearch', this.searchQuery)
       store.dispatch('EditorToolStore/fetchToolsByFilter')
+    },
+    debounce(func, wait) {
+      let timeout
+      return function (...args) {
+        const later = () => {
+          timeout = null
+          func.apply(this, args)
+        }
+        clearTimeout(timeout)
+        timeout = setTimeout(later, wait)
+      }
+    },
+    onSearch() {
+      this.debouncedSearch()
     },
     // Метод для обработки обновления параметров фильтра
     onParamsFilterUpdate({ key, value }) {
