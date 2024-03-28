@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-row>
+    <v-row v-if="dynamicFilters && dynamicFilters.length > 0">
       <v-col cols="12">
         <v-text-field
           clearable="true"
