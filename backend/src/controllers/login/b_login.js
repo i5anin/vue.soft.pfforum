@@ -1,5 +1,3 @@
-//login
-
 const { Pool } = require('pg')
 const { v4: uuidv4 } = require('uuid')
 require('dotenv').config() // Это должно быть в самом верху файла
@@ -14,6 +12,7 @@ const dbConfig =
   networkDetails.databaseType === 'build'
     ? config.dbConfig
     : config.dbConfigTest
+const dbName = dbConfig.database // Добавляем название базы данных из конфигурации
 
 // Создание пула соединений с базой данных
 const pool = new Pool(dbConfig)
@@ -21,7 +20,7 @@ const pool = new Pool(dbConfig)
 async function getDatabaseInfo(req, res) {
   try {
     const dbInfo = getNetworkDetails()
-    res.json(dbInfo)
+    res.json({ ...dbInfo, dbName }) // Добавляем название базы данных в ответ
   } catch (error) {
     res.status(500).json({ error: error.message })
   }

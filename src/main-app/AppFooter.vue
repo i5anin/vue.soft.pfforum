@@ -1,10 +1,18 @@
 <template>
   <v-footer v-if="databaseInfo" class="container">
-    Все права защищены 2024
+    Все права защищены © 2024
     <v-spacer />
-    <span :class="{ 'text-red': isBuildDatabase }">
-      Версия {{ databaseInfo.databaseType }}
+    <!-- Если название базы данных равно "BusinessForum", показываем только версию -->
+    <span
+      v-if="databaseInfo.dbName === 'BusinessForum'"
+      :class="{ 'text-red': isBuildDatabase }"
+    >
+      Версия: {{ databaseInfo.databaseType }}
     </span>
+    <!-- Если название базы данных не равно "BusinessForum", показываем только название базы данных -->
+    <div v-else>
+      <span> База: {{ databaseInfo.dbName }} </span>
+    </div>
   </v-footer>
 </template>
 

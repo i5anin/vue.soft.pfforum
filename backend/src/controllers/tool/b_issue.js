@@ -43,11 +43,14 @@ async function findDetailProduction(req, res) {
 
 async function getFioOperators(req, res) {
   try {
-    // SQL запрос для получения всех ID и фамилий из таблицы operators
+    // Объединяем данные из таблицы operators с кастомными списками пользователей из tool_user_custom_list
     const query = `
-      SELECT id, fio
+      SELECT 'operator' AS type, id, fio
       FROM dbo.operators
       WHERE not nach AND not nalad AND active
+      UNION ALL
+      SELECT 'custom_list' AS type, id, name AS fio
+      FROM dbo.tool_user_custom_list
       ORDER BY fio
     `
 
@@ -58,7 +61,7 @@ async function getFioOperators(req, res) {
     if (result.rows && result.rows.length > 0) {
       res.json(result.rows)
     } else {
-      res.status(404).send('Операторы не найдены')
+      res.status(404).send('Операторы и кастомные списки не найдены')
     }
   } catch (error) {
     console.error('Ошибка при выполнении запроса:', error)
