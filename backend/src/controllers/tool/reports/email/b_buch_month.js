@@ -1,9 +1,9 @@
 const { Pool } = require('pg')
 const ExcelJS = require('exceljs')
-const { getNetworkDetails } = require('../../../db_type')
-const config = require('../../../config')
+const { getNetworkDetails } = require('../../../../db_type')
+const config = require('../../../../config')
 const nodemailer = require('nodemailer')
-const { emailConfig } = require('../../../config')
+const { emailConfig } = require('../../../../config')
 
 // Настройка подключения к базе данных
 const networkDetails = getNetworkDetails()
@@ -17,28 +17,23 @@ const pool = new Pool(dbConfig)
 async function getReportData() {
   try {
     const query = `
-SELECT
-    tool_nom.id AS id_tool,
-    tool_nom.name,
-    tool_nom.sklad,
-    tool_nom.norma,
-    tool_nom.norma - tool_nom.sklad AS zakaz,
-    COALESCE(SUM(tool_history_damaged.quantity), 0) AS damaged_last_7_days
-FROM
-    dbo.tool_nom
-LEFT JOIN
-    dbo.tool_history_damaged ON tool_nom.id = tool_history_damaged.id_tool
-    AND tool_history_damaged.timestamp >= CURRENT_DATE - INTERVAL '7 days'
-WHERE
-    tool_nom.norma IS NOT NULL
-    AND (tool_nom.norma - tool_nom.sklad) > 0
-GROUP BY
-    tool_nom.id,
-    tool_nom.name,
-    tool_nom.sklad,
-    tool_nom.norma
-ORDER BY
-    tool_nom.id;
+      SELECT
+          tool_history_damaged.id_tool,
+          tool_nom.name,
+          tool_history_damaged.timestamp,
+          SUM(tool_history_damaged.quantity) as zakaz
+      FROM
+          dbo.tool_history_damaged
+      JOIN
+          dbo.tool_nom ON tool_history_damaged.id_tool = tool_nom.id
+      WHERE
+          tool_history_damaged.timestamp >= CURRENT_DATE - INTERVAL '30 days'
+      GROUP BY
+          tool_history_damaged.id_tool,
+          tool_nom.name,
+          tool_history_damaged.timestamp
+      ORDER BY
+          tool_history_damaged.timestamp;
     `
     const { rows } = await pool.query(query)
     return rows
@@ -51,7 +46,7 @@ ORDER BY
 function getCurrentMonthDates() {
   const currentDate = new Date()
   const firstDayOfMonth = new Date(
-    currentDate.getFullYear(),данные
+    currentDate.getFullYear(),
     currentDate.getMonth(),
     1
   )
@@ -70,12 +65,12 @@ function getCurrentMonthDates() {
 // Функция для создания Excel файла и возврата его как потока данных
 async function createExcelFileStream(data) {
   const workbook = new ExcelJS.Workbook()
-  const worksheet = workbook.addWorksheet('Заказ')
+  const worksheet = workbook.addWorksheet('Бухгалтерия')
 
   worksheet.mergeCells('A1:E1')
   const titleRow = worksheet.getCell('A1')
   titleRow.value =
-    'Заказ: Журнал испорченного раз в неделю. Отчет каждый ЧТ в 12:00 (за неделю)'
+    'Бухгалтерия: Журнал испорченного раз в месяц. Отчет каждый ПТ в 12:00 (за месяц)'
   titleRow.font = { bold: true, size: 14 }
 
   // Определение дат начала и окончания недели
@@ -133,25 +128,18 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
   // Даты для имени файла и темы письма
   const { firstDate, lastDate } = getCurrentMonthDates()
   const envPrefix = process.env.NODE_ENV === 'development' ? 'development ' : ''
-  const subject = `${envPrefix}Заказ: Журнал испорченного инструмента за неделю с ${firstDate} по ${lastDate}`
+  const subject = `${envPrefix}Бухгалтерия: Журнал испорченного инструмента за месяц с ${firstDate} по ${lastDate}`
 
   // Генерация HTML таблицы для тела письма
   let htmlContent = `<h2>${subject}</h2>`
-  htmlContent += `<table border="1" style="border-collapse: collapse;"><tr><th>№</th><th>Название</th><th>Количество</th></tr>`
+  htmlContent += `<table border="1" style="border-collapse: collapse;"><tr><th>№</th><th>Название</th><th>Дата</th><th>Количество</th></tr>`
 
   let rowNumber = 1
   data.forEach((item) => {
-    let formattedDate = ''
-    // Проверяем, существует ли timestamp и можно ли его преобразовать в дату
-    if (item.timestamp && !isNaN(new Date(item.timestamp).getTime())) {
-      formattedDate = new Date(item.timestamp).toISOString().split('T')[0] // Форматирование даты
-    } else {
-      formattedDate = 'Недоступно' // Или другое значение по умолчанию
-    }
-
-    htmlContent += `<tr><td>${rowNumber++}</td><td>${item.name}</td><td>${
-      item.zakaz
-    }</td></tr>`
+    const formattedDate = new Date(item.timestamp).toISOString().split('T')[0] // Форматирование даты
+    htmlContent += `<tr><td>${rowNumber++}</td><td>${
+      item.name
+    }</td><td>${formattedDate}</td><td>${item.zakaz}</td></tr>`
   })
 
   htmlContent += `</table>`
@@ -184,7 +172,7 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
 }
 
 // Объединение функционала
-async function genZayavInstr(req, res) {
+async function genBuchMonth(req, res) {
   try {
     const data = await getReportData()
 
@@ -211,5 +199,5 @@ async function genZayavInstr(req, res) {
 }
 
 module.exports = {
-  genZayavInstr,
+  genBuchMonth,
 }

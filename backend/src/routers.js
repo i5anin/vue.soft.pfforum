@@ -9,10 +9,13 @@ const skladController = require('./controllers/tool/b_sklad')
 const historyController = require('./controllers/tool/b_history_issue')
 const damagedController = require('./controllers/tool/b_history_damaged')
 const issueController = require('./controllers/tool/b_issue')
-const reportBuchWeekController = require('./controllers/tool/reports/b_buch_week')
-const reportBuchEndOpController = require('./controllers/tool/reports/b_buch_end_op')
-const reportBuchMonthController = require('./controllers/tool/reports/b_buch_month')
-const reportZakazController = require('./controllers/tool/reports/b_zayav_Instr')
+
+const reportBuchWeekController = require('./controllers/tool/reports/email/b_buch_week')
+const reportBuchEndOpController = require('./controllers/tool/reports/email/b_buch_end_op')
+const reportBuchMonthController = require('./controllers/tool/reports/email/b_buch_month')
+const reportZakazController = require('./controllers/tool/reports/email/b_order_Instr')
+
+const excelZakazController = require('./controllers/tool/reports/excel/b_order_Instr')
 
 // Маршруты для аутентификации
 router.post('/login', loginController.login)
@@ -41,24 +44,35 @@ router.get('/tools-tree', treeController.getToolsTree)
 router.post('/tools-tree', treeController.addBranch)
 router.put('/tools-tree', treeController.updateFolderTree)
 router.delete('/tools-tree/:id', treeController.dellFolderTree)
+
 // issue
 router.get('/detail/id', issueController.findDetailProduction)
 router.get('/operators/fio', issueController.getFioOperators)
 router.post('/issue', issueController.issueTool)
 router.get('/cnc', issueController.getCncData)
+
 // history
 router.get('/history/:id', historyController.getToolHistoryId)
 router.get('/history', historyController.getToolHistory)
 router.get('/history-part', historyController.getToolHistoryByPartId)
+
 // damaged
 router.get('/damaged-history', damagedController.getDamaged)
 router.post('/tool-history-damaged', damagedController.addToolHistoryDamaged)
+
 // sklad
 router.post('/sklad/update', skladController.updateToolInventory)
-// report
+
+// email report
 router.get('/report/genBuchWeek', reportBuchWeekController.genBuchWeek) // бухгалтерию исключен сломанный	раз в неделю каждый ПТ в 12:00 (за неделю)
 router.get('/report/genBuchEndOp', reportBuchEndOpController.checkStatusChanges) // бухгалтерию	по завершению операции
 router.get('/report/genBuchMonth', reportBuchMonthController.genBuchMonth) // бухгалтерию журнал уничтоженого	раз в месяц каждый ПТ в 12:00 (за месяц)
 router.get('/report/genZayavInstr', reportZakazController.genZayavInstr) // заявка на инструмент	раз в неделю каждый ЧТ в 12:00 (за неделю)
+
+// excel report
+router.get(
+  '/report/genZayavInstrExcel',
+  excelZakazController.createExcelFileStream
+) // заявка на инструмент	раз в неделю каждый ЧТ в 12:00 (за неделю)
 
 module.exports = router

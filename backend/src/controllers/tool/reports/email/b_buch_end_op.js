@@ -1,9 +1,9 @@
 const cron = require('node-cron')
 const nodemailer = require('nodemailer')
 const { Pool } = require('pg')
-const config = require('../../../config')
-const { emailConfig } = require('../../../config')
-const { getNetworkDetails } = require('../../../db_type')
+const config = require('../../../../config')
+const { emailConfig } = require('../../../../config')
+const { getNetworkDetails } = require('../../../../db_type')
 const { htmlToText } = require('nodemailer-html-to-text')
 
 console.log('Почтовый сервер:')

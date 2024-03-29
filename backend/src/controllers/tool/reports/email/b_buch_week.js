@@ -1,9 +1,9 @@
 const { Pool } = require('pg')
 const ExcelJS = require('exceljs')
-const { getNetworkDetails } = require('../../../db_type')
-const config = require('../../../config')
+const { getNetworkDetails } = require('../../../../db_type')
+const config = require('../../../../config')
 const nodemailer = require('nodemailer')
-const { emailConfig } = require('../../../config')
+const { emailConfig } = require('../../../../config')
 
 // Настройка подключения к базе данных
 const networkDetails = getNetworkDetails()
@@ -18,22 +18,22 @@ async function getReportData() {
   try {
     const query = `
       SELECT
-          tool_history_damaged.id_tool,
+          tool_history_nom.id_tool,
           tool_nom.name,
-          tool_history_damaged.timestamp,
-          SUM(tool_history_damaged.quantity) as zakaz
+          tool_history_nom.timestamp,
+          SUM(tool_history_nom.quantity) as zakaz
       FROM
-          dbo.tool_history_damaged
+          dbo.tool_history_nom
       JOIN
-          dbo.tool_nom ON tool_history_damaged.id_tool = tool_nom.id
+          dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.id
       WHERE
-          tool_history_damaged.timestamp >= CURRENT_DATE - INTERVAL '30 days'
+          tool_history_nom.timestamp >= CURRENT_DATE - INTERVAL '7 days'
       GROUP BY
-          tool_history_damaged.id_tool,
+          tool_history_nom.id_tool,
           tool_nom.name,
-          tool_history_damaged.timestamp
+          tool_history_nom.timestamp
       ORDER BY
-          tool_history_damaged.timestamp;
+          tool_history_nom.timestamp;
     `
     const { rows } = await pool.query(query)
     return rows
@@ -41,25 +41,6 @@ async function getReportData() {
     console.error('Ошибка при получении данных:', error)
     throw error
   }
-}
-
-function getCurrentMonthDates() {
-  const currentDate = new Date()
-  const firstDayOfMonth = new Date(
-    currentDate.getFullYear(),
-    currentDate.getMonth(),
-    1
-  )
-  const lastDayOfMonth = new Date(
-    currentDate.getFullYear(),
-    currentDate.getMonth() + 1,
-    0
-  )
-
-  const firstDate = firstDayOfMonth.toISOString().split('T')[0]
-  const lastDate = lastDayOfMonth.toISOString().split('T')[0]
-
-  return { firstDate, lastDate }
 }
 
 // Функция для создания Excel файла и возврата его как потока данных
@@ -70,7 +51,7 @@ async function createExcelFileStream(data) {
   worksheet.mergeCells('A1:E1')
   const titleRow = worksheet.getCell('A1')
   titleRow.value =
-    'Бухгалтерия: Журнал испорченного раз в месяц. Отчет каждый ПТ в 12:00 (за месяц)'
+    'Бухгалтерия: Журнал уничтожен ого раз в месяц. Отчет каждый ПТ в 12:00 (за месяц)'
   titleRow.font = { bold: true, size: 14 }
 
   // Определение дат начала и окончания недели
@@ -114,7 +95,7 @@ async function createExcelFileStream(data) {
 async function sendEmailWithExcelStream(email, text, excelStream, data) {
   // console.log('SMTP Configuration:', emailConfig)
 
-  // Использование значений из переменных окружения, если они определены, иначе из config
+  // Создание транспорта для отправки письма
   const transporter = nodemailer.createTransport({
     host: emailConfig.host,
     port: emailConfig.port,
@@ -125,10 +106,10 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
     },
   })
 
-  // Даты для имени файла и темы письма
-  const { firstDate, lastDate } = getCurrentMonthDates()
+  // Даты для определения периода отчета
+  const { firstDate, lastDate } = getCurrentWeekDates()
   const envPrefix = process.env.NODE_ENV === 'development' ? 'development ' : ''
-  const subject = `${envPrefix}Бухгалтерия: Журнал испорченного инструмента за месяц с ${firstDate} по ${lastDate}`
+  const subject = `${envPrefix}Бухгалтерия: Журнал выданного инструмента за неделю с ${firstDate} по ${lastDate}`
 
   // Генерация HTML таблицы для тела письма
   let htmlContent = `<h2>${subject}</h2>`
@@ -136,7 +117,7 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
 
   let rowNumber = 1
   data.forEach((item) => {
-    const formattedDate = new Date(item.timestamp).toISOString().split('T')[0] // Форматирование даты
+    const formattedDate = new Date(item.timestamp).toISOString().split('T')[0] // Форматируем дату
     htmlContent += `<tr><td>${rowNumber++}</td><td>${
       item.name
     }</td><td>${formattedDate}</td><td>${item.zakaz}</td></tr>`
@@ -150,10 +131,10 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
     to: email,
     subject: subject,
     text: text,
-    html: htmlContent, // Включение HTML
+    html: htmlContent, // Включаем HTML
     attachments: [
       {
-        filename: `Поврежденный инструмент ${firstDate} - ${lastDate}.xlsx`,
+        filename: `Выдано инструмент ${firstDate} - ${lastDate}.xlsx`,
         content: excelStream,
         contentType:
           'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -171,8 +152,24 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
   }
 }
 
+// Функция для получения даты начала и конца текущей недели
+function getCurrentWeekDates() {
+  const currentDate = new Date()
+  const firstDayOfWeek = currentDate.getDate() - currentDate.getDay() + 1 // Понедельник
+  const lastDayOfWeek = firstDayOfWeek + 6 // Воскресенье
+
+  const firstDate = new Date(currentDate.setDate(firstDayOfWeek))
+    .toISOString()
+    .split('T')[0]
+  const lastDate = new Date(currentDate.setDate(lastDayOfWeek))
+    .toISOString()
+    .split('T')[0]
+
+  return { firstDate, lastDate }
+}
+
 // Объединение функционала
-async function genBuchMonth(req, res) {
+async function genBuchWeek(req, res) {
   try {
     const data = await getReportData()
 
@@ -199,5 +196,5 @@ async function genBuchMonth(req, res) {
 }
 
 module.exports = {
-  genBuchMonth,
+  genBuchWeek,
 }
