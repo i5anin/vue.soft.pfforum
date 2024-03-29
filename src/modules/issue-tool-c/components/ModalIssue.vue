@@ -20,6 +20,7 @@
             </div>
             <h2 class="text-h6">Деталь:</h2>
             <v-text-field
+              variant="outlined"
               density="compact"
               label="поиск по ID"
               required

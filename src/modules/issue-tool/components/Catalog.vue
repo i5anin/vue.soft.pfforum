@@ -3,6 +3,7 @@
   <v-row>
     <v-col cols="12" md="2">
       <v-text-field
+        variant="outlined"
         density="compact"
         label="поиск по ID"
         required
