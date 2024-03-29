@@ -99,16 +99,16 @@ async function getToolHistoryId(req, res) {
              thn.quantity,
              thn.id_user,
              thn.id_tool,
-             thn.timestamp  AS date,
-             o.fio                                               AS user_fio, -- Поле user_fio из таблицы operators
+             thn.timestamp                                       AS date,
+             o.fio                                               AS user_fio,  -- Поле user_fio из таблицы operators
              tn.name                                             AS name_tool, -- Поле name_tool из таблицы tool_nom
-             tn.property                                         -- Поле property из таблицы tool_nom
+             tn.property                                                       -- Поле property из таблицы tool_nom
       FROM dbo.tool_history_nom thn
-             INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
-             INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
-             INNER JOIN dbo.operations_ordersnom oon ON oon.op_id = sno.ordersnom_op_id
-             INNER JOIN dbo.operators o ON thn.id_user = o.id
-             INNER JOIN dbo.tool_nom tn ON thn.id_tool = tn.id
+             LEFT JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
+             LEFT JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
+             LEFT JOIN dbo.operations_ordersnom oon ON oon.op_id = sno.ordersnom_op_id
+             LEFT JOIN dbo.operators o ON thn.id_user = o.id
+             LEFT JOIN dbo.tool_nom tn ON thn.id_tool = tn.id
       WHERE thn.specs_op_id = $1
         AND NOT sn.status_otgruzka
         AND (POSITION('ЗАПРЕТ' IN UPPER(sn.comments)) = 0 OR sn.comments IS NULL)
@@ -168,7 +168,10 @@ async function getToolHistoryByPartId(req, res) {
         oon.no AS no_oper,
         dbo.get_full_cnc_type(dbo.get_op_type_code(sno.ID)) AS type_oper,
         thn.quantity,
-        o.fio AS user_fio,
+        CASE
+          WHEN thn.id_user < 0 THEN (SELECT name FROM dbo.tool_user_custom_list WHERE -id = thn.id_user)
+          ELSE o.fio
+          END AS user_fio,
         thn.id_user,
         thn.timestamp,
         tn.name AS name_tool,
@@ -176,17 +179,16 @@ async function getToolHistoryByPartId(req, res) {
         thn.type_issue,
         thn.comment
       FROM dbo.tool_history_nom thn
-             INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
-             INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
-             INNER JOIN dbo.operations_ordersnom oon ON oon.op_id = sno.ordersnom_op_id
-             INNER JOIN dbo.operators o ON thn.id_user = o.id
+             LEFT JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
+             LEFT JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
+             LEFT JOIN dbo.operations_ordersnom oon ON oon.op_id = sno.ordersnom_op_id
+             LEFT JOIN dbo.operators o ON thn.id_user = o.id
              LEFT JOIN dbo.tool_nom tn ON thn.id_tool = tn.id
       WHERE sn.ID = $1
       ORDER BY thn.timestamp DESC;
     `
     const operationsResult = await pool.query(operationsQuery, [idPart])
 
-    console.log('operationsQuery=', operationsQuery)
     if (operationsResult.rows.length === 0)
       return res.status(404).send('Операции для данной партии не найдены')
 

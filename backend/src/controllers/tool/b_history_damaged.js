@@ -27,24 +27,31 @@ async function getDamaged(req, res) {
 
     // Запрос для получения агрегированных данных истории повреждений
     const dataQuery = `
+
  SELECT
-        tool_history_damaged.id,
-        tool_history_damaged.id_tool,
-        tool_nom.name AS tool_name,
-        tool_history_damaged.id_user,
-        operators.fio AS user_name,
-        tool_history_damaged.cnc_code,
-        cnc.cnc_name,
-        tool_history_damaged.comment,
-        tool_history_damaged.quantity,
-        tool_history_damaged.timestamp
-      FROM dbo.tool_history_damaged
-      LEFT JOIN dbo.tool_nom ON tool_history_damaged.id_tool = tool_nom.id
-      LEFT JOIN dbo.operators ON tool_history_damaged.id_user = operators.id
-      LEFT JOIN dbo.cnc ON tool_history_damaged.cnc_code = cnc.cnc_code
-      ORDER BY tool_history_damaged.timestamp DESC
-      LIMIT ${limit}
-      OFFSET ${offset};
+   tool_history_damaged.id,
+   tool_history_damaged.id_tool,
+   tool_nom.name AS tool_name,
+   tool_history_damaged.id_user,
+   CASE
+     WHEN tool_history_damaged.id_user < 0 THEN
+       (SELECT name FROM dbo.tool_user_custom_list WHERE id = -tool_history_damaged.id_user)
+     ELSE
+       operators.fio
+     END AS user_name,
+   tool_history_damaged.cnc_code,
+   cnc.cnc_name,
+   tool_history_damaged.comment,
+   tool_history_damaged.quantity,
+   tool_history_damaged.timestamp
+ FROM dbo.tool_history_damaged
+        LEFT JOIN dbo.tool_nom ON tool_history_damaged.id_tool = tool_nom.id
+        LEFT JOIN dbo.operators ON tool_history_damaged.id_user = operators.id AND tool_history_damaged.id_user > 0
+        LEFT JOIN dbo.cnc ON tool_history_damaged.cnc_code = cnc.cnc_code
+ ORDER BY tool_history_damaged.timestamp DESC
+ LIMIT ${limit}
+   OFFSET ${offset};
+
     `
 
     const countResult = await pool.query(countQuery)
