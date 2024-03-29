@@ -228,7 +228,7 @@ export default {
     onOperationSelected(value) {
       const id = this.operationMapping[value]
       this.toolModel.selectedOperationId = id
-      console.log('Выбран specs_op_id:', id)
+      // console.log('Выбран specs_op_id:', id)
     },
     resetToolModel() {
       this.toolModel = {
