@@ -47,7 +47,10 @@
       <!-- Название -->
       <v-toolbar-title>{{ appTitle }}</v-toolbar-title>
       <v-spacer />
-      <v-chip class="ma-2" dark>
+      <v-chip class="ma-2" label dark>
+        <template v-slot:prepend>
+          <v-icon icon="mdi-account" start />
+        </template>
         {{ userInfo.user }}
       </v-chip>
       <!-- Три кнопки справа -->
