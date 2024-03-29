@@ -17,7 +17,13 @@
       <span :class="{ 'text-grey': node.totalElements === 0 }">
         {{ node.label }}
         <span v-if="node.available !== 0">
-          [ Доступно: {{ node.available }} / {{ node.elements }} ]
+          <v-chip class="ma-2" color="secondary" label>
+            <template v-slot:prepend>
+              <v-icon icon="mdi-wrench-check" start />
+            </template>
+            {{ node.available }} / {{ node.elements }}
+          </v-chip>
+
           <!-- {{ node.totalElements }}  -->
           <!-- {{ node.totalAvailable }} -->
         </span>

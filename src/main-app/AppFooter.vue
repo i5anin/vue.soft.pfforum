@@ -13,7 +13,7 @@
     <div v-else>
       <v-chip color="green">
         <template v-slot:prepend>
-          <v-icon icon="mdi-database" />
+          <v-icon start icon="mdi-database" />
         </template>
         {{ databaseInfo.dbName }}
       </v-chip>
