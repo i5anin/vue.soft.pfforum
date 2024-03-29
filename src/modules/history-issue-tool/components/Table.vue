@@ -74,18 +74,18 @@ export default {
           sortable: false,
         },
         {
-          title: 'Кол-во инструмента',
+          title: 'Кол-во выданного инструмента',
           value: 'quantity_tool',
           sortable: false,
           width: '80px',
         },
         {
-          title: 'Кол-во продукции',
+          title: 'Кол-во произведенной продукции',
           value: 'quantity_prod',
           sortable: false,
           width: '80px',
         },
-        { title: 'Операций', value: 'operation_count', sortable: false },
+        { title: 'Операций 005...', value: 'operation_count', sortable: false },
       ],
     }
   },
