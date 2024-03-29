@@ -115,7 +115,6 @@ async function createExcelFileStream(data) {
 }
 
 // Функция для отправки сообщения с файлом на почту
-// Функция для отправки сообщения с файлом на почту
 async function sendEmailWithExcelStream(email, text, excelStream, data) {
   // console.log('SMTP Configuration:', emailConfig)
 
@@ -144,9 +143,7 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
     let formattedDate = ''
     // Проверяем, существует ли timestamp и можно ли его преобразовать в дату
     if (item.timestamp && !isNaN(new Date(item.timestamp).getTime())) {
-      formattedDate = new Date(item.timestamp).toISOString().split('T')[0] // Форматирование даты
-    } else {
-      formattedDate = 'Недоступно' // Или другое значение по умолчанию
+      new Date(item.timestamp).toISOString().split('T')[0] // Форматирование даты
     }
 
     htmlContent += `<tr><td>${rowNumber++}</td><td>${item.name}</td><td>${
