@@ -396,15 +396,8 @@ export default {
     },
   },
   async created() {
-    this.fetchToolParamsByParentId(this.parentCatalog.id)
-    this.fetchToolNamesByParentId(this.parentCatalog.id)
-    try {
-      const fioData = await issueToolApi.getDetailFio()
-      this.fioOptions = this.prepareFioOptions(fioData)
-    } catch (error) {
-      console.error('Ошибка при загрузке данных ФИО:', error)
-    }
-
+    await this.fetchToolParamsByParentId(this.parentCatalog.id)
+    await this.fetchToolNamesByParentId(this.parentCatalog.id)
     try {
       // Получение списка параметров инструмента
       const rawToolParams = await getToolParams()
