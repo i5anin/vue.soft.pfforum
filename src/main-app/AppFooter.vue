@@ -11,7 +11,12 @@
     </span>
     <!-- Если название базы данных не равно "BusinessForum", показываем только название базы данных -->
     <div v-else>
-      <span> База: {{ databaseInfo.dbName }} </span>
+      <v-chip color="green">
+        <template v-slot:prepend>
+          <v-icon icon="mdi-database" />
+        </template>
+        {{ databaseInfo.dbName }}
+      </v-chip>
     </div>
   </v-footer>
 </template>
