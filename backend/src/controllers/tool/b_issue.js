@@ -69,90 +69,60 @@ async function getFioOperators(req, res) {
   }
 }
 
+// Функция для выполнения операции выдачи инструмента
 async function issueTool(req, res) {
   try {
-    // Извлекаем данные из тела запроса, включая type_issue
-    const { specs_op_id, id_user, id_tool, type_issue, quantity, timestamp } =
-      req.body
+    // Извлекаем необходимые данные из тела запроса
+    const { specs_op_id, id_user, id_tool, type_issue, quantity } = req.body
 
-    // Проверяем наличие всех необходимых параметров, включая type_issue
+    // Проверка наличия всех обязательных параметров
     if (
       !specs_op_id ||
       !id_user ||
       !id_tool ||
       quantity == null ||
-      !timestamp ||
       type_issue == null
     ) {
       return res.status(400).send('Отсутствует один из обязательных параметров')
     }
 
-    // SQL запрос для получения текущего количества инструмента на складе
-    const selectQuery = `
-      SELECT sklad
-      FROM dbo.tool_nom
-      WHERE id = $1
-    `
-
-    // Выполняем запрос на получение данных
+    // Проверяем текущее количество инструмента на складе
+    const selectQuery = `SELECT sklad FROM dbo.tool_nom WHERE id = $1`
     const toolData = await pool.query(selectQuery, [id_tool])
-
-    // Проверяем, достаточно ли инструмента на складе
     if (toolData.rows[0].sklad < quantity) {
       return res.status(400).send('Недостаточно инструмента на складе')
     }
 
-    // SQL запрос для вставки данных в таблицу tool_history_nom и возвращения идентификатора
+    // Вставляем запись в историю инструмента и обновляем количество на складе
     const insertQuery = `
       INSERT INTO dbo.tool_history_nom (specs_op_id, id_user, id_tool, type_issue, quantity, timestamp)
-      VALUES ($1, $2, $3, $4, $5, $6)
-      RETURNING id
+      VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
+      RETURNING id, timestamp;
     `
-
-    // Выполняем запрос на вставку данных и получаем результат
     const insertResult = await pool.query(insertQuery, [
       specs_op_id,
       id_user,
       id_tool,
       type_issue,
       quantity,
-      timestamp,
     ])
-
-    // Проверяем, была ли строка успешно добавлена
-    if (insertResult.rows.length === 0) {
-      return res
-        .status(500)
-        .send('Ошибка при добавлении записи в историю инструмента')
-    }
-
-    // Получаем ID добавленной записи
     const insertedId = insertResult.rows[0].id
+    const insertedTimestamp = insertResult.rows[0].timestamp // Текущая дата и время сервера
 
-    // SQL запрос для обновления данных в таблице tool_nom
-    const updateQuery = `
-      UPDATE dbo.tool_nom
-      SET sklad = sklad - $1
-      WHERE id = $2
-    `
-
-    // Выполняем запрос на обновление данных
+    // Обновляем количество инструмента на складе
+    const updateQuery = `UPDATE dbo.tool_nom SET sklad = sklad - $1 WHERE id = $2`
     await pool.query(updateQuery, [quantity, id_tool])
 
-    // Получаем обновленное значение sklad
-    const updatedSklad = await pool.query(selectQuery, [id_tool])
-
-    // Отправляем эти данные обратно в ответе
+    // Отправляем ответ с данными о выполненной операции
     res.status(200).json({
       success: 'OK',
-      insertedRecordId: insertedId, // ID вставленной записи
+      insertedRecordId: insertedId,
       specs_op_id,
       id_user,
       id_tool,
-      type_issue, // Добавляем type_issue в ответ
+      type_issue,
       quantity,
-      timestamp,
-      updatedSklad: updatedSklad.rows[0].sklad,
+      timestamp: insertedTimestamp, // Возвращаем серверное время операции
     })
   } catch (error) {
     console.error('Ошибка при сохранении истории инструмента:', error)
@@ -170,8 +140,8 @@ async function issueTool(req, res) {
         id_tool,
         type_issue,
         quantity,
-        timestamp,
-      }, // Добавляем type_issue в данные запроса для логирования
+        // Не включаем timestamp, так как он не передаётся и используется CURRENT_TIMESTAMP
+      },
     })
   }
 }
