@@ -47,7 +47,9 @@ async function getFioOperators(req, res) {
     const query = `
       SELECT 'operator' AS type, id, fio
       FROM dbo.operators
-      WHERE not nach AND not nalad AND active
+      WHERE not nach
+        AND not nalad
+        AND active
       UNION ALL
       SELECT 'custom_list' AS type, id, name AS fio
       FROM dbo.tool_user_custom_list
@@ -87,7 +89,9 @@ async function issueTool(req, res) {
     }
 
     // Проверяем текущее количество инструмента на складе
-    const selectQuery = `SELECT sklad FROM dbo.tool_nom WHERE id = $1`
+    const selectQuery = `SELECT sklad
+                         FROM dbo.tool_nom
+                         WHERE id = $1`
     const toolData = await pool.query(selectQuery, [id_tool])
     if (toolData.rows[0].sklad < quantity) {
       return res.status(400).send('Недостаточно инструмента на складе')
@@ -96,8 +100,7 @@ async function issueTool(req, res) {
     // Вставляем запись в историю инструмента и обновляем количество на складе
     const insertQuery = `
       INSERT INTO dbo.tool_history_nom (specs_op_id, id_user, id_tool, type_issue, quantity, timestamp)
-      VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
-      RETURNING id, timestamp;
+      VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP) RETURNING id, timestamp;
     `
     const insertResult = await pool.query(insertQuery, [
       specs_op_id,
@@ -110,7 +113,9 @@ async function issueTool(req, res) {
     const insertedTimestamp = insertResult.rows[0].timestamp // Текущая дата и время сервера
 
     // Обновляем количество инструмента на складе
-    const updateQuery = `UPDATE dbo.tool_nom SET sklad = sklad - $1 WHERE id = $2`
+    const updateQuery = `UPDATE dbo.tool_nom
+                         SET sklad = sklad - $1
+                         WHERE id = $2`
     await pool.query(updateQuery, [quantity, id_tool])
 
     // Отправляем ответ с данными о выполненной операции
