@@ -3,6 +3,9 @@ import { toolApi } from '@/api'
 export default {
   namespaced: true,
   state: () => ({
+    isModalOpen: false,
+    cartItems: [],
+
     isLoading: false,
     parentCatalog: { id: 1, label: null },
 
@@ -23,6 +26,11 @@ export default {
     },
   }),
   mutations: {
+    SET_MODAL_STATUS(state, status) {
+      console.log('Изменение состояния модального окна на: ', status)
+      state.isModalOpen = status
+    },
+
     // Добавляет инструмент в корзину или обновляет его количество, если он уже существует
     addToCart(state, { toolId, quantity, name, sklad }) {
       const existingItem = state.cart.find((item) => item.toolId === toolId)
@@ -86,6 +94,12 @@ export default {
   },
   actions: {
     // Действие для добавления инструмента в корзину
+    openModal({ commit }) {
+      commit('SET_MODAL_STATUS', true)
+    },
+    closeModal({ commit }) {
+      commit('SET_MODAL_STATUS', false)
+    },
     addToCartAction({ commit }, { toolId, quantity, name, sklad }) {
       commit('addToCart', {
         toolId,
@@ -144,7 +158,7 @@ export default {
       } = state.filters
       const { id: parentId } = state.parentCatalog
 
-      console.log('Поисковой запрос:', search)
+      // console.log('Поисковой запрос:', search)
 
       // Формируем URL для запроса
       const params = new URLSearchParams({

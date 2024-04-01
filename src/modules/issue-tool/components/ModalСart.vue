@@ -70,11 +70,11 @@
 
 <script>
 import Modal from '@/modules/shared/components/Modal.vue'
-import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { issueToolApi } from '@/modules/issue-tool/api/issue'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 
 export default {
-  name: 'Issue-Modal',
+  name: 'Cart-Modal',
   emits: ['canceled', 'changes-saved'],
   props: {
     persistent: { type: Boolean, default: false },
@@ -127,7 +127,7 @@ export default {
       deep: true,
       immediate: true,
       handler(newTool) {
-        if (newTool) {
+        if (newTool && newTool.id) {
           this.localParentId = newTool.parent_id
           this.currentFolderName = newTool.folder_name
         } else {

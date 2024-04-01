@@ -1,5 +1,12 @@
 <template>
   <header>
+    <ModalCart
+      v-if="isModalOpen"
+      :persistent="true"
+      @canceled="closeModal"
+      @changes-saved="onSaveChanges"
+    />
+
     <v-navigation-drawer
       class="header"
       location="left"
@@ -46,13 +53,24 @@
       ></v-app-bar-nav-icon>
       <!-- Название -->
       <v-toolbar-title>{{ appTitle }}</v-toolbar-title>
+
       <v-spacer />
+      <!--      <div>openDialog: {{ openDialog }}, currentModal: {{ currentModal }}</div>-->
+
+      <div class="ma-5">
+        <v-btn icon @click="openCartModal">
+          <v-icon @click="">mdi-cart-outline</v-icon>
+        </v-btn>
+        <v-chip color="red" variant="flat">{{ cartItemsLength }}</v-chip>
+      </div>
+
       <v-chip class="ma-2" label dark>
         <template v-slot:prepend>
           <v-icon icon="mdi-account" start />
         </template>
         {{ userInfo.user }}
       </v-chip>
+
       <!-- Три кнопки справа -->
       <!--      <v-btn icon>-->
       <!--        <v-icon>mdi-magnify</v-icon>-->
@@ -71,13 +89,15 @@
 </template>
 
 <script>
-import MenuList from '@/main-app/SidebarMenuList.vue'
 import { originalMenuItems, plotsMenuItems } from '@/main-app/data/menuItems'
+import ModalCart from '@/modules/issue-tool/components/ModalСart.vue'
+import MenuList from '@/main-app/SidebarMenuList.vue'
 import { authApi } from '@/api/login'
+import { mapActions, mapGetters, mapState } from 'vuex'
 
 export default {
   name: 'AppHeader',
-  components: { MenuList },
+  components: { MenuList, ModalCart },
   data: () => ({
     isRail: true,
     isHovered: false,
@@ -87,6 +107,11 @@ export default {
     this.userInfo = await authApi.checkLogin()
   },
   computed: {
+    ...mapState('IssueToolStore', ['isModalOpen']),
+    ...mapGetters({ cartItems: 'IssueToolStore/cartItems' }),
+    cartItemsLength() {
+      return this.cartItems ? this.cartItems.length : 0
+    },
     appTitle() {
       return import.meta.env.VITE_APP_TITLE || 'LOGO'
     },
@@ -105,6 +130,20 @@ export default {
     },
   },
   methods: {
+    ...mapActions('IssueToolStore', ['openModal', 'closeModal']),
+
+    openCartModal() {
+      console.log('Открытие модального окна...')
+      this.openModal()
+    },
+    onClosePopup() {
+      this.openDialog = false
+      this.currentModal = null
+    },
+    onSaveChanges() {
+      // Здесь может быть логика для обработки сохранения изменений в модальном окне
+      this.onClosePopup()
+    },
     filterForHohlov(items) {
       return items
         .filter((item) => item.access && item.access.includes('hohlov'))
