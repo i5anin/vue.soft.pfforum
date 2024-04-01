@@ -82,7 +82,6 @@
               required
             />
             <h2 class="text-h6"></h2>
-            <div></div>
           </v-col>
         </v-row>
       </v-container>
