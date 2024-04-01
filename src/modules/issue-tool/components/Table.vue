@@ -1,16 +1,5 @@
 <template>
   <v-container>
-    <h2>Корзина</h2>
-    <v-list dense>
-      <v-list-item v-for="item in cartItems" :key="item.toolId">
-        <v-list-item-content>
-          Название: {{ item.name }}, Инструмент ID: {{ item.toolId }},
-          Количество: {{ item.quantity }} На складе: {{ item.sklad }}
-        </v-list-item-content>
-      </v-list-item>
-    </v-list>
-  </v-container>
-  <v-container>
     <tool-filter
       :filter-params-list="filterParamsList"
       :filters="filters"
@@ -176,22 +165,40 @@ export default {
       'setItemsPerPage',
       'setSelectedDynamicFilters',
     ]),
-    addToolToCart(toolId, quantity) {
+    addToolToCart(toolId, quantityToAdd) {
       const tool = this.formattedTools.find((t) => t.id === toolId)
-      if (tool) {
-        console.log(
-          'Добавляем в корзину:',
-          toolId,
-          quantity,
-          tool.name,
-          tool.sklad
-        ) // Добавьте это для проверки
+      if (!tool) {
+        alert('Товар не найден.')
+        return
+      }
+
+      // Найти, если товар уже есть в корзине
+      const existingCartItem = this.cartItems.find(
+        (item) => item.toolId === toolId
+      )
+      const totalQuantityInCart = existingCartItem
+        ? existingCartItem.quantity + quantityToAdd
+        : quantityToAdd
+
+      if (totalQuantityInCart > tool.sklad) {
+        alert(
+          `Нельзя добавить указанное количество. На складе доступно: ${
+            tool.sklad
+          }, уже в корзине: ${
+            existingCartItem ? existingCartItem.quantity : 0
+          }.`
+        )
+      } else {
+        // Если проверка прошла успешно, добавляем в корзину
         this.$store.dispatch('IssueToolStore/addToCartAction', {
           toolId: tool.id,
-          quantity,
+          quantity: quantityToAdd,
           name: tool.name,
           sklad: tool.sklad,
         })
+        console.log(
+          `Добавлено в корзину: ${quantityToAdd} шт. "${tool.name}". Всего в корзине: ${totalQuantityInCart}.`
+        )
       }
     },
     onIssueTool(event, item) {

@@ -24,7 +24,7 @@ export default {
   }),
   mutations: {
     // Добавляет инструмент в корзину или обновляет его количество, если он уже существует
-    addToCart(state, { toolId, quantity, name, stockQuantity }) {
+    addToCart(state, { toolId, quantity, name, sklad }) {
       const existingItem = state.cart.find((item) => item.toolId === toolId)
       if (existingItem) {
         existingItem.quantity += quantity
@@ -32,8 +32,8 @@ export default {
         state.cart.push({
           toolId,
           quantity,
-          name, // Сохраните название инструмента
-          stockQuantity, // Сохраните количество на складе
+          name,
+          sklad, // Убедитесь, что это свойство добавлено
         })
       }
     },
@@ -86,8 +86,13 @@ export default {
   },
   actions: {
     // Действие для добавления инструмента в корзину
-    addToCartAction({ commit }, payload) {
-      commit('addToCart', payload)
+    addToCartAction({ commit }, { toolId, quantity, name, sklad }) {
+      commit('addToCart', {
+        toolId,
+        quantity,
+        name,
+        sklad, // Передача данных о складе
+      })
     },
 
     // Опционально: Действие для удаления инструмента из корзины

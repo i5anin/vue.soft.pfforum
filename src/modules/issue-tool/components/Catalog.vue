@@ -45,6 +45,26 @@
         @update:modelValue="handleSelectionChange"
       />
     </v-col>
+    <v-col cols="12" md="4">
+      <h2>Корзина</h2>
+      <v-list dense>
+        <v-list-item
+          v-for="item in cartItems"
+          :key="item.toolId"
+          @click="selectItem(item)"
+          :class="{
+            'highlighted-item':
+              selectedItem && selectedItem.toolId === item.toolId,
+          }"
+          class="mb-2"
+        >
+          <v-list-item-content>
+            <div>Название: {{ item.name }}</div>
+            <div>Количество: {{ item.quantity }}</div>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+    </v-col>
   </v-row>
   <v-app class="custom-container">
     <v-app-bar app dark>
@@ -84,7 +104,6 @@ import { toolTreeApi } from '@/modules/tool/api/tree'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
 import TabMainTable from './Table.vue'
 import CatalogBreadcrumbs from '@/modules/shared/components/CatalogBreadcrumbs.vue'
-import { normSpaces } from '@/modules/shared/normSpaces'
 import { issueToolApi } from '@/modules/issue-tool/api/issue'
 
 export default {
@@ -125,7 +144,7 @@ export default {
     },
   },
   computed: {
-    ...mapGetters('IssueToolStore', ['parentCatalog']),
+    ...mapGetters('IssueToolStore', ['parentCatalog', 'cartItems']),
     isTableShown() {
       return this.parentCatalog.id !== 1
     },
