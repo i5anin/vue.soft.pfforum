@@ -12,6 +12,7 @@ export default {
     tool: null,
     tools: [],
     toolsTotalCount: 0,
+    cart: [], // Каждая позиция в корзине может быть представлена как { toolId: Number, quantity: Number }
 
     filters: {
       currentPage: 1,
@@ -22,6 +23,28 @@ export default {
     },
   }),
   mutations: {
+    // Добавляет инструмент в корзину или обновляет его количество, если он уже существует
+    addToCart(state, { toolId, quantity }) {
+      const existingItem = state.cart.find((item) => item.toolId === toolId)
+      if (existingItem) {
+        existingItem.quantity += quantity
+      } else {
+        state.cart.push({ toolId, quantity })
+      }
+    },
+
+    // Опционально: Удаляет позицию из корзины
+    removeFromCart(state, toolId) {
+      const index = state.cart.findIndex((item) => item.toolId === toolId)
+      if (index !== -1) state.cart.splice(index, 1)
+    },
+
+    // Опционально: Обновляет количество позиции в корзине
+    updateCartItemQuantity(state, { toolId, quantity }) {
+      const item = state.cart.find((item) => item.toolId === toolId)
+      if (item) item.quantity = quantity
+    },
+
     setSearch(state, search) {
       state.filters.search = search
     },
@@ -57,6 +80,21 @@ export default {
     },
   },
   actions: {
+    // Действие для добавления инструмента в корзину
+    addToCartAction({ commit }, payload) {
+      commit('addToCart', payload)
+    },
+
+    // Опционально: Действие для удаления инструмента из корзины
+    removeFromCartAction({ commit }, toolId) {
+      commit('removeFromCart', toolId)
+    },
+
+    // Опционально: Действие для обновления количества инструмента в корзине
+    updateCartItemQuantityAction({ commit }, payload) {
+      commit('updateCartItemQuantity', payload)
+    },
+
     async fetchToolById({ commit }, id) {
       try {
         const tool = await toolApi.getToolById(id)

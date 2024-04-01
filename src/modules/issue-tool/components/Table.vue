@@ -64,11 +64,13 @@
           <v-icon icon="mdi-hand-extended" />
         </v-btn>
       </template>
-
       <template v-slot:item.damaged="{ item }">
         <v-btn color="red" @click="(event) => onDamagedTool(event, item)">
           <v-icon icon="mdi-image-broken-variant" />
         </v-btn>
+      </template>
+      <template v-slot:item.cart="{ item }">
+        <button @click="addToolToCart(item.id, 1)">В корзину</button>
       </template>
     </v-data-table-server>
   </v-container>
@@ -142,6 +144,7 @@ export default {
           { title: 'Выдать', key: 'issue', sortable: false },
           { title: 'Поврежден', key: 'damaged', sortable: false },
           { title: 'Склад', key: 'sklad', sortable: false },
+          { title: 'Корзина', key: 'cart', sortable: false },
         ]
       },
     },
@@ -161,6 +164,13 @@ export default {
       'setItemsPerPage',
       'setSelectedDynamicFilters',
     ]),
+    addToolToCart(toolId, quantity) {
+      // Здесь ваш код для добавления инструмента в корзину, например:
+      this.$store.dispatch('IssueToolStore/addToCartAction', {
+        toolId,
+        quantity,
+      })
+    },
     onIssueTool(event, item) {
       event.stopPropagation()
       this.editingToolId = item.id
