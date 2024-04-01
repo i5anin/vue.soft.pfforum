@@ -134,14 +134,7 @@ async function issueTool(req, res) {
         message: error.message,
         stack: error.stack,
       },
-      requestData: {
-        specs_op_id,
-        id_user,
-        id_tool,
-        type_issue,
-        quantity,
-        // Не включаем timestamp, так как он не передаётся и используется CURRENT_TIMESTAMP
-      },
+      requestData: { specs_op_id, id_user, id_tool, type_issue, quantity },
     })
   }
 }
