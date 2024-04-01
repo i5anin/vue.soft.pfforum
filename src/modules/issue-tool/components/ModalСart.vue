@@ -3,57 +3,45 @@
   <Modal :title="popupTitle">
     <template #content>
       <v-container>
-        <v-row>
-          <v-col>
-            <div>
-              <v-combobox
-                density="compact"
-                label="Маркировка"
-                v-model="toolModel.name"
-                :items="nameOptions"
-                item-text="text"
-                item-value="value"
-                required
-                :rules="typeRules"
-                readonly="true"
-                disabled="true"
-              />
-            </div>
-            <v-combobox
-              v-model="selectedCnc"
-              :items="cncList"
-              label="Выберите станок"
-              item-title="cnc_name"
-              item-value="cnc_code"
-              required
-              single-line="false"
-            />
-            <v-text-field
-              label="Количество"
-              v-model="damagedQuantity"
-              type="number"
-              min="1"
-              required
-            />
-            <v-combobox
-              v-model="selectedFio"
-              :items="fioOptions"
-              item-title="text"
-              item-value="value"
-              label="ФИО кто повредил"
-              return-object="false"
-              single-line="false"
-              @update:modelValue="handleSelectionChange"
-            />
-            <v-textarea
-              class="comment-field"
-              label="Комментарий"
-              v-model="comment"
-              rows="3"
-              required
-            />
-          </v-col>
-        </v-row>
+        <v-col cols="12" md="4">
+          <h2>Корзина</h2>
+          <v-table>
+            <thead>
+              <tr>
+                <th></th>
+                <th>Инструмент</th>
+                <th>Кол-во</th>
+                <th>Склад</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="item in cartItems" :key="item.id">
+                <td><span class="mdi mdi-box-cutter"></span></td>
+                <td>{{ item.name }}</td>
+                <td>
+                  <v-btn
+                    icon
+                    size="x-small"
+                    @click="decreaseQuantity(index)"
+                    :disabled="item.quantity <= 1"
+                  >
+                    <v-icon>mdi-minus</v-icon>
+                  </v-btn>
+                  {{ item.quantity }}
+                  <v-btn
+                    icon
+                    size="x-small"
+                    @click="increaseQuantity(index)"
+                    :disabled="item.quantity >= item.stockQuantity"
+                  >
+                    <v-icon>mdi-plus</v-icon>
+                  </v-btn>
+                </td>
+                <td>{{ item.sklad }}</td>
+              </tr>
+            </tbody>
+          </v-table>
+        </v-col>
       </v-container>
     </template>
     <template #action>
@@ -206,6 +194,25 @@ export default {
   methods: {
     ...mapMutations('IssueToolStore', ['setTool']),
     ...mapActions('IssueToolStore', ['fetchToolsByFilter', 'fetchToolById']),
+
+    increaseQuantity(index) {
+      let item = this.cartItems[index]
+      if (item.quantity < item.stockQuantity) {
+        item.quantity++
+        // Тут вызовите метод обновления корзины, если есть
+      } else {
+        // Обработка попытки превысить количество на складе
+        this.$toast(`Максимальное количество: ${item.stockQuantity}`)
+      }
+    },
+    decreaseQuantity(index) {
+      let item = this.cartItems[index]
+      if (item.quantity > 1) {
+        item.quantity-- // Тут вызовите метод обновления корзины, если есть
+      } else {
+        this.cartItems.splice(index, 1) // Тут вызовите метод удаления из корзины, если есть
+      }
+    },
 
     handleSelectionChange(selectedItem) {
       console.log(
