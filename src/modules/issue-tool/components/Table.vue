@@ -1,5 +1,16 @@
 <template>
   <v-container>
+    <h2>Корзина</h2>
+    <v-list dense>
+      <v-list-item v-for="item in cartItems" :key="item.toolId">
+        <v-list-item-content>
+          Название: {{ item.name }}, Инструмент ID: {{ item.toolId }},
+          Количество: {{ item.quantity }} На складе: {{ item.sklad }}
+        </v-list-item-content>
+      </v-list-item>
+    </v-list>
+  </v-container>
+  <v-container>
     <tool-filter
       :filter-params-list="filterParamsList"
       :filters="filters"
@@ -105,6 +116,7 @@ export default {
       'filters',
       'parentCatalog',
       'isLoading',
+      'cartItems', // Предполагается, что у вас есть такой геттер
     ]),
   },
   data() {
@@ -165,11 +177,22 @@ export default {
       'setSelectedDynamicFilters',
     ]),
     addToolToCart(toolId, quantity) {
-      // Здесь ваш код для добавления инструмента в корзину, например:
-      this.$store.dispatch('IssueToolStore/addToCartAction', {
-        toolId,
-        quantity,
-      })
+      const tool = this.formattedTools.find((t) => t.id === toolId)
+      if (tool) {
+        console.log(
+          'Добавляем в корзину:',
+          toolId,
+          quantity,
+          tool.name,
+          tool.sklad
+        ) // Добавьте это для проверки
+        this.$store.dispatch('IssueToolStore/addToCartAction', {
+          toolId: tool.id,
+          quantity,
+          name: tool.name,
+          sklad: tool.sklad,
+        })
+      }
     },
     onIssueTool(event, item) {
       event.stopPropagation()

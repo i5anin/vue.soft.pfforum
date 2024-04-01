@@ -24,12 +24,17 @@ export default {
   }),
   mutations: {
     // Добавляет инструмент в корзину или обновляет его количество, если он уже существует
-    addToCart(state, { toolId, quantity }) {
+    addToCart(state, { toolId, quantity, name, stockQuantity }) {
       const existingItem = state.cart.find((item) => item.toolId === toolId)
       if (existingItem) {
         existingItem.quantity += quantity
       } else {
-        state.cart.push({ toolId, quantity })
+        state.cart.push({
+          toolId,
+          quantity,
+          name, // Сохраните название инструмента
+          stockQuantity, // Сохраните количество на складе
+        })
       }
     },
 
@@ -169,6 +174,7 @@ export default {
     },
   },
   getters: {
+    cartItems: (state) => state.cart,
     parentCatalog: (state) => state.parentCatalog,
     dynamicFilters: (state) => state.dynamicFilters,
 
