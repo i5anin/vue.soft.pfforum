@@ -200,7 +200,7 @@ export default {
     },
 
     popupTitle() {
-      return this.tool?.id != null ? `Корзина` : 'Ошибка нет ID'
+      return 'Корзина'
     },
   },
   // async mounted() {
