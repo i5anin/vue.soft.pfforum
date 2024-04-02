@@ -55,7 +55,9 @@ export default {
     // Опционально: Обновляет количество позиции в корзине
     updateCartItemQuantity(state, { toolId, quantity }) {
       const item = state.cart.find((item) => item.toolId === toolId)
-      if (item) item.quantity = quantity
+      if (item) {
+        item.quantity = quantity
+      }
     },
 
     setSearch(state, search) {
@@ -193,6 +195,9 @@ export default {
     },
   },
   getters: {
+    totalQuantityInCart: (state) => {
+      return state.cart.reduce((total, item) => total + item.quantity, 0)
+    },
     cartItems: (state) => state.cart,
     parentCatalog: (state) => state.parentCatalog,
     dynamicFilters: (state) => state.dynamicFilters,

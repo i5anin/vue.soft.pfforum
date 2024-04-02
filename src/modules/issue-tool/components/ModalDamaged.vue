@@ -138,13 +138,12 @@ export default {
     tool: {
       deep: true,
       immediate: true,
-      handler(newTool) {
-        if (newTool) {
-          this.localParentId = newTool.parent_id
-          this.currentFolderName = newTool.folder_name
+      async handler(editingToolId) {
+        if (editingToolId == null) {
+          this.resetToolModel()
         } else {
-          this.localParentId = this.idParent.id
-          this.currentFolderName = this.idParent.label
+          await this.fetchToolById(editingToolId)
+          this.updateToolModel()
         }
       },
     },

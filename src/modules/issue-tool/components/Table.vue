@@ -7,17 +7,21 @@
     />
     <ModalDamaged
       v-if="openDialog && currentModal === 'damaged'"
+      :key="'modal-damaged'"
       :persistent="true"
       :tool-id="editingToolId"
       @canceled="onClosePopup"
       @changes-saved="onSaveChanges"
+      @close="openDialog = false"
     />
     <ModalIssue
       v-if="openDialog && currentModal === 'issue'"
+      :key="'modal-issue'"
       :persistent="true"
       :tool-id="editingToolId"
       @canceled="onClosePopup"
       @changes-saved="onSaveChanges"
+      @close="openDialog = false"
     />
     <v-data-table-server
       v-if="isDataLoaded"
@@ -165,6 +169,10 @@ export default {
       'setItemsPerPage',
       'setSelectedDynamicFilters',
     ]),
+    showModal(type) {
+      this.currentModalType = type
+      this.isModalOpen = true
+    },
     addToolToCart(toolId, quantityToAdd) {
       const tool = this.formattedTools.find((t) => t.id === toolId)
       if (!tool) {
@@ -196,9 +204,6 @@ export default {
           name: tool.name,
           sklad: tool.sklad,
         })
-        console.log(
-          `Добавлено в корзину: ${quantityToAdd} шт. "${tool.name}". Всего в корзине: ${totalQuantityInCart}.`
-        )
       }
     },
     onIssueTool(event, item) {

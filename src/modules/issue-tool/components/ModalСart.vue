@@ -126,13 +126,12 @@ export default {
     tool: {
       deep: true,
       immediate: true,
-      handler(newTool) {
-        if (newTool && newTool.id) {
-          this.localParentId = newTool.parent_id
-          this.currentFolderName = newTool.folder_name
+      async handler(editingToolId) {
+        if (editingToolId == null) {
+          this.resetToolModel()
         } else {
-          this.localParentId = this.idParent.id
-          this.currentFolderName = this.idParent.label
+          await this.fetchToolById(editingToolId)
+          this.updateToolModel()
         }
       },
     },
@@ -208,21 +207,24 @@ export default {
       'fetchToolsByFilter',
       'fetchToolById',
       'addToCartAction',
+      'updateCartItemQuantityAction',
     ]),
     increaseQuantity(index) {
-      let item = this.cartItems[index]
+      const item = this.cartItems[index]
       if (item.quantity < item.stockQuantity) {
-        item.quantity++
-      } else {
-        // Обработка ошибки
+        this.updateCartItemQuantityAction({
+          toolId: item.toolId,
+          quantity: item.quantity + 1,
+        })
       }
     },
     decreaseQuantity(index) {
-      let item = this.cartItems[index]
+      const item = this.cartItems[index]
       if (item.quantity > 1) {
-        item.quantity--
-      } else {
-        // Можете здесь удалить элемент, если нужно
+        this.updateCartItemQuantityAction({
+          toolId: item.toolId,
+          quantity: item.quantity - 1,
+        })
       }
     },
 
