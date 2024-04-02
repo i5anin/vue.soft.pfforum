@@ -114,12 +114,12 @@ export default {
       handler(dynamicColumns) {
         this.toolTableHeaders = [
           { title: '№', key: 'index', sortable: false },
-          { title: 'Маркировка', key: 'name', sortable: true },
+          { title: 'Маркировка', key: 'name', sortable: false },
           ...(dynamicColumns && dynamicColumns.length > 0
             ? dynamicColumns.map(({ label: title, key }) => ({
                 title,
                 key,
-                sortable: true,
+                sortable: false,
               }))
             : []),
           { title: 'Норма', key: 'norma', sortable: false },

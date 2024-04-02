@@ -3,6 +3,9 @@ import { toolApi } from '@/api'
 export default {
   namespaced: true,
   state: () => ({
+    selectedDetail: null,
+    selectedOperationId: null,
+
     isModalOpen: false,
     cartItems: [],
 
@@ -26,6 +29,14 @@ export default {
     },
   }),
   mutations: {
+    setSelectedDetail(state, detail) {
+      state.selectedDetail = detail
+    },
+
+    setSelectedOperationId(state, operationId) {
+      state.selectedOperationId = operationId
+    },
+
     SET_MODAL_STATUS(state, status) {
       console.log('Изменение состояния модального окна на: ', status)
       state.isModalOpen = status
@@ -195,6 +206,9 @@ export default {
     },
   },
   getters: {
+    selectedDetail: (state) => state.selectedDetail,
+    selectedOperationId: (state) => state.selectedOperationId,
+
     totalQuantityInCart: (state) => {
       return state.cart.reduce((total, item) => total + item.quantity, 0)
     },

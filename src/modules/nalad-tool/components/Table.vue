@@ -108,7 +108,7 @@ export default {
       handler(newVal) {
         this.toolTableHeaders = [
           { title: '№', key: 'index', sortable: false },
-          { title: 'Маркировка', key: 'name', sortable: true },
+          { title: 'Маркировка', key: 'name', sortable: false },
 
           { title: 'Норма', key: 'norma', sortable: false },
           { title: 'Склад', key: 'sklad', sortable: false },
@@ -119,7 +119,7 @@ export default {
             ? newVal.map((param) => ({
                 title: param.label,
                 key: param.key,
-                sortable: true,
+                sortable: false,
               }))
             : []),
           // { title: 'Действие', key: 'actions', sortable: false },

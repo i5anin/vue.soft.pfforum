@@ -57,20 +57,19 @@
       <v-spacer />
       <!--      <div>openDialog: {{ openDialog }}, currentModal: {{ currentModal }}</div>-->
 
-      <div class="ma-5">
+      <div v-if="cartItemsLength > 0" class="ma-5">
         <v-btn icon @click="openCartModal">
           <v-icon @click="">mdi-cart-outline</v-icon>
         </v-btn>
         <v-chip color="red" variant="flat">{{ cartItemsLength }}</v-chip>
       </div>
 
-      <v-chip class="ma-2" label dark>
+      <v-chip v-if="userInfo.user" class="ma-2" label dark>
         <template v-slot:prepend>
           <v-icon icon="mdi-account" start />
         </template>
         {{ userInfo.user }}
       </v-chip>
-
       <!-- Три кнопки справа -->
       <!--      <v-btn icon>-->
       <!--        <v-icon>mdi-magnify</v-icon>-->

@@ -133,13 +133,13 @@ export default {
       handler(dynamicFilters) {
         this.toolTableHeaders = [
           { title: '№', key: 'index', sortable: false },
-          { title: 'Маркировка', key: 'name', sortable: true },
+          { title: 'Маркировка', key: 'name', sortable: false },
 
           ...(dynamicFilters && dynamicFilters.length > 0
             ? dynamicFilters.map(({ label: title, key }) => ({
                 title,
                 key,
-                sortable: true,
+                sortable: false,
               }))
             : []),
           // { title: 'Норма', key: 'norma', sortable: false },

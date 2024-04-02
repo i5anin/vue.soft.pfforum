@@ -66,7 +66,7 @@
       <v-spacer />
       <v-btn
         prepend-icon="mdi-check-circle"
-        @click="onSave"
+        @click="onSave, printSelectedData()"
         class="text-none text-subtitle-1 pl-3"
         color="blue darken-1"
         size="large"
@@ -219,6 +219,16 @@ export default {
       'updateCartItemQuantityAction',
       'removeFromCartAction',
     ]),
+    printSelectedData() {
+      console.log(
+        'Выбранный деталь:',
+        this.$store.getters['IssueToolStore/selectedDetail']
+      )
+      console.log(
+        'Выбранный ID операции:',
+        this.$store.getters['IssueToolStore/selectedOperationId']
+      )
+    },
     increaseQuantity(index) {
       const item = this.cartItems[index]
       if (item.quantity < item.sklad) {
@@ -227,6 +237,18 @@ export default {
           quantity: item.quantity + 1,
         })
       }
+    },
+    printIssueData() {
+      const issueData = {
+        operationId: this.toolModel.selectedOperationId,
+        issuedTo: this.selectedFio,
+        tools: this.cartItems.map((item) => ({
+          toolId: item.toolId,
+          quantity: item.quantity,
+        })),
+      }
+
+      console.log('Данные для выдачи инструмента:', issueData)
     },
     decreaseQuantity(index) {
       const item = this.cartItems[index]

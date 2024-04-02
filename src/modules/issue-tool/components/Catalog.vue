@@ -10,7 +10,7 @@
         @update:model-value="onIdChanged"
       />
     </v-col>
-    <v-col cols="12" md="2">
+    <v-col cols="12" md="4">
       <v-select
         density="compact"
         label="Название Обозначение"
@@ -130,8 +130,25 @@ export default {
     },
   },
   methods: {
-    ...mapMutations('IssueToolStore', ['setParentCatalog']),
+    ...mapMutations('IssueToolStore', [
+      'setSelectedOperationId',
+      'setSelectedDetail',
+      'setParentCatalog',
+    ]),
     ...mapActions('IssueToolStore', ['fetchToolsByFilter']),
+
+    onIdSelected(selectedValue) {
+      const id = this.idMapping[selectedValue]
+      this.setSelectedDetail({
+        id,
+        ...this.originalData.find((item) => item.id === id),
+      })
+    },
+
+    onOperationSelected(value) {
+      const operationId = this.operationMapping[value]
+      this.setSelectedOperationId(operationId)
+    },
     prepareFioOptions(fioData) {
       return fioData.map((item) => ({
         text: item.fio,
@@ -170,23 +187,6 @@ export default {
       })
 
       return Array.from(uniqueSet)
-    },
-    onIdSelected(selectedValue) {
-      const id = this.idMapping[selectedValue]
-      if (id) {
-        const filteredData = this.originalData.filter((item) => item.id === id)
-        this.options.numberType = this.formatOperationOptions(filteredData)
-      } else {
-        console.error(
-          'Не удалось найти ID для выбранного значения:',
-          selectedValue
-        )
-      }
-    },
-    onOperationSelected(value) {
-      const id = this.operationMapping[value]
-      this.toolModel.selectedOperationId = id
-      console.log('Выбран specs_op_id:', id)
     },
     formatOperationOptions(data) {
       this.operationMapping = {} // Очистка или инициализация перед использованием
