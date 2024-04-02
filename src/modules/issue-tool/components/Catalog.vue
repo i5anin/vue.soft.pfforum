@@ -134,21 +134,20 @@ export default {
       'setSelectedOperationId',
       'setSelectedDetail',
       'setParentCatalog',
+      'setSelectedOperationId',
+      'setSelectedFio',
     ]),
+
     ...mapActions('IssueToolStore', ['fetchToolsByFilter']),
 
-    onIdSelected(selectedValue) {
-      const id = this.idMapping[selectedValue]
-      this.setSelectedDetail({
-        id,
-        ...this.originalData.find((item) => item.id === id),
-      })
+    handleSelectionChange(selectedItem) {
+      this.setSelectedFio(selectedItem.value)
     },
 
     onOperationSelected(value) {
-      const operationId = this.operationMapping[value]
-      this.setSelectedOperationId(operationId)
+      this.setSelectedOperationId(this.operationMapping[value])
     },
+
     prepareFioOptions(fioData) {
       return fioData.map((item) => ({
         text: item.fio,
@@ -156,12 +155,6 @@ export default {
       }))
     },
 
-    handleSelectionChange(selectedItem) {
-      console.log(
-        `Выбрана фамилия: ${selectedItem.text} с ID:`,
-        selectedItem.value
-      )
-    },
     async onIdChanged(newId) {
       try {
         const result = await issueToolApi.searchById(newId)
@@ -188,6 +181,19 @@ export default {
 
       return Array.from(uniqueSet)
     },
+    onIdSelected(selectedValue) {
+      const id = this.idMapping[selectedValue]
+      if (id) {
+        const filteredData = this.originalData.filter((item) => item.id === id)
+        this.options.numberType = this.formatOperationOptions(filteredData)
+      } else {
+        console.error(
+          'Не удалось найти ID для выбранного значения:',
+          selectedValue
+        )
+      }
+    },
+
     formatOperationOptions(data) {
       this.operationMapping = {} // Очистка или инициализация перед использованием
       const uniqueSet = new Set()

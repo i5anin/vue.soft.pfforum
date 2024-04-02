@@ -17,7 +17,7 @@
           </thead>
           <tbody>
             <tr v-for="(item, index) in cartItems" :key="item.id">
-              <td>{{ index + 1 }}</td>
+              <td style="color: gray">{{ index + 1 }}</td>
               <td>{{ item.name }}</td>
               <td>
                 <v-btn
@@ -65,8 +65,8 @@
       </v-btn>
       <v-spacer />
       <v-btn
-        prepend-icon="mdi-check-circle"
-        @click="onSave, printSelectedData()"
+        prepend-icon="mdi-hand-extended"
+        @click="onSave, sendIssueDataToApi"
         class="text-none text-subtitle-1 pl-3"
         color="blue darken-1"
         size="large"
@@ -127,12 +127,12 @@ export default {
     },
   }),
   watch: {
-    'tool.sklad': function (newVal) {
-      console.log('tool.sklad changed from ', newVal)
-    },
-    selectedFio(newValue) {
-      console.log('Выбранное значение fio_id:', newValue)
-    },
+    // 'tool.sklad': function (newVal) {
+    //   console.log('tool.sklad changed from ', newVal)
+    // },
+    // selectedFio(newValue) {
+    //   console.log('Выбранное значение fio_id:', newValue)
+    // },
     tool: {
       deep: true,
       immediate: true,
@@ -147,54 +147,42 @@ export default {
     },
   },
 
-  async created() {
-    try {
-      // Вызов API для получения данных о ФИО
-      const fioData = await issueToolApi.getDetailFio()
-      // Подготовка опций ФИО для селектора
-      this.fioOptions = this.prepareFioOptions(fioData)
-
-      // Вызов API для получения списка станков
-      // Получение списка станков
-      const cncData = await issueToolApi.fetchCncList()
-      // Обновление cncList для обеспечения реактивности
-      this.cncList = cncData ? [...cncData] : []
-      // Проверка и присвоение полученных данных о станках
-      if (cncData && Array.isArray(cncData)) {
-        this.cncList = cncData
-      } else {
-        console.error('Ошибка при получении списка станков:', cncData)
-      }
-
-      // Инициализация локального состояния компонента
-      this.initializeLocalState()
-
-      // Если toolId не задан, устанавливаем начальные данные для инструмента
-      if (this.toolId == null) {
-        this.setTool({
-          id: null,
-          name: null,
-          property: {},
-        })
-      } else {
-        // Если toolId задан, запрашиваем данные об инструменте
-        await this.fetchToolById(this.toolId)
-        if (this.tool.property === null) this.tool.property = {}
-      }
-    } catch (error) {
-      console.error('Ошибка в created:', error)
-    }
-  },
-
   computed: {
     ...mapGetters('IssueToolStore', [
       'nameOptions',
       'tool',
       'parentCatalog',
       'cartItems',
+      'selectedFio',
+      'selectedOperationId',
+      'cartItems',
     ]),
     // ...mapGetters('IssueToolStore', ['nameOptions', 'tool']),
     ...mapState('IssueToolStore', ['parentCatalog']),
+
+    async sendIssueDataToApi() {
+      const issueData = {
+        operationId: this.selectedOperationId,
+        userId: this.selectedFio,
+        tools: this.cartItems.map((item) => ({
+          toolId: item.toolId,
+          quantity: item.quantity,
+        })),
+      }
+
+      // Вывод данных в консоль перед отправкой
+      console.log('Отправляемые данные:', issueData)
+
+      try {
+        // TODO Предполагается, что issueToolApi.sendIssueData - это ваш API метод для отправки данных
+        // const response = await issueToolApi.sendIssueData(issueData)
+        // console.log('Ответ сервера:', response)
+      } catch (error) {
+        console.error('Ошибка при отправке данных:', error)
+        // Обработка возможной ошибки, например, показ уведомления об ошибке
+      }
+    },
+
     currentFolderName() {
       return this.toolId === null ? this.idParent.label : this.tool.folder_name
     },
@@ -203,13 +191,6 @@ export default {
       return 'Корзина'
     },
   },
-  // async mounted() {
-  //   try {
-  //     this.cartItems = response.data // Предполагаем, что ответ содержит нужные данные
-  //   } catch (error) {
-  //     console.error('Ошибка при загрузке данных:', error)
-  //   }
-  // },
   methods: {
     ...mapMutations('IssueToolStore', ['setTool']),
     ...mapActions('IssueToolStore', [
@@ -219,16 +200,6 @@ export default {
       'updateCartItemQuantityAction',
       'removeFromCartAction',
     ]),
-    printSelectedData() {
-      console.log(
-        'Выбранный деталь:',
-        this.$store.getters['IssueToolStore/selectedDetail']
-      )
-      console.log(
-        'Выбранный ID операции:',
-        this.$store.getters['IssueToolStore/selectedOperationId']
-      )
-    },
     increaseQuantity(index) {
       const item = this.cartItems[index]
       if (item.quantity < item.sklad) {
@@ -238,17 +209,15 @@ export default {
         })
       }
     },
-    printIssueData() {
-      const issueData = {
-        operationId: this.toolModel.selectedOperationId,
-        issuedTo: this.selectedFio,
-        tools: this.cartItems.map((item) => ({
-          toolId: item.toolId,
-          quantity: item.quantity,
-        })),
+    resetToolModel() {
+      this.toolModel = {
+        name: null,
+        limit: null,
+        sklad: null,
+        norma: null,
+        property: {},
       }
-
-      console.log('Данные для выдачи инструмента:', issueData)
+      // console.log(this.toolModel)
     },
     decreaseQuantity(index) {
       const item = this.cartItems[index]
@@ -258,19 +227,6 @@ export default {
           quantity: item.quantity - 1,
         })
       }
-    },
-
-    // Пример метода для открытия модального окна
-    openModal() {
-      this.isModalOpen = true // Установка флага открытия модального окна в true
-      // Другие действия для подготовки данных модального окна
-    },
-
-    handleSelectionChange(selectedItem) {
-      console.log(
-        `Выбрана фамилия: ${selectedItem.text} с ID:`,
-        selectedItem.value
-      )
     },
 
     prepareFioOptions(fioData) {

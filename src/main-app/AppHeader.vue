@@ -131,6 +131,13 @@ export default {
   methods: {
     ...mapActions('IssueToolStore', ['openModal', 'closeModal']),
 
+    selectedDetailData() {
+      return this.selectedDetail
+    },
+    operationId() {
+      return this.selectedOperationId
+    },
+
     openCartModal() {
       console.log('Открытие модального окна...')
       this.openModal()

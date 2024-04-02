@@ -3,7 +3,7 @@ import { toolApi } from '@/api'
 export default {
   namespaced: true,
   state: () => ({
-    selectedDetail: null,
+    selectedFio: null,
     selectedOperationId: null,
 
     isModalOpen: false,
@@ -29,12 +29,17 @@ export default {
     },
   }),
   mutations: {
+    setSelectedOperationId(state, operationId) {
+      console.log('Установка operationId:', operationId) // Добавьте этот log
+      state.selectedOperationId = operationId
+    },
     setSelectedDetail(state, detail) {
+      console.log('Установка detail:', detail) // И этот log
       state.selectedDetail = detail
     },
 
-    setSelectedOperationId(state, operationId) {
-      state.selectedOperationId = operationId
+    setSelectedFio(state, fioId) {
+      state.selectedFio = fioId // Предполагается, что state.selectedFio существует
     },
 
     SET_MODAL_STATUS(state, status) {
@@ -206,9 +211,8 @@ export default {
     },
   },
   getters: {
-    selectedDetail: (state) => state.selectedDetail,
+    selectedFio: (state) => state.selectedFio,
     selectedOperationId: (state) => state.selectedOperationId,
-
     totalQuantityInCart: (state) => {
       return state.cart.reduce((total, item) => total + item.quantity, 0)
     },
