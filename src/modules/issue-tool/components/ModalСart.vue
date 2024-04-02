@@ -219,9 +219,6 @@ export default {
       'updateCartItemQuantityAction',
       'removeFromCartAction',
     ]),
-    removeFromCartAction(toolId) {
-      commit('removeFromCart', toolId)
-    },
     increaseQuantity(index) {
       const item = this.cartItems[index]
       if (item.quantity < item.sklad) {
