@@ -15,7 +15,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in cartItems" :key="item.id">
+            <tr v-for="(item, index) in cartItems" :key="item.id">
               <td><span class="mdi mdi-box-cutter"></span></td>
               <td>{{ item.name }}</td>
               <td>
@@ -83,14 +83,6 @@ export default {
   },
   components: { Modal },
   data: () => ({
-    cartItems: [
-      {
-        id: null, // Уникальный идентификатор для пустой позиции
-        name: 'Пусто', // Оставляем имя пустым
-        quantity: 0, // Количество для пустой позиции
-        sklad: '0', // Склад для пустой позиции
-      },
-    ],
     damagedQuantity: 1,
     comment: null,
     selectedCnc: null,
@@ -186,10 +178,12 @@ export default {
   },
 
   computed: {
-    index() {
-      return index
-    },
-    ...mapGetters('IssueToolStore', ['nameOptions', 'tool', 'parentCatalog']),
+    ...mapGetters('IssueToolStore', [
+      'nameOptions',
+      'tool',
+      'parentCatalog',
+      'cartItems',
+    ]),
     // ...mapGetters('IssueToolStore', ['nameOptions', 'tool']),
     ...mapState('IssueToolStore', ['parentCatalog']),
     currentFolderName() {
@@ -200,42 +194,42 @@ export default {
       return this.tool?.id != null ? `Корзина` : 'Ошибка нет ID'
     },
   },
+  async mounted() {
+    try {
+      const response = await someApiCall() // Замените someApiCall() на ваш API вызов
+      this.cartItems = response.data // Предполагаем, что ответ содержит нужные данные
+    } catch (error) {
+      console.error('Ошибка при загрузке данных:', error)
+    }
+  },
   methods: {
     ...mapMutations('IssueToolStore', ['setTool']),
-    ...mapActions('IssueToolStore', ['fetchToolsByFilter', 'fetchToolById']),
-    // Добавление пустой позиции в корзину
-    addEmptyCartItem() {
-      const emptyItem = {
-        id: null, // Уникальный идентификатор для пустой позиции
-        name: '', // Оставляем имя пустым
-        quantity: 0, // Количество для пустой позиции
-        sklad: '', // Склад для пустой позиции
+    ...mapActions('IssueToolStore', [
+      'fetchToolsByFilter',
+      'fetchToolById',
+      'addToCartAction',
+    ]),
+    increaseQuantity(index) {
+      let item = this.cartItems[index]
+      if (item.quantity < item.stockQuantity) {
+        item.quantity++
+      } else {
+        // Обработка ошибки
       }
-      this.cartItems.push(emptyItem) // Добавляем пустую позицию в список
+    },
+    decreaseQuantity(index) {
+      let item = this.cartItems[index]
+      if (item.quantity > 1) {
+        item.quantity--
+      } else {
+        // Можете здесь удалить элемент, если нужно
+      }
     },
 
     // Пример метода для открытия модального окна
     openModal() {
       this.isModalOpen = true // Установка флага открытия модального окна в true
       // Другие действия для подготовки данных модального окна
-    },
-    increaseQuantity(index) {
-      let item = this.cartItems[index]
-      if (item.quantity < item.stockQuantity) {
-        item.quantity++
-        // Тут вызовите метод обновления корзины, если есть
-      } else {
-        // Обработка попытки превысить количество на складе
-        this.$toast(`Максимальное количество: ${item.stockQuantity}`)
-      }
-    },
-    decreaseQuantity(index) {
-      let item = this.cartItems[index]
-      if (item.quantity > 1) {
-        item.quantity-- // Тут вызовите метод обновления корзины, если есть
-      } else {
-        this.cartItems.splice(index, 1) // Тут вызовите метод удаления из корзины, если есть
-      }
     },
 
     handleSelectionChange(selectedItem) {
