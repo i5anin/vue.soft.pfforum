@@ -74,7 +74,14 @@
         </v-btn>
       </template>
       <template v-slot:item.cart="{ item }">
-        <button @click="addToolToCart(item.id, 1)">В корзину</button>
+        <v-btn
+          icon
+          @click="addToolToCart(item.id, 1)"
+          :class="{ 'added-to-cart': addedToCart[item.id] }"
+        >
+          <v-icon v-if="addedToCart[item.id]">mdi-check</v-icon>
+          <span v-else>В корзину</span>
+        </v-btn>
       </template>
     </v-data-table-server>
   </v-container>
@@ -114,6 +121,7 @@ export default {
   },
   data() {
     return {
+      addedToCart: {},
       openDialog: false,
       isDataLoaded: false,
       editingToolId: null, //редактирование идентификатора инструмента
@@ -205,6 +213,12 @@ export default {
           sklad: tool.sklad,
         })
       }
+      this.addedToCart[toolId] = true
+
+      // Убираем галочку через 2 секунды
+      setTimeout(() => {
+        this.addedToCart[toolId] = false
+      }, 2000)
     },
     onIssueTool(event, item) {
       event.stopPropagation()
@@ -277,5 +291,19 @@ export default {
 
 .red {
   color: red;
+}
+.added-to-cart {
+  color: green !important; /* Цвет иконки после добавления в корзину */
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Простая анимация для плавного появления галочки */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 </style>

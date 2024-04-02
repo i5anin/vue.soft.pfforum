@@ -1,22 +1,23 @@
 <template>
   <!--  <form @submit.prevent='onSubmit'>-->
-  <Modal :title="popupTitle">
+  <Modal :title="popupTitle" widthDefault="650px">
     <template #content>
       <v-container>
         <!--        <v-col cols="12" md="4">-->
         <!--        <h2>Корзина</h2>-->
-        <v-table>
+        <v-table hover>
           <thead>
             <tr>
-              <th></th>
+              <th>#</th>
               <th>Инструмент</th>
               <th>Кол-во</th>
               <th>Склад</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(item, index) in cartItems" :key="item.id">
-              <td><span class="mdi mdi-box-cutter"></span></td>
+              <td>{{ index + 1 }}</td>
               <td>{{ item.name }}</td>
               <td>
                 <v-btn
@@ -32,12 +33,21 @@
                   icon
                   size="x-small"
                   @click="increaseQuantity(index)"
-                  :disabled="item.quantity >= item.stockQuantity"
+                  :disabled="item.quantity >= item.sklad"
                 >
                   <v-icon>mdi-plus</v-icon>
                 </v-btn>
               </td>
               <td>{{ item.sklad }}</td>
+              <td>
+                <v-btn
+                  icon
+                  size="x-small"
+                  @click="removeFromCartAction(item.toolId)"
+                >
+                  <v-icon>mdi-delete</v-icon>
+                </v-btn>
+              </td>
             </tr>
           </tbody>
         </v-table>
@@ -193,14 +203,13 @@ export default {
       return this.tool?.id != null ? `Корзина` : 'Ошибка нет ID'
     },
   },
-  async mounted() {
-    try {
-      const response = await someApiCall() // Замените someApiCall() на ваш API вызов
-      this.cartItems = response.data // Предполагаем, что ответ содержит нужные данные
-    } catch (error) {
-      console.error('Ошибка при загрузке данных:', error)
-    }
-  },
+  // async mounted() {
+  //   try {
+  //     this.cartItems = response.data // Предполагаем, что ответ содержит нужные данные
+  //   } catch (error) {
+  //     console.error('Ошибка при загрузке данных:', error)
+  //   }
+  // },
   methods: {
     ...mapMutations('IssueToolStore', ['setTool']),
     ...mapActions('IssueToolStore', [
@@ -208,10 +217,14 @@ export default {
       'fetchToolById',
       'addToCartAction',
       'updateCartItemQuantityAction',
+      'removeFromCartAction',
     ]),
+    removeFromCartAction(toolId) {
+      commit('removeFromCart', toolId)
+    },
     increaseQuantity(index) {
       const item = this.cartItems[index]
-      if (item.quantity < item.stockQuantity) {
+      if (item.quantity < item.sklad) {
         this.updateCartItemQuantityAction({
           toolId: item.toolId,
           quantity: item.quantity + 1,
