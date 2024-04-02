@@ -162,10 +162,10 @@ export default {
 
     async sendIssueDataToApi() {
       const issueData = {
-        operationId: this.selectedOperationId,
-        userId: this.selectedFio,
+        operation_id: this.selectedOperationId,
+        user_id: this.$store.state.IssueToolStore.selectedFio,
         tools: this.cartItems.map((item) => ({
-          toolId: item.toolId,
+          tool_id: item.toolId,
           quantity: item.quantity,
         })),
       }
@@ -268,38 +268,38 @@ export default {
     onCancel() {
       this.$emit('canceled')
     },
-    async onSave() {
-      try {
-        const damagedToolData = {
-          id_tool: this.toolId,
-          id_user: this.selectedFio.value,
-          // Убедитесь, что selectedCnc является строкой, представляющей cnc_code
-          cnc_code: this.selectedCnc.cnc_code,
-          comment: this.comment,
-          quantity: this.damagedQuantity,
-        }
-
-        // Отправка данных о поврежденном инструменте
-        const response =
-          await issueToolApi.addToolHistoryDamaged(damagedToolData)
-        console.log('Ответ сервера:', response)
-
-        if (response.success === 'OK') {
-          console.log('Данные о поврежденном инструменте успешно сохранены')
-          this.$emit('changes-saved')
-        } else {
-          console.error(
-            'Ошибка при сохранении данных о поврежденном инструменте: ',
-            response
-          )
-        }
-      } catch (error) {
-        console.error(
-          'Ошибка при отправке данных о поврежденном инструменте: ',
-          error
-        )
-      }
-    },
+    // async onSave() {
+    //   try {
+    //     const damagedToolData = {
+    //       id_tool: this.toolId,
+    //       id_user: this.selectedFio.value,
+    //       // Убедитесь, что selectedCnc является строкой, представляющей cnc_code
+    //       cnc_code: this.selectedCnc.cnc_code,
+    //       comment: this.comment,
+    //       quantity: this.damagedQuantity,
+    //     }
+    //
+    //     // Отправка данных о поврежденном инструменте
+    //     const response =
+    //       await issueToolApi.addToolHistoryDamaged(damagedToolData)
+    //     console.log('Ответ сервера:', response)
+    //
+    //     if (response.success === 'OK') {
+    //       console.log('Данные о поврежденном инструменте успешно сохранены')
+    //       this.$emit('changes-saved')
+    //     } else {
+    //       console.error(
+    //         'Ошибка при сохранении данных о поврежденном инструменте: ',
+    //         response
+    //       )
+    //     }
+    //   } catch (error) {
+    //     console.error(
+    //       'Ошибка при отправке данных о поврежденном инструменте: ',
+    //       error
+    //     )
+    //   }
+    // },
   },
 }
 </script>
