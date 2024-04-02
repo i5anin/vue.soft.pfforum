@@ -3,45 +3,45 @@
   <Modal :title="popupTitle">
     <template #content>
       <v-container>
-        <v-col cols="12" md="4">
-          <h2>Корзина</h2>
-          <v-table>
-            <thead>
-              <tr>
-                <th></th>
-                <th>Инструмент</th>
-                <th>Кол-во</th>
-                <th>Склад</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="item in cartItems" :key="item.id">
-                <td><span class="mdi mdi-box-cutter"></span></td>
-                <td>{{ item.name }}</td>
-                <td>
-                  <v-btn
-                    icon
-                    size="x-small"
-                    @click="decreaseQuantity(index)"
-                    :disabled="item.quantity <= 1"
-                  >
-                    <v-icon>mdi-minus</v-icon>
-                  </v-btn>
-                  {{ item.quantity }}
-                  <v-btn
-                    icon
-                    size="x-small"
-                    @click="increaseQuantity(index)"
-                    :disabled="item.quantity >= item.stockQuantity"
-                  >
-                    <v-icon>mdi-plus</v-icon>
-                  </v-btn>
-                </td>
-                <td>{{ item.sklad }}</td>
-              </tr>
-            </tbody>
-          </v-table>
-        </v-col>
+        <!--        <v-col cols="12" md="4">-->
+        <!--        <h2>Корзина</h2>-->
+        <v-table>
+          <thead>
+            <tr>
+              <th></th>
+              <th>Инструмент</th>
+              <th>Кол-во</th>
+              <th>Склад</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in cartItems" :key="item.id">
+              <td><span class="mdi mdi-box-cutter"></span></td>
+              <td>{{ item.name }}</td>
+              <td>
+                <v-btn
+                  icon
+                  size="x-small"
+                  @click="decreaseQuantity(index)"
+                  :disabled="item.quantity <= 1"
+                >
+                  <v-icon>mdi-minus</v-icon>
+                </v-btn>
+                {{ item.quantity }}
+                <v-btn
+                  icon
+                  size="x-small"
+                  @click="increaseQuantity(index)"
+                  :disabled="item.quantity >= item.stockQuantity"
+                >
+                  <v-icon>mdi-plus</v-icon>
+                </v-btn>
+              </td>
+              <td>{{ item.sklad }}</td>
+            </tr>
+          </tbody>
+        </v-table>
+        <!--        </v-col>-->
       </v-container>
     </template>
     <template #action>
@@ -62,7 +62,7 @@
         size="large"
         variant="flat"
       >
-        Сохранить
+        Выдать
       </v-btn>
     </template>
   </Modal>
@@ -71,7 +71,7 @@
 <script>
 import Modal from '@/modules/shared/components/Modal.vue'
 import { issueToolApi } from '@/modules/issue-tool/api/issue'
-import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import index, { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 
 export default {
   name: 'Cart-Modal',
@@ -83,6 +83,14 @@ export default {
   },
   components: { Modal },
   data: () => ({
+    cartItems: [
+      {
+        id: null, // Уникальный идентификатор для пустой позиции
+        name: 'Пусто', // Оставляем имя пустым
+        quantity: 0, // Количество для пустой позиции
+        sklad: '0', // Склад для пустой позиции
+      },
+    ],
     damagedQuantity: 1,
     comment: null,
     selectedCnc: null,
@@ -178,6 +186,9 @@ export default {
   },
 
   computed: {
+    index() {
+      return index
+    },
     ...mapGetters('IssueToolStore', ['nameOptions', 'tool', 'parentCatalog']),
     // ...mapGetters('IssueToolStore', ['nameOptions', 'tool']),
     ...mapState('IssueToolStore', ['parentCatalog']),
@@ -186,15 +197,28 @@ export default {
     },
 
     popupTitle() {
-      return this.tool?.id != null
-        ? `Инструмент поврежден ID: ${this.tool.id}`
-        : 'Ошибка нет ID'
+      return this.tool?.id != null ? `Корзина` : 'Ошибка нет ID'
     },
   },
   methods: {
     ...mapMutations('IssueToolStore', ['setTool']),
     ...mapActions('IssueToolStore', ['fetchToolsByFilter', 'fetchToolById']),
+    // Добавление пустой позиции в корзину
+    addEmptyCartItem() {
+      const emptyItem = {
+        id: null, // Уникальный идентификатор для пустой позиции
+        name: '', // Оставляем имя пустым
+        quantity: 0, // Количество для пустой позиции
+        sklad: '', // Склад для пустой позиции
+      }
+      this.cartItems.push(emptyItem) // Добавляем пустую позицию в список
+    },
 
+    // Пример метода для открытия модального окна
+    openModal() {
+      this.isModalOpen = true // Установка флага открытия модального окна в true
+      // Другие действия для подготовки данных модального окна
+    },
     increaseQuantity(index) {
       let item = this.cartItems[index]
       if (item.quantity < item.stockQuantity) {
