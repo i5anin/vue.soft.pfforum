@@ -100,7 +100,6 @@ export default {
     originalData: [],
     idMapping: {},
     isModalOpen: true,
-    selectedFio: null,
     fioOptions: [],
     selectedData: { name: null, description: null, no: null, type: null },
     localParentId: null,
@@ -153,9 +152,9 @@ export default {
       'tool',
       'parentCatalog',
       'cartItems',
+      'cartItems',
       'selectedFio',
       'selectedOperationId',
-      'cartItems',
     ]),
     // ...mapGetters('IssueToolStore', ['nameOptions', 'tool']),
     ...mapState('IssueToolStore', ['parentCatalog']),
@@ -163,7 +162,7 @@ export default {
     async sendIssueDataToApi() {
       const issueData = {
         operation_id: this.selectedOperationId,
-        user_id: this.$store.state.IssueToolStore.selectedFio,
+        user_id: this.selectedFio,
         tools: this.cartItems.map((item) => ({
           tool_id: item.toolId,
           quantity: item.quantity,

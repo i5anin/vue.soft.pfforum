@@ -29,19 +29,18 @@ export default {
     },
   }),
   mutations: {
+    setSelectedFio(state, fioId) {
+      console.log('Установка fioId:', fioId)
+      state.selectedFio = fioId
+    },
     setSelectedOperationId(state, operationId) {
-      console.log('Установка operationId:', operationId) // Добавьте этот log
+      console.log('Установка operationId:', operationId)
       state.selectedOperationId = operationId
     },
     setSelectedDetail(state, detail) {
       console.log('Установка detail:', detail) // И этот log
       state.selectedDetail = detail
     },
-
-    setSelectedFio(state, fioId) {
-      state.selectedFio = fioId // Предполагается, что state.selectedFio существует
-    },
-
     SET_MODAL_STATUS(state, status) {
       console.log('Изменение состояния модального окна на: ', status)
       state.isModalOpen = status
@@ -213,9 +212,7 @@ export default {
   getters: {
     selectedFio: (state) => state.selectedFio,
     selectedOperationId: (state) => state.selectedOperationId,
-    totalQuantityInCart: (state) => {
-      return state.cart.reduce((total, item) => total + item.quantity, 0)
-    },
+
     cartItems: (state) => state.cart,
     parentCatalog: (state) => state.parentCatalog,
     dynamicFilters: (state) => state.dynamicFilters,
