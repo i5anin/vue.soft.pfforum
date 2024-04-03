@@ -1,10 +1,7 @@
 <template>
-  <!--  <form @submit.prevent='onSubmit'>-->
   <Modal :title="popupTitle" widthDefault="650px">
     <template #content>
       <v-container>
-        <!--        <v-col cols="12" md="4">-->
-        <!--        <h2>Корзина</h2>-->
         <v-table hover="true">
           <thead>
             <tr>
@@ -51,7 +48,6 @@
             </tr>
           </tbody>
         </v-table>
-        <!--        </v-col>-->
       </v-container>
     </template>
     <template #action>

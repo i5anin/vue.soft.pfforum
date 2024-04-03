@@ -186,11 +186,16 @@ export default {
       if (id) {
         const filteredData = this.originalData.filter((item) => item.id === id)
         this.options.numberType = this.formatOperationOptions(filteredData)
+        // Сбросить выбранное значение для "Номер Тип" каждый раз, когда выбирается новое "Название Обозначение"
+        this.toolModel.operationType = null // Это предполагает, что operationType - это свойство в toolModel, где хранится выбранный "Номер Тип"
       } else {
         console.error(
           'Не удалось найти ID для выбранного значения:',
           selectedValue
         )
+        // Возможно также стоит сбросить options.numberType и toolModel.operationType здесь, если selectedValue не допустимо
+        this.options.numberType = []
+        this.toolModel.operationType = null
       }
     },
 
