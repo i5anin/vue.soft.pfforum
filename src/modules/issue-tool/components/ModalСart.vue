@@ -62,7 +62,7 @@
       <v-spacer />
       <v-btn
         prepend-icon="mdi-hand-extended"
-        @click="onSave, sendIssueDataToApi"
+        @click="onSave"
         class="text-none text-subtitle-1 pl-3"
         color="blue darken-1"
         size="large"
@@ -197,6 +197,18 @@ export default {
       'updateCartItemQuantityAction',
       'removeFromCartAction',
     ]),
+
+    async onSave() {
+      try {
+        // Вызываем sendIssueDataToApi и ждём его выполнения
+        await this.sendIssueDataToApi()
+        // После успешного выполнения можем выполнять другие действия, например закрыть модальное окно
+        // this.closeModal(); // Предполагая, что у вас есть метод closeModal для закрытия модального окна
+        console.log('Данные успешно отправлены и обработаны')
+      } catch (error) {
+        console.error('Произошла ошибка при отправке данных:', error)
+      }
+    },
     increaseQuantity(index) {
       const item = this.cartItems[index]
       if (item.quantity < item.sklad) {
