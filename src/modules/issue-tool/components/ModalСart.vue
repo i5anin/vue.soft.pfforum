@@ -175,7 +175,7 @@ export default {
         const response = await issueToolApi.addHistoryTools(issueData)
         console.log('Ответ сервера:', response)
         // Вызовы Vuex действий для очистки корзины и закрытия модального окна
-        // this.$store.dispatch('IssueToolStore/clearCart')
+        this.$store.dispatch('IssueToolStore/clearCart')
         this.$store.dispatch('IssueToolStore/closeModal')
         // Эмитируем событие для обновления страницы
         this.$emit('updatePage')
