@@ -5,7 +5,7 @@
       <v-container>
         <!--        <v-col cols="12" md="4">-->
         <!--        <h2>Корзина</h2>-->
-        <v-table hover>
+        <v-table hover="true">
           <thead>
             <tr>
               <th>#</th>
@@ -81,7 +81,7 @@
 <script>
 import Modal from '@/modules/shared/components/Modal.vue'
 import { issueToolApi } from '@/modules/issue-tool/api/issue'
-import index, { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 
 export default {
   name: 'Cart-Modal',
@@ -93,6 +93,7 @@ export default {
   },
   components: { Modal },
   data: () => ({
+    item: { cnc_type: '', fio: '' },
     damagedQuantity: 1,
     comment: null,
     selectedCnc: null,
@@ -126,12 +127,6 @@ export default {
     },
   }),
   watch: {
-    // 'tool.sklad': function (newVal) {
-    //   console.log('tool.sklad changed from ', newVal)
-    // },
-    // selectedFio(newValue) {
-    //   console.log('Выбранное значение fio_id:', newValue)
-    // },
     tool: {
       deep: true,
       immediate: true,
@@ -140,7 +135,7 @@ export default {
           this.resetToolModel()
         } else {
           await this.fetchToolById(editingToolId)
-          this.updateToolModel()
+          // this.updateToolModel()
         }
       },
     },
@@ -169,16 +164,13 @@ export default {
         })),
       }
 
-      // Вывод данных в консоль перед отправкой
-      console.log('Отправляемые данные:', issueData)
-
       try {
-        // TODO Предполагается, что issueToolApi.sendIssueData - это ваш API метод для отправки данных
-        // const response = await issueToolApi.sendIssueData(issueData)
-        // console.log('Ответ сервера:', response)
+        const response = await issueToolApi.addHistoryTool(issueData)
+        console.log('Ответ сервера:', response)
+        // Обработка успешного ответа, например, показ уведомления или закрытие модального окна
       } catch (error) {
         console.error('Ошибка при отправке данных:', error)
-        // Обработка возможной ошибки, например, показ уведомления об ошибке
+        // Обработка ошибки, например, показ сообщения об ошибке
       }
     },
 

@@ -49,6 +49,7 @@ router.delete('/tools-tree/:id', treeController.dellFolderTree)
 router.get('/detail/id', issueController.findDetailProduction)
 router.get('/operators/fio', issueController.getFioOperators)
 router.post('/issue', issueController.issueTool)
+router.post('/issues', issueController.issueTools)
 router.get('/cnc', issueController.getCncData)
 
 // history

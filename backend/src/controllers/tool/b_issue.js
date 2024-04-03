@@ -43,7 +43,6 @@ async function findDetailProduction(req, res) {
 
 async function getFioOperators(req, res) {
   try {
-    // Объединяем данные из таблицы operators с кастомными списками пользователей из tool_user_custom_list
     const query = `
       SELECT 'operator' AS type, id, fio
       FROM dbo.operators
@@ -144,6 +143,47 @@ async function issueTool(req, res) {
   }
 }
 
+async function issueTools(req, res) {
+  const { operationId, userId, tools } = req.body // tools - это массив объектов
+
+  try {
+    // Начало транзакции
+    await pool.query('BEGIN')
+
+    for (const { toolId, quantity } of tools) {
+      // Для каждого инструмента выполняем проверку наличия и вставляем запись в историю
+      const selectQuery = 'SELECT sklad FROM dbo.tool_nom WHERE id = $1'
+      const { rows } = await pool.query(selectQuery, [toolId])
+
+      if (rows[0].sklad < quantity) {
+        throw new Error(
+          `Недостаточно инструмента на складе для toolId=${toolId}`
+        )
+      }
+
+      const insertQuery = `
+        INSERT INTO dbo.tool_history_nom (specs_op_id, id_user, id_tool, type_issue, quantity, timestamp)
+        VALUES ($1, $2, $3, 1, $4, CURRENT_TIMESTAMP)
+      `
+      await pool.query(insertQuery, [operationId, userId, toolId, quantity])
+
+      // Обновляем количество на складе
+      const updateQuery =
+        'UPDATE dbo.tool_nom SET sklad = sklad - $1 WHERE id = $2'
+      await pool.query(updateQuery, [quantity, toolId])
+    }
+
+    // Завершение транзакции
+    await pool.query('COMMIT')
+
+    res.json({ message: 'Инструменты успешно выданы' })
+  } catch (error) {
+    await pool.query('ROLLBACK') // Откат в случае ошибки
+    console.error('Ошибка при выдаче инструментов:', error)
+    res.status(500).send('Внутренняя ошибка сервера')
+  }
+}
+
 async function getCncData(req, res) {
   try {
     const query = `
@@ -170,5 +210,6 @@ module.exports = {
   findDetailProduction,
   getFioOperators,
   issueTool,
+  issueTools,
   getCncData,
 }
