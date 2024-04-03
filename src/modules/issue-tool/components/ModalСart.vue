@@ -155,14 +155,12 @@ export default {
     ...mapState('IssueToolStore', ['parentCatalog']),
 
     async sendIssueDataToApi() {
-      // Проверка на наличие необходимых данных
       if (
         !this.selectedOperationId ||
         !this.selectedFio ||
         !this.cartItems.length
       ) {
         console.error('Отсутствуют необходимые параметры для запроса')
-        // Здесь можно добавить обработку ошибки, например, показать сообщение пользователю
         return
       }
 
@@ -178,12 +176,14 @@ export default {
       try {
         const response = await issueToolApi.addHistoryTools(issueData)
         console.log('Ответ сервера:', response)
-        // Обработка успешного ответа
+        this.$store.dispatch('clearCart')
+        this.$store.dispatch('updateCatalogFromSession')
+        this.$store.dispatch('closeModal')
       } catch (error) {
         console.error('Ошибка при отправке данных:', error)
-        // Обработка ошибки
       }
     },
+
     currentFolderName() {
       return this.toolId === null ? this.idParent.label : this.tool.folder_name
     },
