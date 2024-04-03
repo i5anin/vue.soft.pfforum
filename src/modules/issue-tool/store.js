@@ -29,6 +29,15 @@ export default {
     },
   }),
   mutations: {
+    // Мутация для очистки корзины
+    CLEAR_CART(state) {
+      state.cart = [] // Убедитесь, что используете правильный массив корзины
+    },
+
+    // Мутация для обновления каталога из сессии
+    UPDATE_CATALOG_FROM_SESSION(state, newCatalog) {
+      state.catalog = newCatalog // Обновление состояния каталога
+    },
     setSelectedFio(state, fioId) {
       console.log('Установка fioId:', fioId)
       state.selectedFio = fioId
@@ -109,7 +118,16 @@ export default {
       state.tools = tools
     },
   },
+
   actions: {
+    // Действие для очистки корзины
+    clearCart({ commit }) {
+      commit('CLEAR_CART')
+    },
+    // Действие для обновления каталога из сессии
+    updateCatalogFromSession({ commit }, newCatalog) {
+      commit('UPDATE_CATALOG_FROM_SESSION', newCatalog)
+    },
     // Действие для добавления инструмента в корзину
     openModal({ commit }) {
       commit('SET_MODAL_STATUS', true)

@@ -85,7 +85,7 @@ import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 
 export default {
   name: 'Cart-Modal',
-  emits: ['canceled', 'changes-saved'],
+  emits: ['canceled', 'changes-saved', 'updatePage'],
   props: {
     persistent: { type: Boolean, default: false },
     toolId: { type: Number, default: null },
@@ -100,7 +100,6 @@ export default {
     cncList: [],
     originalData: [],
     idMapping: {},
-    isModalOpen: true,
     fioOptions: [],
     selectedData: { name: null, description: null, no: null, type: null },
     localParentId: null,
@@ -151,8 +150,7 @@ export default {
       'selectedFio',
       'selectedOperationId',
     ]),
-    // ...mapGetters('IssueToolStore', ['nameOptions', 'tool']),
-    ...mapState('IssueToolStore', ['parentCatalog']),
+    ...mapState('IssueToolStore', ['isModalOpen', 'parentCatalog']),
 
     async sendIssueDataToApi() {
       if (
@@ -176,9 +174,11 @@ export default {
       try {
         const response = await issueToolApi.addHistoryTools(issueData)
         console.log('Ответ сервера:', response)
-        this.$store.dispatch('clearCart')
-        this.$store.dispatch('updateCatalogFromSession')
-        this.$store.dispatch('closeModal')
+        // Вызовы Vuex действий для очистки корзины и закрытия модального окна
+        // this.$store.dispatch('IssueToolStore/clearCart')
+        this.$store.dispatch('IssueToolStore/closeModal')
+        // Эмитируем событие для обновления страницы
+        this.$emit('updatePage')
       } catch (error) {
         console.error('Ошибка при отправке данных:', error)
       }
