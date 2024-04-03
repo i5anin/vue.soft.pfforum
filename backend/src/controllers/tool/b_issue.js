@@ -144,30 +144,40 @@ async function issueTool(req, res) {
 }
 
 async function issueTools(req, res) {
-  const { operationId, userId, tools } = req.body // tools - это массив объектов
+  const { operationId, userId, tools } = req.body // tools - это массив объектов вида { toolId, quantity }
 
   try {
     // Начало транзакции
     await pool.query('BEGIN')
 
+    // Предполагаем, что '1' - это код операции "выдача" в вашей системе
+    const typeIssueCode = 1
+
     for (const { toolId, quantity } of tools) {
-      // Для каждого инструмента выполняем проверку наличия и вставляем запись в историю
+      // Проверка наличия инструмента на складе
       const selectQuery = 'SELECT sklad FROM dbo.tool_nom WHERE id = $1'
       const { rows } = await pool.query(selectQuery, [toolId])
 
-      if (rows[0].sklad < quantity) {
+      if (rows.length === 0 || rows[0].sklad < quantity) {
         throw new Error(
           `Недостаточно инструмента на складе для toolId=${toolId}`
         )
       }
 
+      // Вставка записи в историю инструмента
       const insertQuery = `
-        INSERT INTO dbo.tool_history_nom (specs_op_id, id_user, id_tool, type_issue, quantity, timestamp)
-        VALUES ($1, $2, $3, 1, $4, CURRENT_TIMESTAMP)
-      `
-      await pool.query(insertQuery, [operationId, userId, toolId, quantity])
+                INSERT INTO dbo.tool_history_nom (specs_op_id, id_user, id_tool, type_issue, quantity, timestamp)
+                VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
+            `
+      await pool.query(insertQuery, [
+        operationId,
+        userId,
+        toolId,
+        typeIssueCode,
+        quantity,
+      ])
 
-      // Обновляем количество на складе
+      // Обновление количества инструмента на складе
       const updateQuery =
         'UPDATE dbo.tool_nom SET sklad = sklad - $1 WHERE id = $2'
       await pool.query(updateQuery, [quantity, toolId])
@@ -175,12 +185,24 @@ async function issueTools(req, res) {
 
     // Завершение транзакции
     await pool.query('COMMIT')
-
     res.json({ message: 'Инструменты успешно выданы' })
   } catch (error) {
-    await pool.query('ROLLBACK') // Откат в случае ошибки
+    // Откат в случае ошибки
+    await pool.query('ROLLBACK')
     console.error('Ошибка при выдаче инструментов:', error)
-    res.status(500).send('Внутренняя ошибка сервера')
+
+    // Проверка на специфическую ошибку и отправка соответствующего сообщения
+    if (error.message.includes('Недостаточно инструмента на складе')) {
+      res.status(400).json({
+        error: 'Недостаточно инструмента на складе',
+        message: error.message,
+      })
+    } else {
+      res.status(500).json({
+        error: 'Внутренняя ошибка сервера',
+        message: 'Пожалуйста, обратитесь к администратору',
+      })
+    }
   }
 }
 
