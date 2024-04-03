@@ -178,6 +178,9 @@ export default {
     },
   },
   watch: {
+    'toolModel.detailDescription'(newValue, oldValue) {
+      if (newValue !== oldValue) this.toolModel.operationType = null
+    },
     toolId: {
       immediate: true,
       async handler(editingToolId) {

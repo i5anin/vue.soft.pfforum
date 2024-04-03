@@ -1,4 +1,12 @@
 <template>
+  <v-snackbar v-model="snackbar" :timeout="3000" color="error">
+    {{ snackbarText }}
+    <template #action="{ attrs }">
+      <v-btn icon v-bind="attrs" @click="snackbar = false">
+        <v-icon>mdi-close</v-icon>
+      </v-btn>
+    </template>
+  </v-snackbar>
   <Modal :title="popupTitle" widthDefault="650px">
     <template #content>
       <v-container>
@@ -89,6 +97,8 @@ export default {
   },
   components: { Modal },
   data: () => ({
+    snackbar: false,
+    snackbarText: '',
     item: { cnc_type: '', fio: '' },
     damagedQuantity: 1,
     comment: null,
@@ -148,38 +158,6 @@ export default {
     ]),
     ...mapState('IssueToolStore', ['isModalOpen', 'parentCatalog']),
 
-    async sendIssueDataToApi() {
-      if (
-        !this.selectedOperationId ||
-        !this.selectedFio ||
-        !this.cartItems.length
-      ) {
-        console.error('Отсутствуют необходимые параметры для запроса')
-        return
-      }
-
-      const issueData = {
-        operationId: this.selectedOperationId,
-        userId: this.selectedFio,
-        tools: this.cartItems.map((item) => ({
-          toolId: item.toolId,
-          quantity: item.quantity,
-        })),
-      }
-
-      try {
-        const response = await issueToolApi.addHistoryTools(issueData)
-        console.log('Ответ сервера:', response)
-        // Вызовы Vuex действий для очистки корзины и закрытия модального окна
-        this.$store.dispatch('IssueToolStore/clearCart')
-        this.$store.dispatch('IssueToolStore/closeModal')
-        // Эмитируем событие для обновления страницы
-        this.$emit('updatePage')
-      } catch (error) {
-        console.error('Ошибка при отправке данных:', error)
-      }
-    },
-
     currentFolderName() {
       return this.toolId === null ? this.idParent.label : this.tool.folder_name
     },
@@ -198,12 +176,54 @@ export default {
       'removeFromCartAction',
     ]),
 
+    async sendIssueDataToApi() {
+      if (
+        !this.selectedOperationId ||
+        !this.selectedFio ||
+        !this.cartItems.length
+      ) {
+        this.snackbarText = 'Отсутствуют необходимые параметры для запроса'
+        this.snackbar = true
+        return
+      }
+
+      const issueData = {
+        operationId: this.selectedOperationId,
+        userId: this.selectedFio,
+        tools: this.cartItems.map((item) => ({
+          toolId: item.toolId,
+          quantity: item.quantity,
+        })),
+      }
+
+      try {
+        const response = await issueToolApi.addHistoryTools(issueData)
+        console.log('Ответ сервера:', response)
+        // Дополнительные действия после успешной отправки, если необходимо
+      } catch (error) {
+        console.error('Ошибка при отправке данных:', error)
+        // Проверяем, есть ли ошибка в ответе от сервера
+        let errorMessage = 'Произошла ошибка при отправке данных'
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.error
+        ) {
+          // Используем сообщение об ошибке от сервера, если оно доступно
+          errorMessage = error.response.data.error
+        } else if (error.message) {
+          // Или используем стандартное сообщение об ошибке
+          errorMessage = error.message
+        }
+        // Отображаем сообщение об ошибке в снекбаре
+        this.snackbarText = errorMessage
+        this.snackbar = true
+      }
+    },
+
     async onSave() {
       try {
-        // Вызываем sendIssueDataToApi и ждём его выполнения
         await this.sendIssueDataToApi()
-        // После успешного выполнения можем выполнять другие действия, например закрыть модальное окно
-        // this.closeModal(); // Предполагая, что у вас есть метод closeModal для закрытия модального окна
         console.log('Данные успешно отправлены и обработаны')
       } catch (error) {
         console.error('Произошла ошибка при отправке данных:', error)
