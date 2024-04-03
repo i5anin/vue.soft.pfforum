@@ -155,25 +155,35 @@ export default {
     ...mapState('IssueToolStore', ['parentCatalog']),
 
     async sendIssueDataToApi() {
+      // Проверка на наличие необходимых данных
+      if (
+        !this.selectedOperationId ||
+        !this.selectedFio ||
+        !this.cartItems.length
+      ) {
+        console.error('Отсутствуют необходимые параметры для запроса')
+        // Здесь можно добавить обработку ошибки, например, показать сообщение пользователю
+        return
+      }
+
       const issueData = {
-        operation_id: this.selectedOperationId,
-        user_id: this.selectedFio,
+        operationId: this.selectedOperationId,
+        userId: this.selectedFio,
         tools: this.cartItems.map((item) => ({
-          tool_id: item.toolId,
+          toolId: item.toolId,
           quantity: item.quantity,
         })),
       }
 
       try {
-        const response = await issueToolApi.addHistoryTool(issueData)
+        const response = await issueToolApi.addHistoryTools(issueData)
         console.log('Ответ сервера:', response)
-        // Обработка успешного ответа, например, показ уведомления или закрытие модального окна
+        // Обработка успешного ответа
       } catch (error) {
         console.error('Ошибка при отправке данных:', error)
-        // Обработка ошибки, например, показ сообщения об ошибке
+        // Обработка ошибки
       }
     },
-
     currentFolderName() {
       return this.toolId === null ? this.idParent.label : this.tool.folder_name
     },
@@ -259,38 +269,6 @@ export default {
     onCancel() {
       this.$emit('canceled')
     },
-    // async onSave() {
-    //   try {
-    //     const damagedToolData = {
-    //       id_tool: this.toolId,
-    //       id_user: this.selectedFio.value,
-    //       // Убедитесь, что selectedCnc является строкой, представляющей cnc_code
-    //       cnc_code: this.selectedCnc.cnc_code,
-    //       comment: this.comment,
-    //       quantity: this.damagedQuantity,
-    //     }
-    //
-    //     // Отправка данных о поврежденном инструменте
-    //     const response =
-    //       await issueToolApi.addToolHistoryDamaged(damagedToolData)
-    //     console.log('Ответ сервера:', response)
-    //
-    //     if (response.success === 'OK') {
-    //       console.log('Данные о поврежденном инструменте успешно сохранены')
-    //       this.$emit('changes-saved')
-    //     } else {
-    //       console.error(
-    //         'Ошибка при сохранении данных о поврежденном инструменте: ',
-    //         response
-    //       )
-    //     }
-    //   } catch (error) {
-    //     console.error(
-    //       'Ошибка при отправке данных о поврежденном инструменте: ',
-    //       error
-    //     )
-    //   }
-    // },
   },
 }
 </script>
