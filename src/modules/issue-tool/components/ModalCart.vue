@@ -10,6 +10,58 @@
   <Modal :title="popupTitle" widthDefault="650px">
     <template #content>
       <v-container>
+        <div class="text-h6 pl-5 mb-2">Выбрать на какую деталь:</div>
+        <v-row>
+          <v-col>
+            <v-text-field
+              variant="outlined"
+              label="поиск по ID"
+              required
+              @update:model-value="onIdChanged"
+            />
+            <v-select
+              label="Название Обозначение"
+              required
+              v-model="toolModel.detailDescription"
+              :disabled="!options.idNameDescription.length"
+              :items="options.idNameDescription"
+              @update:model-value="onIdSelected"
+            />
+
+            <v-select
+              label="Номер Тип"
+              required
+              v-model="toolModel.operationType"
+              :disabled="!options.numberType.length"
+              :items="options.numberType"
+              @update:model-value="setSelectedOperationId"
+            />
+
+            <v-combobox
+              required
+              v-model="selectedFio"
+              :items="fioOptions"
+              item-title="text"
+              item-value="value"
+              label="ФИО"
+              return-object="false"
+              single-line="false"
+              @update:modelValue="handleSelectionChange"
+            />
+
+            <v-select
+              required
+              v-model="toolModel.typeIssue"
+              :items="typeIssueOptions"
+              item-text="title"
+              item-value="id"
+              label="Тип выдачи"
+              return-object="false"
+              single-line="false"
+              :rules="issueTypeRules"
+            />
+          </v-col>
+        </v-row>
         <v-table hover="true">
           <thead>
             <tr>
@@ -87,6 +139,7 @@
 import Modal from '@/modules/shared/components/Modal.vue'
 import { issueToolApi } from '@/modules/issue-tool/api/issue'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import { toolTreeApi } from '@/modules/tool/api/tree'
 
 export default {
   name: 'Cart-Modal',
@@ -98,6 +151,12 @@ export default {
   },
   components: { Modal },
   data: () => ({
+    selectedFio: null,
+    typeIssueOptions: [
+      { title: 'Себе', id: 0 },
+      { title: 'На ночь', id: 1 },
+      { title: 'Наладка', id: 2 },
+    ],
     submitButtonDisabled: false,
     isSubmitting: false, // Для блокировки кнопки во время ожидания
     submitError: false, // Для изменения стиля кнопки при ошибке
@@ -113,13 +172,14 @@ export default {
     fioOptions: [],
     selectedData: { name: null, description: null, no: null, type: null },
     localParentId: null,
-    toolModel: { name: null, property: {}, selectedOperationId: null },
+    toolModel: { name: null, selectedOperationId: null },
     selectedParams: [],
     toolParams: [],
     confirmDeleteDialog: false,
     typeSelected: false,
     selectedType: '',
     operationMapping: {},
+    issueTypeRules: [(v) => !!v || 'Тип выдачи обязателен для выбора'],
     parentIdRules: [
       (v) => !!v || 'ID папки обязательно',
       (v) => v > 1 || 'ID папки должен быть больше 1',
@@ -156,12 +216,16 @@ export default {
       'tool',
       'parentCatalog',
       'cartItems',
-      'cartItems',
-      'selectedFio',
-      'selectedOperationId',
     ]),
     ...mapState('IssueToolStore', ['isModalOpen', 'parentCatalog']),
-
+    selectedFioModel: {
+      get() {
+        return this.selectedFio // предполагается, что это значение из Vuex
+      },
+      set(value) {
+        this.handleSelectionChange(value) // вызов метода для обновления Vuex хранилища
+      },
+    },
     currentFolderName() {
       return this.toolId === null ? this.idParent.label : this.tool.folder_name
     },
@@ -180,20 +244,65 @@ export default {
       'removeFromCartAction',
     ]),
 
-    async sendIssueDataToApi() {
-      if (
-        !this.selectedOperationId ||
-        !this.selectedFio ||
-        !this.cartItems.length
-      ) {
-        this.snackbarText = 'Отсутствуют необходимые параметры для запроса'
-        this.snackbar = true
-        return false
-      }
+    formatToolOptions(data) {
+      const uniqueSet = new Set()
+      this.idMapping = {} // очистка предыдущего сопоставления
 
+      data.forEach((item) => {
+        const formattedItem = item.description
+          ? `${item.id} - ${item.name} - ${item.description}`
+          : `${item.id} - ${item.name}`
+
+        if (!uniqueSet.has(formattedItem)) {
+          uniqueSet.add(formattedItem)
+          this.idMapping[formattedItem] = item.id // создание сопоставления
+        }
+      })
+
+      return Array.from(uniqueSet)
+    },
+
+    handleSelectionChange(selectedItem) {
+      this.selectedFio = selectedItem // Убедитесь, что здесь правильно обновляется значение в Vuex
+    },
+
+    setSelectedOperationId(value) {
+      // Здесь ваш код для обновления состояния, например:
+      this.toolModel.selectedOperationId = value
+    },
+    onIdSelected(selectedValue) {
+      const id = this.idMapping[selectedValue]
+      if (id) {
+        const filteredData = this.originalData.filter((item) => item.id === id)
+        this.options.numberType = this.formatOperationOptions(filteredData)
+        // Сбросить выбранное значение для "Номер Тип" каждый раз, когда выбирается новое "Название Обозначение"
+        this.toolModel.operationType = null // Это предполагает, что operationType - это свойство в toolModel, где хранится выбранный "Номер Тип"
+      } else {
+        console.error(
+          'Не удалось найти ID для выбранного значения:',
+          selectedValue
+        )
+        // Возможно также стоит сбросить options.numberType и toolModel.operationType здесь, если selectedValue не допустимо
+        this.options.numberType = []
+        this.toolModel.operationType = null
+      }
+    },
+
+    async onIdChanged(newId) {
+      try {
+        const result = await issueToolApi.searchById(newId)
+        this.originalData = result // Сохраняем исходные данные для последующего использования
+        this.options.idNameDescription = this.formatToolOptions(result)
+      } catch (error) {
+        console.error('Ошибка при поиске:', error)
+      }
+    },
+
+    async sendIssueDataToApi() {
       const issueData = {
-        operationId: this.selectedOperationId,
-        userId: this.selectedFio,
+        operationId: this.toolModel.selectedOperationId, // ID операции
+        userId: this.selectedFio, // ID пользователя
+        typeIssue: this.toolModel.typeIssue, // Используем значение типа выдачи из v-select
         tools: this.cartItems.map((item) => ({
           toolId: item.toolId,
           quantity: item.quantity,
@@ -201,41 +310,26 @@ export default {
       }
 
       try {
-        const response = await issueToolApi.addHistoryTools(issueData)
-        // Проверяем, был ли запрос успешным.
-        console.log(response)
+        const response = await issueToolApi.addHistoryTools(issueData) // Отправка данных через API
         if (response && response.success === 'OK') {
           console.log('Данные успешно отправлены и обработаны', response)
-          return true
+          this.snackbarText = 'Успешно выдано'
+          this.snackbar = true
+          this.$emit('changes-saved')
         } else {
           throw new Error('Ответ сервера не соответствует ожидаемому')
         }
       } catch (error) {
-        // Обработка ошибки
-        this.submitButtonDisabled = true // Деактивировать кнопку при ошибке
-
-        setTimeout(() => {
-          this.submitButtonDisabled = false // Активировать кнопку обратно через 15 секунд
-        }, 5000) // 5000 миллисекунд = 5 секунд
-
-        // Здесь ловим ошибку и извлекаем сообщение об ошибке от API, если оно есть.
-        let errorMessage = 'Произошла ошибка при отправке данных'
-        if (
-          error.response &&
-          error.response.data &&
-          error.response.data.error
-        ) {
-          errorMessage = error.response.data.error // Используем сообщение об ошибке от API
-        } else if (error.message) {
-          errorMessage = error.message
-        }
-        console.error('Ошибка при отправке данных:', errorMessage)
-        this.snackbarText = errorMessage
+        console.error('Ошибка при отправке данных:', error)
+        this.snackbarText =
+          error.message || 'Произошла ошибка при отправке данных'
         this.snackbar = true
-        return false
+        this.submitButtonDisabled = true
+        setTimeout(() => {
+          this.submitButtonDisabled = false // Повторно активировать кнопку через 5 секунд
+        }, 5000)
       }
     },
-
     async onSave() {
       const isSuccess = await this.sendIssueDataToApi()
       if (isSuccess) {
@@ -322,6 +416,20 @@ export default {
     onCancel() {
       this.$emit('canceled')
     },
+  },
+  async created() {
+    try {
+      const fioData = await issueToolApi.getDetailFio()
+      this.fioOptions = this.prepareFioOptions(fioData)
+    } catch (error) {
+      console.error('Ошибка при загрузке данных ФИО:', error)
+    }
+
+    const toolsTree = await toolTreeApi.getTree()
+    if (toolsTree && toolsTree.length > 0) {
+      this.currentItem = toolsTree[0]
+      this.tree.push(this.currentItem)
+    }
   },
 }
 </script>

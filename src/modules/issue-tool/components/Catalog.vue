@@ -1,69 +1,8 @@
 <template>
-  <div class="text-h6 pl-5 mb-2">Выбрать на какую деталь:</div>
-  <v-row>
-    <v-col cols="12" md="2">
-      <v-text-field
-        variant="outlined"
-        density="compact"
-        label="поиск по ID"
-        required
-        @update:model-value="onIdChanged"
-      />
-    </v-col>
-    <v-col cols="12" md="4">
-      <v-select
-        density="compact"
-        label="Название Обозначение"
-        required
-        v-model="toolModel.detailDescription"
-        :disabled="!options.idNameDescription.length"
-        :items="options.idNameDescription"
-        @update:model-value="onIdSelected"
-      />
-    </v-col>
-    <v-col cols="12" md="2">
-      <v-select
-        density="compact"
-        label="Номер Тип"
-        required
-        v-model="toolModel.operationType"
-        :disabled="!options.numberType.length"
-        :items="options.numberType"
-        @update:model-value="onOperationSelected"
-      />
-    </v-col>
-    <v-col cols="12" md="2">
-      <v-combobox
-        density="compact"
-        v-model="selectedFio"
-        :items="fioOptions"
-        item-title="text"
-        item-value="value"
-        label="ФИО"
-        return-object="false"
-        single-line="false"
-        @update:modelValue="handleSelectionChange"
-      />
-    </v-col>
-    <v-col cols="12" md="2">
-      <v-combobox
-        density="compact"
-        v-model="toolModel.typeIssue"
-        :items="typeIssueOptions"
-        item-text="title"
-        item-value="id"
-        label="Тип выдачи"
-        return-object="false"
-        single-line="false"
-        :rules="issueTypeRules"
-        required
-      />
-    </v-col>
-  </v-row>
   <v-app class="custom-container">
     <v-app-bar app dark>
       <div class="text-h6 pl-5">
-        <v-icon class="mr-2">mdi-folder</v-icon>
+        <!--        <v-icon class="mr-2">mdi-folder</v-icon>-->
         {{ currentItem ? currentItem.label : 'Выдать' }}
       </div>
       <v-spacer />
@@ -106,12 +45,6 @@ export default {
 
   data() {
     return {
-      typeIssueOptions: [
-        { title: 'Себе', id: 0 },
-        { title: 'На ночь', id: 1 },
-        { title: 'Наладка', id: 2 },
-      ],
-      issueTypeRules: [(v) => !!v || 'Тип выдачи обязателен для выбора'],
       fioOptions: [],
       selectedFio: null,
       operationMapping: {},
@@ -159,65 +92,6 @@ export default {
     ]),
 
     ...mapActions('IssueToolStore', ['fetchToolsByFilter']),
-
-    handleSelectionChange(selectedItem) {
-      this.setSelectedFio(selectedItem.value)
-    },
-
-    onOperationSelected(value) {
-      this.setSelectedOperationId(this.operationMapping[value])
-    },
-
-    prepareFioOptions(fioData) {
-      return fioData.map((item) => ({
-        text: item.fio,
-        value: item.id,
-      }))
-    },
-
-    async onIdChanged(newId) {
-      try {
-        const result = await issueToolApi.searchById(newId)
-        this.originalData = result // Сохраняем исходные данные для последующего использования
-        this.options.idNameDescription = this.formatToolOptions(result)
-      } catch (error) {
-        console.error('Ошибка при поиске:', error)
-      }
-    },
-    formatToolOptions(data) {
-      const uniqueSet = new Set()
-      this.idMapping = {} // очистка предыдущего сопоставления
-
-      data.forEach((item) => {
-        const formattedItem = item.description
-          ? `${item.id} - ${item.name} - ${item.description}`
-          : `${item.id} - ${item.name}`
-
-        if (!uniqueSet.has(formattedItem)) {
-          uniqueSet.add(formattedItem)
-          this.idMapping[formattedItem] = item.id // создание сопоставления
-        }
-      })
-
-      return Array.from(uniqueSet)
-    },
-    onIdSelected(selectedValue) {
-      const id = this.idMapping[selectedValue]
-      if (id) {
-        const filteredData = this.originalData.filter((item) => item.id === id)
-        this.options.numberType = this.formatOperationOptions(filteredData)
-        // Сбросить выбранное значение для "Номер Тип" каждый раз, когда выбирается новое "Название Обозначение"
-        this.toolModel.operationType = null // Это предполагает, что operationType - это свойство в toolModel, где хранится выбранный "Номер Тип"
-      } else {
-        console.error(
-          'Не удалось найти ID для выбранного значения:',
-          selectedValue
-        )
-        // Возможно также стоит сбросить options.numberType и toolModel.operationType здесь, если selectedValue не допустимо
-        this.options.numberType = []
-        this.toolModel.operationType = null
-      }
-    },
 
     formatOperationOptions(data) {
       this.operationMapping = {} // Очистка или инициализация перед использованием
