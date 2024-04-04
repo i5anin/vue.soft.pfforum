@@ -71,6 +71,8 @@ router.get('/report/genBuchEndOp', reportBuchEndOpController.checkStatusChanges)
 router.get('/report/genBuchMonth', reportBuchMonthController.genBuchMonth) // бухгалтерию журнал уничтоженого	раз в месяц каждый ПТ в 12:00 (за месяц)
 
 router.get('/report/genZayavInstr', reportZakazController.genZayavInstr) // заявка на инструмент	раз в неделю каждый ЧТ в 12:00 (за неделю)
+
+//vue
 router.get('/report/getZakaz', reportVueZakazController.getTableReportData) // заявка на инструмент	раз в неделю каждый ЧТ в 12:00 (за неделю)
 
 // excel report
