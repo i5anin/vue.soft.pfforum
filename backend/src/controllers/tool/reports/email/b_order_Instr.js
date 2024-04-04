@@ -210,28 +210,40 @@ async function genZayavInstr(req, res) {
 async function getTableReportData(req, res) {
   try {
     const query = `
-      SELECT
+      WITH damaged AS (
+        SELECT
           tool_nom.id AS id_tool,
+          tool_nom.parent_id,
           tool_nom.name,
-          tool_nom.sklad,
-          tool_nom.norma,
           tool_nom.norma - tool_nom.sklad AS zakaz,
           COALESCE(SUM(tool_history_damaged.quantity), 0) AS damaged_last_7_days
-      FROM
+        FROM
           dbo.tool_nom
-      LEFT JOIN
+        LEFT JOIN
           dbo.tool_history_damaged ON tool_nom.id = tool_history_damaged.id_tool
           AND tool_history_damaged.timestamp >= CURRENT_DATE - INTERVAL '7 days'
-      WHERE
+        WHERE
           tool_nom.norma IS NOT NULL
           AND (tool_nom.norma - tool_nom.sklad) > 0
-      GROUP BY
+        GROUP BY
           tool_nom.id,
+          tool_nom.parent_id,
           tool_nom.name,
           tool_nom.sklad,
           tool_nom.norma
-      ORDER BY
-          tool_nom.id;
+      )
+      SELECT
+        parent_id,
+        JSON_AGG(
+          JSON_BUILD_OBJECT(
+            'name', name,
+            'zakaz', zakaz,
+            'damaged_last_7_days', damaged_last_7_days
+          )
+        ) AS tools
+      FROM damaged
+      GROUP BY parent_id
+      ORDER BY parent_id;
     `
     const { rows } = await pool.query(query)
     res.json(rows) // Отправляем данные в формате JSON
