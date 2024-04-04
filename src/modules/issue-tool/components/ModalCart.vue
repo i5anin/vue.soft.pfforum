@@ -204,20 +204,26 @@ export default {
 
       try {
         const response = await issueToolApi.addHistoryTools(issueData)
-        if (response.data.success === 'OK') {
-          // Установка текста снекбара и его активация
-          this.snackbarText =
-            response.data.message || 'Инструменты успешно выданы'
-          this.snackbar = true
-          return response.data // Возвращаем данные для дальнейшей обработки
-        } else {
-          throw new Error(response.data.message || 'Неизвестная ошибка сервера')
-        }
+        console.log('Ответ сервера:', response)
+        // Дополнительные действия после успешной отправки, если необходимо
       } catch (error) {
-        this.snackbarText =
-          error.message || 'Произошла ошибка при отправке данных'
+        console.error('Ошибка при отправке данных:', error)
+        // Проверяем, есть ли ошибка в ответе от сервера
+        let errorMessage = 'Произошла ошибка при отправке данных'
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.error
+        ) {
+          // Используем сообщение об ошибке от сервера, если оно доступно
+          errorMessage = error.response.data.error
+        } else if (error.message) {
+          // Или используем стандартное сообщение об ошибке
+          errorMessage = error.message
+        }
+        // Отображаем сообщение об ошибке в снекбаре
+        this.snackbarText = errorMessage
         this.snackbar = true
-        return null // Возвращаем null или выбрасываем ошибку, чтобы обработать в onSave
       }
     },
 

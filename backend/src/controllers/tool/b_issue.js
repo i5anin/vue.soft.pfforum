@@ -185,7 +185,7 @@ async function issueTools(req, res) {
 
     // Завершение транзакции
     await pool.query('COMMIT')
-    res.json({ success: 'OK', message: 'Инструменты успешно выданы' })
+    res.json({ message: 'Инструменты успешно выданы' })
   } catch (error) {
     // Откат в случае ошибки
     await pool.query('ROLLBACK')
