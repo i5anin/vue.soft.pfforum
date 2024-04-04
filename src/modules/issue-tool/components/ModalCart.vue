@@ -89,7 +89,7 @@ import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 
 export default {
   name: 'ModalCart',
-  emits: ['canceled', 'changes-saved', 'changes-saved'],
+  emits: ['canceled', 'changes-saved', 'updatePage'],
   props: {
     persistent: { type: Boolean, default: false },
     toolId: { type: Number, default: null },
@@ -97,7 +97,8 @@ export default {
   },
   components: { Modal },
   data: () => ({
-    lastSendTime: null,
+    isSubmitting: false, // Для блокировки кнопки во время ожидания
+    submitError: false, // Для изменения стиля кнопки при ошибке
     snackbar: false,
     snackbarText: '',
     item: { cnc_type: '', fio: '' },
@@ -189,7 +190,7 @@ export default {
       ) {
         this.snackbarText = 'Отсутствуют необходимые параметры для запроса'
         this.snackbar = true
-        return
+        return null // Возвращаем null для указания на ошибку
       }
 
       const issueData = {
@@ -203,61 +204,50 @@ export default {
 
       try {
         const response = await issueToolApi.addHistoryTools(issueData)
-        if (response.data.success === 'OK') {
-          // Установка текста снекбара и его активация
-          this.snackbarText =
-            response.data.message || 'Инструменты успешно выданы'
-          this.snackbar = true
-          return response.data // Возвращаем данные для дальнейшей обработки
+        if (response.data && response.data.success === 'OK') {
+          // Проверяем, есть ли дополнительные данные кроме статуса 'OK'
+          if (response.data.message) {
+            this.snackbarText = response.data.message
+          } else {
+            // Если сообщение отсутствует, возможно, это не полностью успешный ответ
+            throw new Error('Ответ сервера не содержит данных')
+          }
         } else {
+          // Обработка неуспешного статуса ответа
           throw new Error(response.data.message || 'Неизвестная ошибка сервера')
         }
+        this.snackbar = true
+        return response.data // Возвращаем данные для дальнейшей обработки
       } catch (error) {
         this.snackbarText =
           error.message || 'Произошла ошибка при отправке данных'
         this.snackbar = true
-        return null // Возвращаем null или выбрасываем ошибку, чтобы обработать в onSave
+        return null // Возвращаем null для указания на ошибку
       }
     },
-
     async onSave() {
-      const now = Date.now() // Получаем текущее время
-      if (this.lastSendTime && now - this.lastSendTime < 15000) {
-        this.snackbarText = 'Подождите 15 секунд перед следующей отправкой'
+      const response = await this.sendIssueDataToApi()
+      // Проверяем, были ли данные успешно обработаны
+      if (response && response.success === 'OK') {
+        console.log('Данные успешно отправлены и обработаны', response)
+        // Здесь поместите логику для закрытия модального окна и очистки корзины
+        this.clearCartAction() // Очищаем корзину только после успешного ответа
+        this.snackbarText = 'Инструменты успешно выданы'
         this.snackbar = true
-        return
-      }
-
-      this.lastSendTime = now // Обновляем время последней отправки
-
-      try {
-        const response = await this.sendIssueDataToApi()
-        if (response && response.success === 'OK') {
-          console.log('Данные успешно отправлены и обработаны', response)
-          this.snackbarText = response.message || 'Инструменты успешно выданы'
-          this.snackbar = true
-          this.clearCartAction() // Очищаем корзину после успешной отправки
-          this.$emit('changes-saved') // Уведомляем родительский компонент о сохранении изменений
-          this.onCancel() // Закрываем модальное окно только в случае успешной отправки
-        }
-      } catch (error) {
-        console.error('Произошла ошибка при отправке данных:', error)
+        this.onCancel() // Закрыть модальное окно
+      } else {
+        // Если ответ от сервера не является успешным, модальное окно не закрывается,
+        // и пользователю отображается соответствующее уведомление.
+        console.error('Произошла ошибка при отправке данных:', response)
         let errorMessage = 'Произошла ошибка при отправке данных'
-        if (
-          error.response &&
-          error.response.data &&
-          error.response.data.error
-        ) {
-          errorMessage = error.response.data.error
-        } else if (error.message) {
-          errorMessage = error.message
+        if (response && response.message) {
+          errorMessage = response.message
         }
         this.snackbarText = errorMessage
         this.snackbar = true
-        // В случае ошибки модальное окно останется открытым, поэтому здесь не вызываем this.onCancel();
+        // Модальное окно остаётся открытым, корзина не очищается
       }
     },
-
     increaseQuantity(index) {
       const item = this.cartItems[index]
       if (item.quantity < item.sklad) {
