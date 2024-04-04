@@ -7,19 +7,20 @@
       </v-btn>
     </template>
   </v-snackbar>
-  <Modal :title="popupTitle" widthDefault="650px">
+  <Modal :title="popupTitle" widthDefault="600px">
     <template #content>
       <v-container>
-        <div class="text-h6 pl-5 mb-2">Выбрать на какую деталь:</div>
+        <div class="text-h6 pl-5 mb-2">Выбрать деталь:</div>
         <v-row>
           <v-col>
             <v-text-field
-              variant="outlined"
+              density="compact"
               label="поиск по ID"
               required
               @update:model-value="onIdChanged"
             />
             <v-select
+              density="compact"
               label="Название Обозначение"
               required
               v-model="toolModel.detailDescription"
@@ -27,18 +28,17 @@
               :items="options.idNameDescription"
               @update:model-value="onIdSelected"
             />
-
             <v-select
+              density="compact"
               label="Номер Тип"
               required
               v-model="toolModel.operationType"
               :disabled="!options.numberType.length"
               :items="options.numberType"
-              @update:model-value="setSelectedOperationId"
+              @update:model-value="onOperationSelected"
             />
-
+            <h2 class="text-h6 pl-5 mb-2">Кому выдать:</h2>
             <v-combobox
-              required
               v-model="selectedFio"
               :items="fioOptions"
               item-title="text"
@@ -48,9 +48,7 @@
               single-line="false"
               @update:modelValue="handleSelectionChange"
             />
-
-            <v-select
-              required
+            <v-combobox
               v-model="toolModel.typeIssue"
               :items="typeIssueOptions"
               item-text="title"
@@ -59,6 +57,7 @@
               return-object="false"
               single-line="false"
               :rules="issueTypeRules"
+              required
             />
           </v-col>
         </v-row>
@@ -74,26 +73,28 @@
           </thead>
           <tbody>
             <tr v-for="(item, index) in cartItems" :key="item.id">
-              <td style="color: gray">{{ index + 1 }}</td>
+              <td class="gray">{{ index + 1 }}</td>
               <td>{{ item.name }}</td>
               <td>
-                <v-btn
-                  icon
-                  size="x-small"
-                  @click="decreaseQuantity(index)"
-                  :disabled="item.quantity <= 1"
-                >
-                  <v-icon>mdi-minus</v-icon>
-                </v-btn>
-                {{ item.quantity }}
-                <v-btn
-                  icon
-                  size="x-small"
-                  @click="increaseQuantity(index)"
-                  :disabled="item.quantity >= item.sklad"
-                >
-                  <v-icon>mdi-plus</v-icon>
-                </v-btn>
+                <div class="d-flex align-center">
+                  <v-btn
+                    icon
+                    size="x-small"
+                    @click="decreaseQuantity(index)"
+                    :disabled="item.quantity <= 1"
+                  >
+                    <v-icon>mdi-minus</v-icon>
+                  </v-btn>
+                  <div class="mx-2">{{ item.quantity }}</div>
+                  <v-btn
+                    icon
+                    size="x-small"
+                    @click="increaseQuantity(index)"
+                    :disabled="item.quantity >= item.sklad"
+                  >
+                    <v-icon>mdi-plus</v-icon>
+                  </v-btn>
+                </div>
               </td>
               <td>{{ item.sklad }}</td>
               <td>
@@ -172,7 +173,11 @@ export default {
     fioOptions: [],
     selectedData: { name: null, description: null, no: null, type: null },
     localParentId: null,
-    toolModel: { name: null, selectedOperationId: null },
+    toolModel: {
+      name: null,
+      selectedOperationId: null,
+      detailDescription: null,
+    },
     selectedParams: [],
     toolParams: [],
     confirmDeleteDialog: false,
@@ -243,7 +248,15 @@ export default {
       'updateCartItemQuantityAction',
       'removeFromCartAction',
     ]),
-
+    onOperationSelected(selectedValue) {
+      const operationId = this.operationMapping[selectedValue]
+      if (operationId) {
+        this.toolModel.operationType = operationId // Установка ID операции, выбранной пользователем
+      } else {
+        console.error('Не удалось найти ID операции для:', selectedValue)
+        this.toolModel.operationType = null
+      }
+    },
     formatToolOptions(data) {
       const uniqueSet = new Set()
       this.idMapping = {} // очистка предыдущего сопоставления
@@ -300,9 +313,10 @@ export default {
 
     async sendIssueDataToApi() {
       const issueData = {
-        operationId: this.toolModel.selectedOperationId, // ID операции
-        userId: this.selectedFio, // ID пользователя
-        typeIssue: this.toolModel.typeIssue, // Используем значение типа выдачи из v-select
+        // Составление данных для отправки API
+        operationId: this.toolModel.operationType, // Исправлено для использования выбранного типа операции
+        userId: this.selectedFio.value, // Исправлено для правильной отправки ID пользователя
+        typeIssue: this.toolModel.typeIssue.id,
         tools: this.cartItems.map((item) => ({
           toolId: item.toolId,
           quantity: item.quantity,
@@ -310,17 +324,15 @@ export default {
       }
 
       try {
-        const response = await issueToolApi.addHistoryTools(issueData) // Отправка данных через API
+        const response = await issueToolApi.addHistoryTools(issueData)
         if (response && response.success === 'OK') {
-          console.log('Данные успешно отправлены и обработаны', response)
           this.snackbarText = 'Успешно выдано'
           this.snackbar = true
-          this.$emit('changes-saved')
+          return true
         } else {
           throw new Error('Ответ сервера не соответствует ожидаемому')
         }
       } catch (error) {
-        console.error('Ошибка при отправке данных:', error)
         this.snackbarText =
           error.message || 'Произошла ошибка при отправке данных'
         this.snackbar = true
@@ -328,24 +340,24 @@ export default {
         setTimeout(() => {
           this.submitButtonDisabled = false // Повторно активировать кнопку через 5 секунд
         }, 5000)
+        return false
       }
     },
     async onSave() {
-      const isSuccess = await this.sendIssueDataToApi()
-      if (isSuccess) {
-        this.$emit('changes-saved')
-        this.snackbarText = 'Успешно выдано'
-        this.snackbar = true
-      } else {
-        // Обработка неудачного сохранения, если требуется.
-        // Например, вы можете установить snackbarText на другое сообщение об ошибке здесь.
-        // Это сообщение об ошибке может быть уже установлено в `sendIssueDataToApi`.
-      }
+      this.isSubmitting = true // Добавлено для отображения процесса отправки
       try {
-        await this.sendIssueDataToApi() // Этот вызов повторяется, и не нужен, так как запрос к API уже выполнен выше.
-        // console.log('Данные успешно отправлены и обработаны')
+        const isSuccess = await this.sendIssueDataToApi()
+        if (isSuccess) {
+          this.snackbarText = 'Успешно выдано'
+          this.snackbar = true
+          this.$emit('changes-saved')
+        }
       } catch (error) {
         console.error('Произошла ошибка при отправке данных:', error)
+        this.snackbarText = 'Ошибка при отправке данных'
+        this.snackbar = true
+      } finally {
+        this.isSubmitting = false // Добавлено для сброса состояния отправки
       }
     },
     increaseQuantity(index) {
@@ -420,11 +432,12 @@ export default {
   async created() {
     try {
       const fioData = await issueToolApi.getDetailFio()
-      this.fioOptions = this.prepareFioOptions(fioData)
+      this.fioOptions = this.prepareFioOptions(fioData) // Исправлено с this.prepareFioOptions
     } catch (error) {
       console.error('Ошибка при загрузке данных ФИО:', error)
     }
 
+    // Проверьте, нужно ли здесь ожидать завершения операции
     const toolsTree = await toolTreeApi.getTree()
     if (toolsTree && toolsTree.length > 0) {
       this.currentItem = toolsTree[0]
@@ -433,3 +446,9 @@ export default {
   },
 }
 </script>
+
+<style>
+.gray {
+  color: gray;
+}
+</style>
