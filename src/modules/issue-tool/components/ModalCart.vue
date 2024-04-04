@@ -88,7 +88,7 @@ import { issueToolApi } from '@/modules/issue-tool/api/issue'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 
 export default {
-  name: 'ModalCart',
+  name: 'Cart-Modal',
   emits: ['canceled', 'changes-saved', 'updatePage'],
   props: {
     persistent: { type: Boolean, default: false },
@@ -176,11 +176,7 @@ export default {
       'addToCartAction',
       'updateCartItemQuantityAction',
       'removeFromCartAction',
-      'clearCart',
     ]),
-    clearCartAction() {
-      this.clearCart() // Это вызовет действие, которое в свою очередь вызовет мутацию CLEAR_CART
-    },
 
     async sendIssueDataToApi() {
       if (
@@ -229,29 +225,10 @@ export default {
 
     async onSave() {
       try {
-        const response = await this.sendIssueDataToApi()
-        console.log('Данные успешно отправлены и обработаны', response)
-        // Вызываем очистку корзины только после успешного ответа от сервера
-        this.clearCartAction()
-        // Возможно, вы также захотите закрыть модальное окно или уведомить пользователя об успехе
-        this.snackbarText = 'Инструменты успешно выданы'
-        this.snackbar = true
-        this.onCancel() // Если требуется закрыть модальное окно
+        await this.sendIssueDataToApi()
+        console.log('Данные успешно отправлены и обработаны')
       } catch (error) {
         console.error('Произошла ошибка при отправке данных:', error)
-        // Обработка ошибки, корзина при этом не очищается
-        let errorMessage = 'Произошла ошибка при отправке данных'
-        if (
-          error.response &&
-          error.response.data &&
-          error.response.data.error
-        ) {
-          errorMessage = error.response.data.error
-        } else if (error.message) {
-          errorMessage = error.message
-        }
-        this.snackbarText = errorMessage
-        this.snackbar = true
       }
     },
     increaseQuantity(index) {
