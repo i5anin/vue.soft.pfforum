@@ -41,7 +41,14 @@
       hover
       fixed-header
       width="true"
-    />
+    >
+      <template v-slot:item.check="{ item }">
+        <span
+          v-if="item.check"
+          class="mdi mdi-check-circle-outline check-icon--green"
+        ></span>
+      </template>
+    </v-data-table-server>
   </v-container>
 </template>
 
@@ -65,6 +72,7 @@ export default {
       editingToolId: null,
       totalCount: 0,
       headers: [
+        { title: '', value: 'check', sortable: false },
         { title: 'ID партии', value: 'id_part', sortable: false },
         { title: 'Название', value: 'name', sortable: false, width: '300px' },
         { title: 'Обозначение', value: 'description', sortable: false },
@@ -74,18 +82,24 @@ export default {
           sortable: false,
         },
         {
-          title: 'Кол-во выданного инструмента',
+          title: 'Выданного инструмента',
           value: 'quantity_tool',
           sortable: false,
           width: '80px',
         },
         {
-          title: 'Кол-во произведенной продукции',
+          title: 'Произведенной продукции',
           value: 'quantity_prod',
           sortable: false,
           width: '80px',
         },
-        { title: 'Операций 005...', value: 'operation_count', sortable: false },
+        {
+          title: 'Продукции в плане (+брак)',
+          value: 'quantity_prod_all',
+          sortable: false,
+          width: '80px',
+        },
+        { title: 'Операций', value: 'operation_count', sortable: false },
       ],
     }
   },
@@ -160,3 +174,9 @@ export default {
   },
 }
 </script>
+
+<style>
+.check-icon--green {
+  color: green;
+}
+</style>

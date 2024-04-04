@@ -89,7 +89,7 @@
 
 <script>
 import { originalMenuItems, plotsMenuItems } from '@/main-app/data/menuItems'
-import ModalCart from '@/modules/issue-tool/components/ModalСart.vue'
+import ModalCart from '@/modules/issue-tool/components/ModalCart.vue'
 import MenuList from '@/main-app/SidebarMenuList.vue'
 import { authApi } from '@/api/login'
 import { mapActions, mapGetters, mapState } from 'vuex'
