@@ -186,7 +186,7 @@ export default {
       ) {
         this.snackbarText = 'Отсутствуют необходимые параметры для запроса'
         this.snackbar = true
-        return
+        return false
       }
 
       const issueData = {
@@ -200,26 +200,29 @@ export default {
 
       try {
         const response = await issueToolApi.addHistoryTools(issueData)
-        console.log('Ответ сервера:', response)
-        // Дополнительные действия после успешной отправки, если необходимо
+        // Проверяем, был ли запрос успешным.
+        if (response && response.data && response.data.success === 'OK') {
+          console.log('Данные успешно отправлены и обработаны', response)
+          return true
+        } else {
+          throw new Error('Ответ сервера не соответствует ожидаемому')
+        }
       } catch (error) {
-        console.error('Ошибка при отправке данных:', error)
-        // Проверяем, есть ли ошибка в ответе от сервера
+        // Здесь ловим ошибку и извлекаем сообщение об ошибке от API, если оно есть.
         let errorMessage = 'Произошла ошибка при отправке данных'
         if (
           error.response &&
           error.response.data &&
           error.response.data.error
         ) {
-          // Используем сообщение об ошибке от сервера, если оно доступно
-          errorMessage = error.response.data.error
+          errorMessage = error.response.data.error // Используем сообщение об ошибке от API
         } else if (error.message) {
-          // Или используем стандартное сообщение об ошибке
           errorMessage = error.message
         }
-        // Отображаем сообщение об ошибке в снекбаре
+        console.error('Ошибка при отправке данных:', errorMessage)
         this.snackbarText = errorMessage
         this.snackbar = true
+        return false
       }
     },
 
