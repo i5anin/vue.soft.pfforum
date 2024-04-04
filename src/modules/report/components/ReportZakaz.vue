@@ -1,22 +1,37 @@
 <template>
   <div>
     <div v-for="(group, index) in toolGroups" :key="index" class="tool-group">
-      <v-chip color="green">
-        <button class="grey" @click="toggleVisibility(index)">
-          {{ group.path }}
-        </button>
+      <v-chip size="large" color="green" @click="toggleVisibility(index)">
+        <template v-slot:prepend>
+          <v-icon icon="mdi-folder" start />
+        </template>
+        {{ group.path }}
       </v-chip>
-      <div v-if="visibleGroups.includes(index)" class="tools-list">
-        <ul>
-          <li v-for="(tool, toolIndex) in group.tools" :key="toolIndex">
-            <span>
-              {{ tool.name }} - Склад: {{ tool.sklad }}, Норма:
-              {{ tool.norma }}, Заказ: {{ tool.zakaz }}, Повреждено за последние
-              {{ tool.norma }}, Заказ: {{ tool.zakaz }}, Повреждено за последние
-              7 дней: {{ tool.damaged_last_7_days }}
-            </span>
-          </li>
-        </ul>
+      <v-chip>{{ group.tools.length }}</v-chip>
+      <div v-if="visibleGroups.includes(index)">
+        <v-table dense>
+          <thead>
+            <tr>
+              <th class="text-left">#</th>
+              <th class="text-left">Название</th>
+              <th class="text-left">Заказ</th>
+              <th class="text-left">Склад</th>
+              <th class="text-left">Норма</th>
+              <th class="text-left">Повреждено за 7 дней</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(tool, toolIndex) in group.tools" :key="toolIndex">
+              <td class="grey">{{ toolIndex + 1 }}</td>
+              <td>{{ tool.name }}</td>
+              <td>{{ tool.zakaz }}</td>
+              <td class="grey">{{ tool.sklad }}</td>
+              <td class="grey">{{ tool.norma }}</td>
+
+              <td class="grey">{{ tool.damaged_last_7_days }}</td>
+            </tr>
+          </tbody>
+        </v-table>
       </div>
     </div>
   </div>
@@ -24,6 +39,7 @@
 
 <script>
 import { reportApi } from '../api/report' // Импортируем API
+
 export default {
   data() {
     return {
@@ -37,7 +53,7 @@ export default {
   methods: {
     async fetchZakazData() {
       try {
-        this.toolGroups = await reportApi.getZakaz()
+        this.toolGroups = await reportApi.getZakaz() // Убедитесь, что это правильный путь к данным в вашем API
       } catch (error) {
         console.error('Ошибка при получении данных: ', error)
         // Здесь можно добавить обработку ошибок, например, отображение сообщения пользователю
@@ -56,19 +72,8 @@ export default {
 </script>
 
 <style>
-.path-button {
-  background-color: #f0f0f0;
-  border: none;
-  padding: 10px;
-  width: 100%;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-  cursor: pointer;
-}
-
-.tools-list {
-  background-color: #fafafa;
-  padding: 10px;
+.grey {
+  color: grey;
 }
 
 .tool-group + .tool-group {
