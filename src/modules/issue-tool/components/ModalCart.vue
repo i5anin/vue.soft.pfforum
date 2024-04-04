@@ -97,6 +97,8 @@ export default {
   },
   components: { Modal },
   data: () => ({
+    isSubmitting: false, // Для блокировки кнопки во время ожидания
+    submitError: false, // Для изменения стиля кнопки при ошибке
     snackbar: false,
     snackbarText: '',
     item: { cnc_type: '', fio: '' },
