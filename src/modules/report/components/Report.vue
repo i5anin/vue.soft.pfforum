@@ -34,11 +34,16 @@
       </v-col>
     </v-row>
   </v-container>
+  <ReportZakaz></ReportZakaz>
 </template>
 <script>
 import { reportApi } from '../api/report'
+import ReportZakaz from './ReportZakaz.vue'
+
+import Modal from '@/modules/shared/components/Modal.vue'
 
 export default {
+  components: { ReportZakaz },
   data() {
     return {
       reports: [
