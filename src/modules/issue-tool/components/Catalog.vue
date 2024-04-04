@@ -45,6 +45,20 @@
         @update:modelValue="handleSelectionChange"
       />
     </v-col>
+    <v-col cols="12" md="2">
+      <v-combobox
+        density="compact"
+        v-model="toolModel.typeIssue"
+        :items="typeIssueOptions"
+        item-text="title"
+        item-value="id"
+        label="Тип выдачи"
+        return-object="false"
+        single-line="false"
+        :rules="issueTypeRules"
+        required
+      />
+    </v-col>
   </v-row>
   <v-app class="custom-container">
     <v-app-bar app dark>
@@ -92,6 +106,12 @@ export default {
 
   data() {
     return {
+      typeIssueOptions: [
+        { title: 'Себе', id: 0 },
+        { title: 'На ночь', id: 1 },
+        { title: 'Наладка', id: 2 },
+      ],
+      issueTypeRules: [(v) => !!v || 'Тип выдачи обязателен для выбора'],
       fioOptions: [],
       selectedFio: null,
       operationMapping: {},
