@@ -17,29 +17,58 @@ const pool = new Pool(dbConfig)
 async function getReportData() {
   try {
     const query = `
+WITH RECURSIVE TreePath AS (
+  SELECT
+    id,
+    name,
+    parent_id,
+    CAST(name AS TEXT) AS path
+  FROM
+    dbo.tool_tree
+  WHERE
+    parent_id = 1
+  UNION ALL
+  SELECT
+    tt.id,
+    tt.name,
+    tt.parent_id,
+    CONCAT(tp.path, ' / ', tt.name)
+  FROM
+    dbo.tool_tree tt
+    JOIN TreePath tp ON tt.parent_id = tp.id
+)
+, ToolReport AS (
+  SELECT
+    tn.id AS id_tool,
+    tn.name,
+    tn.sklad,
+    tn.norma,
+    tn.norma - tn.sklad AS zakaz,
+    COALESCE(SUM(thd.quantity), 0) AS damaged_last_7_days,
+    tn.parent_id
+  FROM
+    dbo.tool_nom tn
+    LEFT JOIN dbo.tool_history_damaged thd ON tn.id = thd.id_tool AND thd.timestamp >= CURRENT_DATE - INTERVAL '7 days'
+  WHERE
+    tn.norma IS NOT NULL AND (tn.norma - tn.sklad) > 0
+  GROUP BY tn.id, tn.name, tn.sklad, tn.norma, tn.parent_id
+)
 SELECT
-    tool_nom.id AS id_tool,
-    tool_nom.name,
-    tool_nom.sklad,
-    tool_nom.norma,
-    tool_nom.norma - tool_nom.sklad AS zakaz,
-    COALESCE(SUM(tool_history_damaged.quantity), 0) AS damaged_last_7_days
+  tr.id_tool,
+  tr.name,
+  tr.sklad,
+  tr.norma,
+  tr.zakaz,
+  tp.path AS tool_path
 FROM
-    dbo.tool_nom
+  ToolReport tr
 LEFT JOIN
-    dbo.tool_history_damaged ON tool_nom.id = tool_history_damaged.id_tool
-    AND tool_history_damaged.timestamp >= CURRENT_DATE - INTERVAL '7 days'
-WHERE
-    tool_nom.norma IS NOT NULL
-    AND (tool_nom.norma - tool_nom.sklad) > 0
-GROUP BY
-    tool_nom.id,
-    tool_nom.name,
-    tool_nom.sklad,
-    tool_nom.norma
+  TreePath tp ON tr.parent_id = tp.id
 ORDER BY
-    tool_nom.id;
+  tp.path,
+  tr.name;
     `
+
     const { rows } = await pool.query(query)
     return rows
   } catch (error) {
@@ -103,7 +132,7 @@ async function createExcelFileStream(data) {
   let rowNumber = 1
   data.forEach((item) => {
     if (item.zakaz > 0) {
-      worksheet.addRow([rowNumber, item.name, item.zakaz])
+      worksheet.addRow([rowNumber, item.name, item.zakaz, item.tool_path])
       rowNumber++
     }
   })
@@ -134,9 +163,16 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
   const envPrefix = process.env.NODE_ENV === 'development' ? 'development ' : ''
   const subject = `${envPrefix}Заказ: Журнал испорченного инструмента за неделю с ${firstDate} по ${lastDate}`
 
-  // Генерация HTML таблицы для тела письма
+  // Генерация HTML таблицы для тела письма email
   let htmlContent = `<h2>${subject}</h2>`
-  htmlContent += `<table border="1" style="border-collapse: collapse;"><tr><th>№</th><th>Название</th><th>Количество</th></tr>`
+  htmlContent += `
+<table border="1" style="border-collapse: collapse;">
+<tr>
+<th>ID</th>
+<th>Название</th>
+<th>Количество</th>
+<th>Путь</th>
+</tr>`
 
   let rowNumber = 1
   data.forEach((item) => {
@@ -146,9 +182,13 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
       new Date(item.timestamp).toISOString().split('T')[0] // Форматирование даты
     }
 
-    htmlContent += `<tr><td>${rowNumber++}</td><td>${item.name}</td><td>${
-      item.zakaz
-    }</td></tr>`
+    htmlContent += `
+<tr>
+<td>${item.id}</td>
+<td>${item.name}</td>
+<td>${item.zakaz}</td>
+<td>${item.tool_path}</td>
+</tr>`
   })
 
   htmlContent += `</table>`
@@ -172,8 +212,10 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
 
   // Отправка письма
   try {
+    console.log(`\nЗаказ: Журнал испорченного инструмента за неделю`)
+    console.log(`Отчет будет отправлен на email: ${email}`)
     await transporter.sendMail(mailOptions)
-    console.log('Отчет успешно отправлен на указанный email.')
+    console.log(`Отчет успешно отправлен на email: ${email}.\n`)
   } catch (error) {
     console.error('Ошибка при отправке письма:', error)
     throw error
