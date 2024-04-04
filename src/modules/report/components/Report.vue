@@ -36,7 +36,7 @@
   </v-container>
 </template>
 <script>
-import { reportApi } from '../../api/report'
+import { reportApi } from '../api/report'
 
 export default {
   data() {

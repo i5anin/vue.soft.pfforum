@@ -26,4 +26,9 @@ export const reportApi = {
       .get('/report/genZayavInstr')
       .then(handleResponse)
       .catch(handleApiError),
+  getZakaz: async () =>
+    axiosInstance
+      .get('/report/getZakaz')
+      .then(handleResponse)
+      .catch(handleApiError),
 }

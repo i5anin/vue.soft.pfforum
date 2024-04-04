@@ -5,7 +5,7 @@ import HistoryDamaged from '@/modules/history-damaged-tool/components/Table.vue'
 
 import ToolTabParam from '@/modules/tool/components/other-tabs/Param.vue'
 import ToolTabTree from '@/modules/tool/components/other-tabs/Tree.vue'
-import Report from '@/modules/tool/components/other-tabs/Report.vue'
+import Report from '@/modules/report/components/Report.vue'
 
 import EditorCatalog from '@/modules/editor-tool/components/Catalog.vue'
 import StorageCatalog from '@/modules/storage-tool/components/Catalog.vue'
