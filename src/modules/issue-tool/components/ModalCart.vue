@@ -89,7 +89,7 @@ import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 
 export default {
   name: 'ModalCart',
-  emits: ['canceled', 'changes-saved', 'updatePage'],
+  emits: ['canceled', 'changes-saved', 'changes-saved'],
   props: {
     persistent: { type: Boolean, default: false },
     toolId: { type: Number, default: null },
@@ -223,23 +223,25 @@ export default {
     async onSave() {
       const now = Date.now() // Получаем текущее время
       if (this.lastSendTime && now - this.lastSendTime < 15000) {
-        // 15 секунд = 15000 мс
         this.snackbarText = 'Подождите 15 секунд перед следующей отправкой'
         this.snackbar = true
         return
       }
+
+      this.lastSendTime = now // Обновляем время последней отправки
+
       try {
         const response = await this.sendIssueDataToApi()
-        console.log('Данные успешно отправлены и обработаны', response)
-        // Вызываем очистку корзины только после успешного ответа от сервера
-        this.clearCartAction()
-        // Возможно, вы также захотите закрыть модальное окно или уведомить пользователя об успехе
-        this.snackbarText = 'Инструменты успешно выданы'
-        this.snackbar = true
-        this.onCancel() // Если требуется закрыть модальное окно
+        if (response && response.success === 'OK') {
+          console.log('Данные успешно отправлены и обработаны', response)
+          this.snackbarText = response.message || 'Инструменты успешно выданы'
+          this.snackbar = true
+          this.clearCartAction() // Очищаем корзину после успешной отправки
+          this.$emit('changes-saved') // Уведомляем родительский компонент о сохранении изменений
+          this.onCancel() // Закрываем модальное окно только в случае успешной отправки
+        }
       } catch (error) {
         console.error('Произошла ошибка при отправке данных:', error)
-        // Обработка ошибки, корзина при этом не очищается
         let errorMessage = 'Произошла ошибка при отправке данных'
         if (
           error.response &&
@@ -252,8 +254,10 @@ export default {
         }
         this.snackbarText = errorMessage
         this.snackbar = true
+        // В случае ошибки модальное окно останется открытым, поэтому здесь не вызываем this.onCancel();
       }
     },
+
     increaseQuantity(index) {
       const item = this.cartItems[index]
       if (item.quantity < item.sklad) {
