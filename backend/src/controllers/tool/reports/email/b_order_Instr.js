@@ -15,14 +15,12 @@ const pool = new Pool(dbConfig)
 
 // Функция для получения данных из базы данных
 async function getReportData() {
-  try {
-    const query = `
+  const query = `
 WITH RECURSIVE TreePath AS (
   SELECT
     id,
-    name,
-    parent_id,
-    CAST(name AS TEXT) AS path
+    CAST(name AS TEXT) AS path,
+    parent_id
   FROM
     dbo.tool_tree
   WHERE
@@ -30,9 +28,8 @@ WITH RECURSIVE TreePath AS (
   UNION ALL
   SELECT
     tt.id,
-    tt.name,
-    tt.parent_id,
-    CONCAT(tp.path, ' / ', tt.name)
+    CONCAT(tp.path, ' / ', tt.name) AS path,
+    tt.parent_id
   FROM
     dbo.tool_tree tt
     JOIN TreePath tp ON tt.parent_id = tp.id
@@ -44,14 +41,11 @@ WITH RECURSIVE TreePath AS (
     tn.sklad,
     tn.norma,
     tn.norma - tn.sklad AS zakaz,
-    COALESCE(SUM(thd.quantity), 0) AS damaged_last_7_days,
     tn.parent_id
   FROM
     dbo.tool_nom tn
-    LEFT JOIN dbo.tool_history_damaged thd ON tn.id = thd.id_tool AND thd.timestamp >= CURRENT_DATE - INTERVAL '7 days'
   WHERE
     tn.norma IS NOT NULL AND (tn.norma - tn.sklad) > 0
-  GROUP BY tn.id, tn.name, tn.sklad, tn.norma, tn.parent_id
 )
 SELECT
   tr.id_tool,
@@ -67,14 +61,10 @@ LEFT JOIN
 ORDER BY
   tp.path,
   tr.name;
-    `
+  `
 
-    const { rows } = await pool.query(query)
-    return rows
-  } catch (error) {
-    console.error('Ошибка при получении данных:', error)
-    throw error
-  }
+  const { rows } = await pool.query(query)
+  return rows
 }
 
 function getCurrentMonthDates() {
@@ -101,40 +91,19 @@ async function createExcelFileStream(data) {
   const workbook = new ExcelJS.Workbook()
   const worksheet = workbook.addWorksheet('Заказ')
 
-  worksheet.mergeCells('A1:E1')
-  const titleRow = worksheet.getCell('A1')
-  titleRow.value =
-    'Заказ: Журнал испорченного раз в неделю. Отчет каждый ЧТ в 12:00 (за неделю)'
-  titleRow.font = { bold: true, size: 14 }
+  // Добавляем заголовки
+  worksheet.addRow(['ID', 'Название', 'На складе', 'Норма', 'Заказ', 'Путь'])
 
-  // Определение дат начала и окончания недели
-  let endDate = new Date()
-  endDate.setDate(endDate.getDate() - endDate.getDay() - 2)
-  let startDate = new Date(endDate)
-  startDate.setDate(startDate.getDate() - 6)
-
-  // Форматирование дат
-  startDate = startDate.toISOString().split('T')[0]
-  endDate = endDate.toISOString().split('T')[0]
-
-  worksheet.addRow([
-    'Дата начала недели:',
-    startDate,
-    '',
-    'Дата окончания недели:',
-    endDate,
-  ])
-  worksheet.addRow([])
-
-  worksheet.getRow(3).values = ['№', 'Название', 'Кол-во']
-  worksheet.getRow(3).font = { bold: true }
-
-  let rowNumber = 1
+  // Заполняем строки данными
   data.forEach((item) => {
-    if (item.zakaz > 0) {
-      worksheet.addRow([rowNumber, item.name, item.zakaz, item.tool_path])
-      rowNumber++
-    }
+    worksheet.addRow([
+      item.id_tool,
+      item.name,
+      item.sklad,
+      item.norma,
+      item.zakaz,
+      item.tool_path,
+    ])
   })
 
   const stream = new require('stream').PassThrough()
@@ -184,7 +153,7 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
 
     htmlContent += `
 <tr>
-<td>${item.id}</td>
+<td>${item.id_tool}</td>
 <td>${item.name}</td>
 <td>${item.zakaz}</td>
 <td>${item.tool_path}</td>
