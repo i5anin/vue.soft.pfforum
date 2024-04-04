@@ -35,6 +35,8 @@
               v-model="toolModel.operationType"
               :disabled="!options.numberType.length"
               :items="options.numberType"
+              item-value="id"
+              item-text="text"
               @update:model-value="onOperationSelected"
             />
             <h2 class="text-h6 pl-5 mb-2">Кому выдать:</h2>
@@ -174,7 +176,6 @@ export default {
     selectedData: { name: null, description: null, no: null, type: null },
     localParentId: null,
     toolModel: {
-      name: null,
       selectedOperationId: null,
       detailDescription: null,
     },
@@ -249,7 +250,9 @@ export default {
       'removeFromCartAction',
     ]),
     onOperationSelected(selectedValue) {
+      console.log('Выбранное значение:', selectedValue)
       const operationId = this.operationMapping[selectedValue]
+      console.log('Соответствующий ID операции:', operationId)
       if (operationId) {
         this.toolModel.operationType = operationId // Установка ID операции, выбранной пользователем
       } else {
@@ -284,23 +287,25 @@ export default {
       this.toolModel.selectedOperationId = value
     },
     onIdSelected(selectedValue) {
+      console.log('Выбранное значение для Название Обозначение:', selectedValue)
       const id = this.idMapping[selectedValue]
+      console.log('Соответствующий ID:', id)
       if (id) {
         const filteredData = this.originalData.filter((item) => item.id === id)
+        console.log('Фильтрованные данные для Номер Тип:', filteredData)
         this.options.numberType = this.formatOperationOptions(filteredData)
+        console.log('Обновленные options.numberType:', this.options.numberType)
         // Сбросить выбранное значение для "Номер Тип" каждый раз, когда выбирается новое "Название Обозначение"
-        this.toolModel.operationType = null // Это предполагает, что operationType - это свойство в toolModel, где хранится выбранный "Номер Тип"
+        this.toolModel.operationType = null
       } else {
         console.error(
           'Не удалось найти ID для выбранного значения:',
           selectedValue
         )
-        // Возможно также стоит сбросить options.numberType и toolModel.operationType здесь, если selectedValue не допустимо
         this.options.numberType = []
         this.toolModel.operationType = null
       }
     },
-
     async onIdChanged(newId) {
       try {
         const result = await issueToolApi.searchById(newId)
@@ -312,6 +317,7 @@ export default {
     },
 
     async sendIssueDataToApi() {
+      console.log('Отправляемые данные:', this.toolModel)
       const issueData = {
         // Составление данных для отправки API
         operationId: this.toolModel.operationType, // Исправлено для использования выбранного типа операции
