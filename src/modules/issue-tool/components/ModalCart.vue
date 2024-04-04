@@ -12,7 +12,6 @@
       <v-container>
         <div class="text-h6 pl-5 mb-2">Выбрать деталь:</div>
         <v-row>
-          {{ toolModel }}
           <v-col>
             <v-text-field
               density="compact"
@@ -29,7 +28,6 @@
               :items="options.idNameDescription"
               @update:model-value="onIdSelected"
             />
-
             <v-select
               density="compact"
               label="Номер Тип"
@@ -46,6 +44,8 @@
               item-title="text"
               item-value="value"
               label="ФИО"
+              return-object="false"
+              single-line="false"
               @update:modelValue="handleSelectionChange"
             />
             <v-combobox
@@ -54,6 +54,8 @@
               item-text="title"
               item-value="id"
               label="Тип выдачи"
+              return-object="false"
+              single-line="false"
               :rules="issueTypeRules"
               required
             />
@@ -169,8 +171,10 @@ export default {
     originalData: [],
     idMapping: {},
     fioOptions: [],
+    selectedData: { name: null, description: null, no: null, type: null },
     localParentId: null,
     toolModel: {
+      name: null,
       selectedOperationId: null,
       detailDescription: null,
     },
@@ -244,8 +248,14 @@ export default {
       'updateCartItemQuantityAction',
       'removeFromCartAction',
     ]),
-    onOperationSelected(value) {
-      this.toolModel.selectedOperationId = this.operationMapping[value]
+    onOperationSelected(selectedValue) {
+      const operationId = this.operationMapping[selectedValue]
+      if (operationId) {
+        this.toolModel.operationType = operationId // Установка ID операции, выбранной пользователем
+      } else {
+        console.error('Не удалось найти ID операции для:', selectedValue)
+        this.toolModel.operationType = null
+      }
     },
     formatToolOptions(data) {
       const uniqueSet = new Set()
@@ -278,11 +288,16 @@ export default {
       if (id) {
         const filteredData = this.originalData.filter((item) => item.id === id)
         this.options.numberType = this.formatOperationOptions(filteredData)
+        // Сбросить выбранное значение для "Номер Тип" каждый раз, когда выбирается новое "Название Обозначение"
+        this.toolModel.operationType = null // Это предполагает, что operationType - это свойство в toolModel, где хранится выбранный "Номер Тип"
       } else {
         console.error(
           'Не удалось найти ID для выбранного значения:',
           selectedValue
         )
+        // Возможно также стоит сбросить options.numberType и toolModel.operationType здесь, если selectedValue не допустимо
+        this.options.numberType = []
+        this.toolModel.operationType = null
       }
     },
 
@@ -295,10 +310,10 @@ export default {
         console.error('Ошибка при поиске:', error)
       }
     },
-    // Составление данных для отправки API
+
     async sendIssueDataToApi() {
-      console.log('sendIssueDataToApi')
       const issueData = {
+        // Составление данных для отправки API
         operationId: this.toolModel.operationType, // Исправлено для использования выбранного типа операции
         userId: this.selectedFio.value, // Исправлено для правильной отправки ID пользователя
         typeIssue: this.toolModel.typeIssue.id,
@@ -329,32 +344,22 @@ export default {
       }
     },
     async onSave() {
-      this.isSubmitting = true // Показать индикатор загрузки
+      this.isSubmitting = true // Добавлено для отображения процесса отправки
       try {
-        // Попытка отправить данные
-        const isSuccess = await this.$store.dispatch(
-          'yourModuleName/sendIssueDataToApi'
-        )
+        const isSuccess = await this.sendIssueDataToApi()
         if (isSuccess) {
           this.snackbarText = 'Успешно выдано'
           this.snackbar = true
-          // Очищаем корзину
-          this.$store.commit('yourModuleName/CLEAR_CART')
-          // Закрываем модальное окно
-          this.$store.dispatch('yourModuleName/closeModal')
-          this.$emit('changes-saved') // Если нужно, эмитируем событие успешного сохранения изменений
-        } else {
-          throw new Error('Произошла ошибка при отправке данных.')
+          this.$emit('changes-saved')
         }
       } catch (error) {
-        // В случае ошибки показываем snackbar с текстом ошибки
-        this.snackbarText = error.message
+        console.error('Произошла ошибка при отправке данных:', error)
+        this.snackbarText = 'Ошибка при отправке данных'
         this.snackbar = true
       } finally {
-        this.isSubmitting = false // Скрываем индикатор загрузки
+        this.isSubmitting = false // Добавлено для сброса состояния отправки
       }
     },
-
     increaseQuantity(index) {
       const item = this.cartItems[index]
       if (item.quantity < item.sklad) {
@@ -401,6 +406,18 @@ export default {
         }
       })
       return Array.from(uniqueSet)
+    },
+
+    initializeLocalState() {
+      if (this.toolId) {
+        this.fetchToolById(this.toolId).then(() => {
+          this.toolModel.sklad = this.tool.sklad
+          this.toolModel.norma = this.tool.norma
+        })
+      } else {
+        this.localParentId = this.idParent.id
+        this.currentFolderName = this.idParent.label
+      }
     },
 
     prependOptionIfNeeded(value, optionsList) {
