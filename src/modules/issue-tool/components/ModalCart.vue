@@ -75,6 +75,7 @@
         color="blue darken-1"
         size="large"
         variant="flat"
+        :disabled="submitButtonDisabled"
       >
         Выдать
       </v-btn>
@@ -97,6 +98,7 @@ export default {
   },
   components: { Modal },
   data: () => ({
+    submitButtonDisabled: false,
     isSubmitting: false, // Для блокировки кнопки во время ожидания
     submitError: false, // Для изменения стиля кнопки при ошибке
     snackbar: false,
@@ -201,13 +203,21 @@ export default {
       try {
         const response = await issueToolApi.addHistoryTools(issueData)
         // Проверяем, был ли запрос успешным.
-        if (response && response.data && response.data.success === 'OK') {
+        console.log(response)
+        if (response && response.success === 'OK') {
           console.log('Данные успешно отправлены и обработаны', response)
           return true
         } else {
           throw new Error('Ответ сервера не соответствует ожидаемому')
         }
       } catch (error) {
+        // Обработка ошибки
+        this.submitButtonDisabled = true // Деактивировать кнопку при ошибке
+
+        setTimeout(() => {
+          this.submitButtonDisabled = false // Активировать кнопку обратно через 15 секунд
+        }, 5000) // 5000 миллисекунд = 5 секунд
+
         // Здесь ловим ошибку и извлекаем сообщение об ошибке от API, если оно есть.
         let errorMessage = 'Произошла ошибка при отправке данных'
         if (
@@ -227,9 +237,19 @@ export default {
     },
 
     async onSave() {
+      const isSuccess = await this.sendIssueDataToApi()
+      if (isSuccess) {
+        this.$emit('changes-saved')
+        this.snackbarText = 'Успешно выдано'
+        this.snackbar = true
+      } else {
+        // Обработка неудачного сохранения, если требуется.
+        // Например, вы можете установить snackbarText на другое сообщение об ошибке здесь.
+        // Это сообщение об ошибке может быть уже установлено в `sendIssueDataToApi`.
+      }
       try {
-        await this.sendIssueDataToApi()
-        console.log('Данные успешно отправлены и обработаны')
+        await this.sendIssueDataToApi() // Этот вызов повторяется, и не нужен, так как запрос к API уже выполнен выше.
+        // console.log('Данные успешно отправлены и обработаны')
       } catch (error) {
         console.error('Произошла ошибка при отправке данных:', error)
       }
