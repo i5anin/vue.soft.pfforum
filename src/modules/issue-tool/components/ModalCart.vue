@@ -97,8 +97,7 @@ export default {
   },
   components: { Modal },
   data: () => ({
-    isSubmitting: false, // Для блокировки кнопки во время ожидания
-    submitError: false, // Для изменения стиля кнопки при ошибке
+    lastSendTime: null,
     snackbar: false,
     snackbarText: '',
     item: { cnc_type: '', fio: '' },
@@ -222,6 +221,13 @@ export default {
     },
 
     async onSave() {
+      const now = Date.now() // Получаем текущее время
+      if (this.lastSendTime && now - this.lastSendTime < 15000) {
+        // 15 секунд = 15000 мс
+        this.snackbarText = 'Подождите 15 секунд перед следующей отправкой'
+        this.snackbar = true
+        return
+      }
       try {
         const response = await this.sendIssueDataToApi()
         console.log('Данные успешно отправлены и обработаны', response)
