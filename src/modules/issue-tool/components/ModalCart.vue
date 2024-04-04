@@ -344,32 +344,22 @@ export default {
       }
     },
     async onSave() {
-      this.isSubmitting = true // Показать индикатор загрузки
+      this.isSubmitting = true // Добавлено для отображения процесса отправки
       try {
-        // Попытка отправить данные
-        const isSuccess = await this.$store.dispatch(
-          'yourModuleName/sendIssueDataToApi'
-        )
+        const isSuccess = await this.sendIssueDataToApi()
         if (isSuccess) {
           this.snackbarText = 'Успешно выдано'
           this.snackbar = true
-          // Очищаем корзину
-          this.$store.commit('yourModuleName/CLEAR_CART')
-          // Закрываем модальное окно
-          this.$store.dispatch('yourModuleName/closeModal')
-          this.$emit('changes-saved') // Если нужно, эмитируем событие успешного сохранения изменений
-        } else {
-          throw new Error('Произошла ошибка при отправке данных.')
+          this.$emit('changes-saved')
         }
       } catch (error) {
-        // В случае ошибки показываем snackbar с текстом ошибки
-        this.snackbarText = error.message
+        console.error('Произошла ошибка при отправке данных:', error)
+        this.snackbarText = 'Ошибка при отправке данных'
         this.snackbar = true
       } finally {
-        this.isSubmitting = false // Скрываем индикатор загрузки
+        this.isSubmitting = false // Добавлено для сброса состояния отправки
       }
     },
-
     increaseQuantity(index) {
       const item = this.cartItems[index]
       if (item.quantity < item.sklad) {
