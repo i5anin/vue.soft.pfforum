@@ -1,9 +1,11 @@
 <template>
   <div>
     <div v-for="(group, index) in toolGroups" :key="index" class="tool-group">
-      <button class="button" @click="toggleVisibility(index)">
-        {{ group.path }}
-      </button>
+      <v-chip color="green">
+        <button class="grey" @click="toggleVisibility(index)">
+          {{ group.path }}
+        </button>
+      </v-chip>
       <div v-if="visibleGroups.includes(index)" class="tools-list">
         <ul>
           <li v-for="(tool, toolIndex) in group.tools" :key="toolIndex">
