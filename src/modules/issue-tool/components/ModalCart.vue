@@ -321,7 +321,7 @@ export default {
     },
 
     async sendIssueDataToApi() {
-      console.log('Отправляемые данные:', this.toolModel)
+      // console.log('Отправляемые данные:', this.toolModel) - ???
       const issueData = {
         // Составление данных для отправки API
         operationId: this.toolModel.operationType, // Исправлено для использования выбранного типа операции
