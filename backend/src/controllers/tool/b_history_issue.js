@@ -285,6 +285,7 @@ async function getToolHistoryByPartOld(req, res) {
     const dataQuery = `
       SELECT
         h.id,
+        h.specs_op_id,
         h.id_tool,
         n.name AS tool_name,
         h.id_user,
@@ -303,8 +304,7 @@ async function getToolHistoryByPartOld(req, res) {
       LEFT JOIN dbo.tool_nom n ON h.id_tool = n.id
       LEFT JOIN dbo.operators o ON h.id_user = o.id AND h.id_user > 0
       ORDER BY h.timestamp DESC
-      LIMIT ${limit}
-      OFFSET ${offset};
+      LIMIT ${limit} OFFSET ${offset};
     `
 
     // Execute SQL queries
