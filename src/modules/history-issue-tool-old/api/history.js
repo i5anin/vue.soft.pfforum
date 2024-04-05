@@ -39,4 +39,11 @@ export const issueHistoryApi = {
       .then(handleResponse)
       .catch(handleApiError)
   },
+
+  // New API function for canceling an operation by its ID
+  cancelOperation: async (operationId) =>
+    axiosInstance
+      .patch(`/issue/cancel-operation/${operationId}`)
+      .then(handleResponse)
+      .catch(handleApiError),
 }

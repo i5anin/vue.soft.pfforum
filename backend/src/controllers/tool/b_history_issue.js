@@ -298,6 +298,7 @@ async function getToolHistoryByPartOld(req, res) {
              h.comment,
              h.type_issue,
              h.sent,
+             h.cancelled,
 
              sn.NAME        AS part_name,
              sn.description AS part_description

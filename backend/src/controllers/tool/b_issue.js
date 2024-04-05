@@ -224,7 +224,50 @@ async function getCncData(req, res) {
   }
 }
 
+async function cancelOperation(req, res) {
+  try {
+    // Извлекаем ID операции из параметров запроса
+    const { id } = req.params
+
+    if (!id) {
+      return res
+        .status(400)
+        .send('Отсутствует обязательный параметр: id операции')
+    }
+
+    // Проверяем существование записи перед отменой
+    const checkQuery = `SELECT id FROM dbo.tool_history_nom WHERE id = $1`
+    const checkResult = await pool.query(checkQuery, [id])
+    if (checkResult.rows.length === 0) {
+      return res.status(404).send('Операция не найдена')
+    }
+
+    // Обновляем запись, присваиваем cancelled = true для отметки об отмене
+    const updateQuery = `UPDATE dbo.tool_history_nom SET cancelled = true WHERE id = $1 RETURNING id`
+    const updateResult = await pool.query(updateQuery, [id])
+
+    if (updateResult.rows.length === 0) {
+      return res.status(404).send('Не удалось отменить операцию')
+    }
+
+    // Отправляем ответ, что операция отменена
+    res.status(200).json({
+      success: true,
+      message: 'Операция отменена',
+      operationId: updateResult.rows[0].id,
+    })
+  } catch (error) {
+    console.error('Ошибка при отмене операции:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Внутренняя ошибка сервера',
+      errorDetails: error.message,
+    })
+  }
+}
+
 module.exports = {
+  cancelOperation,
   findDetailProduction,
   getFioOperators,
   issueTool,

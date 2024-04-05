@@ -42,6 +42,16 @@
       fixed-header
       width="true"
     >
+      <template v-slot:item.action="{ item }">
+        <v-btn
+          small
+          color="red"
+          @click.stop="cancelOperation(item.id)"
+          :disabled="item.cancelled"
+        >
+          Отмена
+        </v-btn>
+      </template>
     </v-data-table-server>
   </v-container>
 </template>
@@ -130,6 +140,18 @@ export default {
           sortable: false,
           width: '80px',
         },
+        {
+          title: 'Actions',
+          value: 'action',
+          sortable: false,
+        },
+        {
+          title: 'Отменена',
+          value: 'cancelled',
+          sortable: false,
+          width: '80px',
+        },
+
         // {
         //   title: 'Произведенной продукции',
         //   value: 'quantity_prod',
@@ -161,6 +183,19 @@ export default {
     )
   },
   methods: {
+    async cancelOperation(operationId) {
+      this.isLoading = true
+      try {
+        const response = await issueHistoryApi.cancelOperation(operationId)
+        this.$emit('operation-cancelled', response) // Emit an event that the parent can listen to
+        await this.fetchAndFormatToolHistory() // Refresh the list to reflect the change
+      } catch (error) {
+        console.error('Failed to cancel operation:', error)
+        this.$emit('error', error) // Emit error event
+      } finally {
+        this.isLoading = false
+      }
+    },
     debounce(func, wait) {
       let timeout
       return function (...args) {
