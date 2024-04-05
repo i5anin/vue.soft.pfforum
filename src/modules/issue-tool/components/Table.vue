@@ -5,6 +5,10 @@
       :filters="filters"
       @filter-update="onParamsFilterUpdate"
     />
+    <v-btn color="primary" @click="refreshData" class="mb-2">
+      <v-icon left>mdi-refresh</v-icon>
+      Обновить
+    </v-btn>
     <ModalDamaged
       v-if="openDialog && currentModal === 'damaged'"
       :key="'modal-damaged'"
@@ -114,7 +118,7 @@ export default {
       'filters',
       'parentCatalog',
       'isLoading',
-      'cartItems', // Предполагается, что у вас есть такой геттер
+      'cartItems',
     ]),
   },
   data() {
@@ -164,6 +168,7 @@ export default {
     await this.fetchToolsDynamicFilters()
     this.isDataLoaded = true
   },
+
   methods: {
     ...mapActions('IssueToolStore', [
       'fetchToolsDynamicFilters',
@@ -174,6 +179,9 @@ export default {
       'setItemsPerPage',
       'setSelectedDynamicFilters',
     ]),
+    refreshData() {
+      this.fetchToolsByFilter() // Assuming this method fetches and refreshes the data
+    },
     showModal(type) {
       this.currentModalType = type
       this.isModalOpen = true
