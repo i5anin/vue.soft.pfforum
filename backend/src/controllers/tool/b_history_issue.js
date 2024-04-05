@@ -283,26 +283,31 @@ async function getToolHistoryByPartOld(req, res) {
 
     // SQL query to retrieve tool history data
     const dataQuery = `
-      SELECT
-        h.id,
-        h.specs_op_id,
-        h.id_tool,
-        n.name AS tool_name,
-        h.id_user,
-        CASE
-          WHEN h.id_user < 0 THEN
-            (SELECT name FROM dbo.tool_user_custom_list WHERE id = -h.id_user)
-          ELSE
-            o.fio
-        END AS user_name,
-        h.quantity,
-        h.timestamp,
-        h.comment,
-        h.type_issue,
-        h.sent
+      SELECT h.id,
+             h.specs_op_id,
+             sn.ID          AS id_part,
+             h.id_tool,
+             n.name         AS tool_name,
+             h.id_user,
+             CASE
+               WHEN h.id_user < 0 THEN
+                   (SELECT name FROM dbo.tool_user_custom_list WHERE id = -h.id_user)
+               ELSE
+                 o.fio
+               END          AS user_name,
+             h.quantity,
+             h.timestamp,
+             h.comment,
+             h.type_issue,
+             h.sent,
+
+             sn.NAME        AS part_name,
+             sn.description AS part_description
       FROM dbo.tool_history_nom h
-      LEFT JOIN dbo.tool_nom n ON h.id_tool = n.id
-      LEFT JOIN dbo.operators o ON h.id_user = o.id AND h.id_user > 0
+             LEFT JOIN dbo.tool_nom n ON h.id_tool = n.id
+             LEFT JOIN dbo.operators o ON h.id_user = o.id AND h.id_user > 0
+             LEFT JOIN dbo.specs_nom_operations sno ON h.specs_op_id = sno.id
+             LEFT JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
       ORDER BY h.timestamp DESC
       LIMIT ${limit} OFFSET ${offset};
     `

@@ -14,6 +14,13 @@ export const issueHistoryApi = {
       .then(handleResponse)
       .catch(handleApiError),
 
+  // New API function for fetching old part history
+  fetchHistoryByPartIdOld: async (page, limit) =>
+    axiosInstance
+      .get('/history-part-old', { params: { page, limit } })
+      .then(handleResponse)
+      .catch(handleApiError),
+
   // Получить историю инструмента
   fetchToolHistory: async (
     search = '',

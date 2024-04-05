@@ -56,7 +56,7 @@
 import { VDataTableServer } from 'vuetify/labs/components'
 import { format, parseISO } from 'date-fns'
 import EditToolModal from './Modal.vue'
-import { issueHistoryApi } from '@/modules/history-issue-tool/api/history'
+import { issueHistoryApi } from '../api/history'
 
 export default {
   components: { EditToolModal, VDataTableServer },
@@ -72,34 +72,77 @@ export default {
       editingToolId: null,
       totalCount: 0,
       headers: [
-        { title: '', value: 'check', sortable: false },
-        { title: 'ID партии', value: 'id_part', sortable: false },
-        { title: 'Название', value: 'name', sortable: false, width: '300px' },
-        { title: 'Обозначение', value: 'description', sortable: false },
         {
-          title: 'Дата первой выдачи',
+          title: 'ID',
+          value: 'id',
+          sortable: false,
+          width: '50px',
+        },
+        {
+          title: 'ID операции',
+          value: 'specs_op_id',
+          sortable: false,
+          width: '50px',
+        },
+        {
+          title: 'ID партии',
+          value: 'id_part',
+          sortable: false,
+          width: '50px',
+        },
+        {
+          title: 'Название',
+          value: 'part_name',
+          sortable: false,
+        },
+        {
+          title: 'Обозначение',
+          value: 'part_description',
+          sortable: false,
+        },
+        {
+          title: 'Фамилия',
+          value: 'user_name',
+          sortable: false,
+          width: '150px',
+        },
+        {
+          title: 'ID инструмента',
+          value: 'id_tool',
+          sortable: false,
+          width: '100px',
+        },
+        {
+          title: 'Название инструмента',
+          value: 'tool_name',
+          sortable: false,
+          width: '300px',
+        },
+        {
+          title: 'Дата выдачи',
           value: 'timestamp',
           sortable: false,
+          width: '200px',
         },
         {
-          title: 'Выданного инструмента',
-          value: 'quantity_tool',
+          title: 'Кол-во',
+          value: 'quantity',
           sortable: false,
           width: '80px',
         },
-        {
-          title: 'Произведенной продукции',
-          value: 'quantity_prod',
-          sortable: false,
-          width: '80px',
-        },
-        {
-          title: 'Продукции в плане (+брак)',
-          value: 'quantity_prod_all',
-          sortable: false,
-          width: '80px',
-        },
-        { title: 'Операций', value: 'operation_count', sortable: false },
+        // {
+        //   title: 'Произведенной продукции',
+        //   value: 'quantity_prod',
+        //   sortable: false,
+        //   width: '80px',
+        // },
+        // {
+        //   title: 'Продукции в плане (+брак)',
+        //   value: 'quantity_prod_all',
+        //   sortable: false,
+        //   width: '80px',
+        // },
+        // { title: 'Операций', value: 'operation_count', sortable: false },
       ],
     }
   },
@@ -137,13 +180,13 @@ export default {
       await this.fetchAndFormatToolHistory()
     },
     formatDate(timestamp) {
-      return format(parseISO(timestamp), 'dd.MM.yyyy')
+      return format(parseISO(timestamp), 'dd.MM.yyyy HH:mm:ss')
     },
+
     async fetchAndFormatToolHistory() {
       this.isLoading = true
       try {
-        const response = await issueHistoryApi.fetchToolHistory(
-          this.searchQuery,
+        const response = await issueHistoryApi.fetchHistoryByPartIdOld(
           this.filters.currentPage,
           this.filters.itemsPerPage
         )
