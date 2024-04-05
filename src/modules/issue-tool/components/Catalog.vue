@@ -141,13 +141,6 @@ export default {
     },
   },
   async created() {
-    try {
-      const fioData = await issueToolApi.getDetailFio()
-      this.fioOptions = this.prepareFioOptions(fioData)
-    } catch (error) {
-      console.error('Ошибка при загрузке данных ФИО:', error)
-    }
-
     const toolsTree = await toolTreeApi.getTree()
     if (toolsTree && toolsTree.length > 0) {
       this.currentItem = toolsTree[0]
