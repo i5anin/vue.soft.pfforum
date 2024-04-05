@@ -289,9 +289,7 @@ async function getToolHistoryByPartOld(req, res) {
              h.id_tool,
              n.name         AS tool_name,
              h.id_user,
-             CASE
-               WHEN h.id_user < 0 THEN
-                   (SELECT name FROM dbo.tool_user_custom_list WHERE id = -h.id_user)
+             CASE               WHEN h.id_user < 0 THEN                   (SELECT name FROM dbo.tool_user_custom_list WHERE id = -h.id_user)
                ELSE
                  o.fio
                END          AS user_name,
