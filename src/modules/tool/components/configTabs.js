@@ -45,7 +45,7 @@ const tabs = [
     access: ['Admin', 'Editor', 'Issue'],
   },
   {
-    name: 'История 2',
+    name: 'История OLD',
     url: '#history_issue',
     component: markRaw(HistoryIssueOld),
     access: ['Admin'],
