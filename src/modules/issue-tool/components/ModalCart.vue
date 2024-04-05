@@ -340,6 +340,7 @@ export default {
           this.snackbar = true
           this.$emit('changes-saved') // Уже существующий $emit
           this.$emit('canceled') // Добавленный $emit для закрытия модального окна
+          this.$store.dispatch('IssueToolStore/clearCart')
           return true
         } else {
           throw new Error('Ответ сервера не соответствует ожидаемому')
