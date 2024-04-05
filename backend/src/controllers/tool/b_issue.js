@@ -50,7 +50,7 @@ async function getFioOperators(req, res) {
         AND not nalad
         AND active
       UNION ALL
-      SELECT 'custom_list' AS type, id, name AS fio
+      SELECT 'custom_list' AS type, -id AS id, name AS fio
       FROM dbo.tool_user_custom_list
       ORDER BY fio
     `

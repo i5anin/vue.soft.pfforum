@@ -101,6 +101,12 @@ export default {
           width: '150px',
         },
         {
+          title: 'id_user',
+          value: 'id_user',
+          sortable: false,
+          width: '150px',
+        },
+        {
           title: 'ID инструмента',
           value: 'id_tool',
           sortable: false,
