@@ -28,11 +28,12 @@
               :items="options.idNameDescription"
               @update:model-value="onIdSelected"
             />
+
             <v-select
               density="compact"
               label="Номер Тип"
               required
-              v-model="toolModel.operationType"
+              v-model="toolModel.numberType"
               :disabled="!options.numberType.length"
               :items="options.numberType"
               item-value="id"
@@ -202,6 +203,9 @@ export default {
     },
   }),
   watch: {
+    'toolModel.detailDescription'(newValue, oldValue) {
+      if (newValue !== oldValue) this.toolModel.operationType = null
+    },
     tool: {
       deep: true,
       immediate: true,
@@ -334,6 +338,8 @@ export default {
         if (response && response.success === 'OK') {
           this.snackbarText = 'Успешно выдано'
           this.snackbar = true
+          this.$emit('changes-saved') // Уже существующий $emit
+          this.$emit('canceled') // Добавленный $emit для закрытия модального окна
           return true
         } else {
           throw new Error('Ответ сервера не соответствует ожидаемому')
@@ -344,7 +350,7 @@ export default {
         this.snackbar = true
         this.submitButtonDisabled = true
         setTimeout(() => {
-          this.submitButtonDisabled = false // Повторно активировать кнопку через 5 секунд
+          this.submitButtonDisabled = false
         }, 5000)
         return false
       }
