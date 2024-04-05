@@ -178,7 +178,8 @@ async function getToolHistoryByPartId(req, res) {
         tn.name AS name_tool,
         thn.id_tool,
         thn.type_issue,
-        thn.comment
+        thn.comment,
+        thn.cancelled
       FROM dbo.tool_history_nom thn
              LEFT JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
              LEFT JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
@@ -237,6 +238,7 @@ async function getToolHistoryByPartId(req, res) {
         id_tool: row.id_tool,
         type_issue: row.type_issue,
         comment: row.comment,
+        cancelled: row.cancelled,
       })
 
       // Collect information for info section
