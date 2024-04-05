@@ -74,7 +74,12 @@
         </v-btn>
       </template>
       <template v-slot:item.cart="{ item }">
-        <v-btn @click="addToolToCart(item.id, 1)">В корзину</v-btn>
+        <v-btn color="yellow" @click="addToolToCart(item.id, 1)">
+          <template v-slot:prepend>
+            <v-icon start icon="mdi-cart-arrow-down" />
+          </template>
+          В корзину
+        </v-btn>
       </template>
     </v-data-table-server>
   </v-container>
@@ -142,14 +147,14 @@ export default {
                 sortable: false,
               }))
             : []),
-          // { title: 'Норма', key: 'norma', sortable: false },
 
           // { title: 'Заказ', key: 'zakaz', sortable: false },
-          // { title: 'Лимит', key: 'limit', sortable: false },
-          { title: 'Выдать', key: 'issue', sortable: false },
+          // { title: 'Лимит', key: 'limit', sortable: fals
+          { title: 'Выдать по 1', key: 'issue', sortable: false },
           { title: 'Поврежден', key: 'damaged', sortable: false },
-          { title: 'Склад', key: 'sklad', sortable: false },
           { title: 'Корзина', key: 'cart', sortable: false },
+          { title: 'Норма', key: 'norma', sortable: false },
+          { title: 'Склад', key: 'sklad', sortable: false },
         ]
       },
     },
