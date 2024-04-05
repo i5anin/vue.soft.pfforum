@@ -226,7 +226,6 @@ async function getCncData(req, res) {
 
 async function cancelOperation(req, res) {
   try {
-    // Извлекаем ID операции из параметров запроса
     const { id } = req.params
 
     if (!id) {
@@ -235,29 +234,54 @@ async function cancelOperation(req, res) {
         .send('Отсутствует обязательный параметр: id операции')
     }
 
-    // Проверяем существование записи перед отменой
-    const checkQuery = `SELECT id FROM dbo.tool_history_nom WHERE id = $1`
+    // Start a database transaction
+    await pool.query('BEGIN')
+
+    // Проверяем существование записи и её статус перед отменой
+    const checkQuery = `SELECT id, id_tool, quantity, cancelled FROM dbo.tool_history_nom WHERE id = $1`
     const checkResult = await pool.query(checkQuery, [id])
     if (checkResult.rows.length === 0) {
+      await pool.query('ROLLBACK')
       return res.status(404).send('Операция не найдена')
     }
 
-    // Обновляем запись, присваиваем cancelled = true для отметки об отмене
-    const updateQuery = `UPDATE dbo.tool_history_nom SET cancelled = true WHERE id = $1 RETURNING id`
-    const updateResult = await pool.query(updateQuery, [id])
+    const { id_tool, quantity, cancelled } = checkResult.rows[0]
 
-    if (updateResult.rows.length === 0) {
-      return res.status(404).send('Не удалось отменить операцию')
+    if (cancelled) {
+      await pool.query('ROLLBACK')
+      return res.status(400).send('Операция уже была отменена')
     }
+
+    // Обновляем запись, присваиваем cancelled = true для отметки об отмене
+    const updateHistoryQuery = `UPDATE dbo.tool_history_nom SET cancelled = true WHERE id = $1`
+    await pool.query(updateHistoryQuery, [id])
+
+    // Возвращаем количество инструмента на склад
+    const updateToolQuery = `UPDATE dbo.tool_nom SET sklad = sklad + $1 WHERE id = $2`
+    await pool.query(updateToolQuery, [quantity, id_tool])
+
+    // Commit the transaction
+    await pool.query('COMMIT')
+
+    // Get the name of the tool for more detailed feedback
+    const toolNameQuery = `SELECT name FROM dbo.tool_nom WHERE id = $1`
+    const toolNameResult = await pool.query(toolNameQuery, [id_tool])
+    const toolName = toolNameResult.rows[0].name
 
     // Отправляем ответ, что операция отменена
     res.status(200).json({
       success: true,
       message: 'Операция отменена',
-      operationId: updateResult.rows[0].id,
+      operationId: id,
+      details: {
+        returnedQuantity: quantity,
+        toTool: toolName,
+        toolId: id_tool,
+      },
     })
   } catch (error) {
     console.error('Ошибка при отмене операции:', error)
+    await pool.query('ROLLBACK')
     res.status(500).json({
       success: false,
       message: 'Внутренняя ошибка сервера',
@@ -269,8 +293,8 @@ async function cancelOperation(req, res) {
 module.exports = {
   cancelOperation,
   findDetailProduction,
-  getFioOperators,
   issueTool,
   issueTools,
+  getFioOperators,
   getCncData,
 }
