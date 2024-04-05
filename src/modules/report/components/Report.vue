@@ -25,7 +25,7 @@
               </td>
               <td>
                 <v-btn color="green" @click="report.action(report)">
-                  Exel
+                  Excel
                 </v-btn>
               </td>
             </tr>

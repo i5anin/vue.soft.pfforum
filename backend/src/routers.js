@@ -57,6 +57,7 @@ router.get('/cnc', issueController.getCncData)
 router.get('/history/:id', historyController.getToolHistoryId)
 router.get('/history', historyController.getToolHistory)
 router.get('/history-part', historyController.getToolHistoryByPartId)
+router.get('/history-part-old', historyController.getToolHistoryByPartOld)
 
 // damaged
 router.get('/damaged-history', damagedController.getDamaged)

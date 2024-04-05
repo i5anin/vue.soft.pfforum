@@ -269,8 +269,64 @@ async function getToolHistoryByPartId(req, res) {
   }
 }
 
+async function getToolHistoryByPartOld(req, res) {
+  try {
+    // Parse pagination parameters
+    const page = parseInt(req.query.page || 1, 10)
+    const limit = parseInt(req.query.limit || 15, 10)
+    const offset = (page - 1) * limit
+
+    // SQL query to count total unique IDs
+    const countQuery = `
+      SELECT COUNT(*) FROM dbo.tool_history_nom;
+    `
+
+    // SQL query to retrieve tool history data
+    const dataQuery = `
+      SELECT
+        h.id,
+        h.id_tool,
+        n.name AS tool_name,
+        h.id_user,
+        CASE
+          WHEN h.id_user < 0 THEN
+            (SELECT name FROM dbo.tool_user_custom_list WHERE id = -h.id_user)
+          ELSE
+            o.fio
+        END AS user_name,
+        h.quantity,
+        h.timestamp,
+        h.comment,
+        h.type_issue,
+        h.sent
+      FROM dbo.tool_history_nom h
+      LEFT JOIN dbo.tool_nom n ON h.id_tool = n.id
+      LEFT JOIN dbo.operators o ON h.id_user = o.id AND h.id_user > 0
+      ORDER BY h.timestamp DESC
+      LIMIT ${limit}
+      OFFSET ${offset};
+    `
+
+    // Execute SQL queries
+    const countResult = await pool.query(countQuery)
+    const dataResult = await pool.query(dataQuery)
+
+    // Send response
+    res.json({
+      currentPage: page,
+      itemsPerPage: limit,
+      totalCount: parseInt(countResult.rows[0].count, 10),
+      toolsHistory: dataResult.rows,
+    })
+  } catch (err) {
+    console.error('Error executing query', err.stack)
+    res.status(500).send('Ошибка при выполнении запроса')
+  }
+}
+
 module.exports = {
   getToolHistoryId,
   getToolHistory,
   getToolHistoryByPartId,
+  getToolHistoryByPartOld,
 }

@@ -1,6 +1,7 @@
 import { markRaw } from 'vue'
 
 import HistoryIssue from '@/modules/history-issue-tool/components/Table.vue'
+import HistoryIssueOld from '@/modules/history-issue-tool-old/components/Table.vue'
 import HistoryDamaged from '@/modules/history-damaged-tool/components/Table.vue'
 
 import ToolTabParam from '@/modules/tool/components/other-tabs/Param.vue'
@@ -42,6 +43,12 @@ const tabs = [
     url: '#history_issue',
     component: markRaw(HistoryIssue),
     access: ['Admin', 'Editor', 'Issue'],
+  },
+  {
+    name: 'История 2',
+    url: '#history_issue',
+    component: markRaw(HistoryIssueOld),
+    access: ['Admin'],
   },
   {
     name: 'История поврежденного',

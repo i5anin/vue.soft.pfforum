@@ -7,7 +7,7 @@
           clearable="true"
           v-model="searchQuery"
           append-icon="mdi-magnify"
-          label="Поиск по инструменту"
+          label="Поиск"
           hide-details
           @input="onSearch"
           @update:model-value="onSearch"
