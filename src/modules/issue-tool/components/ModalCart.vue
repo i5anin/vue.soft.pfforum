@@ -253,6 +253,9 @@ export default {
       'updateCartItemQuantityAction',
       'removeFromCartAction',
     ]),
+    reloadData() {
+      this.fetchToolsByFilter() // Предполагаем, что это метод для загрузки данных таблицы
+    },
     onOperationSelected(selectedValue) {
       console.log('Выбранное значение:', selectedValue)
       const operationId = this.operationMapping[selectedValue]
@@ -339,6 +342,7 @@ export default {
           this.snackbarText = 'Успешно выдано'
           this.snackbar = true
           this.$emit('changes-saved') // Уже существующий $emit
+          console.log('Событие changes-saved отправлено корзина')
           this.$emit('canceled') // Добавленный $emit для закрытия модального окна
           this.$store.dispatch('IssueToolStore/clearCart')
           return true
@@ -445,7 +449,7 @@ export default {
   async created() {
     try {
       const fioData = await issueToolApi.getDetailFio()
-      this.fioOptions = this.prepareFioOptions(fioData) // Исправлено с this.prepareFioOptions
+      this.fioOptions = this.prepareFioOptions(fioData)
     } catch (error) {
       console.error('Ошибка при загрузке данных ФИО:', error)
     }

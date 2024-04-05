@@ -54,7 +54,8 @@ async function getToolHistory(req, res) {
         CAST(COUNT(*) AS INTEGER) AS recordscount,
         COUNT(DISTINCT sno.id) AS operation_count,
         MIN(thn.timestamp) AS timestamp,
-        CAST(dbo.kolvo_prod_ready(sn.ID) AS INTEGER) AS quantity_prod
+        CAST(dbo.kolvo_prod_ready(sn.ID) AS INTEGER) AS quantity_prod,
+        sn.kolvo AS quantity_prod_all
       FROM dbo.tool_history_nom thn
              INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
              INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id

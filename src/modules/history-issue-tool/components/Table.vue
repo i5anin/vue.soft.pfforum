@@ -44,8 +44,8 @@
     >
       <template v-slot:item.check="{ item }">
         <span
-          v-if="item.check"
-          class="mdi mdi-check-circle-outline check-icon--green"
+          v-if="item.quantity_prod_all <= item.quantity_prod"
+          class="mdi mdi-check-circle-outline check-icon--large"
         ></span>
       </template>
     </v-data-table-server>
@@ -178,5 +178,10 @@ export default {
 <style>
 .check-icon--green {
   color: green;
+}
+
+.check-icon--large {
+  font-size: 24px; /* или любой другой размер, который вам нужен */
+  color: green; /* Пример изменения цвета */
 }
 </style>
