@@ -144,31 +144,27 @@ async function issueTool(req, res) {
 }
 
 async function issueTools(req, res) {
-  const { operationId, userId, tools } = req.body // tools - это массив объектов вида { toolId, quantity }
+  const { operationId, userId, tools } = req.body // tools is an array of objects like { toolId, quantity }
 
   try {
-    // Начало транзакции
-    await pool.query('BEGIN')
+    await pool.query('BEGIN') // Start transaction
 
-    // Предполагаем, что '1' - это код операции "выдача" в вашей системе
-    const typeIssueCode = 1
+    const typeIssueCode = 1 // Assuming '1' is the issue operation code in your system
 
     for (const { toolId, quantity } of tools) {
-      // Проверка наличия инструмента на складе
+      // Check tool availability in stock
       const selectQuery = 'SELECT sklad FROM dbo.tool_nom WHERE id = $1'
       const { rows } = await pool.query(selectQuery, [toolId])
 
       if (rows.length === 0 || rows[0].sklad < quantity) {
-        throw new Error(
-          `Недостаточно инструмента на складе для toolId=${toolId}`
-        )
+        throw new Error(`Insufficient stock for toolId=${toolId}`)
       }
 
-      // Вставка записи в историю инструмента
+      // Inserting record in tool history
       const insertQuery = `
-                INSERT INTO dbo.tool_history_nom (specs_op_id, id_user, id_tool, type_issue, quantity, timestamp)
-                VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
-            `
+        INSERT INTO dbo.tool_history_nom (specs_op_id, id_user, id_tool, type_issue, quantity, timestamp)
+        VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
+      `
       await pool.query(insertQuery, [
         operationId,
         userId,
@@ -177,30 +173,28 @@ async function issueTools(req, res) {
         quantity,
       ])
 
-      // Обновление количества инструмента на складе
+      // Updating tool quantity in stock
       const updateQuery =
         'UPDATE dbo.tool_nom SET sklad = sklad - $1 WHERE id = $2'
       await pool.query(updateQuery, [quantity, toolId])
     }
 
-    // Завершение транзакции
-    await pool.query('COMMIT')
-    res.json({ success: 'OK', message: 'Инструменты успешно выданы' })
+    await pool.query('COMMIT') // Commit transaction
+    res.json({ success: 'OK', message: 'Tools issued successfully' })
   } catch (error) {
-    // Откат в случае ошибки
-    await pool.query('ROLLBACK')
-    console.error('Ошибка при выдаче инструментов:', error)
+    await pool.query('ROLLBACK') // Rollback in case of error
+    console.error('Error issuing tools:', error)
 
-    // Проверка на специфическую ошибку и отправка соответствующего сообщения
-    if (error.message.includes('Недостаточно инструмента на складе')) {
+    // Specific error response for stock issue
+    if (error.message.includes('Insufficient stock')) {
       res.status(400).json({
-        error: 'Недостаточно инструмента на складе',
+        error: 'Not enough stock',
         message: error.message,
       })
     } else {
       res.status(500).json({
-        error: 'Внутренняя ошибка сервера',
-        message: 'Пожалуйста, обратитесь к администратору',
+        error: 'Internal Server Error',
+        message: 'Please contact the administrator',
       })
     }
   }
