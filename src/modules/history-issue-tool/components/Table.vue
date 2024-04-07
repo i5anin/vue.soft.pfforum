@@ -45,7 +45,7 @@
       <template v-slot:item.check="{ item }">
         <span
           v-if="item.quantity_prod_all <= item.quantity_prod"
-          class="mdi mdi-check-circle-outline check-icon--large"
+          class="mdi mdi-check check-icon--large"
         ></span>
       </template>
     </v-data-table-server>
