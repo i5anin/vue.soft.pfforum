@@ -184,6 +184,11 @@ export default {
   },
   methods: {
     async cancelOperation(operationId) {
+      // Confirmation dialog
+      if (!confirm('Вы уверены, что хотите отменить эту операцию?')) {
+        return // Stop the function if user cancels
+      }
+
       this.isLoading = true
       try {
         const response = await issueHistoryApi.cancelOperation(operationId)
@@ -196,6 +201,7 @@ export default {
         this.isLoading = false
       }
     },
+
     debounce(func, wait) {
       let timeout
       return function (...args) {
