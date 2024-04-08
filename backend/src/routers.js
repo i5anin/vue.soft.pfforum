@@ -14,7 +14,9 @@ const reportBuchWeekController = require('./controllers/tool/reports/email/b_buc
 const reportBuchEndOpController = require('./controllers/tool/reports/email/b_buch_end_op')
 const reportBuchMonthController = require('./controllers/tool/reports/email/b_buch_month')
 const reportZakazController = require('./controllers/tool/reports/email/b_order_Instr')
+
 const reportVueZakazController = require('./controllers/tool/reports/vue/b_order_Instr')
+const reportVueBuhController = require('./controllers/tool/reports/vue/b_buch_week')
 
 const excelZakazController = require('./controllers/tool/reports/excel/b_order_Instr')
 
@@ -75,6 +77,7 @@ router.get('/report/genBuchMonth', reportBuchMonthController.genBuchMonth) // б
 router.get('/report/genZayavInstr', reportZakazController.genZayavInstr) // заявка на инструмент	раз в неделю каждый ЧТ в 12:00 (за неделю)
 
 //vue
+router.get('/report/getBuchWeek', reportVueBuhController.getTableReportData) // бухгалтерию исключен сломанный	раз в неделю каждый ПТ в 12:00 (за неделю)
 router.get('/report/getZakaz', reportVueZakazController.getTableReportData) // заявка на инструмент	раз в неделю каждый ЧТ в 12:00 (за неделю)
 
 // excel report

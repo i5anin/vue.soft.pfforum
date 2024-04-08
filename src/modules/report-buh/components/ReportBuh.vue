@@ -27,7 +27,6 @@
               <td>{{ tool.zakaz }}</td>
               <td class="grey">{{ tool.sklad }}</td>
               <td class="grey">{{ tool.norma }}</td>
-
               <td class="grey">{{ tool.damaged_last_7_days }}</td>
             </tr>
           </tbody>
@@ -53,7 +52,7 @@ export default {
   methods: {
     async fetchZakazData() {
       try {
-        this.toolGroups = await reportApi.getZakaz() // Убедитесь, что это правильный путь к данным в вашем API
+        this.toolGroups = await reportApi.getBuchWeek() // Убедитесь, что это правильный путь к данным в вашем API
       } catch (error) {
         console.error('Ошибка при получении данных: ', error)
         // Здесь можно добавить обработку ошибок, например, отображение сообщения пользователю

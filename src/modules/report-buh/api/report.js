@@ -6,29 +6,9 @@ function handleResponse(response) {
 }
 
 export const reportApi = {
-  genBuchWeek: async () =>
+  getBuchWeek: async () =>
     axiosInstance
-      .get('/report/genBuchWeek')
-      .then(handleResponse)
-      .catch(handleApiError),
-  genBuchEndOp: async () =>
-    axiosInstance
-      .get('/report/genBuchEndOp')
-      .then(handleResponse)
-      .catch(handleApiError),
-  genBuchMonth: async () =>
-    axiosInstance
-      .get('/report/genBuchMonth')
-      .then(handleResponse)
-      .catch(handleApiError),
-  genZayavInstr: async () =>
-    axiosInstance
-      .get('/report/genZayavInstr')
-      .then(handleResponse)
-      .catch(handleApiError),
-  getZakaz: async () =>
-    axiosInstance
-      .get('/report/getZakaz')
+      .get('/report/getBuchWeek')
       .then(handleResponse)
       .catch(handleApiError),
 }
