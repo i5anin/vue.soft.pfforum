@@ -1,6 +1,6 @@
 <template>
   <v-footer v-if="databaseInfo" class="container">
-    <v-chip variant="text" density="x-small">
+    <v-chip variant="plain" density="x-small">
       Все права защищены © 2024
     </v-chip>
     <v-spacer />
