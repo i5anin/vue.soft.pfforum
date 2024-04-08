@@ -9,6 +9,9 @@
     />
     <div class="d-flex align-center justify-center">
       <v-row class="fill-height">
+        <v-btn color="primary" icon @click="fetchAndFormatToolHistory">
+          <v-icon>mdi-refresh</v-icon>
+        </v-btn>
         <v-col cols="12" md="5" class="d-flex align-center">
           <v-text-field
             variant="outlined"
@@ -44,12 +47,14 @@
     >
       <template v-slot:item.action="{ item }">
         <v-btn
+          icon
           small
           color="red"
           @click.stop="cancelOperation(item.id)"
           :disabled="item.cancelled"
+          title="Отменить операцию"
         >
-          Отмена
+          <v-icon>mdi-delete</v-icon>
         </v-btn>
       </template>
     </v-data-table-server>
@@ -110,12 +115,12 @@ export default {
           sortable: false,
           width: '150px',
         },
-        {
-          title: 'id_user',
-          value: 'id_user',
-          sortable: false,
-          width: '150px',
-        },
+        // {
+        //   title: 'id_user',
+        //   value: 'id_user',
+        //   sortable: false,
+        //   width: '150px',
+        // },
         {
           title: 'ID инструмента',
           value: 'id_tool',
