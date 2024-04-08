@@ -324,9 +324,9 @@ export default {
       // console.log('Отправляемые данные:', this.toolModel) - ???
       const issueData = {
         // Составление данных для отправки API
-        issueToken: this.issueToken,
-        operationId: this.toolModel.operationType, // Исправлено для использования выбранного типа операции
-        userId: this.selectedFio.value, // Исправлено для правильной отправки ID пользователя
+        issueToken: this.issueToken, // Ensure this is being sent correctly
+        operationId: this.toolModel.operationType,
+        userId: this.selectedFio.value,
         typeIssue: this.toolModel.typeIssue.id,
         tools: this.cartItems.map((item) => ({
           toolId: item.toolId,
@@ -339,9 +339,8 @@ export default {
         if (response && response.success === 'OK') {
           this.snackbarText = 'Успешно выдано'
           this.snackbar = true
-          this.$emit('changes-saved') // Уже существующий $emit
-          console.log('Событие changes-saved отправлено корзина')
-          this.$emit('canceled') // Добавленный $emit для закрытия модального окна
+          this.$emit('changes-saved')
+          this.$emit('canceled')
           this.$store.dispatch('IssueToolStore/clearCart')
           return true
         } else {
@@ -359,11 +358,11 @@ export default {
       }
     },
     async onSave() {
-      this.isSubmitting = true // Добавлено для отображения процесса отправки
+      this.isSubmitting = true
       try {
+        this.issueToken = localStorage.getItem('token') // Move token retrieval here
+        if (!this.issueToken) throw new Error('Authentication token not found.')
         const isSuccess = await this.sendIssueDataToApi()
-        this.issueToken = localStorage.getItem('token') // Retrieve the token from localStorage
-        // console.log(token)
         if (isSuccess) {
           this.snackbarText = 'Успешно выдано'
           this.snackbar = true
@@ -374,9 +373,10 @@ export default {
         this.snackbarText = 'Ошибка при отправке данных'
         this.snackbar = true
       } finally {
-        this.isSubmitting = false // Добавлено для сброса состояния отправки
+        this.isSubmitting = false
       }
     },
+
     increaseQuantity(index) {
       const item = this.cartItems[index]
       if (item.quantity < item.sklad) {

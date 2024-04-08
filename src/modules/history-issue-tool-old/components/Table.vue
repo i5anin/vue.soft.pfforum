@@ -99,11 +99,11 @@ export default {
           value: 'part_name',
           sortable: false,
         },
-        {
-          title: 'Обозначение',
-          value: 'part_description',
-          sortable: false,
-        },
+        // {
+        //   title: 'Обозначение',
+        //   value: 'part_description',
+        //   sortable: false,
+        // },
         {
           title: 'Фамилия',
           value: 'user_name',
@@ -141,16 +141,22 @@ export default {
           width: '80px',
         },
         {
+          title: 'Выдал',
+          value: 'issuer_login',
+          sortable: false,
+          width: '80px',
+        },
+        {
           title: 'Actions',
           value: 'action',
           sortable: false,
         },
-        {
-          title: 'Отменена',
-          value: 'cancelled',
-          sortable: false,
-          width: '80px',
-        },
+        // {
+        //   title: 'Отменена',
+        //   value: 'cancelled',
+        //   sortable: false,
+        //   width: '80px',
+        // },
 
         // {
         //   title: 'Произведенной продукции',

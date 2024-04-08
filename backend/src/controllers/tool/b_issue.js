@@ -144,27 +144,38 @@ async function issueTool(req, res) {
 }
 
 async function issueTools(req, res) {
-  const { operationId, userId, tools, typeIssue } = req.body // tools - это массив объектов вида { toolId, quantity }
+  const { operationId, userId, tools, typeIssue, issueToken } = req.body // Добавлен issueToken в деструктуризацию
 
   try {
     // Начало транзакции
     await pool.query('BEGIN')
 
+    // Проверка токена и получение issuer_id
+    const tokenQuery = 'SELECT id FROM dbo.vue_users WHERE token = $1'
+    const tokenResult = await pool.query(tokenQuery, [issueToken])
+
+    if (tokenResult.rows.length === 0) {
+      throw new Error('Invalid token: Access denied.')
+    }
+
+    const issuerId = tokenResult.rows[0].id
+
     for (const { toolId, quantity } of tools) {
       // Проверка наличия инструмента на складе
       const selectQuery = 'SELECT sklad FROM dbo.tool_nom WHERE id = $1'
-      const { rows } = await pool.query(selectQuery, [toolId])
+      const stockResult = await pool.query(selectQuery, [toolId])
 
-      if (rows.length === 0 || rows[0].sklad < quantity) {
-        throw new Error(
-          `Недостаточно инструмента на складе для toolId=${toolId}`
-        )
+      if (
+        stockResult.rows.length === 0 ||
+        stockResult.rows[0].sklad < quantity
+      ) {
+        throw new Error(`Insufficient stock for tool ID=${toolId}`)
       }
 
       // Вставка записи в историю инструмента
       const insertQuery = `
-        INSERT INTO dbo.tool_history_nom (specs_op_id, id_user, id_tool, type_issue, quantity, timestamp)
-        VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
+        INSERT INTO dbo.tool_history_nom (specs_op_id, id_user, id_tool, type_issue, quantity, timestamp, issuer_id)
+        VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, $6)
       `
       await pool.query(insertQuery, [
         operationId,
@@ -172,6 +183,7 @@ async function issueTools(req, res) {
         toolId,
         typeIssue,
         quantity,
+        issuerId,
       ])
 
       // Обновление количества инструмента на складе
@@ -187,18 +199,10 @@ async function issueTools(req, res) {
     // Откат в случае ошибки
     await pool.query('ROLLBACK')
     console.error('Ошибка при выдаче инструмента:', error)
-
-    if (error.message.includes('Недостаточно инструмента на складе')) {
-      res.status(400).json({
-        error: 'Недостаточно инструмента на складе',
-        message: error.message,
-      })
-    } else {
-      res.status(500).json({
-        error: 'Внутренняя ошибка сервера',
-        message: 'Пожалуйста, обратитесь к администратору',
-      })
-    }
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: error.message || 'Please contact the administrator.',
+    })
   }
 }
 

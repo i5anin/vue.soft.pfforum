@@ -172,27 +172,31 @@ async function getToolHistoryByPartId(req, res) {
         CASE
           WHEN thn.id_user < 0 THEN (SELECT name FROM dbo.tool_user_custom_list WHERE -id = thn.id_user)
           ELSE o.fio
-          END AS user_fio,
+        END AS user_fio,
         thn.id_user,
         thn.timestamp,
         tn.name AS name_tool,
         thn.id_tool,
         thn.type_issue,
         thn.comment,
-        thn.cancelled
+        thn.cancelled,
+        thn.issuer_id,
+        vu.login AS issuer_login
       FROM dbo.tool_history_nom thn
-             LEFT JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
-             LEFT JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
-             LEFT JOIN dbo.operations_ordersnom oon ON oon.op_id = sno.ordersnom_op_id
-             LEFT JOIN dbo.operators o ON thn.id_user = o.id
-             LEFT JOIN dbo.tool_nom tn ON thn.id_tool = tn.id
+      LEFT JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
+      LEFT JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
+      LEFT JOIN dbo.operations_ordersnom oon ON oon.op_id = sno.ordersnom_op_id
+      LEFT JOIN dbo.operators o ON thn.id_user = o.id
+      LEFT JOIN dbo.tool_nom tn ON thn.id_tool = tn.id
+      LEFT JOIN dbo.vue_users vu ON thn.issuer_id = vu.id
       WHERE sn.ID = $1
       ORDER BY thn.timestamp DESC;
     `
     const operationsResult = await pool.query(operationsQuery, [idPart])
 
-    if (operationsResult.rows.length === 0)
+    if (operationsResult.rows.length === 0) {
       return res.status(404).send('Операции для данной партии не найдены')
+    }
 
     const allTools = {}
     const operationsData = {}
@@ -201,7 +205,7 @@ async function getToolHistoryByPartId(req, res) {
     operationsResult.rows.forEach((row) => {
       // Map type_issue numeric value to string
       const typeIssueMap = { 0: 'Себе', 1: 'На ночь', 2: 'Наладка' }
-      row.type_issue = typeIssueMap[row.type_issue] || 'Неизвестно' // Default to "Неизвестно" if not in map
+      row.type_issue = typeIssueMap[row.type_issue] || 'Неизвестно'
 
       // Collect data for all tools
       if (allTools[row.id_tool]) {
@@ -210,7 +214,7 @@ async function getToolHistoryByPartId(req, res) {
           new Date(allTools[row.id_tool].timestamp) < new Date(row.timestamp)
         ) {
           allTools[row.id_tool].timestamp = row.timestamp
-          allTools[row.id_tool].type_issue = row.type_issue // Ensure the latest type_issue is reflected
+          allTools[row.id_tool].type_issue = row.type_issue
         }
       } else {
         allTools[row.id_tool] = {
@@ -239,6 +243,8 @@ async function getToolHistoryByPartId(req, res) {
         type_issue: row.type_issue,
         comment: row.comment,
         cancelled: row.cancelled,
+        issuer_id: row.issuer_id,
+        issuer_login: row.issuer_login,
       })
 
       // Collect information for info section
@@ -255,14 +261,10 @@ async function getToolHistoryByPartId(req, res) {
     const finalData = {
       info,
       all: Object.values(allTools),
+      operations: Object.entries(operationsData)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([key, value]) => ({ operation: key, data: value })),
     }
-
-    // Add sorted operations to finalData
-    Object.keys(operationsData)
-      .sort()
-      .forEach((operation) => {
-        finalData[operation] = operationsData[operation]
-      })
 
     res.json(finalData)
   } catch (err) {
@@ -279,36 +281,39 @@ async function getToolHistoryByPartOld(req, res) {
     const offset = (page - 1) * limit
 
     // SQL query to count total unique IDs
-    const countQuery = `
-      SELECT COUNT(*) FROM dbo.tool_history_nom;
-    `
+    const countQuery = `SELECT COUNT(*) FROM dbo.tool_history_nom;`
 
     // SQL query to retrieve tool history data
     const dataQuery = `
-      SELECT h.id,
-             h.specs_op_id,
-             sn.ID          AS id_part,
-             h.id_tool,
-             n.name         AS tool_name,
-             h.id_user,
-             CASE               WHEN h.id_user < 0 THEN                   (SELECT name FROM dbo.tool_user_custom_list WHERE id = -h.id_user)
-               ELSE
-                 o.fio
-               END          AS user_name,
-             h.quantity,
-             h.timestamp,
-             h.comment,
-             h.type_issue,
-             h.sent,
-             h.cancelled,
-
-             sn.NAME        AS part_name,
-             sn.description AS part_description
+      SELECT
+        h.id,
+        h.specs_op_id,
+        sn.ID AS id_part,
+        h.id_tool,
+        n.name AS tool_name,
+        h.id_user,
+        CASE
+          WHEN h.id_user < 0 THEN
+            (SELECT name FROM dbo.tool_user_custom_list WHERE id = -h.id_user)
+          ELSE
+            o.fio
+        END AS user_name,
+        h.quantity,
+        h.timestamp,
+        h.comment,
+        h.type_issue,
+        h.sent,
+        h.cancelled,
+        sn.NAME AS part_name,
+        sn.description AS part_description,
+        h.issuer_id,
+        vu.login AS issuer_login
       FROM dbo.tool_history_nom h
-             LEFT JOIN dbo.tool_nom n ON h.id_tool = n.id
-             LEFT JOIN dbo.operators o ON h.id_user = o.id AND h.id_user > 0
-             LEFT JOIN dbo.specs_nom_operations sno ON h.specs_op_id = sno.id
-             LEFT JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
+      LEFT JOIN dbo.tool_nom n ON h.id_tool = n.id
+      LEFT JOIN dbo.operators o ON h.id_user = o.id AND h.id_user > 0
+      LEFT JOIN dbo.specs_nom_operations sno ON h.specs_op_id = sno.id
+      LEFT JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
+      LEFT JOIN dbo.vue_users vu ON h.issuer_id = vu.id
       ORDER BY h.timestamp DESC
       LIMIT ${limit} OFFSET ${offset};
     `
