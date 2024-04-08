@@ -72,71 +72,74 @@ async function getFioOperators(req, res) {
 
 // Функция для выполнения операции выдачи инструмента
 async function issueTool(req, res) {
+  const { specs_op_id, id_user, id_tool, type_issue, quantity, issueToken } =
+    req.body
+
+  if (
+    !specs_op_id ||
+    !id_user ||
+    !id_tool ||
+    quantity == null ||
+    type_issue == null ||
+    !issueToken
+  ) {
+    return res
+      .status(400)
+      .json({
+        success: false,
+        message: 'Отсутствует один из обязательных параметров',
+      })
+  }
+
   try {
-    const { specs_op_id, id_user, id_tool, type_issue, quantity, issueToken } =
-      req.body
+    const issuerIdResult = await pool.query(
+      'SELECT id FROM dbo.vue_users WHERE token = $1',
+      [issueToken]
+    )
+    if (issuerIdResult.rows.length === 0) {
+      return res
+        .status(403)
+        .json({ success: false, message: 'Неверный токен доступа' })
+    }
+    const issuerId = issuerIdResult.rows[0].id
 
-    // Проверка наличия всех обязательных параметров
-    if (
-      !specs_op_id ||
-      !id_user ||
-      !id_tool ||
-      quantity == null ||
-      type_issue == null ||
-      !issueToken
-    ) {
-      return res.status(400).send('Отсутствует один из обязательных параметров')
+    const toolData = await pool.query(
+      'SELECT sklad FROM dbo.tool_nom WHERE id = $1',
+      [id_tool]
+    )
+    if (toolData.rows.length === 0 || toolData.rows[0].sklad < quantity) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'Недостаточно инструмента на складе' })
     }
 
-    // Проверка токена и получение issuer_id
-    const tokenQuery = 'SELECT id FROM dbo.vue_users WHERE token = $1'
-    const tokenResult = await pool.query(tokenQuery, [issueToken])
-    if (tokenResult.rows.length === 0) {
-      return res.status(403).send('Неверный токен доступа')
-    }
-    const issuerId = tokenResult.rows[0].id
+    const insertResult = await pool.query(
+      `INSERT INTO dbo.tool_history_nom (specs_op_id, id_user, id_tool, type_issue, quantity, timestamp, issuer_id)
+       VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, $6) RETURNING id, timestamp;`,
+      [specs_op_id, id_user, id_tool, type_issue, quantity, issuerId]
+    )
 
-    // Проверяем текущее количество инструмента на складе
-    const selectQuery = `SELECT sklad FROM dbo.tool_nom WHERE id = $1`
-    const toolData = await pool.query(selectQuery, [id_tool])
-    if (toolData.rows[0].sklad < quantity) {
-      return res.status(400).send('Недостаточно инструмента на складе')
-    }
+    await pool.query(
+      'UPDATE dbo.tool_nom SET sklad = sklad - $1 WHERE id = $2',
+      [quantity, id_tool]
+    )
 
-    // Вставляем запись в историю инструмента и обновляем количество на складе
-    const insertQuery = `
-      INSERT INTO dbo.tool_history_nom (specs_op_id, id_user, id_tool, type_issue, quantity, timestamp, issuer_id)
-      VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, $6) RETURNING id, timestamp;
-    `
-    const insertResult = await pool.query(insertQuery, [
-      specs_op_id,
-      id_user,
-      id_tool,
-      type_issue,
-      quantity,
-      issuerId, // Используем ID из токена
-    ])
-    const insertedId = insertResult.rows[0].id
-    const insertedTimestamp = insertResult.rows[0].timestamp
-
-    // Обновляем количество инструмента на складе
-    const updateQuery = `UPDATE dbo.tool_nom SET sklad = sklad - $1 WHERE id = $2`
-    await pool.query(updateQuery, [quantity, id_tool])
-
-    // Отправляем ответ с данными о выполненной операции
     res.status(200).json({
-      success: 'OK',
-      insertedRecordId: insertedId,
-      specs_op_id,
-      id_user,
-      id_tool,
-      type_issue,
-      quantity,
-      timestamp: insertedTimestamp,
-      issuerId: issuerId, // Возвращаем ID выдавшего инструмент
+      success: true,
+      message: 'Инструменты успешно выданы',
+      data: {
+        insertedRecordId: insertResult.rows[0].id,
+        timestamp: insertResult.rows[0].timestamp,
+        specs_op_id,
+        id_user,
+        id_tool,
+        type_issue,
+        quantity,
+        issuerId,
+      },
     })
   } catch (error) {
-    console.error('Ошибка при сохранении истории инструмента:', error)
+    console.error('Ошибка при выдаче инструмента:', error)
     res.status(500).json({
       success: false,
       message: 'Внутренняя ошибка сервера',
