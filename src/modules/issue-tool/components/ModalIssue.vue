@@ -296,6 +296,12 @@ export default {
       this.$emit('canceled')
     },
     async onSave() {
+      const token = localStorage.getItem('token') // Получаем токен из localStorage
+      if (!token) {
+        console.error('Токен не найден')
+        return // Прерываем выполнение функции, если токен не найден
+      }
+
       try {
         // Подготовка данных инструмента для истории
         const issueHistoryData = {
@@ -304,7 +310,7 @@ export default {
           id_tool: this.toolId,
           type_issue: this.toolModel.typeIssue.id,
           quantity: parseInt(this.toolModel.issue),
-          timestamp: new Date().toISOString(),
+          issueToken: token,
         }
 
         console.log('Отправка данных инструмента на сервер:', issueHistoryData)
