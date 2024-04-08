@@ -38,7 +38,7 @@
 </template>
 <script>
 import { reportApi } from '../api/report'
-import ReportZakaz from './ReportZakaz.vue'
+import ReportZakaz from './ReportBuh.vue'
 
 import Modal from '@/modules/shared/components/Modal.vue'
 
@@ -47,26 +47,26 @@ export default {
   data() {
     return {
       reports: [
-        // {
-        //   name: 'Отчет в бухгалтерию исключен сломанный',
-        //   info: 'раз в неделю каждый ПТ в 12:00 (за неделю)',
-        //   action: this.genBuchIssuedWeek,
-        // },
-        // {
-        //   name: 'Отчет в бухгалтерию',
-        //   info: 'по завершению операции',
-        //   action: this.genBuchEndOp,
-        // },
-        // {
-        //   name: 'Отчет в бухгалтерию журнал поврежденного',
-        //   info: 'раз в месяц каждый ПТ в 12:00 (за месяц)',
-        //   action: this.genBuchMonth,
-        // },
         {
-          name: 'Отчет заявка на инструмент',
-          info: 'раз в неделю каждый ЧТ в 12:00 (за неделю)',
-          action: this.genZayavInstrWeek,
+          name: 'Исключен сломанный',
+          info: 'раз в неделю каждый ПТ в 12:00 (за неделю)',
+          action: this.genBuchIssuedWeek,
         },
+        {
+          name: 'По завершению операции',
+          info: '',
+          action: this.genBuchEndOp,
+        },
+        {
+          name: 'Журнал поврежденного',
+          info: 'раз в месяц каждый ПТ в 12:00 (за месяц)',
+          action: this.genBuchMonth,
+        },
+        // {
+        //   name: 'Отчет заявка на инструмент',
+        //   info: 'раз в неделю каждый ЧТ в 12:00 (за неделю)',
+        //   action: this.genZayavInstrWeek,
+        // },
       ],
     }
   },
