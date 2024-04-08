@@ -1,5 +1,5 @@
 <template>
-  <Modal :title="popupTitle" widthDefault="1300px">
+  <Modal :title="popupTitle" widthDefault="1450px">
     <template #content>
       <div style="padding-left: 16px">
         <v-row>
@@ -39,6 +39,15 @@
             <td v-for="header in currentHeaders" :key="header.value">
               <template v-if="header.value === 'timestamp'">
                 {{ formatDate(item[header.value]) }}
+              </template>
+              <template
+                v-else-if="
+                  header.value === 'no_oper' || header.value === 'type_oper'
+                "
+              >
+                <v-chip small color="lighten-4">
+                  {{ item[header.value] }}
+                </v-chip>
               </template>
               <template v-else>
                 {{ item[header.value] }}
@@ -84,7 +93,7 @@ export default {
         { title: 'Выдано', value: 'user_fio' },
         { title: 'Тип выдачи', value: 'type_issue' },
         { title: 'Дата', value: 'timestamp' },
-        { title: 'Операция', value: 'no_oper' },
+        // { title: 'Операция', value: 'no_oper' },
         { title: 'Тип', value: 'type_oper' },
         { title: 'Комментарий', value: 'comment' },
         { title: 'Отменено', value: 'cancelled' },

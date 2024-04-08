@@ -1,13 +1,13 @@
 <template>
   <div>
     <div v-for="(group, index) in toolGroups" :key="index" class="tool-group">
-      <v-chip size="large" color="green" @click="toggleVisibility(index)">
+      <v-chip variant="text" size="large" @click="toggleVisibility(index)">
         <template v-slot:prepend>
           <v-icon icon="mdi-folder" start />
         </template>
         {{ group.path }}
       </v-chip>
-      <v-chip>{{ group.tools.length }}</v-chip>
+      <v-chip variant="flat" color="red">{{ group.tools.length }}</v-chip>
       <div v-if="visibleGroups.includes(index)">
         <v-table dense>
           <thead>

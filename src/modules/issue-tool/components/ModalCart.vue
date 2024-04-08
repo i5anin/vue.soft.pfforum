@@ -161,6 +161,7 @@ export default {
       { title: 'На ночь', id: 1 },
       { title: 'Наладка', id: 2 },
     ],
+    issueToken: '',
     submitButtonDisabled: false,
     isSubmitting: false, // Для блокировки кнопки во время ожидания
     submitError: false, // Для изменения стиля кнопки при ошибке
@@ -289,10 +290,6 @@ export default {
       this.selectedFio = selectedItem // Убедитесь, что здесь правильно обновляется значение в Vuex
     },
 
-    setSelectedOperationId(value) {
-      // Здесь ваш код для обновления состояния, например:
-      this.toolModel.selectedOperationId = value
-    },
     onIdSelected(selectedValue) {
       console.log('Выбранное значение для Название Обозначение:', selectedValue)
       const id = this.idMapping[selectedValue]
@@ -327,6 +324,7 @@ export default {
       // console.log('Отправляемые данные:', this.toolModel) - ???
       const issueData = {
         // Составление данных для отправки API
+        issueToken: this.issueToken,
         operationId: this.toolModel.operationType, // Исправлено для использования выбранного типа операции
         userId: this.selectedFio.value, // Исправлено для правильной отправки ID пользователя
         typeIssue: this.toolModel.typeIssue.id,
@@ -364,6 +362,8 @@ export default {
       this.isSubmitting = true // Добавлено для отображения процесса отправки
       try {
         const isSuccess = await this.sendIssueDataToApi()
+        this.issueToken = localStorage.getItem('token') // Retrieve the token from localStorage
+        // console.log(token)
         if (isSuccess) {
           this.snackbarText = 'Успешно выдано'
           this.snackbar = true
