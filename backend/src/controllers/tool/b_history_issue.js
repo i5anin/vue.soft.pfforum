@@ -161,31 +161,33 @@ async function getToolHistoryByPartId(req, res) {
   try {
     const idPart = req.query.id_part
     const operationsQuery = `
-      SELECT
-        sno.id AS specs_op_id,
-        sn.ID AS id_part,
-        sn.NAME,
-        sn.description,
-        oon.no AS no_oper,
-        dbo.get_full_cnc_type(dbo.get_op_type_code(sno.ID)) AS type_oper,
-        thn.quantity,
-        CASE
-          WHEN thn.id_user < 0 THEN (SELECT name FROM dbo.tool_user_custom_list WHERE -id = thn.id_user)
-          ELSE o.fio
-          END AS user_fio,
-        thn.id_user,
-        thn.timestamp,
-        tn.name AS name_tool,
-        thn.id_tool,
-        thn.type_issue,
-        thn.comment,
-        thn.cancelled
+      SELECT sno.id                                              AS specs_op_id,
+             sn.ID                                               AS id_part,
+             sn.NAME,
+             sn.description,
+             oon.no                                              AS no_oper,
+             dbo.get_full_cnc_type(dbo.get_op_type_code(sno.ID)) AS type_oper,
+             thn.quantity,
+             CASE
+               WHEN thn.id_user < 0 THEN (SELECT name FROM dbo.tool_user_custom_list WHERE -id = thn.id_user)
+               ELSE o.fio
+               END                                               AS user_fio,
+             thn.id_user,
+             thn.timestamp,
+             tn.name                                             AS name_tool,
+             thn.id_tool,
+             thn.type_issue,
+             thn.comment,
+             thn.cancelled,
+             thn.issuer_id,
+             vu.login                                            AS issuer_fio
       FROM dbo.tool_history_nom thn
              LEFT JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
              LEFT JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
              LEFT JOIN dbo.operations_ordersnom oon ON oon.op_id = sno.ordersnom_op_id
              LEFT JOIN dbo.operators o ON thn.id_user = o.id
              LEFT JOIN dbo.tool_nom tn ON thn.id_tool = tn.id
+             LEFT JOIN dbo.vue_users vu ON thn.issuer_id = vu.id
       WHERE sn.ID = $1
       ORDER BY thn.timestamp DESC;
     `
@@ -239,6 +241,8 @@ async function getToolHistoryByPartId(req, res) {
         type_issue: row.type_issue,
         comment: row.comment,
         cancelled: row.cancelled,
+        issuer_fio: row.issuer_fio,
+        issuer_id: row.issuer_id,
       })
 
       // Collect information for info section

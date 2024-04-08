@@ -97,7 +97,7 @@ export default {
         { title: 'Тип', value: 'type_oper' },
         { title: 'Комментарий', value: 'comment' },
         { title: 'Отменено', value: 'cancelled' },
-        { title: 'Выдал', value: 'issuer_id' },
+        { title: 'Выдал', value: 'issuer_fio' },
       ],
       headersAll: [
         { title: 'Инструмент', value: 'name_tool' },
