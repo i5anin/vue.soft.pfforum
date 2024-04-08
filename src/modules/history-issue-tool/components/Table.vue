@@ -82,19 +82,19 @@ export default {
           sortable: false,
         },
         {
-          title: 'Выданного инструмента',
+          title: 'Выдано инструмента',
           value: 'quantity_tool',
           sortable: false,
           width: '80px',
         },
         {
-          title: 'Произведенной продукции',
+          title: 'Произведено продукции',
           value: 'quantity_prod',
           sortable: false,
           width: '80px',
         },
         {
-          title: 'Продукции в плане (+брак)',
+          title: 'План',
           value: 'quantity_prod_all',
           sortable: false,
           width: '80px',
