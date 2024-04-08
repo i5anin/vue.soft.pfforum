@@ -1,23 +1,22 @@
 <template>
   <v-footer v-if="databaseInfo" class="container">
-    Все права защищены © 2024
+    <v-chip variant="text" density="x-small">
+      Все права защищены © 2024
+    </v-chip>
     <v-spacer />
-    <!-- Если название базы данных равно "BusinessForum", показываем только версию -->
-    <span
-      v-if="databaseInfo.dbName === 'BusinessForum'"
-      :class="{ 'text-red': isBuildDatabase }"
+    <v-chip
+      :color="databaseInfo.dbName === 'BusinessForum' ? 'red' : 'green'"
+      density="small"
     >
-      Версия: {{ databaseInfo.databaseType }}
-    </span>
-    <!-- Если название базы данных не равно "BusinessForum", показываем только название базы данных -->
-    <div v-else>
-      <v-chip color="green">
-        <template v-slot:prepend>
-          <v-icon start icon="mdi-database" />
-        </template>
+      <template v-if="databaseInfo.dbName === 'BusinessForum'">
+        <!--        <v-icon left icon="mdi-information" />-->
+        Версия: {{ databaseInfo.databaseType }}
+      </template>
+      <template v-else>
+        <v-icon left icon="mdi-database" />
         {{ databaseInfo.dbName }}
-      </v-chip>
-    </div>
+      </template>
+    </v-chip>
   </v-footer>
 </template>
 
