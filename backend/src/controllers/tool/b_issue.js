@@ -73,8 +73,8 @@ async function getFioOperators(req, res) {
 // Функция для выполнения операции выдачи инструмента
 async function issueTool(req, res) {
   try {
-    // Извлекаем необходимые данные из тела запроса
-    const { specs_op_id, id_user, id_tool, type_issue, quantity } = req.body
+    const { specs_op_id, id_user, id_tool, type_issue, quantity, issueToken } =
+      req.body
 
     // Проверка наличия всех обязательных параметров
     if (
@@ -82,15 +82,22 @@ async function issueTool(req, res) {
       !id_user ||
       !id_tool ||
       quantity == null ||
-      type_issue == null
+      type_issue == null ||
+      !issueToken
     ) {
       return res.status(400).send('Отсутствует один из обязательных параметров')
     }
 
+    // Проверка токена и получение issuer_id
+    const tokenQuery = 'SELECT id FROM dbo.vue_users WHERE token = $1'
+    const tokenResult = await pool.query(tokenQuery, [issueToken])
+    if (tokenResult.rows.length === 0) {
+      return res.status(403).send('Неверный токен доступа')
+    }
+    const issuerId = tokenResult.rows[0].id
+
     // Проверяем текущее количество инструмента на складе
-    const selectQuery = `SELECT sklad
-                         FROM dbo.tool_nom
-                         WHERE id = $1`
+    const selectQuery = `SELECT sklad FROM dbo.tool_nom WHERE id = $1`
     const toolData = await pool.query(selectQuery, [id_tool])
     if (toolData.rows[0].sklad < quantity) {
       return res.status(400).send('Недостаточно инструмента на складе')
@@ -98,8 +105,8 @@ async function issueTool(req, res) {
 
     // Вставляем запись в историю инструмента и обновляем количество на складе
     const insertQuery = `
-      INSERT INTO dbo.tool_history_nom (specs_op_id, id_user, id_tool, type_issue, quantity, timestamp)
-      VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP) RETURNING id, timestamp;
+      INSERT INTO dbo.tool_history_nom (specs_op_id, id_user, id_tool, type_issue, quantity, timestamp, issuer_id)
+      VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, $6) RETURNING id, timestamp;
     `
     const insertResult = await pool.query(insertQuery, [
       specs_op_id,
@@ -107,14 +114,13 @@ async function issueTool(req, res) {
       id_tool,
       type_issue,
       quantity,
+      issuerId, // Используем ID из токена
     ])
     const insertedId = insertResult.rows[0].id
-    const insertedTimestamp = insertResult.rows[0].timestamp // Текущая дата и время сервера
+    const insertedTimestamp = insertResult.rows[0].timestamp
 
     // Обновляем количество инструмента на складе
-    const updateQuery = `UPDATE dbo.tool_nom
-                         SET sklad = sklad - $1
-                         WHERE id = $2`
+    const updateQuery = `UPDATE dbo.tool_nom SET sklad = sklad - $1 WHERE id = $2`
     await pool.query(updateQuery, [quantity, id_tool])
 
     // Отправляем ответ с данными о выполненной операции
@@ -126,19 +132,15 @@ async function issueTool(req, res) {
       id_tool,
       type_issue,
       quantity,
-      timestamp: insertedTimestamp, // Возвращаем серверное время операции
+      timestamp: insertedTimestamp,
+      issuerId: issuerId, // Возвращаем ID выдавшего инструмент
     })
   } catch (error) {
     console.error('Ошибка при сохранении истории инструмента:', error)
     res.status(500).json({
       success: false,
       message: 'Внутренняя ошибка сервера',
-      error: {
-        name: error.name,
-        message: error.message,
-        stack: error.stack,
-      },
-      requestData: { specs_op_id, id_user, id_tool, type_issue, quantity },
+      errorDetails: error.message,
     })
   }
 }
