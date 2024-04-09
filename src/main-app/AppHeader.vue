@@ -56,12 +56,18 @@
 
       <v-spacer />
       <!--      <div>openDialog: {{ openDialog }}, currentModal: {{ currentModal }}</div>-->
-
-      <div v-if="cartItemsLength > 0" class="ma-5">
-        <v-btn icon @click="openCartModal">
+      <div @click="openCartModal" v-if="cartItemsLength > 0" class="ma-5">
+        <v-btn icon>
           <v-icon @click="">mdi-cart-outline</v-icon>
         </v-btn>
-        <v-chip color="red" variant="flat">{{ cartItemsLength }}</v-chip>
+        <!--        Позиций-->
+        <!--        <v-chip variant="flat">-->
+        <!--          {{ cartItemsLength }}-->
+        <!--        </v-chip>-->
+        Инструмента к выдаче
+        <v-chip color="red" variant="flat">
+          {{ cartItemsTotalQuantity }}
+        </v-chip>
       </div>
 
       <v-chip v-if="userInfo.user" class="ma-2" label dark>
@@ -110,6 +116,12 @@ export default {
     ...mapGetters({ cartItems: 'IssueToolStore/cartItems' }),
     cartItemsLength() {
       return this.cartItems ? this.cartItems.length : 0
+    },
+
+    cartItemsTotalQuantity() {
+      return this.cartItems
+        ? this.cartItems.reduce((total, item) => total + item.quantity, 0)
+        : 0
     },
     appTitle() {
       return import.meta.env.VITE_APP_TITLE || 'LOGO'

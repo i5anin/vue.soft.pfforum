@@ -154,9 +154,9 @@ export default {
 
           // { title: 'Заказ', key: 'zakaz', sortable: false },
           // { title: 'Лимит', key: 'limit', sortable: fals
-          { title: 'Выдать', key: 'issue', sortable: false },
+          // { title: 'Выдать', key: 'issue', sortable: false },
           { title: 'Поврежден', key: 'damaged', sortable: false },
-          { title: 'Корзина', key: 'cart', sortable: false },
+          { title: 'Выдать', key: 'cart', sortable: false },
           { title: 'Норма', key: 'norma', sortable: false },
           { title: 'Склад', key: 'sklad', sortable: false },
         ]

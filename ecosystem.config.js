@@ -2,7 +2,8 @@ module.exports = {
   apps: [
     {
       name: 'backend soft',
-      script: 'backend/src/app.js',
+      script: 'nodemon',
+      args: 'backend/src/app.js',
       watch: true,
       env: {
         PM2_PUBLIC_KEY: process.env.PM2_PUBLIC_KEY,
@@ -14,7 +15,7 @@ module.exports = {
     },
     {
       name: 'frontend soft',
-      script: 'npx', // Используйте npx для запуска локальных пакетов
+      script: 'npx',
       args: 'vite --host',
       interpreter: 'none',
       instances: 1,

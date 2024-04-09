@@ -32,13 +32,13 @@ async function getTableReportData(req, res) {
                                   FROM dbo.tool_tree tt
                                          JOIN TreePath tp ON tt.parent_id = tp.id -- Присоединяем дочерние элементы к родительским
                      ),
-                     damaged AS (SELECT tool_nom.id                                     AS id_tool,
+                     damaged AS (SELECT tool_nom.id                     AS id_tool,
                                         tool_nom.parent_id,
                                         tool_nom.name,
-                                        tool_nom.sklad, -- Добавляем это поле
-                                        tool_nom.norma, -- Добавляем это поле
-                                        tool_nom.norma - tool_nom.sklad                 AS zakaz,
-                                        COALESCE(SUM(tool_history_damaged.quantity), 0) AS damaged_last_7_days
+                                        tool_nom.sklad,
+                                        tool_nom.norma,
+                                        tool_nom.norma - tool_nom.sklad AS zakaz
+
                                  FROM dbo.tool_nom
                                         LEFT JOIN
                                       dbo.tool_history_damaged ON tool_nom.id = tool_history_damaged.id_tool
