@@ -30,7 +30,6 @@
             @update:model-value="fetchAndFormatToolHistory"
           />
         </v-col>
-        {{ dateOptions }}
       </v-row>
     </div>
 
