@@ -18,7 +18,7 @@ async function getToolHistory(req, res) {
     const limit = parseInt(req.query.limit || 15, 10)
     const offset = (page - 1) * limit
     const search = req.query.search
-    const date = req.query.date // Получаем дату из запроса один раз
+    const date = req.query.date // Получаем дату из запроса
 
     // Динамическое построение условий WHERE, основанных на параметрах поиска
     let searchConditions = `
@@ -39,14 +39,6 @@ async function getToolHistory(req, res) {
       searchConditions += ` AND CAST(thn.timestamp AS DATE) = CAST('${date}' AS DATE)`
     }
 
-    const countQuery = `
-      SELECT COUNT(DISTINCT sn.ID)
-      FROM dbo.tool_history_nom thn
-      INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
-      INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
-      ${searchConditions};
-    `
-
     const dataQuery = `
       SELECT
         sn.ID AS id_part,
@@ -55,18 +47,29 @@ async function getToolHistory(req, res) {
         CAST(SUM(thn.quantity) AS INTEGER) AS quantity_tool,
         CAST(COUNT(*) AS INTEGER) AS recordscount,
         COUNT(DISTINCT sno.id) AS operation_count,
-        MIN(thn.timestamp) AS timestamp,
+        MIN(thn.timestamp) AS first_issue_date,
+        MAX(thn.timestamp) AS last_issue_date,
         CAST(dbo.kolvo_prod_ready(sn.ID) AS INTEGER) AS quantity_prod,
         sn.kolvo AS quantity_prod_all
       FROM dbo.tool_history_nom thn
-             INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
-             INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
+        INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
+        INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
         ${searchConditions}
       GROUP BY sn.ID, sn.NAME, sn.description
-      ORDER BY MIN(thn.timestamp) DESC, sn.NAME, sn.description
-      LIMIT ${limit}
-        OFFSET ${offset};
+      ORDER BY last_issue_date DESC, first_issue_date DESC, sn.NAME, sn.description
+      LIMIT ${limit} OFFSET ${offset};
     `
+
+    const countQuery = `
+      SELECT COUNT(DISTINCT sn.ID)
+      FROM dbo.tool_history_nom thn
+        INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
+        INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
+        ${searchConditions};
+    `
+
+    console.log('Executing Data Query:', dataQuery)
+    console.log('Executing Count Query:', countQuery)
 
     const countResult = await pool.query(countQuery)
     const dataResult = await pool.query(dataQuery)
@@ -76,16 +79,21 @@ async function getToolHistory(req, res) {
       itemsPerPage: limit,
       totalCount: parseInt(countResult.rows[0].count, 10),
       toolsHistory: dataResult.rows.map((row) => ({
-        ...row,
-        quantity_tool: parseInt(row.quantity_tool, 10),
-        quantity_prod: parseInt(row.quantity_prod, 10),
-        recordscount: parseInt(row.recordscount, 10),
-        date: row.timestamp,
+        id_part: row.id_part,
+        name: row.name,
+        description: row.description,
+        quantity_tool: row.quantity_tool,
+        recordscount: row.recordscount,
+        operation_count: row.operation_count,
+        first_issue_date: row.first_issue_date,
+        last_issue_date: row.last_issue_date,
+        quantity_prod: row.quantity_prod,
+        quantity_prod_all: row.quantity_prod_all,
       })),
     })
   } catch (err) {
     console.error('Error executing query', err.stack)
-    res.status(500).send('Ошибка при выполнении запроса')
+    res.status(500).send(`Ошибка при выполнении запроса: ${err.message}`)
   }
 }
 
@@ -285,39 +293,39 @@ async function getToolHistoryByPartOld(req, res) {
     const offset = (page - 1) * limit
 
     // SQL query to count total unique IDs
-    const countQuery = `SELECT COUNT(*) FROM dbo.tool_history_nom;`
+    const countQuery = `SELECT COUNT(*)
+                        FROM dbo.tool_history_nom;`
 
     // SQL query to retrieve tool history data
     const dataQuery = `
-      SELECT
-        h.id,
-        h.specs_op_id,
-        sn.ID AS id_part,
-        h.id_tool,
-        n.name AS tool_name,
-        h.id_user,
-        CASE
-          WHEN h.id_user < 0 THEN
-            (SELECT name FROM dbo.tool_user_custom_list WHERE id = -h.id_user)
-          ELSE
-            o.fio
-        END AS user_name,
-        h.quantity,
-        h.timestamp,
-        h.comment,
-        h.type_issue,
-        h.sent,
-        h.cancelled,
-        sn.NAME AS part_name,
-        sn.description AS part_description,
-        h.issuer_id,
-        vu.login AS issuer_login
+      SELECT h.id,
+             h.specs_op_id,
+             sn.ID          AS id_part,
+             h.id_tool,
+             n.name         AS tool_name,
+             h.id_user,
+             CASE
+               WHEN h.id_user < 0 THEN
+                   (SELECT name FROM dbo.tool_user_custom_list WHERE id = -h.id_user)
+               ELSE
+                 o.fio
+               END          AS user_name,
+             h.quantity,
+             h.timestamp,
+             h.comment,
+             h.type_issue,
+             h.sent,
+             h.cancelled,
+             sn.NAME        AS part_name,
+             sn.description AS part_description,
+             h.issuer_id,
+             vu.login       AS issuer_login
       FROM dbo.tool_history_nom h
-      LEFT JOIN dbo.tool_nom n ON h.id_tool = n.id
-      LEFT JOIN dbo.operators o ON h.id_user = o.id AND h.id_user > 0
-      LEFT JOIN dbo.specs_nom_operations sno ON h.specs_op_id = sno.id
-      LEFT JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
-      LEFT JOIN dbo.vue_users vu ON h.issuer_id = vu.id
+             LEFT JOIN dbo.tool_nom n ON h.id_tool = n.id
+             LEFT JOIN dbo.operators o ON h.id_user = o.id AND h.id_user > 0
+             LEFT JOIN dbo.specs_nom_operations sno ON h.specs_op_id = sno.id
+             LEFT JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
+             LEFT JOIN dbo.vue_users vu ON h.issuer_id = vu.id
       ORDER BY h.timestamp DESC
       LIMIT ${limit} OFFSET ${offset};
     `
