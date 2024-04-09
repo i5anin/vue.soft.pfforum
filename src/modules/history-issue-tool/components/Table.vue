@@ -137,29 +137,22 @@ export default {
   methods: {
     generateDateOptions() {
       const options = [{ value: '', title: 'ВСЕ' }]
-      const today = new Date()
-      today.setHours(0, 0, 0, 0) // Normalize the time part to avoid time zone effects during conversion
+      const baseDate = new Date()
+      baseDate.setHours(0, 0, 0, 0) // Установка времени на начало дня (полночь), чтобы избежать проблем с временными зонами
 
       for (let i = 0; i < 10; i++) {
-        const date = new Date(today)
-        date.setDate(today.getDate() - i)
-
-        // Create a new date object adjusted for time zone
-        const adjustedDate = new Date(
-          date.getTime() - date.getTimezoneOffset() * 60000
-        )
-        const isoDate = adjustedDate.toISOString().substr(0, 10) // Correct ISO string for date
-        let label = adjustedDate.toLocaleDateString('ru-RU', {
+        const date = new Date(baseDate)
+        date.setDate(baseDate.getDate() - i) // Вычитаем дни для создания истории дат
+        // Подготовка даты с учетом смещения временной зоны на +3 часа (переводим в UTC)
+        const offsetDate = new Date(date.getTime() + 180 * 60000) // Прибавляем 180 минут (3 часа * 60 минут)
+        const isoDate = offsetDate.toISOString().substring(0, 10)
+        const formattedDate = offsetDate.toLocaleDateString('ru-RU', {
           day: '2-digit',
           month: '2-digit',
           year: 'numeric',
         })
-        if (i === 0) {
-          label += ' - СЕГОДНЯ'
-        } else if (i === 1) {
-          label += ' - ВЧЕРА'
-        }
-        options.push({ value: isoDate, title: label })
+        const suffix = i === 0 ? ' - СЕГОДНЯ' : i === 1 ? ' - ВЧЕРА' : ''
+        options.push({ value: isoDate, title: `${formattedDate}${suffix}` })
       }
       return options
     },
