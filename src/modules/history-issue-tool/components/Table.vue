@@ -20,6 +20,15 @@
           />
           <!--          <v-btn @click="fetchAndFormatToolHistory">Поиск</v-btn>-->
         </v-col>
+        <v-col cols="12" md="1" class="d-flex align-center">
+          <v-btn text @click="setToday">Сегодня</v-btn>
+        </v-col>
+        <v-col cols="12" md="1" class="d-flex align-center">
+          <v-btn text @click="setYesterday">Вчера</v-btn>
+        </v-col>
+        <v-col cols="12" md="1" class="d-flex align-center">
+          <v-btn text @click="resetDate">Сброс</v-btn>
+        </v-col>
       </v-row>
     </div>
 
@@ -62,6 +71,7 @@ export default {
   components: { EditToolModal, VDataTableServer },
   data() {
     return {
+      date: '',
       debouncedFetchAndFormatToolHistory: null,
       searchQuery: '',
       openDialog: false,
@@ -118,6 +128,24 @@ export default {
     )
   },
   methods: {
+    resetDate() {
+      this.date = '' // Сброс даты
+      this.fetchAndFormatToolHistory() // Обновление истории инструментов без фильтрации по дате
+    },
+    setToday() {
+      const today = new Date()
+      this.date = this.formatDateISO(today) // Установка даты в нужном формате
+      this.fetchAndFormatToolHistory() // Вызов обновления данных
+    },
+    setYesterday() {
+      const yesterday = new Date()
+      yesterday.setDate(yesterday.getDate() - 1)
+      this.date = this.formatDateISO(yesterday) // Установка даты в нужном формате
+      this.fetchAndFormatToolHistory() // Вызов обновления данных
+    },
+    formatDateISO(date) {
+      return date.toISOString().substr(0, 10)
+    },
     debounce(func, wait) {
       let timeout
       return function (...args) {
@@ -145,7 +173,8 @@ export default {
         const response = await issueHistoryApi.fetchToolHistory(
           this.searchQuery,
           this.filters.currentPage,
-          this.filters.itemsPerPage
+          this.filters.itemsPerPage,
+          this.date // Передаем дату, которая была установлена кнопками Сегодня или Вчера
         )
         this.toolsHistory = response.toolsHistory.map((tool) => ({
           ...tool,
@@ -153,7 +182,6 @@ export default {
         }))
         this.totalCount = response.totalCount
       } catch (error) {
-        // Обработка ошибок запроса
         console.error('Ошибка при получении истории инструментов:', error)
         this.$emit('error', error) // Можно испустить событие для обработки ошибок
       } finally {

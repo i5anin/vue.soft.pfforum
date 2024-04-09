@@ -18,6 +18,7 @@ async function getToolHistory(req, res) {
     const limit = parseInt(req.query.limit || 15, 10)
     const offset = (page - 1) * limit
     const search = req.query.search
+    const date = req.query.date // Получаем дату из запроса один раз
 
     // Динамическое построение условий WHERE, основанных на параметрах поиска
     let searchConditions = `
@@ -26,7 +27,6 @@ async function getToolHistory(req, res) {
       AND (POSITION('ЗАПРЕТ' IN UPPER(sn.comments)) = 0 OR sn.comments IS NULL)
     `
 
-    // Добавление условий поиска
     if (search) {
       searchConditions += ` AND (
         sn.ID::text LIKE '%${search}%' OR
@@ -35,16 +35,18 @@ async function getToolHistory(req, res) {
       )`
     }
 
-    // Запрос для подсчета общего количества уникальных id_part
+    if (date) {
+      searchConditions += ` AND CAST(thn.timestamp AS DATE) = CAST('${date}' AS DATE)`
+    }
+
     const countQuery = `
       SELECT COUNT(DISTINCT sn.ID)
       FROM dbo.tool_history_nom thn
-             INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
-             INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
+      INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
+      INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
       ${searchConditions};
     `
 
-    // Запрос для получения агрегированных данных истории инструментов
     const dataQuery = `
       SELECT
         sn.ID AS id_part,
@@ -59,11 +61,11 @@ async function getToolHistory(req, res) {
       FROM dbo.tool_history_nom thn
              INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
              INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
-      ${searchConditions}
+        ${searchConditions}
       GROUP BY sn.ID, sn.NAME, sn.description
       ORDER BY MIN(thn.timestamp) DESC, sn.NAME, sn.description
       LIMIT ${limit}
-      OFFSET ${offset};
+        OFFSET ${offset};
     `
 
     const countResult = await pool.query(countQuery)
@@ -77,8 +79,8 @@ async function getToolHistory(req, res) {
         ...row,
         quantity_tool: parseInt(row.quantity_tool, 10),
         quantity_prod: parseInt(row.quantity_prod, 10),
-        recordscount: parseInt(row.recordscount, 10), // Преобразование к числу
-        date: row.timestamp, // Дата начала использования
+        recordscount: parseInt(row.recordscount, 10),
+        date: row.timestamp,
       })),
     })
   } catch (err) {

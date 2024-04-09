@@ -14,18 +14,14 @@ export const issueHistoryApi = {
       .then(handleResponse)
       .catch(handleApiError),
 
-  // Получить историю инструмента
+  // Обновленная функция для получения истории инструмента с учетом даты
   fetchToolHistory: async (
     search = '',
     page = 1,
     limit = 100,
-    includeNull = false,
-    parentId = null
+    date = '' // Добавляем новый параметр для даты
   ) => {
-    const params = { search, page, limit, includeNull }
-    if (parentId !== null) {
-      params.parent_id = parentId
-    }
+    const params = { search, page, limit, date } // Добавляем date в параметры запроса
 
     return axiosInstance
       .get('/history', { params })
