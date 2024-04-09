@@ -255,7 +255,7 @@ async function getToolHistoryByPartId(req, res) {
       if (!info) {
         info = {
           id_part: row.id_part,
-          name: row.NAME,
+          name: row.name,
           description: row.description,
           timestamp: row.timestamp,
         }
