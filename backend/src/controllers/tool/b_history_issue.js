@@ -47,25 +47,25 @@ async function getToolHistory(req, res) {
     `
 
     const dataQuery = `
-      SELECT
-        sn.ID AS id_part,
-        sn.NAME,
-        sn.description,
-        CAST(SUM(thn.quantity) AS INTEGER) AS quantity_tool,
-        CAST(COUNT(*) AS INTEGER) AS recordscount,
-        COUNT(DISTINCT sno.id) AS operation_count,
-        MIN(thn.timestamp) AS first_issue_date,
-        CAST(dbo.kolvo_prod_ready(sn.ID) AS INTEGER) AS quantity_prod,
-        sn.kolvo AS quantity_prod_all
-      FROM dbo.tool_history_nom thn
-      INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
-      INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
-      ${searchConditions}
-      GROUP BY sn.ID, sn.NAME, sn.description
-      ORDER BY MIN(timestamp) DESC, sn.NAME, sn.description
-      LIMIT ${limit}
-      OFFSET ${offset};
+      SELECT *
+      FROM (SELECT sn.ID                                        AS id_part,
+                   sn.NAME,
+                   sn.description,
+                   CAST(SUM(thn.quantity) AS INTEGER)           AS quantity_tool,
+                   CAST(COUNT(*) AS INTEGER)                    AS recordscount,
+                   COUNT(DISTINCT sno.id)                       AS operation_count,
+                   MIN(thn.timestamp)                           AS first_issue_date,
+                   CAST(dbo.kolvo_prod_ready(sn.ID) AS INTEGER) AS quantity_prod,
+                   sn.kolvo                                     AS quantity_prod_all
+            FROM dbo.tool_history_nom thn
+                   INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
+                   INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
+              ${searchConditions}
+            GROUP BY sn.ID, sn.NAME, sn.description
+            ORDER BY MIN(thn.timestamp) DESC) AS sorted_data
+      LIMIT ${limit} OFFSET ${offset};
     `
+    console.log('Data Query:', dataQuery)
 
     const countResult = await pool.query(countQuery)
     const dataResult = await pool.query(dataQuery)
