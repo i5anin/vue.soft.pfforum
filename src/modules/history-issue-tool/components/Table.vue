@@ -138,20 +138,32 @@ export default {
     generateDateOptions() {
       const options = [{ value: '', title: 'ВСЕ' }]
       const today = new Date()
+      today.setHours(0, 0, 0, 0) // Normalize the time part to avoid time zone effects during conversion
+
       for (let i = 0; i < 10; i++) {
-        const date = new Date(
-          today.getFullYear(),
-          today.getMonth(),
-          today.getDate() - i
+        const date = new Date(today)
+        date.setDate(today.getDate() - i)
+
+        // Create a new date object adjusted for time zone
+        const adjustedDate = new Date(
+          date.getTime() - date.getTimezoneOffset() * 60000
         )
-        const isoDate = date.toISOString().substr(0, 10)
-        const label =
-          date.toLocaleDateString('ru-RU') +
-          (i === 0 ? ' - СЕГОДНЯ' : i === 1 ? ' - ВЧЕРА' : i === 2)
+        const isoDate = adjustedDate.toISOString().substr(0, 10) // Correct ISO string for date
+        let label = adjustedDate.toLocaleDateString('ru-RU', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        })
+        if (i === 0) {
+          label += ' - СЕГОДНЯ'
+        } else if (i === 1) {
+          label += ' - ВЧЕРА'
+        }
         options.push({ value: isoDate, title: label })
       }
       return options
     },
+
     resetDate() {
       this.date = '' // Сброс даты
       this.fetchAndFormatToolHistory() // Обновление истории инструментов без фильтрации по дате
