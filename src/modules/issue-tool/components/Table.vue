@@ -1,4 +1,13 @@
 <template>
+  <v-snackbar
+    v-model="snackbarVisible"
+    :timeout="8000"
+    bottom
+    right
+    color="blue-grey"
+  >
+    {{ snackbarText }}
+  </v-snackbar>
   <v-container>
     <tool-filter
       :filter-params-list="filterParamsList"
@@ -123,6 +132,8 @@ export default {
   },
   data() {
     return {
+      snackbarVisible: false,
+      snackbarText: '',
       openDialog: false,
       isDataLoaded: false,
       editingToolId: null, //редактирование идентификатора инструмента
@@ -182,6 +193,10 @@ export default {
     refreshData() {
       this.fetchToolsByFilter() // Assuming this method fetches and refreshes the data
     },
+    showSnackbar(message) {
+      this.snackbarText = message
+      this.snackbarVisible = true
+    },
     showModal(type) {
       this.currentModalType = type
       this.isModalOpen = true
@@ -189,11 +204,10 @@ export default {
     addToolToCart(toolId, quantityToAdd) {
       const tool = this.formattedTools.find((t) => t.id === toolId)
       if (!tool) {
-        alert('Товар не найден.')
+        this.showSnackbar('Товар не найден.')
         return
       }
 
-      // Найти, если товар уже есть в корзине
       const existingCartItem = this.cartItems.find(
         (item) => item.toolId === toolId
       )
@@ -202,22 +216,33 @@ export default {
         : quantityToAdd
 
       if (totalQuantityInCart > tool.sklad) {
-        alert(
-          `Нельзя добавить указанное количество. На складе доступно: ${
+        this.showSnackbar(
+          `Невозможно добавить. На складе доступно только ${
             tool.sklad
-          }, уже в корзине: ${
-            existingCartItem ? existingCartItem.quantity : 0
-          }.`
+          }, в корзине уже ${existingCartItem ? existingCartItem.quantity : 0}.`
         )
+        return
+      }
+
+      // Обновляем количество в корзине или добавляем новый элемент
+      if (existingCartItem) {
+        existingCartItem.quantity += quantityToAdd
       } else {
-        // Если проверка прошла успешно, добавляем в корзину
-        this.$store.dispatch('IssueToolStore/addToCartAction', {
+        this.cartItems.push({
           toolId: tool.id,
           quantity: quantityToAdd,
           name: tool.name,
           sklad: tool.sklad,
         })
       }
+
+      this.showSnackbar(
+        `${
+          tool.name
+        } добавлен в корзину. В корзине теперь ${totalQuantityInCart}, на складе осталось ${
+          tool.sklad - totalQuantityInCart
+        }.`
+      )
     },
     onIssueTool(event, item) {
       event.stopPropagation()
