@@ -27,9 +27,10 @@
             item-title="title"
             v-model="selectedDate"
             label="Выберите дату"
-            @change="fetchAndFormatToolHistory"
+            @update:model-value="fetchAndFormatToolHistory"
           />
         </v-col>
+        {{ dateOptions }}
       </v-row>
     </div>
 
@@ -192,12 +193,13 @@ export default {
     },
     async fetchAndFormatToolHistory() {
       this.isLoading = true
+      console.log('Current date being sent:', this.selectedDate) // Updated to use selectedDate
       try {
         const response = await issueHistoryApi.fetchToolHistory(
           this.searchQuery,
           this.filters.currentPage,
           this.filters.itemsPerPage,
-          this.date // Передаем дату, которая была установлена кнопками Сегодня или Вчера
+          this.selectedDate // Use the selectedDate variable here
         )
         this.toolsHistory = response.toolsHistory.map((tool) => ({
           ...tool,
@@ -206,7 +208,7 @@ export default {
         this.totalCount = response.totalCount
       } catch (error) {
         console.error('Ошибка при получении истории инструментов:', error)
-        this.$emit('error', error) // Можно испустить событие для обработки ошибок
+        this.$emit('error', error) // Handling errors
       } finally {
         this.isLoading = false
       }
