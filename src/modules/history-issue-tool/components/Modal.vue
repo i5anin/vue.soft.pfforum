@@ -115,7 +115,8 @@ export default {
     popupTitle() {
       // console.log('вызов popupTitle')
       if (this.info) {
-        return `Инструмент затраченный на партию: ${this.id_part}`
+        return `Инструмент затраченный на партию: ${this.id_part} `
+        // ${this.selected_date}
       }
     },
     currentHeaders() {

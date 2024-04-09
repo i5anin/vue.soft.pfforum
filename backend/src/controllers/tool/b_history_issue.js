@@ -163,6 +163,9 @@ async function getToolHistoryId(req, res) {
 async function getToolHistoryByPartId(req, res) {
   try {
     const idPart = req.query.id_part
+    const selectedDate = req.query.selectedDate // Get the selectedDate from the query parameters
+
+    // Define the SQL query with a conditional date filter
     const operationsQuery = `
       SELECT sno.id                                              AS specs_op_id,
              sn.ID                                               AS id_part,
@@ -192,9 +195,15 @@ async function getToolHistoryByPartId(req, res) {
              LEFT JOIN dbo.tool_nom tn ON thn.id_tool = tn.id
              LEFT JOIN dbo.vue_users vu ON thn.issuer_id = vu.id
       WHERE sn.ID = $1
+        AND thn.timestamp >= $2::date
+        AND thn.timestamp < $2::date + interval '1 day'
       ORDER BY thn.timestamp DESC;
     `
-    const operationsResult = await pool.query(operationsQuery, [idPart])
+
+    const operationsResult = await pool.query(operationsQuery, [
+      idPart,
+      selectedDate,
+    ]) // Pass selectedDate to the query
 
     if (operationsResult.rows.length === 0)
       return res.status(404).send('Операции для данной партии не найдены')
@@ -204,18 +213,16 @@ async function getToolHistoryByPartId(req, res) {
     let info = null
 
     operationsResult.rows.forEach((row) => {
-      // Map type_issue numeric value to string
       const typeIssueMap = { 0: 'Себе', 1: 'На ночь', 2: 'Наладка' }
-      row.type_issue = typeIssueMap[row.type_issue] || 'Неизвестно' // Default to "Неизвестно" if not in map
+      row.type_issue = typeIssueMap[row.type_issue] || 'Неизвестно'
 
-      // Collect data for all tools
       if (allTools[row.id_tool]) {
         allTools[row.id_tool].quantity += row.quantity
         if (
           new Date(allTools[row.id_tool].timestamp) < new Date(row.timestamp)
         ) {
           allTools[row.id_tool].timestamp = row.timestamp
-          allTools[row.id_tool].type_issue = row.type_issue // Ensure the latest type_issue is reflected
+          allTools[row.id_tool].type_issue = row.type_issue
         }
       } else {
         allTools[row.id_tool] = {
@@ -228,10 +235,7 @@ async function getToolHistoryByPartId(req, res) {
         }
       }
 
-      // Collect data by operations
-      if (!operationsData[row.no_oper]) {
-        operationsData[row.no_oper] = []
-      }
+      operationsData[row.no_oper] = operationsData[row.no_oper] || []
       operationsData[row.no_oper].push({
         no_oper: row.no_oper,
         type_oper: row.type_oper,
@@ -248,7 +252,6 @@ async function getToolHistoryByPartId(req, res) {
         issuer_id: row.issuer_id,
       })
 
-      // Collect information for info section
       if (!info) {
         info = {
           id_part: row.id_part,
@@ -264,7 +267,6 @@ async function getToolHistoryByPartId(req, res) {
       all: Object.values(allTools),
     }
 
-    // Add sorted operations to finalData
     Object.keys(operationsData)
       .sort()
       .forEach((operation) => {
