@@ -20,13 +20,18 @@
           />
           <!--          <v-btn @click="fetchAndFormatToolHistory">Поиск</v-btn>-->
         </v-col>
-        <v-col cols="12" md="1" class="d-flex align-center">
-          <v-btn text @click="setToday">Сегодня</v-btn>
+        <v-col cols="12" md="4">
+          {{ dateOptions }}
+          <v-select
+            :items="dateOptions"
+            item-value="value"
+            item-text="text"
+            v-model="selectedDate"
+            label="Выберите дату"
+            @change="fetchAndFormatToolHistory"
+          />
         </v-col>
-        <v-col cols="12" md="1" class="d-flex align-center">
-          <v-btn text @click="setYesterday">Вчера</v-btn>
-        </v-col>
-        <v-col cols="12" md="1" class="d-flex align-center">
+        <v-col cols="12" md="2" class="d-flex align-center">
           <v-btn text @click="resetDate">Сброс</v-btn>
         </v-col>
       </v-row>
@@ -71,6 +76,8 @@ export default {
   components: { EditToolModal, VDataTableServer },
   data() {
     return {
+      selectedDate: '',
+      dateOptions: this.generateDateOptions(),
       date: '',
       debouncedFetchAndFormatToolHistory: null,
       searchQuery: '',
@@ -122,12 +129,27 @@ export default {
     },
   },
   created() {
+    this.dateOptions = this.generateDateOptions()
     this.debouncedFetchAndFormatToolHistory = this.debounce(
-      () => this.fetchAndFormatToolHistory(),
+      this.fetchAndFormatToolHistory,
       500
     )
   },
   methods: {
+    generateDateOptions() {
+      let options = []
+      let today = new Date()
+      for (let i = 0; i < 10; i++) {
+        let date = new Date(today)
+        date.setDate(today.getDate() - i)
+        let isoDate = date.toISOString().split('T')[0] // Get date in YYYY-MM-DD format
+        let label = date.toLocaleDateString('ru-RU') // Get date in local format, add labels for today and yesterday
+        if (i === 0) label += ' - СЕГОДНЯ'
+        else if (i === 1) label += ' - ВЧЕРА'
+        options.push({ value: isoDate, text: label })
+      }
+      return options
+    },
     resetDate() {
       this.date = '' // Сброс даты
       this.fetchAndFormatToolHistory() // Обновление истории инструментов без фильтрации по дате
