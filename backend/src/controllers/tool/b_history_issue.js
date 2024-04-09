@@ -65,7 +65,6 @@ async function getToolHistory(req, res) {
             ORDER BY MIN(thn.timestamp) DESC) AS sorted_data
       LIMIT ${limit} OFFSET ${offset};
     `
-    console.log('Data Query:', dataQuery)
 
     const countResult = await pool.query(countQuery)
     const dataResult = await pool.query(dataQuery)

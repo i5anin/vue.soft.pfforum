@@ -4,6 +4,7 @@
       v-if="openDialog"
       :persistent="true"
       :id_part="editingToolId"
+      :selected_date="selectedDate"
       @canceled="onClosePopup"
       @changes-saved="onSaveChanges"
     />
@@ -76,7 +77,6 @@ export default {
       dateOptions: this.generateDateOptions(),
       date: '',
       debouncedFetchAndFormatToolHistory: null,
-      searchQuery: '',
       openDialog: false,
       filters: { itemsPerPage: 15, currentPage: 1 },
       isLoading: false,

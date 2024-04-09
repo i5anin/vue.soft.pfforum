@@ -6,11 +6,13 @@ const axiosInstance = axios.create({ baseURL: import.meta.env.VITE_BASE_URL })
 function handleResponse(response) {
   return response.data
 }
-
+// id партии
 export const issueHistoryApi = {
-  fetchHistoryByPartId: async (partId) =>
+  fetchHistoryByPartId: async (partId, selectedDate) =>
     axiosInstance
-      .get(`/history-part`, { params: { id_part: partId } })
+      .get(`/history-part`, {
+        params: { id_part: partId, selectedDate: selectedDate },
+      })
       .then(handleResponse)
       .catch(handleApiError),
 

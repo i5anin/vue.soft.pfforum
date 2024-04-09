@@ -5,6 +5,7 @@
         <v-row>
           <h2 v-if="this.info" style="padding-left: 25px">
             {{ this?.info.name }} {{ this?.info.description }}
+            <!-- todo: this?.info.name не отображается -->
           </h2>
           <v-spacer />
           <v-col cols="12" md="3">
@@ -80,6 +81,7 @@ export default {
   components: { Modal },
   props: {
     id_part: { type: Number, default: null },
+    selected_date: { type: String, default: '' },
   },
   data() {
     return {
@@ -95,7 +97,7 @@ export default {
         { title: 'Дата', value: 'timestamp' },
         // { title: 'Операция', value: 'no_oper' },
         { title: 'Тип', value: 'type_oper' },
-        { title: 'Комментарий', value: 'comment' },
+        // { title: 'Комментарий', value: 'comment' },
         { title: 'Отменено', value: 'cancelled' },
         { title: 'Выдал', value: 'issuer_fio' },
       ],
@@ -143,9 +145,11 @@ export default {
       this.$emit('canceled')
     },
     async fetchHistoryData() {
+      console.log(this.selected_date)
       try {
         const response = await issueHistoryApi.fetchHistoryByPartId(
-          this.id_part
+          this.id_part,
+          this.selected_date
         )
         this.info = response.info
         if (response && typeof response === 'object') {
