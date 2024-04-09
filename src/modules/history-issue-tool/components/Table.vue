@@ -24,8 +24,8 @@
           {{ dateOptions }}
           <v-select
             :items="dateOptions"
-            item-value="date"
-            item-text="label"
+            item-value="value"
+            item-text="text"
             v-model="selectedDate"
             label="Выберите дату"
             @change="fetchAndFormatToolHistory"
@@ -130,6 +130,8 @@ export default {
   },
   created() {
     this.dateOptions = this.generateDateOptions()
+    console.log(this.dateOptions)
+    console.log(JSON.parse(JSON.stringify(this.dateOptions)))
     this.debouncedFetchAndFormatToolHistory = this.debounce(
       this.fetchAndFormatToolHistory,
       500
@@ -137,21 +139,19 @@ export default {
   },
   methods: {
     generateDateOptions() {
-      let options = []
-      let today = new Date()
+      const options = []
+      const today = new Date()
       for (let i = 0; i < 10; i++) {
-        let date = new Date(
+        const date = new Date(
           today.getFullYear(),
           today.getMonth(),
           today.getDate() - i
         )
-        let label = format(date, 'dd.MM.yyyy')
-        if (i === 0) {
-          label += ' - СЕГОДНЯ'
-        } else if (i === 1) {
-          label += ' - ВЧЕРА'
-        }
-        options.push({ date: format(date, 'yyyy-MM-dd'), label })
+        const isoDate = date.toISOString().substr(0, 10)
+        const label =
+          date.toLocaleDateString('ru-RU') +
+          (i === 0 ? ' - СЕГОДНЯ' : i === 1 ? ' - ВЧЕРА' : '')
+        options.push({ value: isoDate, text: label })
       }
       return options
     },
