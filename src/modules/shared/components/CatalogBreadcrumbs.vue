@@ -24,7 +24,9 @@
         <v-list-item-title :class="{ 'text-grey': item.totalElements === 0 }">
           {{ item.label }}
           <span v-if="item.elements !== 0" style="color: grey">
-            ({{ item.available }}&nbsp;/&nbsp;{{ item.elements }})
+            <v-chip variant="text">
+              {{ item.available }} / {{ item.elements }}
+            </v-chip>
           </span>
         </v-list-item-title>
       </div>

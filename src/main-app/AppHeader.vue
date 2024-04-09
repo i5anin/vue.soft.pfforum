@@ -64,7 +64,7 @@
         <!--        <v-chip variant="flat">-->
         <!--          {{ cartItemsLength }}-->
         <!--        </v-chip>-->
-        Инструмента к выдаче
+        Инструмент к выдаче
         <v-chip color="red" variant="flat">
           {{ cartItemsTotalQuantity }}
         </v-chip>
