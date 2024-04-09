@@ -88,7 +88,7 @@ export default {
         { title: 'Обозначение', value: 'description', sortable: false },
         {
           title: 'Дата первой выдачи',
-          value: 'timestamp',
+          value: 'first_issue_date',
           sortable: false,
         },
         {
@@ -164,8 +164,8 @@ export default {
       this.filters.itemsPerPage = itemsPerPage
       await this.fetchAndFormatToolHistory()
     },
-    formatDate(timestamp) {
-      return format(parseISO(timestamp), 'dd.MM.yyyy')
+    formatDate(date) {
+      return format(parseISO(date), 'dd.MM.yyyy')
     },
     async fetchAndFormatToolHistory() {
       this.isLoading = true
@@ -178,7 +178,7 @@ export default {
         )
         this.toolsHistory = response.toolsHistory.map((tool) => ({
           ...tool,
-          timestamp: this.formatDate(tool.timestamp),
+          first_issue_date: this.formatDate(tool.first_issue_date),
         }))
         this.totalCount = response.totalCount
       } catch (error) {

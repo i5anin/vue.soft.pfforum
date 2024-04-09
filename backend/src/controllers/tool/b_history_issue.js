@@ -18,9 +18,8 @@ async function getToolHistory(req, res) {
     const limit = parseInt(req.query.limit || 15, 10)
     const offset = (page - 1) * limit
     const search = req.query.search
-    const date = req.query.date // Получаем дату из запроса один раз
+    const date = req.query.date // Получаем дату из запроса
 
-    // Динамическое построение условий WHERE, основанных на параметрах поиска
     let searchConditions = `
       WHERE sn.status_p = 'П'
       AND NOT sn.status_otgruzka
@@ -55,17 +54,17 @@ async function getToolHistory(req, res) {
         CAST(SUM(thn.quantity) AS INTEGER) AS quantity_tool,
         CAST(COUNT(*) AS INTEGER) AS recordscount,
         COUNT(DISTINCT sno.id) AS operation_count,
-        MIN(thn.timestamp) AS timestamp,
+        MIN(thn.timestamp) AS first_issue_date,
         CAST(dbo.kolvo_prod_ready(sn.ID) AS INTEGER) AS quantity_prod,
         sn.kolvo AS quantity_prod_all
       FROM dbo.tool_history_nom thn
-             INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
-             INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
-        ${searchConditions}
+      INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
+      INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
+      ${searchConditions}
       GROUP BY sn.ID, sn.NAME, sn.description
-      ORDER BY MIN(thn.timestamp) DESC, sn.NAME, sn.description
+      ORDER BY MIN(first_issue_date) DESC, sn.NAME, sn.description
       LIMIT ${limit}
-        OFFSET ${offset};
+      OFFSET ${offset};
     `
 
     const countResult = await pool.query(countQuery)
@@ -76,11 +75,14 @@ async function getToolHistory(req, res) {
       itemsPerPage: limit,
       totalCount: parseInt(countResult.rows[0].count, 10),
       toolsHistory: dataResult.rows.map((row) => ({
-        ...row,
+        id_part: row.id_part,
+        name: row.name,
+        description: row.description,
         quantity_tool: parseInt(row.quantity_tool, 10),
         quantity_prod: parseInt(row.quantity_prod, 10),
-        recordscount: parseInt(row.recordscount, 10), // Преобразование к числу
-        date: row.timestamp, // Дата начала использования
+        recordscount: parseInt(row.recordscount, 10),
+        first_issue_date: row.first_issue_date, // Используем алиас вместо timestamp
+        quantity_prod_all: row.quantity_prod_all,
       })),
     })
   } catch (err) {
