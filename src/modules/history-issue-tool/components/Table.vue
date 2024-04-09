@@ -20,33 +20,6 @@
           />
           <!--          <v-btn @click="fetchAndFormatToolHistory">Поиск</v-btn>-->
         </v-col>
-        <v-col cols="12" md="6" class="d-flex align-center">
-          <v-menu
-            ref="menu"
-            v-model="menuVisible"
-            :close-on-content-click="false"
-            :nudge-right="40"
-            transition="scale-transition"
-            offset-y
-            min-width="auto"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              <v-text-field
-                v-model="dateFormatted"
-                label="Выберите дату"
-                prepend-icon="mdi-calendar"
-                readonly
-                v-bind="attrs"
-                v-on="on"
-              />
-            </template>
-            <v-date-picker
-              v-model="date"
-              no-title
-              @input="menuVisible = false"
-            />
-          </v-menu>
-        </v-col>
       </v-row>
     </div>
 
@@ -89,12 +62,6 @@ export default {
   components: { EditToolModal, VDataTableServer },
   data() {
     return {
-      menuVisible: false,
-      date: new Date().toISOString().substr(0, 10),
-      dateFormatted: '',
-
-      menu: false,
-
       debouncedFetchAndFormatToolHistory: null,
       searchQuery: '',
       openDialog: false,
@@ -140,9 +107,6 @@ export default {
     await this.fetchAndFormatToolHistory()
   },
   watch: {
-    date(val) {
-      this.dateFormatted = this.formatDate(val)
-    },
     searchQuery(newQuery, oldQuery) {
       if (newQuery !== oldQuery) this.debouncedFetchAndFormatToolHistory()
     },
@@ -154,17 +118,6 @@ export default {
     )
   },
   methods: {
-    formatDate2(date) {
-      if (!date) return null
-      const [year, month, day] = date.split('-')
-      return `${day}.${month}.${year}`
-    },
-    formatDate(date) {
-      if (!date) return null
-      const [year, month, day] = date.split('-')
-      return `${day}.${month}.${year}`
-    },
-
     debounce(func, wait) {
       let timeout
       return function (...args) {
@@ -183,9 +136,9 @@ export default {
       this.filters.itemsPerPage = itemsPerPage
       await this.fetchAndFormatToolHistory()
     },
-    // formatDate(timestamp) {
-    //   return format(parseISO(timestamp), 'dd.MM.yyyy')
-    // },
+    formatDate(timestamp) {
+      return format(parseISO(timestamp), 'dd.MM.yyyy')
+    },
     async fetchAndFormatToolHistory() {
       this.isLoading = true
       try {
