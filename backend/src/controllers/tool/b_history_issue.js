@@ -62,7 +62,7 @@ async function getToolHistory(req, res) {
       INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
       ${searchConditions}
       GROUP BY sn.ID, sn.NAME, sn.description
-      ORDER BY MIN(first_issue_date) DESC, sn.NAME, sn.description
+      ORDER BY MIN(timestamp) DESC, sn.NAME, sn.description
       LIMIT ${limit}
       OFFSET ${offset};
     `
