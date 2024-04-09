@@ -239,7 +239,7 @@ export default {
       this.showSnackbar(
         `${
           tool.name
-        } добавлен в корзину. В корзине теперь ${totalQuantityInCart}, на складе осталось ${
+        } добавлен в корзину. В корзине ${totalQuantityInCart}, на складе ${
           tool.sklad - totalQuantityInCart
         }.`
       )

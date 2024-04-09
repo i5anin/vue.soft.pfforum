@@ -55,16 +55,13 @@
       <v-toolbar-title>{{ appTitle }}</v-toolbar-title>
 
       <v-spacer />
-      <!--      <div>openDialog: {{ openDialog }}, currentModal: {{ currentModal }}</div>-->
+      <!-- <div>openDialog: {{ openDialog }}, currentModal: {{ currentModal }}</div>-->
       <div @click="openCartModal" v-if="cartItemsLength > 0" class="ma-5">
         <v-btn icon>
-          <v-icon @click="">mdi-cart-outline</v-icon>
+          <v-icon>mdi-cart-outline</v-icon>
         </v-btn>
-        <!--        Позиций-->
-        <!--        <v-chip variant="flat">-->
-        <!--          {{ cartItemsLength }}-->
-        <!--        </v-chip>-->
-        Инструмент к выдаче
+        <!--Позиций {{ cartItemsLength }}-->
+        <div class="d-inline-flex align-center mr-2">Инструмент к выдаче</div>
         <v-chip color="red" variant="flat">
           {{ cartItemsTotalQuantity }}
         </v-chip>
