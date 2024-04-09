@@ -1,4 +1,13 @@
 <template>
+  <v-snackbar
+    v-model="snackbarVisible"
+    :timeout="6000"
+    bottom
+    right
+    color="info"
+  >
+    {{ snackbarText }}
+  </v-snackbar>
   <v-container>
     <tool-filter
       :filter-params-list="filterParamsList"
@@ -123,6 +132,8 @@ export default {
   },
   data() {
     return {
+      snackbarVisible: false,
+      snackbarText: '',
       openDialog: false,
       isDataLoaded: false,
       editingToolId: null, //редактирование идентификатора инструмента
@@ -179,21 +190,13 @@ export default {
       'setItemsPerPage',
       'setSelectedDynamicFilters',
     ]),
-    refreshData() {
-      this.fetchToolsByFilter() // Assuming this method fetches and refreshes the data
-    },
-    showModal(type) {
-      this.currentModalType = type
-      this.isModalOpen = true
-    },
-    addToolToCart(toolId, quantityToAdd) {
+    addToCartAction(toolId, quantityToAdd) {
       const tool = this.formattedTools.find((t) => t.id === toolId)
       if (!tool) {
-        alert('Товар не найден.')
+        this.showSnackbar('Товар не найден.')
         return
       }
 
-      // Найти, если товар уже есть в корзине
       const existingCartItem = this.cartItems.find(
         (item) => item.toolId === toolId
       )
@@ -202,22 +205,76 @@ export default {
         : quantityToAdd
 
       if (totalQuantityInCart > tool.sklad) {
-        alert(
-          `Нельзя добавить указанное количество. На складе доступно: ${
+        this.showSnackbar(
+          `Невозможно добавить. На складе доступно только ${
             tool.sklad
-          }, уже в корзине: ${
-            existingCartItem ? existingCartItem.quantity : 0
-          }.`
+          }, в корзине уже ${existingCartItem ? existingCartItem.quantity : 0}.`
         )
-      } else {
-        // Если проверка прошла успешно, добавляем в корзину
-        this.$store.dispatch('IssueToolStore/addToCartAction', {
-          toolId: tool.id,
-          quantity: quantityToAdd,
-          name: tool.name,
-          sklad: tool.sklad,
-        })
+        return
       }
+
+      this.cartItems.push({
+        toolId: tool.id,
+        quantity: quantityToAdd,
+        name: tool.name,
+        sklad: tool.sklad,
+      })
+      this.showSnackbar(
+        `${
+          tool.name
+        } добавлен в корзину. Теперь в корзине: ${totalQuantityInCart}, на складе осталось: ${
+          tool.sklad - totalQuantityInCart
+        }.`
+      )
+    },
+    showSnackbar(message) {
+      this.snackbarText = message
+      this.snackbarVisible = true
+    },
+
+    addToolToCart(toolId, quantityToAdd) {
+      const tool = this.formattedTools.find((t) => t.id === toolId)
+      if (!tool) {
+        this.showSnackbar('Товар не найден.')
+        return
+      }
+
+      const existingCartItem = this.cartItems.find(
+        (item) => item.toolId === toolId
+      )
+      const totalQuantityInCart = existingCartItem
+        ? existingCartItem.quantity + quantityToAdd
+        : quantityToAdd
+
+      if (totalQuantityInCart > tool.sklad) {
+        this.showSnackbar(
+          `Невозможно добавить. На складе доступно только ${
+            tool.sklad
+          }, в корзине уже ${existingCartItem ? existingCartItem.quantity : 0}.`
+        )
+        return
+      }
+
+      this.addToCartAction({
+        toolId: tool.id,
+        quantity: quantityToAdd,
+        name: tool.name,
+        sklad: tool.sklad,
+      })
+      this.showSnackbar(
+        `${
+          tool.name
+        } добавлен в корзину. Теперь в корзине: ${totalQuantityInCart}, на складе осталось: ${
+          tool.sklad - totalQuantityInCart
+        }.`
+      )
+    },
+    refreshData() {
+      this.fetchToolsByFilter() // Assuming this method fetches and refreshes the data
+    },
+    showModal(type) {
+      this.currentModalType = type
+      this.isModalOpen = true
     },
     onIssueTool(event, item) {
       event.stopPropagation()
