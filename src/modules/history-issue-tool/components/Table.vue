@@ -21,18 +21,14 @@
           <!--          <v-btn @click="fetchAndFormatToolHistory">Поиск</v-btn>-->
         </v-col>
         <v-col cols="12" md="4">
-          {{ dateOptions }}
           <v-select
             :items="dateOptions"
             item-value="value"
-            item-text="text"
+            item-title="title"
             v-model="selectedDate"
             label="Выберите дату"
             @change="fetchAndFormatToolHistory"
           />
-        </v-col>
-        <v-col cols="12" md="2" class="d-flex align-center">
-          <v-btn text @click="resetDate">Сброс</v-btn>
         </v-col>
       </v-row>
     </div>
@@ -139,7 +135,7 @@ export default {
   },
   methods: {
     generateDateOptions() {
-      const options = []
+      const options = [{ value: '', title: 'ВСЕ' }]
       const today = new Date()
       for (let i = 0; i < 10; i++) {
         const date = new Date(
@@ -150,8 +146,8 @@ export default {
         const isoDate = date.toISOString().substr(0, 10)
         const label =
           date.toLocaleDateString('ru-RU') +
-          (i === 0 ? ' - СЕГОДНЯ' : i === 1 ? ' - ВЧЕРА' : '')
-        options.push({ value: isoDate, text: label })
+          (i === 0 ? ' - СЕГОДНЯ' : i === 1 ? ' - ВЧЕРА' : i === 2)
+        options.push({ value: isoDate, title: label })
       }
       return options
     },
