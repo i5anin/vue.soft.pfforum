@@ -82,7 +82,20 @@ export default {
       await reportApi.genBuchMonth()
     },
     async genZayavInstrWeek() {
-      await reportApi.genZayavInstr()
+      const token = localStorage.getItem('token')
+      if (!token) {
+        console.error('No token found in local storage.')
+        return
+      }
+      try {
+        await reportApi.genZayavInstr({
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+      } catch (error) {
+        console.error('Error while generating report:', error)
+      }
     },
   },
 }

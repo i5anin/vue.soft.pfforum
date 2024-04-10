@@ -191,30 +191,53 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
   }
 }
 
+// Функция для определения пользователя по токену и получения его email
+async function getUserEmailByToken(token) {
+  const query = 'SELECT email FROM dbo.vue_users WHERE token = $1;'
+  const { rows } = await pool.query(query, [token])
+  if (rows.length === 0) throw new Error('Пользователь не найден.')
+  return rows[0].email
+}
+
 // Объединение функционала
 async function genZayavInstr(req, res) {
   try {
-    const data = await getReportData()
+    // Check if the Authorization header is present and correctly formatted
+    if (
+      !req.headers.authorization ||
+      !req.headers.authorization.startsWith('Bearer ')
+    ) {
+      res.status(400).send('Authorization token is missing or invalid.')
+      return
+    }
 
+    // Safely extract the token
+    const token = req.headers.authorization.split(' ')[1]
+    if (!token) {
+      res.status(400).send('Bearer token is malformed.')
+      return
+    }
+
+    const email = await getUserEmailByToken(token)
+
+    const data = await getReportData()
     if (data.length === 0) {
-      res.status(404).send('Нет данных для создания отчета.')
+      res.status(404).send('No data available for the report.')
       return
     }
 
     const excelStream = await createExcelFileStream(data)
-    const emailText = 'Пожалуйста, найдите вложенный отчет в формате Excel.'
+    const emailText = 'Please find the attached Excel report.'
+    await sendEmailWithExcelStream(email, emailText, excelStream, data)
 
-    await sendEmailWithExcelStream(
-      process.env.MAIL_TO,
-      emailText,
-      excelStream,
-      data
-    )
-
-    res.status(200).send('Отчет успешно отправлен на указанный email.')
+    res
+      .status(200)
+      .send('The report has been successfully sent to the specified email.')
   } catch (error) {
-    console.error('Ошибка при генерации и отправке отчета:', error)
-    res.status(500).send('Ошибка при генерации и отправке отчета')
+    console.error('Error in generating and sending the report:', error)
+    res
+      .status(500)
+      .send(`Error in generating and sending the report: ${error.message}`)
   }
 }
 

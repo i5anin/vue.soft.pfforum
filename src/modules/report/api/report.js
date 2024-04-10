@@ -21,9 +21,11 @@ export const reportApi = {
       .get('/report/genBuchMonth')
       .then(handleResponse)
       .catch(handleApiError),
-  genZayavInstr: async () =>
+  genZayavInstr: async (token) =>
     axiosInstance
-      .get('/report/genZayavInstr')
+      .get('/report/genZayavInstr', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       .then(handleResponse)
       .catch(handleApiError),
   getZakaz: async () =>
