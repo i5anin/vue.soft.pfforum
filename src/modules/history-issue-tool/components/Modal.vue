@@ -99,8 +99,8 @@ export default {
         // { title: 'Операция', value: 'no_oper' },
         { title: 'Тип', value: 'type_oper' },
         // { title: 'Комментарий', value: 'comment' },
-        { title: 'Отменено', value: 'cancelled' },
         { title: 'Выдал', value: 'issuer_fio' },
+        { title: 'Отмена', value: 'cancelled' },
       ],
       headersAll: [
         { title: 'Инструмент', value: 'name_tool' },
