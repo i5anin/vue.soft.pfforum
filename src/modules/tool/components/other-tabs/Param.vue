@@ -21,7 +21,7 @@
               ></v-text-field>
             </v-card-text>
             <v-card-actions>
-              <v-spacer></v-spacer>
+              <v-spacer />
               <v-btn color="blue darken-1" text @click="showDialog = false">
                 Отмена
               </v-btn>
