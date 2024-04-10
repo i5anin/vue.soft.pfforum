@@ -50,7 +50,7 @@
           icon
           small
           color="red"
-          @click.stop="cancelOperation(item.id)"
+          @click.stop="cancelOperationAdmin(item.id)"
           :disabled="item.cancelled"
           title="Отменить операцию"
         >
@@ -65,7 +65,7 @@
 import { VDataTableServer } from 'vuetify/labs/components'
 import { format, parseISO } from 'date-fns'
 import EditToolModal from './Modal.vue'
-import { issueHistoryApi } from '../api/history'
+import { issueHistoryApi } from '../api/cancel'
 
 export default {
   components: { EditToolModal, VDataTableServer },
@@ -194,7 +194,7 @@ export default {
     )
   },
   methods: {
-    async cancelOperation(operationId) {
+    async cancelOperationAdmin(operationId) {
       // Confirmation dialog
       if (!confirm('Вы уверены, что хотите отменить эту операцию?')) {
         return // Stop the function if user cancels
@@ -202,7 +202,7 @@ export default {
 
       this.isLoading = true
       try {
-        const response = await issueHistoryApi.cancelOperation(operationId)
+        const response = await issueHistoryApi.cancelOperationAdmin(operationId)
         this.$emit('operation-cancelled', response) // Emit an event that the parent can listen to
         await this.fetchAndFormatToolHistory() // Refresh the list to reflect the change
       } catch (error) {

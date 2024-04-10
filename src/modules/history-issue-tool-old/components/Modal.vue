@@ -63,7 +63,7 @@
 
 <script>
 import Modal from '@/modules/shared/components/Modal.vue'
-import { issueHistoryApi } from '../api/history'
+import { issueHistoryApi } from '../api/cancel'
 import { format, parseISO } from 'date-fns'
 
 export default {

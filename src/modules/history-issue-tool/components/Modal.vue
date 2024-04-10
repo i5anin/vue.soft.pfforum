@@ -74,6 +74,7 @@
 <script>
 import Modal from '@/modules/shared/components/Modal.vue'
 import { issueHistoryApi } from '../api/history'
+
 import { format, parseISO } from 'date-fns'
 
 export default {
@@ -128,6 +129,23 @@ export default {
     },
   },
   methods: {
+    async cancelOperation(operationId) {
+      if (!confirm('Вы уверены, что хотите отменить эту операцию?')) {
+        return
+      }
+      try {
+        const response = await issueHistoryApi.cancelOperation(operationId)
+        if (response.success) {
+          this.$emit('operation-cancelled', operationId) // Эмитируем событие для обновления таблицы или UI
+          await this.fetchHistoryData() // Перезагружаем данные, чтобы отразить изменения
+        } else {
+          alert('Не удалось отменить операцию: ' + response.message)
+        }
+      } catch (error) {
+        console.error('Ошибка при отмене операции:', error)
+        alert('Ошибка при отмене операции: ' + error.message)
+      }
+    },
     filterData() {
       this.filteredData =
         this.selectedOperation === 'all'

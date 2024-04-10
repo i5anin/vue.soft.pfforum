@@ -41,6 +41,13 @@ export const issueHistoryApi = {
   },
 
   // New API function for canceling an operation by its ID
+  cancelOperationAdmin: async (operationId) =>
+    axiosInstance
+      .get(`/issue/cancel-operation-admin/${operationId}`)
+      .then(handleResponse)
+      .catch(handleApiError),
+
+  // New API function for canceling an operation by its ID
   cancelOperation: async (operationId) =>
     axiosInstance
       .get(`/issue/cancel-operation/${operationId}`)

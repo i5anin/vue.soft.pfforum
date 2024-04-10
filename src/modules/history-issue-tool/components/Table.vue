@@ -19,7 +19,7 @@
             class="flex-grow-1 mr-2"
             @input="debouncedFetchAndFormatToolHistory"
           />
-          <!--          <v-btn @click="fetchAndFormatToolHistory">Поиск</v-btn>-->
+          <!-- <v-btn @click="fetchAndFormatToolHistory">Поиск</v-btn>-->
         </v-col>
         <v-col cols="12" md="4">
           <v-select

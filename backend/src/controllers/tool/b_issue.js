@@ -83,12 +83,10 @@ async function issueTool(req, res) {
     type_issue == null ||
     !issueToken
   ) {
-    return res
-      .status(400)
-      .json({
-        success: false,
-        message: 'Отсутствует один из обязательных параметров',
-      })
+    return res.status(400).json({
+      success: false,
+      message: 'Отсутствует один из обязательных параметров',
+    })
   }
 
   try {
@@ -233,7 +231,7 @@ async function getCncData(req, res) {
   }
 }
 
-async function cancelOperation(req, res) {
+async function cancelOperationAdmin(req, res) {
   try {
     const { id } = req.params
 
@@ -299,8 +297,90 @@ async function cancelOperation(req, res) {
   }
 }
 
+async function cancelOperation(req, res) {
+  try {
+    const { id } = req.params
+
+    if (!id) {
+      return res
+        .status(400)
+        .send('Отсутствует обязательный параметр: id операции')
+    }
+
+    // Start a database transaction
+    await pool.query('BEGIN')
+
+    // Проверяем существование записи и её статус перед отменой
+    const checkQuery = `SELECT id, id_tool, quantity, cancelled, timestamp FROM dbo.tool_history_nom WHERE id = $1`
+    const checkResult = await pool.query(checkQuery, [id])
+    if (checkResult.rows.length === 0) {
+      await pool.query('ROLLBACK')
+      return res.status(404).send('Операция не найдена')
+    }
+
+    const { id_tool, quantity, cancelled, timestamp } = checkResult.rows[0]
+
+    if (cancelled) {
+      await pool.query('ROLLBACK')
+      return res.status(400).send('Операция уже была отменена')
+    }
+
+    // Проверка на дату операции: отмена возможна только в течение 3 дней
+    const operationDate = new Date(timestamp)
+    const currentDate = new Date()
+    const diffTime = Math.abs(currentDate - operationDate)
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+    if (diffDays > 3) {
+      await pool.query('ROLLBACK')
+      return res
+        .status(400)
+        .send(
+          'Отмена операции возможна только в течение 3 дней с момента её выполнения'
+        )
+    }
+
+    // Обновляем запись, присваиваем cancelled = true для отметки об отмене
+    const updateHistoryQuery = `UPDATE dbo.tool_history_nom SET cancelled = true WHERE id = $1`
+    await pool.query(updateHistoryQuery, [id])
+
+    // Возвращаем количество инструмента на склад
+    const updateToolQuery = `UPDATE dbo.tool_nom SET sklad = sklad + $1 WHERE id = $2`
+    await pool.query(updateToolQuery, [quantity, id_tool])
+
+    // Commit the transaction
+    await pool.query('COMMIT')
+
+    // Get the name of the tool for more detailed feedback
+    const toolNameQuery = `SELECT name FROM dbo.tool_nom WHERE id = $1`
+    const toolNameResult = await pool.query(toolNameQuery, [id_tool])
+    const toolName = toolNameResult.rows[0].name
+
+    // Отправляем ответ, что операция отменена
+    res.status(200).json({
+      success: true,
+      message: 'Операция отменена',
+      operationId: id,
+      details: {
+        returnedQuantity: quantity,
+        toTool: toolName,
+        toolId: id_tool,
+      },
+    })
+  } catch (error) {
+    console.error('Ошибка при отмене операции:', error)
+    await pool.query('ROLLBACK')
+    res.status(500).json({
+      success: false,
+      message: 'Внутренняя ошибка сервера',
+      errorDetails: error.message,
+    })
+  }
+}
+
 module.exports = {
   cancelOperation,
+  cancelOperationAdmin,
   findDetailProduction,
   issueTool,
   issueTools,
