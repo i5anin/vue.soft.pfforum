@@ -163,10 +163,10 @@ async function getToolHistoryId(req, res) {
 async function getToolHistoryByPartId(req, res) {
   try {
     const idPart = req.query.id_part
-    const selectedDate = req.query.selectedDate // Get the selectedDate from the query parameters
+    const selectedDate = req.query.selectedDate // Получаем выбранную дату из параметров запроса
 
-    // Define the SQL query with a conditional date filter
-    const operationsQuery = `
+    // Определяем SQL запрос с условным фильтром по дате
+    let operationsQuery = `
       SELECT sno.id                                              AS specs_op_id,
              sn.ID                                               AS id_part,
              sn.NAME,
@@ -195,15 +195,18 @@ async function getToolHistoryByPartId(req, res) {
              LEFT JOIN dbo.tool_nom tn ON thn.id_tool = tn.id
              LEFT JOIN dbo.vue_users vu ON thn.issuer_id = vu.id
       WHERE sn.ID = $1
-        AND thn.timestamp >= $2::date
-        AND thn.timestamp < $2::date + interval '1 day'
-      ORDER BY thn.timestamp DESC;
     `
 
-    const operationsResult = await pool.query(operationsQuery, [
-      idPart,
-      selectedDate,
-    ]) // Pass selectedDate to the query
+    const queryParams = [idPart]
+
+    if (selectedDate) {
+      operationsQuery += ` AND thn.timestamp >= $2::date AND thn.timestamp < $2::date + interval '1 day'`
+      queryParams.push(selectedDate)
+    }
+
+    operationsQuery += ' ORDER BY thn.timestamp DESC;'
+
+    const operationsResult = await pool.query(operationsQuery, queryParams)
 
     if (operationsResult.rows.length === 0)
       return res.status(404).send('Операции для данной партии не найдены')
