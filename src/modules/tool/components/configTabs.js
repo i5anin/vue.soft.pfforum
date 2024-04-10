@@ -1,7 +1,7 @@
 import { markRaw } from 'vue'
 
 import HistoryIssue from '@/modules/history-issue-tool/components/Table.vue'
-import HistoryIssueOld from '@/modules/history-issue-tool-old/components/Table.vue'
+import HistoryIssueOld from '@/modules/history-issue-tool-cancel/components/Table.vue'
 import HistoryDamaged from '@/modules/history-damaged-tool/components/Table.vue'
 
 import ToolTabParam from '@/modules/tool/components/other-tabs/Param.vue'
