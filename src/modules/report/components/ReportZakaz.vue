@@ -27,7 +27,6 @@
               <td>{{ tool.zakaz }}</td>
               <td class="grey">{{ tool.sklad }}</td>
               <td class="grey">{{ tool.norma }}</td>
-
               <td class="grey">{{ tool.damaged_last_7_days }}</td>
             </tr>
           </tbody>
