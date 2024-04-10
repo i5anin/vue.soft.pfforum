@@ -11,7 +11,6 @@
       class="header"
       location="left"
       width="330"
-      expand-on-hover
       permanent
       :rail="isRail"
     >
