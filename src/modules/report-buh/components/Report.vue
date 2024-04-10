@@ -9,7 +9,7 @@
               <th class="text-left">Информация</th>
               <th class="text-left">Ближайшая дата</th>
               <th class="text-left">На почту</th>
-              <th class="text-left">Загрузить</th>
+              <!--              <th class="text-left">Загрузить</th>-->
             </tr>
           </thead>
           <tbody>
@@ -23,11 +23,11 @@
                   Email
                 </v-btn>
               </td>
-              <td>
-                <v-btn color="green" @click="report.action(report)">
-                  Excel
-                </v-btn>
-              </td>
+              <!--              <td>-->
+              <!--                <v-btn color="green" @click="report.action(report)">-->
+              <!--                  Excel-->
+              <!--                </v-btn>-->
+              <!--              </td>-->
             </tr>
           </tbody>
         </v-table>

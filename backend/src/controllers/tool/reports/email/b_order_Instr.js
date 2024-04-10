@@ -130,7 +130,7 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
   // Даты для имени файла и темы письма
   const { firstDate, lastDate } = getCurrentMonthDates()
   const envPrefix = process.env.NODE_ENV === 'development' ? 'development ' : ''
-  const subject = `${envPrefix}Заказ: Журнал испорченного инструмента за неделю с ${firstDate} по ${lastDate}`
+  const subject = `${envPrefix}Заказ: Журнал инструмента за неделю с ${firstDate} по ${lastDate}`
 
   // Генерация HTML таблицы для тела письма email
   let htmlContent = `<h2>${subject}</h2>`
@@ -181,7 +181,7 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
 
   // Отправка письма
   try {
-    console.log(`\nЗаказ: Журнал испорченного инструмента за неделю`)
+    console.log(`\nЗаказ: Журнал инструмента за неделю`)
     console.log(`Отчет будет отправлен на email: ${email}`)
     await transporter.sendMail(mailOptions)
     console.log(`Отчет успешно отправлен на email: ${email}.\n`)
