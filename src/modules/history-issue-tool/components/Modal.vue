@@ -103,7 +103,8 @@ export default {
       selectedOperation: 'all',
       availableOperations: [],
       headers: [
-        { title: 'ID операции', value: 'specs_op_id' },
+        // { title: 'ID', value: 'id' },
+        // { title: 'ID операции', value: 'specs_op_id' },
         { title: 'Инструмент', value: 'name_tool' },
         { title: 'Кол-во', value: 'quantity', width: '90px' },
         { title: 'Выдано', value: 'user_fio' },
@@ -164,7 +165,7 @@ export default {
         )
         if (response.success) {
           this.$emit('operation-cancelled', operationId)
-          await this.fetchHistoryData()
+          await this.fetchHistoryData() // Refresh data to reflect changes
         } else {
           alert('Не удалось отменить операцию: ' + response.message)
         }

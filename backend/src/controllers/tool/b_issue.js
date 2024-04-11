@@ -298,64 +298,69 @@ async function cancelOperationAdmin(req, res) {
 }
 
 async function cancelOperation(req, res) {
+  const { id } = req.params // The operation ID
+  const { issueToken } = req.body // Token passed in the request body
+
+  if (!id) {
+    return res
+      .status(400)
+      .send('Отсутствует обязательный параметр: id операции')
+  }
+
+  if (!issueToken) {
+    return res.status(401).send('Authentication token is required.')
+  }
+
+  // Token validation logic - simplistic check
+  const userValidationQuery = 'SELECT id FROM dbo.vue_users WHERE token = $1'
+  const userResult = await pool.query(userValidationQuery, [issueToken])
+
+  if (userResult.rows.length === 0) {
+    return res.status(403).send('Invalid token.')
+  }
+
+  const issuerId = userResult.rows[0].id
+
+  console.log(`Cancel operation requested by User ID: ${issuerId}`)
+
   try {
-    const { id } = req.params // The operation ID
-
-    if (!id) {
-      return res
-        .status(400)
-        .send('Отсутствует обязательный параметр: id операции')
-    }
-
-    // Assuming the token is passed in the Authorization header
-    const authHeader = req.headers.authorization
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).send('Authentication required.')
-    }
-
-    const token = authHeader.split(' ')[1]
-    // Assuming you have a function to validate the token and get user details
-    const userResult = await validateUserToken(token)
-    if (!userResult) {
-      return res.status(403).send('Invalid token.')
-    }
-
-    // Logging the user who is performing the cancel operation
-    console.log(
-      `Cancel operation requested by User ID: ${userResult.id}, Username: ${userResult.username}`
-    )
-
-    // Start a database transaction
     await pool.query('BEGIN')
 
-    const checkQuery = `SELECT id, id_tool, quantity, cancelled, timestamp FROM dbo.tool_history_nom WHERE id = $1`
-    const checkResult = await pool.query(checkQuery, [id])
-    if (checkResult.rows.length === 0) {
+    const operationQuery =
+      'SELECT id, id_tool, quantity, cancelled FROM dbo.tool_history_nom WHERE id = $1'
+    const operation = await pool.query(operationQuery, [id])
+
+    if (operation.rows.length === 0) {
       await pool.query('ROLLBACK')
       return res.status(404).send('Операция не найдена')
     }
 
-    const { id_tool, quantity, cancelled } = checkResult.rows[0]
-
-    if (cancelled) {
+    if (operation.rows[0].cancelled) {
       await pool.query('ROLLBACK')
       return res.status(400).send('Операция уже была отменена')
     }
 
-    const updateHistoryQuery = `UPDATE dbo.tool_history_nom SET cancelled = true WHERE id = $1`
-    await pool.query(updateHistoryQuery, [id])
+    // Update the history to mark the operation as cancelled and set the canceller
+    const updateOperationQuery = `UPDATE dbo.tool_history_nom SET cancelled = true, cancelled_id = $2 WHERE id = $1`
+    await pool.query(updateOperationQuery, [id, issuerId])
 
-    const updateToolQuery = `UPDATE dbo.tool_nom SET sklad = sklad + $1 WHERE id = $2`
-    await pool.query(updateToolQuery, [quantity, id_tool])
+    // Optionally, update the stock quantity
+    const updateStockQuery = `UPDATE dbo.tool_nom SET sklad = sklad + $1 WHERE id = $2`
+    await pool.query(updateStockQuery, [
+      operation.rows[0].quantity,
+      operation.rows[0].id_tool,
+    ])
 
     await pool.query('COMMIT')
 
     res.status(200).json({
       success: true,
-      message: 'Операция отменена',
+      message: 'Операция успешно отменена',
       operationId: id,
-      toolId: id_tool,
-      quantityReturned: quantity,
+      details: {
+        toolId: operation.rows[0].id_tool,
+        quantityReturned: operation.rows[0].quantity,
+      },
     })
   } catch (error) {
     await pool.query('ROLLBACK')

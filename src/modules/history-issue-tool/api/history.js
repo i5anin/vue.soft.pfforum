@@ -33,9 +33,7 @@ export const issueHistoryApi = {
 
   cancelOperation: async (operationId, token) => {
     return axiosInstance
-      .get(`/issue/cancel-operation/${operationId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      .post(`/issue/cancel-operation/${operationId}`, { issueToken: token })
       .then(handleResponse)
       .catch(handleApiError)
   },

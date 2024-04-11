@@ -166,7 +166,8 @@ async function getToolHistoryByPartId(req, res) {
     const selectedDate = req.query.selectedDate // Получаем выбранную дату из параметров запроса
 
     let operationsQuery = `
-      SELECT sno.id                                              AS specs_op_id,
+      SELECT thn.id,
+             sno.id                                              AS specs_op_id,
              sn.ID                                               AS id_part,
              sn.NAME,
              sn.description,
@@ -185,7 +186,8 @@ async function getToolHistoryByPartId(req, res) {
              thn.comment,
              thn.cancelled,
              thn.issuer_id,
-             vu.login                                            AS issuer_fio
+             vu.login                                            AS issuer_fio,
+             vu2.login                                           AS canceller_login  -- Added canceller's login
       FROM dbo.tool_history_nom thn
              LEFT JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
              LEFT JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
@@ -193,6 +195,7 @@ async function getToolHistoryByPartId(req, res) {
              LEFT JOIN dbo.operators o ON thn.id_user = o.id
              LEFT JOIN dbo.tool_nom tn ON thn.id_tool = tn.id
              LEFT JOIN dbo.vue_users vu ON thn.issuer_id = vu.id
+             LEFT JOIN dbo.vue_users vu2 ON thn.cancelled_id = vu2.id  -- Join to get canceller's login
       WHERE sn.ID = $1
     `
 
@@ -228,7 +231,6 @@ async function getToolHistoryByPartId(req, res) {
         }
       } else {
         allTools[row.id_tool] = {
-          specs_op_id: Number(row.specs_op_id), // Convert specs_op_id to a number
           type_oper: row.type_oper,
           quantity: row.quantity,
           timestamp: row.timestamp,
@@ -240,6 +242,8 @@ async function getToolHistoryByPartId(req, res) {
 
       operationsData[row.no_oper] = operationsData[row.no_oper] || []
       operationsData[row.no_oper].push({
+        id: row.id,
+        specs_op_id: Number(row.specs_op_id),
         no_oper: row.no_oper,
         type_oper: row.type_oper,
         quantity: row.quantity,
@@ -253,6 +257,7 @@ async function getToolHistoryByPartId(req, res) {
         cancelled: row.cancelled,
         issuer_fio: row.issuer_fio,
         issuer_id: row.issuer_id,
+        canceller_login: row.canceller_login, // Displaying canceller's login
       })
 
       if (!info) {
