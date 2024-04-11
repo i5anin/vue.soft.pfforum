@@ -21,6 +21,7 @@
       <v-table hover class="elevation-1">
         <thead>
           <tr>
+            <th>#</th>
             <th
               v-for="header in currentHeaders"
               :key="header.value"
@@ -32,10 +33,12 @@
         </thead>
         <tbody>
           <tr
-            v-for="item in filteredData"
+            v-for="(item, index) in filteredData"
             :key="item.id"
             :class="{ 'bg-blue-darken-2': item.type === 'sum' }"
           >
+            <td>{{ index + 1 }}</td>
+            <!-- Display the sequence number starting at 1 -->
             <td v-for="header in currentHeaders" :key="header.value">
               <template v-if="header.value === 'cancelled'">
                 <template v-if="item.cancelled">
@@ -45,10 +48,13 @@
                   <v-btn
                     icon
                     small
+                    :disabled="
+                      new Date() - new Date(item.timestamp) > 259200000
+                    "
                     @click.stop="cancelOperation(item.id)"
                     color="error"
                   >
-                    <v-icon>mdi-close</v-icon>
+                    <v-icon>mdi-delete</v-icon>
                   </v-btn>
                 </template>
               </template>
@@ -95,7 +101,6 @@ export default {
       selectedOperation: 'all',
       availableOperations: [],
       headers: [
-        { title: '#', value: 'key' },
         { title: 'Инструмент', value: 'name_tool' },
         { title: 'Кол-во', value: 'quantity', width: '90px' },
         { title: 'Выдано', value: 'user_fio' },
