@@ -299,7 +299,7 @@ async function cancelOperationAdmin(req, res) {
 
 async function cancelOperation(req, res) {
   try {
-    const { id } = req.params
+    const { id } = req.params // The operation ID
 
     if (!id) {
       return res
@@ -307,10 +307,27 @@ async function cancelOperation(req, res) {
         .send('Отсутствует обязательный параметр: id операции')
     }
 
+    // Assuming the token is passed in the Authorization header
+    const authHeader = req.headers.authorization
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).send('Authentication required.')
+    }
+
+    const token = authHeader.split(' ')[1]
+    // Assuming you have a function to validate the token and get user details
+    const userResult = await validateUserToken(token)
+    if (!userResult) {
+      return res.status(403).send('Invalid token.')
+    }
+
+    // Logging the user who is performing the cancel operation
+    console.log(
+      `Cancel operation requested by User ID: ${userResult.id}, Username: ${userResult.username}`
+    )
+
     // Start a database transaction
     await pool.query('BEGIN')
 
-    // Проверяем существование записи и её статус перед отменой
     const checkQuery = `SELECT id, id_tool, quantity, cancelled, timestamp FROM dbo.tool_history_nom WHERE id = $1`
     const checkResult = await pool.query(checkQuery, [id])
     if (checkResult.rows.length === 0) {
@@ -318,58 +335,31 @@ async function cancelOperation(req, res) {
       return res.status(404).send('Операция не найдена')
     }
 
-    const { id_tool, quantity, cancelled, timestamp } = checkResult.rows[0]
+    const { id_tool, quantity, cancelled } = checkResult.rows[0]
 
     if (cancelled) {
       await pool.query('ROLLBACK')
       return res.status(400).send('Операция уже была отменена')
     }
 
-    // Проверка на дату операции: отмена возможна только в течение 3 дней
-    const operationDate = new Date(timestamp)
-    const currentDate = new Date()
-    const diffTime = Math.abs(currentDate - operationDate)
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-
-    if (diffDays > 3) {
-      await pool.query('ROLLBACK')
-      return res
-        .status(400)
-        .send(
-          'Отмена операции возможна только в течение 3 дней с момента её выполнения'
-        )
-    }
-
-    // Обновляем запись, присваиваем cancelled = true для отметки об отмене
     const updateHistoryQuery = `UPDATE dbo.tool_history_nom SET cancelled = true WHERE id = $1`
     await pool.query(updateHistoryQuery, [id])
 
-    // Возвращаем количество инструмента на склад
     const updateToolQuery = `UPDATE dbo.tool_nom SET sklad = sklad + $1 WHERE id = $2`
     await pool.query(updateToolQuery, [quantity, id_tool])
 
-    // Commit the transaction
     await pool.query('COMMIT')
 
-    // Get the name of the tool for more detailed feedback
-    const toolNameQuery = `SELECT name FROM dbo.tool_nom WHERE id = $1`
-    const toolNameResult = await pool.query(toolNameQuery, [id_tool])
-    const toolName = toolNameResult.rows[0].name
-
-    // Отправляем ответ, что операция отменена
     res.status(200).json({
       success: true,
       message: 'Операция отменена',
       operationId: id,
-      details: {
-        returnedQuantity: quantity,
-        toTool: toolName,
-        toolId: id_tool,
-      },
+      toolId: id_tool,
+      quantityReturned: quantity,
     })
   } catch (error) {
-    console.error('Ошибка при отмене операции:', error)
     await pool.query('ROLLBACK')
+    console.error('Ошибка при отмене операции:', error)
     res.status(500).json({
       success: false,
       message: 'Внутренняя ошибка сервера',

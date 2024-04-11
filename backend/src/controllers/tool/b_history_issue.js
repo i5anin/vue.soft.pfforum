@@ -165,7 +165,6 @@ async function getToolHistoryByPartId(req, res) {
     const idPart = req.query.id_part
     const selectedDate = req.query.selectedDate // Получаем выбранную дату из параметров запроса
 
-    // Определяем SQL запрос с условным фильтром по дате
     let operationsQuery = `
       SELECT sno.id                                              AS specs_op_id,
              sn.ID                                               AS id_part,
@@ -229,6 +228,7 @@ async function getToolHistoryByPartId(req, res) {
         }
       } else {
         allTools[row.id_tool] = {
+          specs_op_id: Number(row.specs_op_id), // Convert specs_op_id to a number
           type_oper: row.type_oper,
           quantity: row.quantity,
           timestamp: row.timestamp,

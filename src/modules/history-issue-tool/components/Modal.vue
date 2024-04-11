@@ -19,7 +19,7 @@
           </v-col>
         </v-row>
       </div>
-      <v-table class="elevation-1">
+      <v-table hover class="elevation-1">
         <thead>
           <tr>
             <th
@@ -39,8 +39,15 @@
           >
             <td v-for="header in currentHeaders" :key="header.value">
               <template v-if="header.value === 'cancelled'">
-                <v-btn small color="error" @click="cancelOperation(item.id)">
-                  Отменить выдачу
+                <v-btn
+                  icon
+                  small
+                  :disabled="item.cancelled"
+                  title="Отменить операцию"
+                  color="error"
+                  @click.stop="cancelOperation(item.id)"
+                >
+                  <v-icon>mdi-delete</v-icon>
                 </v-btn>
               </template>
               <template v-if="header.value === 'timestamp'">
@@ -96,6 +103,7 @@ export default {
       selectedOperation: 'all',
       availableOperations: [],
       headers: [
+        { title: 'ID операции', value: 'specs_op_id' },
         { title: 'Инструмент', value: 'name_tool' },
         { title: 'Кол-во', value: 'quantity', width: '90px' },
         { title: 'Выдано', value: 'user_fio' },
@@ -135,11 +143,16 @@ export default {
   },
   methods: {
     async cancelOperation(operationId) {
+      if (!operationId) {
+        console.error('Invalid operation ID:', operationId)
+        alert('Internal error: The operation ID is invalid.')
+        return
+      }
       if (!confirm('Вы уверены, что хотите отменить эту операцию?')) return
 
       const token = localStorage.getItem('token')
       if (!token) {
-        console.error('Token is not found in local storage.')
+        console.error('Token not found in local storage.')
         alert('Ошибка авторизации: Токен не найден.')
         return
       }
@@ -150,8 +163,8 @@ export default {
           token
         )
         if (response.success) {
-          this.$emit('operation-cancelled', operationId) // Эмитируем событие для обновления таблицы или UI
-          await this.fetchHistoryData() // Перезагружаем данные, чтобы отразить изменения
+          this.$emit('operation-cancelled', operationId)
+          await this.fetchHistoryData()
         } else {
           alert('Не удалось отменить операцию: ' + response.message)
         }
@@ -160,6 +173,7 @@ export default {
         alert('Ошибка при отмене операции: ' + error.message)
       }
     },
+
     filterData() {
       this.filteredData =
         this.selectedOperation === 'all'

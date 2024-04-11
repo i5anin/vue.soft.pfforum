@@ -50,7 +50,7 @@
           icon
           small
           color="red"
-          @click.stop="cancelOperationAdmin(item.id)"
+          @click.stop="cancelOperationAdmin(item.specs_op_id)"
           :disabled="item.cancelled"
           title="Отменить операцию"
         >
