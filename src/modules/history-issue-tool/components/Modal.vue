@@ -37,8 +37,7 @@
             :key="item.id"
             :class="{ 'bg-blue-darken-2': item.type === 'sum' }"
           >
-            <td>{{ index + 1 }}</td>
-            <!-- Display the sequence number starting at 1 -->
+            <td class="grey">{{ index + 1 }}</td>
             <td v-for="header in currentHeaders" :key="header.value">
               <template v-if="header.value === 'cancelled'">
                 <template v-if="item.cancelled">
