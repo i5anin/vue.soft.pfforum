@@ -302,14 +302,16 @@ async function cancelOperation(req, res) {
   const { issueToken } = req.body // Token passed in the request body
 
   if (!id) {
-    return res.status(400).send('Missing required parameter: operation ID')
+    return res
+      .status(400)
+      .send('Отсутствует обязательный параметр: id операции')
   }
 
   if (!issueToken) {
     return res.status(401).send('Authentication token is required.')
   }
 
-  // Token validation logic
+  // Token validation logic - simplistic check
   const userValidationQuery = 'SELECT id FROM dbo.vue_users WHERE token = $1'
   const userResult = await pool.query(userValidationQuery, [issueToken])
 
@@ -318,30 +320,24 @@ async function cancelOperation(req, res) {
   }
 
   const issuerId = userResult.rows[0].id
+
   console.log(`Cancel operation requested by User ID: ${issuerId}`)
 
   try {
     await pool.query('BEGIN')
 
     const operationQuery =
-      'SELECT id, id_tool, quantity, cancelled, timestamp FROM dbo.tool_history_nom WHERE id = $1'
+      'SELECT id, id_tool, quantity, cancelled FROM dbo.tool_history_nom WHERE id = $1'
     const operation = await pool.query(operationQuery, [id])
 
     if (operation.rows.length === 0) {
       await pool.query('ROLLBACK')
-      return res.status(404).send('Operation not found.')
+      return res.status(404).send('Операция не найдена')
     }
 
-    const { cancelled, timestamp } = operation.rows[0]
-    if (cancelled) {
+    if (operation.rows[0].cancelled) {
       await pool.query('ROLLBACK')
-      return res.status(400).send('Operation has already been cancelled.')
-    }
-
-    // Check if cancellation is within the allowed time frame (3 days)
-    if (differenceInDays(new Date(), parseISO(timestamp)) > 3) {
-      await pool.query('ROLLBACK')
-      return res.status(400).send('Cancellation period has expired.')
+      return res.status(400).send('Операция уже была отменена')
     }
 
     // Update the history to mark the operation as cancelled and set the canceller
@@ -359,19 +355,19 @@ async function cancelOperation(req, res) {
 
     res.status(200).json({
       success: true,
-      message: 'Operation cancelled successfully',
+      message: 'Операция успешно отменена',
+      operationId: id,
       details: {
-        operationId: id,
         toolId: operation.rows[0].id_tool,
         quantityReturned: operation.rows[0].quantity,
       },
     })
   } catch (error) {
     await pool.query('ROLLBACK')
-    console.error('Error cancelling operation:', error)
+    console.error('Ошибка при отмене операции:', error)
     res.status(500).json({
       success: false,
-      message: 'Internal server error',
+      message: 'Внутренняя ошибка сервера',
       errorDetails: error.message,
     })
   }
