@@ -45,10 +45,7 @@
                   <v-btn
                     icon
                     small
-                    :disabled="
-                      new Date() - new Date(item.timestamp) > 259200000
-                    "
-                    @click.stop="cancelOperation(item, item.id)"
+                    @click.stop="cancelOperation(item.id)"
                     color="error"
                   >
                     <v-icon>mdi-delete</v-icon>
@@ -82,6 +79,7 @@
 <script>
 import Modal from '@/modules/shared/components/Modal.vue'
 import { issueHistoryApi } from '../api/history'
+// import { issueHistoryApi } from '../api/cancel'
 import { format, parseISO } from 'date-fns'
 
 export default {
@@ -98,12 +96,16 @@ export default {
       selectedOperation: 'all',
       availableOperations: [],
       headers: [
+        // { title: 'ID', value: 'id' },
+        // { title: 'ID операции', value: 'specs_op_id' },
         { title: 'Инструмент', value: 'name_tool' },
         { title: 'Кол-во', value: 'quantity', width: '90px' },
         { title: 'Выдано', value: 'user_fio' },
         { title: 'Тип выдачи', value: 'type_issue' },
         { title: 'Дата время', value: 'timestamp' },
+        // { title: 'Операция', value: 'no_oper' },
         { title: 'Тип', value: 'type_oper' },
+        // { title: 'Комментарий', value: 'comment' },
         { title: 'Выдал', value: 'issuer_fio' },
         { title: 'Отмена', value: 'cancelled' },
       ],
@@ -119,17 +121,22 @@ export default {
   },
   computed: {
     popupTitle() {
+      // console.log('вызов popupTitle')
       if (this.info) {
-        return `Инструмент затраченный на партию: ${this.id_part}`
+        return `Инструмент затраченный на партию: ${this.id_part} `
+        // ${this.selected_date}
       }
     },
     currentHeaders() {
-      return this.selectedOperation === 'all' ? this.headersAll : this.headers
+      if (this.selectedOperation === 'all') {
+        return this.headersAll
+      } else {
+        return this.headers
+      }
     },
   },
   methods: {
-    async cancelOperation(item, operationId) {
-      console.log(item, operationId)
+    async cancelOperation(operationId) {
       if (!operationId) {
         console.error('Invalid operation ID:', operationId)
         alert('Internal error: The operation ID is invalid.')
@@ -150,11 +157,8 @@ export default {
           token
         )
         if (response.success) {
-          // Locally update the item to reflect cancellation without full reload
-          item.cancelled = true
-          item.canceller_login = response.canceller_login // Assuming the response includes the canceller's login name
-          this.$forceUpdate() // Force update to re-render the component
-          alert('Операция успешно отменена')
+          this.$emit('operation-cancelled', operationId)
+          await this.fetchHistoryData() // Refresh data to reflect changes
         } else {
           alert('Не удалось отменить операцию: ' + response.message)
         }
@@ -163,11 +167,18 @@ export default {
         alert('Ошибка при отмене операции: ' + error.message)
       }
     },
+
+    filterData() {
+      this.filteredData =
+        this.selectedOperation === 'all'
+          ? this.originalData['all'] || []
+          : this.originalData[this.selectedOperation] || []
+    },
     formatDate(date) {
       try {
         return format(parseISO(date), 'dd.MM.yyyy HH:mm:ss')
       } catch (error) {
-        console.error('Error formatting date:', error)
+        console.error('Error formatting date:', error, 'Date:', date)
         return 'Invalid Date'
       }
     },
@@ -183,9 +194,11 @@ export default {
         )
         this.info = response.info
         if (response && typeof response === 'object') {
-          this.originalData = response
-          this.filteredData = response['all'] || []
-          this.availableOperations = Object.keys(response)
+          // Removing the 'info' key from the response object
+          const { info, ...operations } = response
+          this.originalData = operations
+          this.filteredData = operations['all'] || []
+          this.availableOperations = Object.keys(operations)
         } else {
           console.log('No history data found')
           this.originalData = {}
