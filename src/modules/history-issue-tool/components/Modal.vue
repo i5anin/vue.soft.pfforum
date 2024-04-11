@@ -38,6 +38,11 @@
             :class="{ 'bg-blue-darken-2': item.type === 'sum' }"
           >
             <td v-for="header in currentHeaders" :key="header.value">
+              <template v-if="header.value === 'cancelled'">
+                <v-btn small color="error" @click="cancelOperation(item.id)">
+                  Отменить выдачу
+                </v-btn>
+              </template>
               <template v-if="header.value === 'timestamp'">
                 {{ formatDate(item[header.value]) }}
               </template>
@@ -74,7 +79,7 @@
 <script>
 import Modal from '@/modules/shared/components/Modal.vue'
 import { issueHistoryApi } from '../api/history'
-
+// import { issueHistoryApi } from '../api/cancel'
 import { format, parseISO } from 'date-fns'
 
 export default {
@@ -130,11 +135,20 @@ export default {
   },
   methods: {
     async cancelOperation(operationId) {
-      if (!confirm('Вы уверены, что хотите отменить эту операцию?')) {
+      if (!confirm('Вы уверены, что хотите отменить эту операцию?')) return
+
+      const token = localStorage.getItem('token')
+      if (!token) {
+        console.error('Token is not found in local storage.')
+        alert('Ошибка авторизации: Токен не найден.')
         return
       }
+
       try {
-        const response = await issueHistoryApi.cancelOperation(operationId)
+        const response = await issueHistoryApi.cancelOperation(
+          operationId,
+          token
+        )
         if (response.success) {
           this.$emit('operation-cancelled', operationId) // Эмитируем событие для обновления таблицы или UI
           await this.fetchHistoryData() // Перезагружаем данные, чтобы отразить изменения
