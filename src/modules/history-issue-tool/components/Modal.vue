@@ -79,7 +79,6 @@
 <script>
 import Modal from '@/modules/shared/components/Modal.vue'
 import { issueHistoryApi } from '../api/history'
-// import { issueHistoryApi } from '../api/cancel'
 import { format, parseISO } from 'date-fns'
 
 export default {
@@ -96,40 +95,42 @@ export default {
       selectedOperation: 'all',
       availableOperations: [],
       headers: [
-        // { title: 'ID', value: 'id' },
-        // { title: 'ID операции', value: 'specs_op_id' },
         { title: '#', value: 'key' },
         { title: 'Инструмент', value: 'name_tool' },
         { title: 'Кол-во', value: 'quantity', width: '90px' },
         { title: 'Выдано', value: 'user_fio' },
         { title: 'Тип выдачи', value: 'type_issue' },
         { title: 'Дата время', value: 'timestamp' },
-        // { title: 'Операция', value: 'no_oper' },
         { title: 'Тип', value: 'type_oper' },
-        // { title: 'Комментарий', value: 'comment' },
         { title: 'Выдал', value: 'issuer_fio' },
         { title: 'Отмена', value: 'cancelled' },
       ],
-      headersAll: [
-        { title: 'Инструмент', value: 'name_tool' },
-        { title: 'Дата первой выдачи', value: 'timestamp' },
-        { title: 'Кол-во', value: 'quantity', width: '90px' },
-      ],
       filteredData: [],
-      showOperationModal: false,
-      currentNoOper: null,
     }
   },
   computed: {
     popupTitle() {
-      // console.log('вызов popupTitle')
-      if (this.info) {
-        return `Инструмент затраченный на партию: ${this.id_part} `
-        // ${this.selected_date}
-      }
+      return this.info
+        ? `Инструмент затраченный на партию: ${this.id_part}`
+        : 'Информация о партии'
     },
     currentHeaders() {
       return this.selectedOperation === 'all' ? this.headersAll : this.headers
+    },
+    headersAll() {
+      return [
+        { title: 'Инструмент', value: 'name_tool' },
+        { title: 'Дата первой выдачи', value: 'timestamp' },
+        { title: 'Кол-во', value: 'quantity', width: '90px' },
+      ]
+    },
+  },
+  watch: {
+    selectedOperation: {
+      immediate: true,
+      handler(newVal, oldVal) {
+        this.filterData()
+      },
     },
   },
   methods: {
@@ -154,13 +155,14 @@ export default {
           token
         )
         if (response.success) {
-          // Locally update the item to reflect cancellation without full reload
-          // item.cancelled = true
-          // item.canceller_login = response.canceller_login // Assuming the response includes the canceller's login name
-          this.$forceUpdate() // Force update to re-render the component
+          // Update the item directly if using Vue 3's reactive system
+          const item = this.filteredData.find((x) => x.id === operationId)
+          if (item) {
+            item.cancelled = true
+            item.canceller_login = response.canceller_login // Assuming response includes the canceller's login
+          }
           alert('Операция успешно отменена')
           this.$emit('operation-cancelled', operationId)
-          await this.fetchHistoryData() // Refresh data to reflect changes
         } else {
           alert('Не удалось отменить операцию: ' + response.message)
         }
@@ -171,16 +173,17 @@ export default {
     },
 
     filterData() {
-      this.filteredData =
-        this.selectedOperation === 'all'
-          ? this.originalData['all'] || []
-          : this.originalData[this.selectedOperation] || []
+      if (this.selectedOperation === 'all') {
+        this.filteredData = this.originalData['all'] || []
+      } else {
+        this.filteredData = this.originalData[this.selectedOperation] || []
+      }
     },
     formatDate(date) {
       try {
         return format(parseISO(date), 'dd.MM.yyyy HH:mm:ss')
       } catch (error) {
-        console.error('Error formatting date:', error, 'Date:', date)
+        console.error('Error formatting date:', error)
         return 'Invalid Date'
       }
     },
@@ -193,28 +196,21 @@ export default {
           this.id_part,
           this.selected_date
         )
-        this.info = response.info
-        console.log(response.info)
         if (response && typeof response === 'object') {
-          // Removing the 'info' key from the response object
-          const { info, ...operations } = response
-          this.originalData = operations
-          this.filteredData = operations['all'] || []
-          this.availableOperations = Object.keys(operations)
+          this.info = response.info
+          this.originalData = response
+          this.availableOperations = Object.keys(this.originalData).filter(
+            (key) => key !== 'info'
+          )
+          this.filterData()
         } else {
           console.log('No history data found')
-          this.originalData = {}
           this.filteredData = []
           this.availableOperations = ['all']
         }
       } catch (error) {
         console.error('Error fetching history data:', error)
       }
-    },
-  },
-  watch: {
-    selectedOperation(newVal) {
-      this.filterData() // Make sure to update the filtered data whenever the selected operation changes
     },
   },
   created() {
