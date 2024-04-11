@@ -88,11 +88,7 @@ export default {
         return
       }
       try {
-        await reportApi.genZayavInstr({
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
+        await reportApi.genZayavInstr(token)
       } catch (error) {
         console.error('Error while generating report:', error)
       }
