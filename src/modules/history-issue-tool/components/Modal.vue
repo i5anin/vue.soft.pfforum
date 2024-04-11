@@ -128,11 +128,7 @@ export default {
       }
     },
     currentHeaders() {
-      if (this.selectedOperation === 'all') {
-        return this.headersAll
-      } else {
-        return this.headers
-      }
+      return this.selectedOperation === 'all' ? this.headersAll : this.headers
     },
   },
   methods: {
