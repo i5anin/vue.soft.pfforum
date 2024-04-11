@@ -48,7 +48,7 @@
                     @click.stop="cancelOperation(item.id)"
                     color="error"
                   >
-                    <v-icon>mdi-delete</v-icon>
+                    <v-icon>mdi-close</v-icon>
                   </v-btn>
                 </template>
               </template>
@@ -98,6 +98,7 @@ export default {
       headers: [
         // { title: 'ID', value: 'id' },
         // { title: 'ID операции', value: 'specs_op_id' },
+        { title: '#', value: 'key' },
         { title: 'Инструмент', value: 'name_tool' },
         { title: 'Кол-во', value: 'quantity', width: '90px' },
         { title: 'Выдано', value: 'user_fio' },
@@ -153,6 +154,11 @@ export default {
           token
         )
         if (response.success) {
+          // Locally update the item to reflect cancellation without full reload
+          // item.cancelled = true
+          // item.canceller_login = response.canceller_login // Assuming the response includes the canceller's login name
+          this.$forceUpdate() // Force update to re-render the component
+          alert('Операция успешно отменена')
           this.$emit('operation-cancelled', operationId)
           await this.fetchHistoryData() // Refresh data to reflect changes
         } else {
@@ -182,13 +188,13 @@ export default {
       this.$emit('canceled')
     },
     async fetchHistoryData() {
-      console.log(this.selected_date)
       try {
         const response = await issueHistoryApi.fetchHistoryByPartId(
           this.id_part,
           this.selected_date
         )
         this.info = response.info
+        console.log(response.info)
         if (response && typeof response === 'object') {
           // Removing the 'info' key from the response object
           const { info, ...operations } = response
@@ -204,6 +210,11 @@ export default {
       } catch (error) {
         console.error('Error fetching history data:', error)
       }
+    },
+  },
+  watch: {
+    selectedOperation(newVal) {
+      this.filterData() // Make sure to update the filtered data whenever the selected operation changes
     },
   },
   created() {
