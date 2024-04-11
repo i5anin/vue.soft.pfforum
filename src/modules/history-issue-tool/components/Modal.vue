@@ -5,7 +5,6 @@
         <v-row>
           <h2 v-if="this.info" style="padding-left: 25px">
             {{ this?.info.name }} {{ this?.info.description }}
-            <!-- todo: this?.info.name не отображается -->
           </h2>
           <v-spacer />
           <v-col cols="12" md="3">
@@ -39,28 +38,22 @@
           >
             <td v-for="header in currentHeaders" :key="header.value">
               <template v-if="header.value === 'cancelled'">
-                <v-btn
-                  icon
-                  small
-                  :disabled="item.cancelled"
-                  title="Отменить операцию"
-                  color="error"
-                  @click.stop="cancelOperation(item.id)"
-                >
-                  <v-icon>mdi-delete</v-icon>
-                </v-btn>
+                <template v-if="item.cancelled">
+                  {{ item.canceller_login }}
+                </template>
+                <template v-else>
+                  <v-btn
+                    icon
+                    small
+                    @click.stop="cancelOperation(item.id)"
+                    color="error"
+                  >
+                    <v-icon>mdi-delete</v-icon>
+                  </v-btn>
+                </template>
               </template>
-              <template v-if="header.value === 'timestamp'">
+              <template v-else-if="header.value === 'timestamp'">
                 {{ formatDate(item[header.value]) }}
-              </template>
-              <template
-                v-else-if="
-                  header.value === 'no_oper' || header.value === 'type_oper'
-                "
-              >
-                <v-chip small color="lighten-4">
-                  {{ item[header.value] }}
-                </v-chip>
               </template>
               <template v-else>
                 {{ item[header.value] }}
