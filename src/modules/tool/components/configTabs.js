@@ -4,8 +4,8 @@ import HistoryIssue from '@/modules/history-issue-tool/components/Table.vue'
 import HistoryIssueOld from '@/modules/history-issue-tool-cancel/components/Table.vue'
 import HistoryDamaged from '@/modules/history-damaged-tool/components/Table.vue'
 
-import ToolTabParam from '@/modules/tool/components/other-tabs/Param.vue'
-import ToolTabTree from '@/modules/tool/components/other-tabs/Tree.vue'
+import ToolTabParam from '@/param/components/Param.vue'
+import ToolTabTree from '@/modules/tree/components/Tree.vue'
 import Report from '@/modules/report/components/Report.vue'
 import ReportBuh from '@/modules/report-buh/components/Report.vue'
 
