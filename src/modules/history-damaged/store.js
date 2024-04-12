@@ -1,4 +1,4 @@
-import { editorToolApi } from '@/modules/editor-tool/api/editor'
+import { editorToolApi } from '@/modules/editor/api/editor'
 import { toolApi } from '@/api'
 
 export default {

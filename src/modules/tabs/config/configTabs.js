@@ -1,15 +1,15 @@
 import { markRaw } from 'vue'
 
-import HistoryIssue from '@/modules/history-issue-tool/components/Table.vue'
-import HistoryDamaged from '@/modules/history-damaged-tool/components/Table.vue'
+import HistoryIssue from '@/modules/history-issue/components/Table.vue'
+import HistoryDamaged from '@/modules/history-damaged/components/Table.vue'
 
 import ToolTabParam from '@/modules/params/components/Param.vue'
 import ToolTabTree from '@/modules/tree/components/Tree.vue'
-import Report from '@/modules/report/components/Report.vue'
+import Report from '@/modules/report-zakaz/components/Report.vue'
 import ReportBuh from '@/modules/report-buh/components/Report.vue'
 
-import EditorCatalog from '@/modules/editor-tool/components/Catalog.vue'
-import IssueCatalog from '@/modules/issue-tool/components/Catalog.vue'
+import EditorCatalog from '@/modules/editor/components/Catalog.vue'
+import IssueCatalog from '@/modules/issue/components/Catalog.vue'
 
 const tabs = [
   {

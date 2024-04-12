@@ -37,7 +37,7 @@ import { toolTreeApi } from '@/modules/tree/api/tree'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
 import TabMainTable from './Table.vue'
 import CatalogBreadcrumbs from '@/modules/shared/components/CatalogBreadcrumbs.vue'
-import { issueToolApi } from '@/modules/issue-tool/api/issue'
+import { issueToolApi } from '@/modules/issue/api/issue'
 
 export default {
   name: 'IssueCatalog',

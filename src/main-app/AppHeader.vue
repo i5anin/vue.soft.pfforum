@@ -24,16 +24,8 @@
           :title="userInfo.user"
           :subtitle="appTitle"
         />
-        <!--        subtitle="Тестирование"-->
-        <!-- title='Исанин Сергей' subtitle='Администратор'-->
       </v-list>
       <v-divider />
-      <!--  -->
-      <!--      <menu-list-->
-      <!--        :menu-items="originalMenuItemsComputed"-->
-      <!--        :group-states="groupStates"-->
-      <!--      />-->
-      <!--      <v-divider />-->
       <v-list-item v-if="isHovered">
         <v-list-item-title>Участки</v-list-item-title>
       </v-list-item>
@@ -91,7 +83,7 @@
 
 <script>
 import { originalMenuItems, plotsMenuItems } from '@/main-app/data/menuItems'
-import ModalCart from '@/modules/issue-tool/components/ModalCart.vue'
+import ModalCart from '@/modules/issue/components/ModalCart.vue'
 import MenuList from '@/main-app/SidebarMenuList.vue'
 import { authApi } from '@/api/login'
 import { mapActions, mapGetters, mapState } from 'vuex'

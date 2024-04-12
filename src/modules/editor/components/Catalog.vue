@@ -59,7 +59,7 @@
 <script>
 import { toolTreeApi } from '@/modules/tree/api/tree'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
-import TabMainTable from '@/modules/editor-tool/components/Table.vue'
+import TabMainTable from '@/modules/editor/components/Table.vue'
 import CatalogBreadcrumbs from '@/modules/shared/components/CatalogBreadcrumbs.vue'
 // import { normSpaces } from '@/modules/shared/normSpaces'
 

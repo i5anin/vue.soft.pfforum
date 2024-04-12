@@ -67,7 +67,7 @@
 import { VDataTableServer } from 'vuetify/labs/components'
 import { format, parseISO } from 'date-fns'
 import EditToolModal from './Modal.vue'
-import { issueHistoryApi } from '@/modules/history-issue-tool/api/history'
+import { issueHistoryApi } from '@/modules/history-issue/api/history'
 
 export default {
   components: { EditToolModal, VDataTableServer },
