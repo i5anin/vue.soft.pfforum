@@ -2,7 +2,7 @@
   <v-card>
     <v-tabs v-model="tab">
       <v-tab v-for="item in tabs" :key="item.name" :value="item.name">
-        <v-icon size="large" color="blue-grey" class="mr-2">
+        <v-icon size="large" :color="appColor" class="mr-2">
           {{ item.ico }}
         </v-icon>
         {{ item.name }}
@@ -49,6 +49,14 @@ export default {
 
     // Добавляем запрос на проверку доступов
     this.checkAccess()
+  },
+
+  computed: {
+    appColor() {
+      return import.meta.env.VITE_NODE_ENV === 'build'
+        ? 'cyan-darken-3'
+        : 'primary'
+    },
   },
   methods: {
     async checkAccess() {

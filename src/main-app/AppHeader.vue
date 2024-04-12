@@ -113,7 +113,9 @@ export default {
       return import.meta.env.VITE_APP_TITLE || 'LOGO'
     },
     appColor() {
-      return import.meta.env.VITE_NODE_ENV === 'build' ? 'blue-grey' : 'primary'
+      return import.meta.env.VITE_NODE_ENV === 'build'
+        ? 'cyan-darken-3'
+        : 'primary'
     },
     originalMenuItemsComputed() {
       return this.filterForHohlov(originalMenuItems)
