@@ -65,7 +65,7 @@
 <script>
 import { getToolParams } from '@/api'
 // import { normSpaces } from '@/modules/shared/normSpaces'
-import { toolParamApi } from '@/param/api/params'
+import { toolParamApi } from '@/modules/tool/api/params'
 
 export default {
   data() {

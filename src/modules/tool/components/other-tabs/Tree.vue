@@ -27,8 +27,8 @@
 </template>
 
 <script>
-import { toolTreeApi } from '@/modules/tree/api/tree'
-import TreeNode from './TreeNode.vue'
+import { toolTreeApi } from '@/modules/tool/api/tree'
+import TreeNode from '../TreeNode.vue'
 
 export default {
   name: 'TreeView',
