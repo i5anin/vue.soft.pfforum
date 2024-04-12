@@ -2,6 +2,9 @@
   <v-card>
     <v-tabs v-model="tab">
       <v-tab v-for="item in tabs" :key="item.name" :value="item.name">
+        <v-icon size="large" color="blue-grey" class="mr-2">
+          {{ item.ico }}
+        </v-icon>
         {{ item.name }}
       </v-tab>
     </v-tabs>
