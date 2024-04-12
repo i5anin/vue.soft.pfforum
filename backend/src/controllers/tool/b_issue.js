@@ -327,7 +327,7 @@ async function cancelOperation(req, res) {
     await pool.query('BEGIN')
 
     const operationQuery =
-      'SELECT id, id_tool, quantity, cancelled FROM dbo.tool_history_nom WHERE id = $1'
+      'SELECT id, id_tool, quantity, cancelled, timestamp FROM dbo.tool_history_nom WHERE id = $1'
     const operation = await pool.query(operationQuery, [id])
 
     if (operation.rows.length === 0) {
@@ -338,6 +338,22 @@ async function cancelOperation(req, res) {
     if (operation.rows[0].cancelled) {
       await pool.query('ROLLBACK')
       return res.status(400).send('Операция уже была отменена')
+    }
+
+    // Checking if the cancellation request is within 3 days of the operation's timestamp
+    const currentDate = new Date()
+    const operationDate = new Date(operation.rows[0].timestamp)
+    const differenceInDays = Math.floor(
+      (currentDate - operationDate) / (1000 * 60 * 60 * 24)
+    )
+
+    if (differenceInDays > 3) {
+      await pool.query('ROLLBACK')
+      return res
+        .status(403)
+        .send(
+          'Отмена операции возможна только в течение 3 дней с момента выполнения.'
+        )
     }
 
     // Update the history to mark the operation as cancelled and set the canceller

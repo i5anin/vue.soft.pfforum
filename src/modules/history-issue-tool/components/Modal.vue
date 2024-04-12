@@ -53,7 +53,7 @@
                     @click.stop="cancelOperation(item.id)"
                     color="error"
                   >
-                    <v-icon>mdi-delete</v-icon>
+                    <v-icon>mdi-close</v-icon>
                   </v-btn>
                 </template>
               </template>

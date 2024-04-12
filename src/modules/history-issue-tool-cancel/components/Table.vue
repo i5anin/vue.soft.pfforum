@@ -54,7 +54,7 @@
           :disabled="item.cancelled"
           title="Отменить операцию"
         >
-          <v-icon>mdi-delete</v-icon>
+          <v-icon>mdi-close</v-icon>
         </v-btn>
       </template>
     </v-data-table-server>
