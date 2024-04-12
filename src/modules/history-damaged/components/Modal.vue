@@ -63,9 +63,8 @@
 
 <script>
 import Modal from '@/modules/shared/components/Modal.vue'
-// import { detailHistoryApi } from '../api/damaged'
 import { format, parseISO } from 'date-fns'
-import { issueHistoryApi as detailHistoryApi } from '@/modules/history-issue/api/cancel'
+import { issueHistoryApi } from '@/modules/history-issue/api/cancel'
 
 export default {
   name: 'HistoryModal',
@@ -129,7 +128,7 @@ export default {
     },
     async fetchHistoryData() {
       try {
-        const response = await detailHistoryApi.fetchHistoryByPartId(
+        const response = await issueHistoryApi.fetchHistoryByPartId(
           this.id_part
         )
         this.info = response.info
