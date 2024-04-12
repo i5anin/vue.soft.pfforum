@@ -1,9 +1,4 @@
 <template>
-  <!--  <date-picker-->
-  <!--    label="Start Date"-->
-  <!--    v-model="startDate"-->
-  <!--    color="primary"-->
-  <!--  ></date-picker>-->
   <div>
     <div v-for="(group, index) in toolGroups" :key="index" class="tool-group">
       <v-chip variant="text" size="large" @click="toggleVisibility(index)">
@@ -42,11 +37,9 @@
 </template>
 
 <script>
-import { reportApi } from '../api/report'
-import DatePicker from '@/modules/report-buh/components/DatePicker.vue' // Импортируем API
+import { reportApi } from '../api/report' // Импортируем API
 
 export default {
-  components: { DatePicker },
   data() {
     return {
       toolGroups: [],
