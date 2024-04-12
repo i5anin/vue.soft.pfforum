@@ -29,7 +29,7 @@
 
 <script>
 // Предполагается, что tabsConfig - это ваш конфигурационный файл вкладок
-import tabs from './configTabs'
+import tabs from '../config/configTabs'
 import { authApi } from '@/api/login'
 // import {} from 'vue-router'
 
