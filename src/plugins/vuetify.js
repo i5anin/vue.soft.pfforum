@@ -22,6 +22,7 @@ const vuetify = createVuetify({
   lang: {
     locales: { ru }, // добавьте русскую локализацию в locales
     current: 'ru', // установите русский язык как текущий
+    firstDayOfWeek: 1,
   },
   theme: {
     defaultTheme: savedTheme || (isDark ? 'dark' : 'light'),

@@ -53,24 +53,26 @@
       fixed-header
       width="true"
     >
+      <template v-slot:item.index="{ index }">
+        {{ (filters.currentPage - 1) * filters.itemsPerPage + index + 1 }}
+      </template>
       <template v-slot:item.check="{ item }">
         <span
           v-if="item.quantity_prod_all <= item.quantity_prod"
           class="mdi mdi-check check-icon--large"
-        ></span>
+        />
       </template>
     </v-data-table-server>
   </v-container>
 </template>
 
 <script>
-import { VDataTableServer } from 'vuetify/labs/components'
 import { format, parseISO } from 'date-fns'
 import EditToolModal from './Modal.vue'
 import { issueHistoryApi } from '@/modules/history-issue/api/history'
 
 export default {
-  components: { EditToolModal, VDataTableServer },
+  components: { EditToolModal },
   data() {
     return {
       selectedDate: '',
@@ -86,6 +88,7 @@ export default {
       totalCount: 0,
       headers: [
         { title: '', value: 'check', sortable: false },
+        { title: '#', value: 'key', sortable: false },
         { title: 'ID партии', value: 'id_part', sortable: false },
         { title: 'Название', value: 'name', sortable: false, width: '300px' },
         { title: 'Обозначение', value: 'description', sortable: false },
@@ -126,8 +129,6 @@ export default {
   },
   created() {
     this.dateOptions = this.generateDateOptions()
-    console.log(this.dateOptions)
-    console.log(JSON.parse(JSON.stringify(this.dateOptions)))
     this.debouncedFetchAndFormatToolHistory = this.debounce(
       this.fetchAndFormatToolHistory,
       500
