@@ -38,10 +38,8 @@
 
     <v-app-bar :color="appColor" sticky prominent dark>
       <!-- Левая кнопка -->
-      <v-app-bar-nav-icon
-        variant="text"
-        @click.stop="isRail = !isRail"
-      ></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon variant="text" @click.stop="isRail = !isRail" />
+
       <!-- Название -->
       <v-toolbar-title>{{ appTitle }}</v-toolbar-title>
 
@@ -131,9 +129,6 @@ export default {
   methods: {
     ...mapActions('IssueToolStore', ['openModal', 'closeModal']),
 
-    selectedDetailData() {
-      return this.selectedDetail
-    },
     operationId() {
       return this.selectedOperationId
     },

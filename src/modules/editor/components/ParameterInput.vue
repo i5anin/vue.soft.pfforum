@@ -1,5 +1,4 @@
 <template>
-  <!--  <Modal :title="popupTitle">-->
   <template #content>
     <v-container>
       <v-row>
@@ -69,11 +68,9 @@
       Сохранить
     </v-btn>
   </template>
-  <!--  </Modal>-->
 </template>
 
 <script>
-import Modal from '@/modules/shared/components/Modal.vue'
 import { getToolParams } from '@/api'
 import { editorToolApi } from '../api/editor'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
@@ -86,7 +83,6 @@ export default {
     persistent: { type: Boolean, default: false },
     toolId: { type: Number, default: null },
   },
-  components: { Modal },
   data() {
     return {
       toolModel: {

@@ -1,4 +1,6 @@
 // store/modules/authStore.js
+import axiosInstance from '@/api/axiosConfig'
+
 const authStore = {
   namespaced: true,
   state: {

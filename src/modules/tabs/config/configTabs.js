@@ -52,7 +52,7 @@ const tabs = [
     url: '#tree',
     component: markRaw(ToolTabTree),
     access: ['Admin', 'Editor', 'Issue', 'Sklad'],
-    ico: 'mdi-file-tree-outline',
+    ico: 'mdi-file-tree',
   },
   {
     name: 'Отчёт заказ',

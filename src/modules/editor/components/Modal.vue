@@ -151,7 +151,6 @@ import Modal from '@/modules/shared/components/Modal.vue'
 import { getToolParams } from '@/api'
 import { editorToolApi } from '../api/editor'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
-import { issueToolApi } from '@/modules/issue/api/issue'
 
 export default {
   name: 'FillingModal',

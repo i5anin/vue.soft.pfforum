@@ -132,7 +132,7 @@ export default {
   watch: {
     selectedOperation: {
       immediate: true,
-      handler(newVal, oldVal) {
+      handler() {
         this.filterData()
       },
     },

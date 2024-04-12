@@ -65,6 +65,7 @@
 import Modal from '@/modules/shared/components/Modal.vue'
 // import { detailHistoryApi } from '../api/damaged'
 import { format, parseISO } from 'date-fns'
+import { issueHistoryApi as detailHistoryApi } from '@/modules/history-issue/api/cancel'
 
 export default {
   name: 'HistoryModal',
@@ -98,10 +99,7 @@ export default {
   },
   computed: {
     popupTitle() {
-      // console.log('вызов popupTitle')
-      if (this.info) {
-        return `Инструмент затраченный на партию: ${this.id_part}`
-      }
+      return `Инструмент затраченный на партию: ${this.id_part}`
     },
     currentHeaders() {
       if (this.selectedOperation === 'all') {
@@ -137,7 +135,7 @@ export default {
         this.info = response.info
         if (response && typeof response === 'object') {
           // Removing the 'info' key from the response object
-          const { info, ...operations } = response
+          const { ...operations } = response
           this.originalData = operations
           this.filteredData = operations['all'] || []
           this.availableOperations = Object.keys(operations)
