@@ -54,11 +54,7 @@
       width="true"
     >
       <template v-slot:item.index="{ index }">
-        <span class="grey">
-          {{
-            (filters.currentPage - 1) * filters.itemsPerPage + index + 1
-          }}</span
-        >
+        {{ (filters.currentPage - 1) * filters.itemsPerPage + index + 1 }}
       </template>
       <template v-slot:item.check="{ item }">
         <span
@@ -91,8 +87,8 @@ export default {
       editingToolId: null,
       totalCount: 0,
       headers: [
-        { title: '', value: 'check', sortable: false, width: '40px' },
-        { title: '#', value: 'index', sortable: false, width: '40px' },
+        { title: '', value: 'check', sortable: false },
+        { title: '#', value: 'key', sortable: false },
         { title: 'ID партии', value: 'id_part', sortable: false },
         { title: 'Название', value: 'name', sortable: false, width: '300px' },
         { title: 'Обозначение', value: 'description', sortable: false },
@@ -238,10 +234,6 @@ export default {
 </script>
 
 <style>
-.grey {
-  color: grey;
-}
-
 .check-icon--green {
   color: green;
 }
