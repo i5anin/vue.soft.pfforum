@@ -28,10 +28,8 @@
 </template>
 
 <script>
-// Предполагается, что tabsConfig - это ваш конфигурационный файл вкладок
 import tabs from '../config/configTabs'
 import { authApi } from '@/api/login'
-// import {} from 'vue-router'
 
 export default {
   data() {

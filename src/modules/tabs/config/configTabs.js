@@ -9,9 +9,7 @@ import Report from '@/modules/report/components/Report.vue'
 import ReportBuh from '@/modules/report-buh/components/Report.vue'
 
 import EditorCatalog from '@/modules/editor-tool/components/Catalog.vue'
-import StorageCatalog from '@/modules/storage-tool/components/Catalog.vue'
 import IssueCatalog from '@/modules/issue-tool/components/Catalog.vue'
-import NaladCatalog from '@/modules/nalad-tool/components/Catalog.vue'
 
 const tabs = [
   {
@@ -35,12 +33,6 @@ const tabs = [
     access: ['Admin', 'Editor', 'Issue'],
     ico: 'mdi-list-status',
   },
-  // {
-  //   name: 'Склад',
-  //   url: '#storage',
-  //   component: markRaw(StorageCatalog),
-  //   access: ['Admin', 'Editor', 'Sklad'],
-  // },
   {
     name: 'История выдачи',
     url: '#history_issue',
@@ -55,13 +47,6 @@ const tabs = [
     access: ['Admin', 'Editor', 'Issue'],
     ico: 'mdi-history',
   },
-  // {
-  //   name: 'Наладчик',
-  //   url: '#nalad',
-  //   component: markRaw(NaladCatalog),
-  //   access: ['Nalad'],
-  //   ico: '',
-  // },
   {
     name: 'Дерево',
     url: '#tree',
