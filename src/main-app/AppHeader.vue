@@ -114,8 +114,8 @@ export default {
     },
     appColor() {
       return import.meta.env.VITE_NODE_ENV === 'build'
-        ? 'cyan-darken-3'
-        : 'primary'
+        ? import.meta.env.VITE_BUILD_COLOR
+        : import.meta.env.VITE_DEV_COLOR
     },
     originalMenuItemsComputed() {
       return this.filterForHohlov(originalMenuItems)
