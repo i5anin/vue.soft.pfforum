@@ -47,22 +47,24 @@ async function getToolHistory(req, res) {
 
     const dataQuery = `
       SELECT *
-      FROM (SELECT specs_nom.ID AS id_part,
-                   specs_nom.NAME,
-                   specs_nom.description,
-                   CAST(SUM(tool_history_nom.quantity) AS INTEGER) AS quantity_tool,
-                   CAST(COUNT(*) AS INTEGER) AS recordscount,
-                   COUNT(DISTINCT specs_nom_operations.ID) AS operation_count,
-                   MIN(tool_history_nom.TIMESTAMP) AS first_issue_date,
-                   CAST(dbo.kolvo_prod_ready(specs_nom.ID) AS INTEGER) AS quantity_prod,
-                   specs_nom.kolvo AS quantity_prod_all,
-                   specs_nom_operations.status_ready
-            FROM dbo.tool_history_nom
-            INNER JOIN dbo.specs_nom_operations ON tool_history_nom.specs_op_id = specs_nom_operations.ID
-            INNER JOIN dbo.specs_nom ON specs_nom_operations.specs_nom_id = specs_nom.ID
-            ${searchConditions}
-            GROUP BY specs_nom.ID, specs_nom.NAME, specs_nom.description, specs_nom_operations.status_ready
-            ORDER BY MIN(tool_history_nom.TIMESTAMP) DESC) AS sorted_data
+      FROM (
+        SELECT specs_nom.ID AS id_part,
+               specs_nom.NAME,
+               specs_nom.description,
+               CAST(SUM(tool_history_nom.quantity) AS INTEGER) AS quantity_tool,
+               CAST(COUNT(*) AS INTEGER) AS recordscount,
+               COUNT(DISTINCT specs_nom_operations.ID) AS operation_count,
+               MIN(tool_history_nom.TIMESTAMP) AS first_issue_date,
+               dbo.kolvo_ready_op(specs_nom_operations.ID) AS quantity_prod,
+               specs_nom.kolvo AS quantity_prod_all,
+               specs_nom_operations.status_ready
+        FROM dbo.tool_history_nom
+        INNER JOIN dbo.specs_nom_operations ON tool_history_nom.specs_op_id = specs_nom_operations.ID
+        INNER JOIN dbo.specs_nom ON specs_nom_operations.specs_nom_id = specs_nom.ID
+        ${searchConditions}
+        GROUP BY specs_nom.ID, specs_nom.NAME, specs_nom.description, specs_nom_operations.status_ready, specs_nom_operations.ID
+        ORDER BY MIN(tool_history_nom.TIMESTAMP) DESC
+      ) AS sorted_data
       LIMIT ${limit} OFFSET ${offset};
     `
 
