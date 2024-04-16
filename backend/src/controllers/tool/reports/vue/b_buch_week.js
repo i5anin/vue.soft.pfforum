@@ -58,7 +58,7 @@ async function getTableReportData(req, res) {
                               'sklad', d.sklad,
                               'norma', d.norma,
                               'zakaz', d.zakaz,
-                              'damaged_last_7_days', d.damaged_last_7_days
+--                               'damaged_last_7_days', d.damaged_last_7_days
                             )
                           ) AS tools
                    FROM damaged d
