@@ -20,13 +20,10 @@ async function getToolHistory(req, res) {
     const search = req.query.search
     const date = req.query.date // Получаем дату из запроса
 
-    let searchConditions = `
-      WHERE NOT specs_nom.status_otgruzka
-      AND (POSITION('ЗАПРЕТ' IN UPPER(specs_nom.comments)) = 0 OR specs_nom.comments IS NULL)
-    `
+    let searchConditions = ''
 
     if (search) {
-      searchConditions += ` AND (
+      searchConditions += ` WHERE (
         specs_nom.ID::text LIKE '%${search}%' OR
         UPPER(specs_nom.NAME) LIKE UPPER('%${search}%') OR
         UPPER(specs_nom.description) LIKE UPPER('%${search}%')
@@ -34,7 +31,11 @@ async function getToolHistory(req, res) {
     }
 
     if (date) {
-      searchConditions += ` AND CAST(tool_history_nom.timestamp AS DATE) = CAST('${date}' AS DATE)`
+      if (searchConditions.length > 0) {
+        searchConditions += ` AND CAST(tool_history_nom.timestamp AS DATE) = CAST('${date}' AS DATE)`
+      } else {
+        searchConditions += ` WHERE CAST(tool_history_nom.timestamp AS DATE) = CAST('${date}' AS DATE)`
+      }
     }
 
     const countQuery = `
@@ -68,8 +69,6 @@ async function getToolHistory(req, res) {
 
     const countResult = await pool.query(countQuery)
     const dataResult = await pool.query(dataQuery)
-
-    console.log(dataQuery)
 
     res.json({
       currentPage: page,
