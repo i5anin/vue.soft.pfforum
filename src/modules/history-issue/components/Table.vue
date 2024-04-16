@@ -55,7 +55,7 @@
     >
       <template v-slot:item.check="{ item }">
         <span
-          v-if="item.quantity_prod_all <= item.quantity_prod"
+          v-if="item.status_ready == true"
           class="mdi mdi-check check-icon--large"
         ></span>
       </template>

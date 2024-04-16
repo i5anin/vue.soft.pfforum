@@ -21,53 +21,55 @@ async function getToolHistory(req, res) {
     const date = req.query.date // Получаем дату из запроса
 
     let searchConditions = `
-      WHERE sn.status_p = 'П'
-      AND NOT sn.status_otgruzka
-      AND (POSITION('ЗАПРЕТ' IN UPPER(sn.comments)) = 0 OR sn.comments IS NULL)
+      WHERE NOT specs_nom.status_otgruzka
+      AND (POSITION('ЗАПРЕТ' IN UPPER(specs_nom.comments)) = 0 OR specs_nom.comments IS NULL)
     `
 
     if (search) {
       searchConditions += ` AND (
-        sn.ID::text LIKE '%${search}%' OR
-        UPPER(sn.NAME) LIKE UPPER('%${search}%') OR
-        UPPER(sn.description) LIKE UPPER('%${search}%')
+        specs_nom.ID::text LIKE '%${search}%' OR
+        UPPER(specs_nom.NAME) LIKE UPPER('%${search}%') OR
+        UPPER(specs_nom.description) LIKE UPPER('%${search}%')
       )`
     }
 
     if (date) {
-      searchConditions += ` AND CAST(thn.timestamp AS DATE) = CAST('${date}' AS DATE)`
+      searchConditions += ` AND CAST(tool_history_nom.timestamp AS DATE) = CAST('${date}' AS DATE)`
     }
 
     const countQuery = `
-      SELECT COUNT(DISTINCT sn.ID)
-      FROM dbo.tool_history_nom thn
-      INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
-      INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
+      SELECT COUNT(DISTINCT specs_nom.ID)
+      FROM dbo.tool_history_nom
+      INNER JOIN dbo.specs_nom_operations ON tool_history_nom.specs_op_id = specs_nom_operations.ID
+      INNER JOIN dbo.specs_nom ON specs_nom_operations.specs_nom_id = specs_nom.ID
       ${searchConditions};
     `
 
     const dataQuery = `
       SELECT *
-      FROM (SELECT sn.ID                                        AS id_part,
-                   sn.NAME,
-                   sn.description,
-                   CAST(SUM(thn.quantity) AS INTEGER)           AS quantity_tool,
-                   CAST(COUNT(*) AS INTEGER)                    AS recordscount,
-                   COUNT(DISTINCT sno.id)                       AS operation_count,
-                   MIN(thn.timestamp)                           AS first_issue_date,
-                   CAST(dbo.kolvo_prod_ready(sn.ID) AS INTEGER) AS quantity_prod,
-                   sn.kolvo                                     AS quantity_prod_all
-            FROM dbo.tool_history_nom thn
-                   INNER JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
-                   INNER JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
-              ${searchConditions}
-            GROUP BY sn.ID, sn.NAME, sn.description
-            ORDER BY MIN(thn.timestamp) DESC) AS sorted_data
+      FROM (SELECT specs_nom.ID AS id_part,
+                   specs_nom.NAME,
+                   specs_nom.description,
+                   CAST(SUM(tool_history_nom.quantity) AS INTEGER) AS quantity_tool,
+                   CAST(COUNT(*) AS INTEGER) AS recordscount,
+                   COUNT(DISTINCT specs_nom_operations.ID) AS operation_count,
+                   MIN(tool_history_nom.TIMESTAMP) AS first_issue_date,
+                   CAST(dbo.kolvo_prod_ready(specs_nom.ID) AS INTEGER) AS quantity_prod,
+                   specs_nom.kolvo AS quantity_prod_all,
+                   specs_nom_operations.status_ready
+            FROM dbo.tool_history_nom
+            INNER JOIN dbo.specs_nom_operations ON tool_history_nom.specs_op_id = specs_nom_operations.ID
+            INNER JOIN dbo.specs_nom ON specs_nom_operations.specs_nom_id = specs_nom.ID
+            ${searchConditions}
+            GROUP BY specs_nom.ID, specs_nom.NAME, specs_nom.description, specs_nom_operations.status_ready
+            ORDER BY MIN(tool_history_nom.TIMESTAMP) DESC) AS sorted_data
       LIMIT ${limit} OFFSET ${offset};
     `
 
     const countResult = await pool.query(countQuery)
     const dataResult = await pool.query(dataQuery)
+
+    console.log(dataQuery)
 
     res.json({
       currentPage: page,
@@ -80,8 +82,9 @@ async function getToolHistory(req, res) {
         quantity_tool: parseInt(row.quantity_tool, 10),
         quantity_prod: parseInt(row.quantity_prod, 10),
         recordscount: parseInt(row.recordscount, 10),
-        first_issue_date: row.first_issue_date, // Используем алиас вместо timestamp
+        first_issue_date: row.first_issue_date,
         quantity_prod_all: row.quantity_prod_all,
+        status_ready: row.status_ready,
       })),
     })
   } catch (err) {
