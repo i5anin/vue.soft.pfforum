@@ -73,6 +73,7 @@ export default {
   components: { EditToolModal, VDataTableServer },
   data() {
     return {
+      searchQuery: '',
       selectedDate: '',
       dateOptions: this.generateDateOptions(),
       date: '',
