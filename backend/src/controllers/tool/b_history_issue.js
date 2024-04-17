@@ -57,12 +57,13 @@ async function getToolHistory(req, res) {
                    MIN(tool_history_nom.TIMESTAMP) AS first_issue_date,
                    CAST(dbo.kolvo_prod_ready(specs_nom.ID) AS INTEGER) AS quantity_prod,
                    specs_nom.kolvo AS quantity_prod_all,
-                   specs_nom_operations.status_ready
+                   specs_nom_operations.status_ready,
+                   specs_nom.status_otgruzka
             FROM dbo.tool_history_nom
             INNER JOIN dbo.specs_nom_operations ON tool_history_nom.specs_op_id = specs_nom_operations.ID
             INNER JOIN dbo.specs_nom ON specs_nom_operations.specs_nom_id = specs_nom.ID
             ${searchConditions}
-            GROUP BY specs_nom.ID, specs_nom.NAME, specs_nom.description, specs_nom_operations.status_ready
+            GROUP BY specs_nom.ID, specs_nom.NAME, specs_nom.description, specs_nom_operations.status_ready, specs_nom.status_otgruzka
             ORDER BY MIN(tool_history_nom.TIMESTAMP) DESC) AS sorted_data
       LIMIT ${limit} OFFSET ${offset};
     `
@@ -84,6 +85,7 @@ async function getToolHistory(req, res) {
         first_issue_date: row.first_issue_date,
         quantity_prod_all: row.quantity_prod_all,
         status_ready: row.status_ready,
+        status_otgruzka: row.status_otgruzka, // Добавлено отображение статуса отгрузки
       })),
     })
   } catch (err) {
