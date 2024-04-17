@@ -113,7 +113,7 @@ export default {
           sortable: false,
           width: '80px',
         },
-        { title: 'Операций', value: 'recordscount', sortable: false },
+        { title: 'Операций', value: 'records_count', sortable: false },
       ],
     }
   },

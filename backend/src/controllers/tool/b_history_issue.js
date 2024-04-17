@@ -39,10 +39,10 @@ async function getToolHistory(req, res) {
     }
 
     const countQuery = `
-      SELECT COUNT(DISTINCT specs_nom.ID)
+      SELECT COUNT(DISTINCT specs_nom.id)
       FROM dbo.tool_history_nom
-      INNER JOIN dbo.specs_nom_operations ON tool_history_nom.specs_op_id = specs_nom_operations.ID
-      INNER JOIN dbo.specs_nom ON specs_nom_operations.specs_nom_id = specs_nom.ID
+      INNER JOIN dbo.specs_nom_operations ON tool_history_nom.specs_op_id = specs_nom_operations.id
+      INNER JOIN dbo.specs_nom ON specs_nom_operations.specs_nom_id = specs_nom.id
       ${searchConditions};
     `
 
@@ -52,7 +52,7 @@ async function getToolHistory(req, res) {
                    specs_nom.NAME,
                    specs_nom.description,
                    CAST(SUM(tool_history_nom.quantity) AS INTEGER) AS quantity_tool,
-                   CAST(COUNT(*) AS INTEGER) AS recordscount,
+                   CAST(COUNT(*) AS INTEGER) AS records_count,
                    COUNT(DISTINCT specs_nom_operations.ID) AS operation_count,
                    MIN(tool_history_nom.TIMESTAMP) AS first_issue_date,
                    CAST(dbo.kolvo_prod_ready(specs_nom.ID) AS INTEGER) AS quantity_prod,
@@ -80,7 +80,7 @@ async function getToolHistory(req, res) {
         description: row.description,
         quantity_tool: parseInt(row.quantity_tool, 10),
         quantity_prod: parseInt(row.quantity_prod, 10),
-        recordscount: parseInt(row.recordscount, 10),
+        records_count: parseInt(row.records_count, 10),
         first_issue_date: row.first_issue_date,
         quantity_prod_all: row.quantity_prod_all,
         status_ready: row.status_ready,
