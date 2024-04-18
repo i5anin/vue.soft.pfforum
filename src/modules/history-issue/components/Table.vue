@@ -59,7 +59,7 @@
           class="mdi mdi-truck-check check-icon--large--green"
         />
         <span
-          v-else-if="item.status_ready_nom"
+          v-else-if="item.status_ready"
           class="mdi mdi-stop check-icon--large--yellow"
         />
       </template>
