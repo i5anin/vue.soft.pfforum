@@ -64,7 +64,7 @@
         />
       </template>
       <template v-slot:item.operation_status="{ item }">
-        {{ item.ready_count }} / {{ item.records_count }}
+        {{ item.ready_count }} / {{ item.operation_count }}
       </template>
       <template v-slot:item.quantity_prod_all="{ item }">
         {{ item.quantity_prod }} / {{ item.quantity_prod_all }}

@@ -20,10 +20,10 @@ async function getToolHistory(req, res) {
     const search = req.query.search
     const date = req.query.date // Получаем дату из запроса
 
-    let searchConditions = ''
+    let whereStatement = 'WHERE TRUE'
 
     if (search) {
-      searchConditions += ` WHERE (
+      whereStatement += ` AND (
         specs_nom.ID::text LIKE '%${search}%' OR
         UPPER(specs_nom.NAME) LIKE UPPER('%${search}%') OR
         UPPER(specs_nom.description) LIKE UPPER('%${search}%')
@@ -31,40 +31,42 @@ async function getToolHistory(req, res) {
     }
 
     if (date) {
-      if (searchConditions.length > 0) {
-        searchConditions += ` AND CAST(tool_history_nom.timestamp AS DATE) = CAST('${date}' AS DATE)`
-      } else {
-        searchConditions += ` WHERE CAST(tool_history_nom.timestamp AS DATE) = CAST('${date}' AS DATE)`
-      }
+      whereStatement += ` AND CAST(tool_history_nom.timestamp AS DATE) = CAST('${date}' AS DATE)`
     }
 
+    // Запрос на подсчет totalCount с учетом условия HAVING
     const countQuery = `
-      SELECT COUNT(DISTINCT specs_nom.id)
-      FROM dbo.tool_history_nom
-      INNER JOIN dbo.specs_nom_operations ON tool_history_nom.specs_op_id = specs_nom_operations.id
-      INNER JOIN dbo.specs_nom ON specs_nom_operations.specs_nom_id = specs_nom.id
-      ${searchConditions};
+      SELECT COUNT(*)
+      FROM (
+        SELECT specs_nom.ID
+        FROM dbo.specs_nom
+        LEFT JOIN dbo.specs_nom_operations ON specs_nom.ID = specs_nom_operations.specs_nom_id
+        LEFT JOIN dbo.tool_history_nom ON specs_nom_operations.ID = tool_history_nom.specs_op_id
+        ${whereStatement}
+        GROUP BY specs_nom.ID
+        HAVING COALESCE(SUM(tool_history_nom.quantity), 0) > 0
+      ) AS filtered_ids;
     `
 
+    // Запрос данных
     const dataQuery = `
-      SELECT *
-      FROM (SELECT specs_nom.ID AS id_part,
-                   specs_nom.NAME,
-                   specs_nom.description,
-                   CAST(SUM(tool_history_nom.quantity) AS INTEGER) AS quantity_tool,
-                   CAST(COUNT(*) AS INTEGER) AS records_count,
-                   COUNT(DISTINCT specs_nom_operations.ID) AS operation_count,
-                   MIN(tool_history_nom.TIMESTAMP) AS first_issue_date,
-                   CAST(dbo.kolvo_prod_ready(specs_nom.ID) AS INTEGER) AS quantity_prod,
-                   specs_nom.kolvo AS quantity_prod_all,
-                   specs_nom_operations.status_ready,
-                   specs_nom.status_otgruzka
-            FROM dbo.tool_history_nom
-            INNER JOIN dbo.specs_nom_operations ON tool_history_nom.specs_op_id = specs_nom_operations.ID
-            INNER JOIN dbo.specs_nom ON specs_nom_operations.specs_nom_id = specs_nom.ID
-            ${searchConditions}
-            GROUP BY specs_nom.ID, specs_nom.NAME, specs_nom.description, specs_nom_operations.status_ready, specs_nom.status_otgruzka
-            ORDER BY MIN(tool_history_nom.TIMESTAMP) DESC) AS sorted_data
+      SELECT specs_nom.ID AS id_part,
+             specs_nom.NAME,
+             specs_nom.description,
+             COALESCE(SUM(tool_history_nom.quantity), 0) AS quantity_tool,
+             COUNT(DISTINCT specs_nom_operations.ID) AS operation_count,
+             COUNT(DISTINCT specs_nom_operations.ID) FILTER (WHERE specs_nom_operations.status_ready) AS ready_count,
+             MIN(tool_history_nom.TIMESTAMP) AS first_issue_date,
+             CAST(dbo.kolvo_prod_ready(specs_nom.ID) AS INTEGER) AS quantity_prod,
+             specs_nom.kolvo AS quantity_prod_all,
+             specs_nom.status_otgruzka
+      FROM dbo.specs_nom
+             LEFT JOIN dbo.specs_nom_operations ON specs_nom.ID = specs_nom_operations.specs_nom_id
+             LEFT JOIN dbo.tool_history_nom ON specs_nom_operations.ID = tool_history_nom.specs_op_id
+        ${whereStatement}
+      GROUP BY specs_nom.ID, specs_nom.NAME, specs_nom.description, specs_nom.status_otgruzka
+      HAVING COALESCE(SUM(tool_history_nom.quantity), 0) > 0
+      ORDER BY MIN(tool_history_nom.TIMESTAMP) DESC
       LIMIT ${limit} OFFSET ${offset};
     `
 
@@ -79,13 +81,16 @@ async function getToolHistory(req, res) {
         id_part: row.id_part,
         name: row.name,
         description: row.description,
-        quantity_tool: parseInt(row.quantity_tool, 10),
-        quantity_prod: parseInt(row.quantity_prod, 10),
-        records_count: parseInt(row.records_count, 10),
-        first_issue_date: row.first_issue_date,
+        quantity_tool: row.quantity_tool,
+        operation_count: row.operation_count,
+        ready_count: row.ready_count,
+        first_issue_date: row.first_issue_date
+          ? new Date(row.first_issue_date).toISOString().substring(0, 10)
+          : null,
+        quantity_prod: row.quantity_prod,
         quantity_prod_all: row.quantity_prod_all,
-        status_ready: row.status_ready,
-        status_otgruzka: row.status_otgruzka, // Добавлено отображение статуса отгрузки
+        status_ready: row.ready_count === row.operation_count,
+        status_otgruzka: row.status_otgruzka,
       })),
     })
   } catch (err) {
