@@ -17,58 +17,57 @@ async function getToolHistory(req, res) {
     const page = parseInt(req.query.page || 1, 10)
     const limit = parseInt(req.query.limit || 15, 10)
     const offset = (page - 1) * limit
-    const search = req.query.search
-    const date = req.query.date // Получаем дату из запроса
+    const search = req.query.search || ''
+    const date = req.query.date // Optionally filter by date if provided
 
-    let searchConditions = ''
-
+    // Building the search and date filter conditions dynamically
+    let whereConditions = []
     if (search) {
-      searchConditions += ` WHERE (
-        specs_nom.ID::text LIKE '%${search}%' OR
-        UPPER(specs_nom.NAME) LIKE UPPER('%${search}%') OR
-        UPPER(specs_nom.description) LIKE UPPER('%${search}%')
-      )`
+      const searchCondition = `(sn.ID::text LIKE '%${search}%' OR UPPER(sn.NAME) LIKE UPPER('%${search}%') OR UPPER(sn.description) LIKE UPPER('%${search}%'))`
+      whereConditions.push(searchCondition)
     }
-
     if (date) {
-      if (searchConditions.length > 0) {
-        searchConditions += ` AND CAST(tool_history_nom.timestamp AS DATE) = CAST('${date}' AS DATE)`
-      } else {
-        searchConditions += ` WHERE CAST(tool_history_nom.timestamp AS DATE) = CAST('${date}' AS DATE)`
-      }
+      const dateCondition = `CAST(thn.timestamp AS DATE) = CAST('${date}' AS DATE)`
+      whereConditions.push(dateCondition)
     }
+    const whereClause =
+      whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : ''
 
     const countQuery = `
-      SELECT COUNT(DISTINCT specs_nom.id)
-      FROM dbo.tool_history_nom
-      INNER JOIN dbo.specs_nom_operations ON tool_history_nom.specs_op_id = specs_nom_operations.id
-      INNER JOIN dbo.specs_nom ON specs_nom_operations.specs_nom_id = specs_nom.id
-      ${searchConditions};
+      SELECT COUNT(DISTINCT sn.id) FROM dbo.specs_nom sn
+      INNER JOIN dbo.specs_nom_operations sno ON sn.ID = sno.specs_nom_id
+      INNER JOIN dbo.tool_history_nom thn ON sno.ID = thn.specs_op_id
+      ${whereClause};
     `
 
     const dataQuery = `
-      SELECT specs_nom.ID AS id_part,
-             specs_nom.NAME,
-             specs_nom.description,
-             CAST(SUM(tool_history_nom.quantity) AS INTEGER) AS quantity_tool,
-             CAST(COUNT(*) AS INTEGER) AS records_count,
-             COUNT(DISTINCT specs_nom_operations.ID) AS operation_count,
-             COUNT(DISTINCT specs_nom_operations.ID) FILTER (WHERE specs_nom_operations.status_ready) AS ready_count,
-             CASE WHEN COUNT(DISTINCT specs_nom_operations.ID) = COUNT(DISTINCT specs_nom_operations.ID) FILTER (WHERE specs_nom_operations.status_ready) THEN TRUE ELSE FALSE END AS status_ready_nom,
-             MIN(tool_history_nom.TIMESTAMP) AS first_issue_date,
-             CAST(dbo.kolvo_prod_ready(specs_nom.ID) AS INTEGER) AS quantity_prod,
-             specs_nom.kolvo AS quantity_prod_all,
-             specs_nom_operations.status_ready,
-             specs_nom.status_otgruzka
-      FROM dbo.tool_history_nom
-      INNER JOIN dbo.specs_nom_operations ON tool_history_nom.specs_op_id = specs_nom_operations.ID
-      INNER JOIN dbo.specs_nom ON specs_nom_operations.specs_nom_id = specs_nom.ID
-      ${searchConditions}
-      GROUP BY specs_nom.ID, specs_nom.NAME, specs_nom.description, specs_nom_operations.status_ready, specs_nom.status_otgruzka
-      ORDER BY MIN(tool_history_nom.TIMESTAMP) DESC
+      SELECT
+        sn.ID AS id_part,
+        sn.NAME,
+        sn.description,
+        COALESCE(SUM(thn.quantity), 0) AS quantity_tool,
+        COUNT(DISTINCT sno.ID) AS operation_count,
+        COUNT(DISTINCT sno.ID) FILTER (WHERE sno.status_ready) AS ready_count,
+        BOOL_AND(sno.status_ready) AS status_ready_nom,
+        MIN(thn.TIMESTAMP) AS first_issue_date,
+        CAST(dbo.kolvo_prod_ready(sn.ID) AS INTEGER) AS quantity_prod,
+        sn.kolvo AS quantity_prod_all,
+        sn.status_otgruzka
+      FROM
+        dbo.specs_nom sn
+      INNER JOIN
+        dbo.specs_nom_operations sno ON sn.ID = sno.specs_nom_id
+      INNER JOIN
+        dbo.tool_history_nom thn ON sno.ID = thn.specs_op_id
+      ${whereClause}
+      GROUP BY
+        sn.ID, sn.NAME, sn.description, sn.status_otgruzka
+      ORDER BY
+        MIN(thn.TIMESTAMP) DESC
       LIMIT ${limit} OFFSET ${offset};
     `
 
+    // Execute count and data queries
     const countResult = await pool.query(countQuery)
     const dataResult = await pool.query(dataQuery)
 
@@ -80,15 +79,14 @@ async function getToolHistory(req, res) {
         id_part: row.id_part,
         name: row.name,
         description: row.description,
-        quantity_tool: parseInt(row.quantity_tool, 10),
-        records_count: parseInt(row.records_count, 10),
+        quantity_tool: row.quantity_tool,
         operation_count: row.operation_count,
         ready_count: row.ready_count,
         status_ready_nom: row.status_ready_nom,
         first_issue_date: row.first_issue_date,
-        quantity_prod: parseInt(row.quantity_prod, 10),
+        quantity_prod: row.quantity_prod,
         quantity_prod_all: row.quantity_prod_all,
-        status_ready: row.status_ready,
+        status_ready: row.status_ready_nom,
         status_otgruzka: row.status_otgruzka,
       })),
     })
