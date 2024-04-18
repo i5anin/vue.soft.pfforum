@@ -57,10 +57,19 @@
         <span
           v-if="item.status_otgruzka"
           class="mdi mdi-truck-check check-icon--large--green"
+          title="Отгружено"
+        />
+        <span
+          v-else-if="
+            item.quantity_prod >= item.quantity_prod_all && item.status_ready
+          "
+          class="mdi mdi-check check-icon--large--green"
+          title="Произведено достаточно"
         />
         <span
           v-else-if="item.status_ready"
           class="mdi mdi-stop check-icon--large--yellow"
+          title="Не в производстве"
         />
       </template>
       <template v-slot:item.operation_status="{ item }">
@@ -68,6 +77,7 @@
       </template>
       <template v-slot:item.quantity_prod_all="{ item }">
         {{ item.quantity_prod }} / {{ item.quantity_prod_all }}
+        <!--({{((item.quantity_prod / item.quantity_prod_all) * 100).toFixed(2)}}%)-->
       </template>
     </v-data-table-server>
   </v-container>
@@ -155,7 +165,7 @@ export default {
       const baseDate = new Date()
       baseDate.setHours(0, 0, 0, 0) // Установка времени на начало дня (полночь), чтобы избежать проблем с временными зонами
 
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 30; i++) {
         const date = new Date(baseDate)
         date.setDate(baseDate.getDate() - i) // Вычитаем дни для создания истории дат
         // Подготовка даты с учетом смещения временной зоны на +3 часа (переводим в UTC)
