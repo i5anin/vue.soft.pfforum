@@ -20,9 +20,8 @@ async function getToolHistory(req, res) {
     const search = req.query.search
     const date = req.query.date // Получаем дату из запроса
 
-    let whereStatement = 'WHERE TRUE' // Общее условие, всегда истинно
+    let whereStatement = 'WHERE TRUE'
 
-    // Добавляем фильтры поиска и даты, если они есть
     if (search) {
       whereStatement += ` AND (
         specs_nom.ID::text LIKE '%${search}%' OR
@@ -30,26 +29,23 @@ async function getToolHistory(req, res) {
         UPPER(specs_nom.description) LIKE UPPER('%${search}%')
       )`
     }
+
     if (date) {
       whereStatement += ` AND CAST(tool_history_nom.timestamp AS DATE) = CAST('${date}' AS DATE)`
     }
 
-    // Добавляем фильтр по cnc_name
-    whereStatement +=
-      " AND specs_nom_operations.cnc_name IN ('T', 'tf', 'f', 'f4', 'fg', 'dmc', 'hision')"
-
-    // Запрос для подсчета общего количества записей с учетом фильтра HAVING
+    // Запрос на подсчет totalCount с учетом условия HAVING
     const countQuery = `
       SELECT COUNT(*)
       FROM (
-             SELECT specs_nom.ID
-             FROM dbo.specs_nom
-                    LEFT JOIN dbo.specs_nom_operations ON specs_nom.ID = specs_nom_operations.specs_nom_id
-                    LEFT JOIN dbo.tool_history_nom ON specs_nom_operations.ID = tool_history_nom.specs_op_id
-               ${whereStatement}
-             GROUP BY specs_nom.ID
-             HAVING COALESCE(SUM(tool_history_nom.quantity), 0) > 0
-           ) AS filtered_ids;
+        SELECT specs_nom.ID
+        FROM dbo.specs_nom
+        LEFT JOIN dbo.specs_nom_operations ON specs_nom.ID = specs_nom_operations.specs_nom_id
+        LEFT JOIN dbo.tool_history_nom ON specs_nom_operations.ID = tool_history_nom.specs_op_id
+        ${whereStatement}
+        GROUP BY specs_nom.ID
+        HAVING COALESCE(SUM(tool_history_nom.quantity), 0) > 0
+      ) AS filtered_ids;
     `
 
     // Запрос данных
@@ -65,7 +61,7 @@ async function getToolHistory(req, res) {
              specs_nom.kolvo AS quantity_prod_all,
              specs_nom.status_otgruzka
       FROM dbo.specs_nom
-             LEFT JOIN dbo.specs_nom_operations ON specs_nom.ID = specs_nom_operations.specs_nom_id
+             INNER JOIN dbo.specs_nom_operations ON specs_nom.ID = specs_nom_operations.specs_nom_id
              LEFT JOIN dbo.tool_history_nom ON specs_nom_operations.ID = tool_history_nom.specs_op_id
         ${whereStatement}
       GROUP BY specs_nom.ID, specs_nom.NAME, specs_nom.description, specs_nom.status_otgruzka
