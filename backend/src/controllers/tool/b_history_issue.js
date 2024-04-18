@@ -18,7 +18,7 @@ async function getToolHistory(req, res) {
     const limit = parseInt(req.query.limit || 15, 10)
     const offset = (page - 1) * limit
     const search = req.query.search
-    const date = req.query.date // Получаем дату из запроса
+    const date = req.query.date
 
     let whereStatement = 'WHERE TRUE'
 
@@ -34,7 +34,6 @@ async function getToolHistory(req, res) {
       whereStatement += ` AND CAST(tool_history_nom.timestamp AS DATE) = CAST('${date}' AS DATE)`
     }
 
-    // Запрос на подсчет totalCount с учетом условия HAVING
     const countQuery = `
       SELECT COUNT(*)
       FROM (
@@ -48,7 +47,6 @@ async function getToolHistory(req, res) {
       ) AS filtered_ids;
     `
 
-    // Запрос данных
     const dataQuery = `
       SELECT specs_nom.ID AS id_part,
              specs_nom.NAME,
@@ -61,11 +59,10 @@ async function getToolHistory(req, res) {
              specs_nom.kolvo AS quantity_prod_all,
              specs_nom.status_otgruzka
       FROM dbo.specs_nom
-             LEFT JOIN dbo.specs_nom_operations ON specs_nom.ID = specs_nom_operations.specs_nom_id
-             LEFT JOIN dbo.tool_history_nom ON specs_nom_operations.ID = tool_history_nom.specs_op_id
-        ${whereStatement}
+      LEFT JOIN dbo.specs_nom_operations ON specs_nom.ID = specs_nom_operations.specs_nom_id
+      LEFT JOIN dbo.tool_history_nom ON specs_nom_operations.ID = tool_history_nom.specs_op_id
+      ${whereStatement}
       GROUP BY specs_nom.ID, specs_nom.NAME, specs_nom.description, specs_nom.status_otgruzka
-      HAVING COALESCE(SUM(tool_history_nom.quantity), 0) > 0
       ORDER BY MIN(tool_history_nom.TIMESTAMP) DESC
       LIMIT ${limit} OFFSET ${offset};
     `
@@ -89,8 +86,8 @@ async function getToolHistory(req, res) {
           : null,
         quantity_prod: row.quantity_prod,
         quantity_prod_all: row.quantity_prod_all,
-        status_ready: row.ready_count === row.operation_count,
-        status_otgruzka: row.status_otgruzka,
+        status_ready: row.ready_count === row.operation_count, // Устанавливаем статус готовности
+        status_otgruzka: row.status_otgruzka, // Уже задается в SQL, проверяем на true/false в JavaScript
       })),
     })
   } catch (err) {
