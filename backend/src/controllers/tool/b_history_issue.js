@@ -47,25 +47,24 @@ async function getToolHistory(req, res) {
     `
 
     const dataQuery = `
-      SELECT specs_nom.ID AS id_part,
-             specs_nom.NAME,
-             specs_nom.description,
-             CAST(SUM(tool_history_nom.quantity) AS INTEGER) AS quantity_tool,
-             CAST(COUNT(*) AS INTEGER) AS records_count,
-             COUNT(DISTINCT specs_nom_operations.ID) AS operation_count,
-             COUNT(DISTINCT specs_nom_operations.ID) FILTER (WHERE specs_nom_operations.status_ready) AS ready_count,
-             CASE WHEN COUNT(DISTINCT specs_nom_operations.ID) = COUNT(DISTINCT specs_nom_operations.ID) FILTER (WHERE specs_nom_operations.status_ready) THEN TRUE ELSE FALSE END AS status_ready_nom,
-             MIN(tool_history_nom.TIMESTAMP) AS first_issue_date,
-             CAST(dbo.kolvo_prod_ready(specs_nom.ID) AS INTEGER) AS quantity_prod,
-             specs_nom.kolvo AS quantity_prod_all,
-             specs_nom_operations.status_ready,
-             specs_nom.status_otgruzka
-      FROM dbo.tool_history_nom
-      INNER JOIN dbo.specs_nom_operations ON tool_history_nom.specs_op_id = specs_nom_operations.ID
-      INNER JOIN dbo.specs_nom ON specs_nom_operations.specs_nom_id = specs_nom.ID
-      ${searchConditions}
-      GROUP BY specs_nom.ID, specs_nom.NAME, specs_nom.description, specs_nom_operations.status_ready, specs_nom.status_otgruzka
-      ORDER BY MIN(tool_history_nom.TIMESTAMP) DESC
+      SELECT *
+      FROM (SELECT specs_nom.ID AS id_part,
+                   specs_nom.NAME,
+                   specs_nom.description,
+                   CAST(SUM(tool_history_nom.quantity) AS INTEGER) AS quantity_tool,
+                   CAST(COUNT(*) AS INTEGER) AS records_count,
+                   COUNT(DISTINCT specs_nom_operations.ID) AS operation_count,
+                   MIN(tool_history_nom.TIMESTAMP) AS first_issue_date,
+                   CAST(dbo.kolvo_prod_ready(specs_nom.ID) AS INTEGER) AS quantity_prod,
+                   specs_nom.kolvo AS quantity_prod_all,
+                   specs_nom_operations.status_ready,
+                   specs_nom.status_otgruzka
+            FROM dbo.tool_history_nom
+            INNER JOIN dbo.specs_nom_operations ON tool_history_nom.specs_op_id = specs_nom_operations.ID
+            INNER JOIN dbo.specs_nom ON specs_nom_operations.specs_nom_id = specs_nom.ID
+            ${searchConditions}
+            GROUP BY specs_nom.ID, specs_nom.NAME, specs_nom.description, specs_nom_operations.status_ready, specs_nom.status_otgruzka
+            ORDER BY MIN(tool_history_nom.TIMESTAMP) DESC) AS sorted_data
       LIMIT ${limit} OFFSET ${offset};
     `
 
@@ -81,15 +80,12 @@ async function getToolHistory(req, res) {
         name: row.name,
         description: row.description,
         quantity_tool: parseInt(row.quantity_tool, 10),
-        records_count: parseInt(row.records_count, 10),
-        operation_count: row.operation_count,
-        ready_count: row.ready_count,
-        status_ready_nom: row.status_ready_nom,
-        first_issue_date: row.first_issue_date,
         quantity_prod: parseInt(row.quantity_prod, 10),
+        records_count: parseInt(row.records_count, 10),
+        first_issue_date: row.first_issue_date,
         quantity_prod_all: row.quantity_prod_all,
         status_ready: row.status_ready,
-        status_otgruzka: row.status_otgruzka,
+        status_otgruzka: row.status_otgruzka, // Добавлено отображение статуса отгрузки
       })),
     })
   } catch (err) {
