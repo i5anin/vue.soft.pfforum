@@ -59,9 +59,15 @@
           class="mdi mdi-truck-check check-icon--large--green"
         />
         <span
-          v-else-if="item.status_ready"
+          v-else-if="item.status_ready_nom"
           class="mdi mdi-stop check-icon--large--yellow"
         />
+      </template>
+      <template v-slot:item.operation_status="{ item }">
+        {{ item.ready_count }} / {{ item.ready_count }}
+      </template>
+      <template v-slot:item.quantity_prod_all="{ item }">
+        {{ item.quantity_prod }} / {{ item.quantity_prod_all }}
       </template>
     </v-data-table-server>
   </v-container>
@@ -105,17 +111,22 @@ export default {
           sortable: false,
           width: '80px',
         },
+        // {
+        //   title: 'Произведено продукции',
+        //   value: 'quantity_prod',
+        //   sortable: false,
+        //   width: '80px',
+        // },
         {
-          title: 'Произведено продукции',
-          value: 'quantity_prod',
+          title: 'Готовность операций',
+          value: 'operation_status',
           sortable: false,
-          width: '80px',
-        },
+        }, // Новый столбец
         {
-          title: 'План',
+          title: 'Произведено / План',
           value: 'quantity_prod_all',
           sortable: false,
-          width: '80px',
+          width: '180px',
         },
         { title: 'Операций', value: 'records_count', sortable: false },
       ],
