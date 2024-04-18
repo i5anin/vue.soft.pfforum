@@ -55,9 +55,13 @@
     >
       <template v-slot:item.check="{ item }">
         <span
-          v-if="item.status_ready == true"
-          class="mdi mdi-check check-icon--large"
-        ></span>
+          v-if="item.status_otgruzka"
+          class="mdi mdi-truck-check check-icon--large--green"
+        />
+        <span
+          v-else-if="item.status_ready"
+          class="mdi mdi-stop check-icon--large--yellow"
+        />
       </template>
     </v-data-table-server>
   </v-container>
@@ -238,8 +242,13 @@ export default {
   color: green;
 }
 
-.check-icon--large {
+.check-icon--large--yellow {
+  font-size: 16px; /* или любой другой размер, который вам нужен */
+  color: #cfcf00; /* Пример изменения цвета */
+}
+
+.check-icon--large--green {
   font-size: 24px; /* или любой другой размер, который вам нужен */
-  color: green; /* Пример изменения цвета */
+  color: #009500; /* Пример изменения цвета */
 }
 </style>
