@@ -17,33 +17,6 @@
             />
           </v-col>
         </v-row>
-        <v-row v-if="info">
-          <v-col>
-            <h3 class="pl-6">Все операции:</h3>
-            <v-chip-group row class="pl-6">
-              <v-chip
-                v-for="operation in availableOperations"
-                :key="operation"
-                class="ma-2"
-              >
-                {{ operation }}
-              </v-chip>
-            </v-chip-group>
-          </v-col>
-          <v-col>
-            <h3 class="pl-6">Завершенные операции:</h3>
-            <v-chip-group row class="pl-6">
-              <v-chip
-                v-for="completedOperation in completedOperations"
-                :key="completedOperation"
-                color="green"
-                class="ma-2"
-              >
-                {{ completedOperation }}
-              </v-chip>
-            </v-chip-group>
-          </v-col>
-        </v-row>
       </div>
       <v-table hover class="elevation-1">
         <thead>
@@ -223,42 +196,24 @@ export default {
     },
     async fetchHistoryData() {
       try {
-        const [detailedHistoryResponse, partInfoResponse] = await Promise.all([
-          issueHistoryApi.fetchHistoryByPartId(
-            this.id_part,
-            this.selected_date
-          ),
-          issueHistoryApi.fetchHistoryByPartIdInfo(this.id_part),
-        ])
-
-        // Validate and set the detailed history data
-        if (detailedHistoryResponse && detailedHistoryResponse.data) {
-          this.originalData = detailedHistoryResponse.data
-          this.filterData() // Ensure this function is safely handling data.
+        const response = await issueHistoryApi.fetchHistoryByPartId(
+          this.id_part,
+          this.selected_date
+        )
+        if (response && typeof response === 'object') {
+          this.info = response.info
+          this.originalData = response
+          this.availableOperations = Object.keys(this.originalData).filter(
+            (key) => key !== 'info'
+          )
+          this.filterData()
         } else {
-          console.log('No detailed history data found')
-          this.originalData = []
-        }
-
-        // Validate and set the part info data
-        if (
-          partInfoResponse &&
-          partInfoResponse.data &&
-          partInfoResponse.data.info
-        ) {
-          this.info = partInfoResponse.data.info
-          this.availableOperations = this.info.operations || []
-          this.completedOperations = this.info.completed_operations || []
-        } else {
-          console.error('No part info data found')
-          this.info = null // Ensure info is null if no data is found
+          console.log('No history data found')
+          this.filteredData = []
+          this.availableOperations = ['all']
         }
       } catch (error) {
         console.error('Error fetching history data:', error)
-        this.info = null
-        this.originalData = []
-        this.availableOperations = []
-        this.completedOperations = []
       }
     },
   },
