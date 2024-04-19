@@ -34,23 +34,24 @@ async function getToolHistory(req, res) {
       whereStatement += ` AND (CAST(tool_history_nom.timestamp AS DATE) = CAST('${date}' AS DATE))`
     }
 
-    // Добавлено условие в WHERE
-    whereStatement += ` AND (T OR tf OR f OR f4 OR fg OR dmc OR hision)`
+    whereStatement += ` AND (T OR tf OR f OR f4 OR fg OR dmc OR hision)` // Фильтры категории
 
     // Запрос на подсчет totalCount с учетом условия HAVING
     const countQuery = `
       SELECT COUNT(*)
       FROM (
-             SELECT specs_nom.ID
-             FROM dbo.specs_nom
-                    INNER JOIN dbo.specs_nom_operations ON specs_nom.ID = specs_nom_operations.specs_nom_id
-                    INNER JOIN dbo.operations_ordersnom ON operations_ordersnom.op_id = specs_nom_operations.ordersnom_id
-                    LEFT JOIN dbo.tool_history_nom ON specs_nom_operations.ID = tool_history_nom.specs_op_id
-               ${whereStatement}
-             GROUP BY specs_nom.ID
-             HAVING COALESCE(SUM(tool_history_nom.quantity), 0) > 0
-           ) AS filtered_ids;
+        SELECT specs_nom.ID
+        FROM dbo.specs_nom
+               INNER JOIN dbo.specs_nom_operations ON specs_nom.ID = specs_nom_operations.specs_nom_id
+               INNER JOIN dbo.operations_ordersnom ON operations_ordersnom.op_id = specs_nom_operations.ordersnom_op_id
+               LEFT JOIN dbo.tool_history_nom ON specs_nom_operations.ID = tool_history_nom.specs_op_id
+          ${whereStatement}
+        GROUP BY specs_nom.ID
+        HAVING COALESCE(SUM(tool_history_nom.quantity), 0) > 0 AND BOOL_OR(tool_history_nom.archive = 't') = false
+      ) AS filtered_ids;
     `
+
+    const countResult = await pool.query(countQuery)
 
     // Запрос данных
     const dataQuery = `
@@ -63,7 +64,10 @@ async function getToolHistory(req, res) {
              MIN(tool_history_nom.TIMESTAMP) AS first_issue_date,
              CAST(dbo.kolvo_prod_ready(specs_nom.ID) AS INTEGER) AS quantity_prod,
              specs_nom.kolvo AS quantity_prod_all,
-             specs_nom.status_otgruzka
+             specs_nom.status_otgruzka,
+             CASE WHEN BOOL_OR(tool_history_nom.archive = 't') THEN 't'
+                  ELSE 'f'
+             END AS archive_status
       FROM dbo.specs_nom
              INNER JOIN dbo.specs_nom_operations ON specs_nom.ID = specs_nom_operations.specs_nom_id
              INNER JOIN dbo.operations_ordersnom ON operations_ordersnom.op_id = specs_nom_operations.ordersnom_op_id
@@ -75,7 +79,6 @@ async function getToolHistory(req, res) {
       LIMIT ${limit} OFFSET ${offset};
     `
 
-    const countResult = await pool.query(countQuery)
     const dataResult = await pool.query(dataQuery)
 
     res.json({
@@ -96,6 +99,7 @@ async function getToolHistory(req, res) {
         quantity_prod_all: row.quantity_prod_all,
         status_ready: row.ready_count === row.operation_count,
         status_otgruzka: row.status_otgruzka,
+        archive_status: row.archive_status,
       })),
     })
   } catch (err) {
