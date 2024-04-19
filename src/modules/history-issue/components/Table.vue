@@ -64,7 +64,7 @@
             item.quantity_prod >= item.quantity_prod_all && item.status_ready
           "
           class="mdi mdi-check check-icon--large--green"
-          title="Произведено достаточно"
+          title="Произведено"
         />
         <span
           v-else-if="item.status_ready"
@@ -138,7 +138,7 @@ export default {
           sortable: false,
           width: '180px',
         },
-        { title: 'Операций', value: 'records_count', sortable: false },
+        // { title: 'Операций', value: 'records_count', sortable: false },
       ],
     }
   },
@@ -152,7 +152,7 @@ export default {
   },
   created() {
     this.dateOptions = this.generateDateOptions()
-    console.log(this.dateOptions)
+    // console.log(this.dateOptions)
     console.log(JSON.parse(JSON.stringify(this.dateOptions)))
     this.debouncedFetchAndFormatToolHistory = this.debounce(
       this.fetchAndFormatToolHistory,
@@ -223,7 +223,7 @@ export default {
     },
     async fetchAndFormatToolHistory() {
       this.isLoading = true
-      console.log('Current date being sent:', this.selectedDate) // Updated to use selectedDate
+      // console.log('Current date being sent:', this.selectedDate) // Updated to use selectedDate
       try {
         const response = await issueHistoryApi.fetchToolHistory(
           this.searchQuery,

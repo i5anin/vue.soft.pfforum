@@ -203,7 +203,8 @@ async function getToolHistoryByPartId(req, res) {
              thn.cancelled,
              thn.issuer_id,
              vu.login                                            AS issuer_fio,
-             vu2.login                                           AS canceller_login  -- Added canceller's login
+             vu2.login                                           AS canceller_login,  -- Added canceller's login
+             sno.status_ready                                    AS operation_ready  -- Added operation readiness status
       FROM dbo.tool_history_nom thn
              LEFT JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
              LEFT JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
@@ -274,6 +275,7 @@ async function getToolHistoryByPartId(req, res) {
         issuer_fio: row.issuer_fio,
         issuer_id: row.issuer_id,
         canceller_login: row.canceller_login, // Displaying canceller's login
+        operation_ready: row.operation_ready, // Adding operation readiness status
       })
 
       if (!info) {
