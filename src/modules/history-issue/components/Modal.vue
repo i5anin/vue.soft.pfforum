@@ -8,35 +8,15 @@
               {{ info.name }} - {{ info.description }}
             </v-text>
             <v-col cols="12" class="my-2">
-              <div class="mb-2">
-                Готово:
-                <v-chip
-                  v-for="item in completedOperations"
-                  :key="item + 'completed'"
-                  color="green"
-                  class="ma-2"
-                >
-                  {{ item }}
-                </v-chip>
-              </div>
-              <div>
-                Всего:
-                <v-chip
-                  v-for="item in operations"
-                  :key="item"
-                  color="blue"
-                  class="ma-2"
-                >
-                  {{ item }}
-                </v-chip>
-              </div>
               <div>
                 Прогресс:
-
                 <v-chip
                   v-for="item in operations"
                   :key="item + 'progress'"
-                  color="completedOperations.includes(item) ? 'green' : 'grey'"
+                  :color="completedOperations.includes(item) ? 'green' : 'grey'"
+                  :variant="
+                    completedOperations.includes(item) ? 'elevated' : 'text'
+                  "
                   class="ma-2"
                   outlined
                 >
