@@ -3,9 +3,49 @@
     <template #content>
       <div style="padding-left: 16px">
         <v-row>
-          <h2 v-if="this.info" style="padding-left: 25px">
-            {{ this?.info.name }} {{ this?.info.description }}
-          </h2>
+          <div>
+            <v-text class="text-h5 ml-3 py-4">
+              {{ info.name }} - {{ info.description }}
+            </v-text>
+            <v-col cols="12" class="my-2">
+              <div class="mb-2">
+                Готово:
+                <v-chip
+                  v-for="item in completedOperations"
+                  :key="item + 'completed'"
+                  color="green"
+                  class="ma-2"
+                >
+                  {{ item }}
+                </v-chip>
+              </div>
+              <div>
+                Всего:
+                <v-chip
+                  v-for="item in operations"
+                  :key="item"
+                  color="blue"
+                  class="ma-2"
+                >
+                  {{ item }}
+                </v-chip>
+              </div>
+              <div>
+                Прогресс:
+
+                <v-chip
+                  v-for="item in operations"
+                  :key="item + 'progress'"
+                  color="completedOperations.includes(item) ? 'green' : 'grey'"
+                  class="ma-2"
+                  outlined
+                >
+                  {{ item }}
+                </v-chip>
+              </div>
+            </v-col>
+          </div>
+
           <v-spacer />
           <v-col cols="12" md="3">
             <v-select
@@ -95,6 +135,8 @@ export default {
   },
   data() {
     return {
+      operations: [],
+      completedOperations: [],
       info: null,
       originalData: [],
       selectedOperation: 'all',
@@ -200,6 +242,13 @@ export default {
           this.id_part,
           this.selected_date
         )
+        const partInfoResponse = await issueHistoryApi.fetchHistoryByPartIdInfo(
+          this.id_part
+        )
+
+        this.operations = partInfoResponse.info.operations
+        this.completedOperations = partInfoResponse.info.completed_operations
+
         if (response && typeof response === 'object') {
           this.info = response.info
           this.originalData = response
