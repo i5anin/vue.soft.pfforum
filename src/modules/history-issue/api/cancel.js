@@ -23,9 +23,7 @@ export const issueHistoryApi = {
     parentId = null
   ) => {
     const params = { search, page, limit, includeNull }
-    if (parentId !== null) {
-      params.parent_id = parentId
-    }
+    if (parentId !== null) params.parent_id = parentId
 
     return axiosInstance
       .get('/history', { params })
