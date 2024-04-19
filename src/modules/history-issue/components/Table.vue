@@ -153,7 +153,7 @@ export default {
   created() {
     this.dateOptions = this.generateDateOptions()
     // console.log(this.dateOptions)
-    console.log(JSON.parse(JSON.stringify(this.dateOptions)))
+    // console.log(JSON.parse(JSON.stringify(this.dateOptions)))
     this.debouncedFetchAndFormatToolHistory = this.debounce(
       this.fetchAndFormatToolHistory,
       500
