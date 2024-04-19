@@ -60,7 +60,7 @@
         <span
           v-if="item.status_otgruzka && item.ready_count < item.operation_count"
           class="mdi mdi-help check-icon--large--red"
-          title="Отгружено не все операции завершены"
+          title="Отгружено, не все операции завершены, не в производстве"
         />
         <span
           v-else-if="item.status_otgruzka"
@@ -78,6 +78,11 @@
           v-else-if="item.status_ready"
           class="mdi mdi-stop check-icon--large--yellow"
           title="Не в производстве"
+        />
+        <span
+          v-else-if="item.archive"
+          class="mdi mdi-archive-check-outline"
+          title="В архиве"
         />
       </template>
       <template v-slot:item.operation_status="{ item }">
@@ -136,7 +141,7 @@ export default {
         //   width: '80px',
         // },
         {
-          title: 'Готовность операций мех.',
+          title: 'Готовность операций',
           value: 'operation_status',
           sortable: false,
         }, // Новый столбец
