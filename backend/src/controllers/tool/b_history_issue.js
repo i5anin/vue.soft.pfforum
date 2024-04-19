@@ -30,9 +30,8 @@ async function getToolHistory(req, res) {
       )`
     }
 
-    if (date) {
+    if (date)
       whereStatement += ` AND (CAST(tool_history_nom.timestamp AS DATE) = CAST('${date}' AS DATE))`
-    }
 
     // Добавлено условие в WHERE
     whereStatement += ` AND (T OR tf OR f OR f4 OR fg OR dmc OR hision)`
