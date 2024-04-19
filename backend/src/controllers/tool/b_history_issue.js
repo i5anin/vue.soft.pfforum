@@ -75,8 +75,6 @@ async function getToolHistory(req, res) {
       LIMIT ${limit} OFFSET ${offset};
     `
 
-    console.log(dataQuery)
-
     const countResult = await pool.query(countQuery)
     const dataResult = await pool.query(dataQuery)
 

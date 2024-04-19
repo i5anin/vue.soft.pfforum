@@ -30,7 +30,7 @@ async function getToolHistoryByPartIdInfo(req, res) {
       LEFT JOIN dbo.specs_nom_operations sno ON sn.id = sno.specs_nom_id
       LEFT JOIN dbo.operations_ordersnom oon ON sno.ordersnom_op_id = oon.op_id
       LEFT JOIN dbo.tool_history_nom thn ON sno.id = thn.specs_op_id AND thn.timestamp >= $2::date AND thn.timestamp < $2::date + interval '1 day'
-      WHERE sn.ID = $1
+      WHERE sn.ID = $1  AND (T OR tf OR f OR f4 OR fg OR dmc OR hision)
       ORDER BY oon.no;
     `
 

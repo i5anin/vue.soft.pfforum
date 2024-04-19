@@ -54,8 +54,16 @@
       width="true"
     >
       <template v-slot:item.check="{ item }">
+        <!--        {{ item.ready_count }} / {{ item.operation_count }} |-->
+        <!--        {{ item.quantity_prod }} {{ item.quantity_prod_all }} |-->
+        <!--        {{ item.status_otgruzka }}-->
         <span
-          v-if="item.status_otgruzka"
+          v-if="item.status_otgruzka && item.ready_count < item.operation_count"
+          class="mdi mdi-help check-icon--large--red"
+          title="Отгружено не все операции завершены"
+        />
+        <span
+          v-else-if="item.status_otgruzka"
           class="mdi mdi-truck-check check-icon--large--green"
           title="Отгружено"
         />
@@ -128,7 +136,7 @@ export default {
         //   width: '80px',
         // },
         {
-          title: 'Готовность операций',
+          title: 'Готовность операций мех.',
           value: 'operation_status',
           sortable: false,
         }, // Новый столбец
@@ -271,5 +279,10 @@ export default {
 .check-icon--large--green {
   font-size: 24px; /* или любой другой размер, который вам нужен */
   color: #009500; /* Пример изменения цвета */
+}
+
+.check-icon--large--red {
+  font-size: 24px; /* или любой другой размер, который вам нужен */
+  color: #950000; /* Пример изменения цвета */
 }
 </style>
