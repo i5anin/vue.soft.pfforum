@@ -21,7 +21,6 @@
       <v-table hover class="elevation-1">
         <thead>
           <tr>
-            <th v-if="selectedOperation !== 'all'"></th>
             <th>#</th>
             <th
               v-for="header in currentHeaders"
@@ -38,11 +37,6 @@
             :key="item.id"
             :class="{ 'bg-blue-darken-2': item.type === 'sum' }"
           >
-            <td v-if="selectedOperation !== 'all'">
-              <template v-if="item.operation_ready">
-                <v-icon color="green">mdi-check</v-icon>
-              </template>
-            </td>
             <td class="grey">{{ index + 1 }}</td>
             <td v-for="header in currentHeaders" :key="header.value">
               <template v-if="header.value === 'cancelled'">
