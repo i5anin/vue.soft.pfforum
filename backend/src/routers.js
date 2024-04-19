@@ -6,7 +6,10 @@ const nomController = require('./controllers/tool/main/b_nom')
 const paramController = require('./controllers/tool/main/b_param')
 const treeController = require('./controllers/tool/main/b_tree')
 const skladController = require('./controllers/tool/b_sklad')
+
 const historyController = require('./controllers/tool/b_history_issue')
+const historyControllerModal = require('./controllers/tool/b_history_issue_modal')
+
 const damagedController = require('./controllers/tool/b_history_damaged')
 const issueController = require('./controllers/tool/b_issue')
 
@@ -65,8 +68,12 @@ router.get('/cnc', issueController.getCncData)
 // history
 router.get('/history/:id', historyController.getToolHistoryId)
 router.get('/history', historyController.getToolHistory)
-router.get('/history-part', historyController.getToolHistoryByPartId)
-router.get('/history-part-old', historyController.getToolHistoryByPartOld)
+
+router.get('/history-part', historyControllerModal.getToolHistoryByPartId)
+router.get(
+  '/history-part/info',
+  historyControllerModal.getToolHistoryByPartIdInfo
+)
 
 // damaged
 router.get('/damaged-history', damagedController.getDamaged)

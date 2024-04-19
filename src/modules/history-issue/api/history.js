@@ -16,6 +16,14 @@ export const issueHistoryApi = {
       .then(handleResponse)
       .catch(handleApiError),
 
+  fetchHistoryByPartIdInfo: async (partId, selectedDate) =>
+    axiosInstance
+      .get(`/history-part/info`, {
+        params: { id_part: partId, selectedDate: selectedDate },
+      })
+      .then(handleResponse)
+      .catch(handleApiError),
+
   // Обновленная функция для получения истории инструмента с учетом даты
   fetchToolHistory: async (
     search = '',
