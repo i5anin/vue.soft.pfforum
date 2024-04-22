@@ -4,7 +4,7 @@
       <div style="padding-left: 16px">
         <v-row>
           <div>
-            <v-text v-if="info" class="text-h5 ml-3 py-4">
+            <v-text class="text-h5 ml-3 py-4">
               {{ info.name }} - {{ info.description }}
             </v-text>
             <v-col cols="12" class="my-2">
@@ -35,17 +35,6 @@
               @update:model-value="filterData"
               solo
             />
-          </v-col>
-          <v-col cols="12" md="3">
-            <v-text-field
-              label="Количество для отмены"
-              v-model="cancelQuantity"
-              type="number"
-              min="1"
-              :max="selectedOperationQuantity"
-              solo
-            />
-            <!--todo: selectedOperationQuantity  предполагается, что вы каким-то образом знаете максимальное количество-->
           </v-col>
         </v-row>
       </div>
@@ -126,8 +115,6 @@ export default {
   },
   data() {
     return {
-      cancelQuantity: 1,
-      selectedOperationQuantity: 100,
       operations: [],
       completedOperations: [],
       info: null,
@@ -179,25 +166,7 @@ export default {
         alert('Internal error: The operation ID is invalid.')
         return
       }
-
-      // Проверяем, что количество для отмены валидно
-      if (
-        !this.cancelQuantity ||
-        this.cancelQuantity <= 0 ||
-        this.cancelQuantity > this.selectedOperationQuantity
-      ) {
-        alert('Некорректное количество для отмены.')
-        return
-      }
-
-      // Подтверждение действия пользователем
-      if (
-        !confirm(
-          `Вы уверены, что хотите отменить ${this.cancelQuantity} из этой операции?`
-        )
-      ) {
-        return
-      }
+      if (!confirm('Вы уверены, что хотите отменить эту операцию?')) return
 
       const token = localStorage.getItem('token')
       if (!token) {
@@ -209,16 +178,14 @@ export default {
       try {
         const response = await issueHistoryApi.cancelOperation(
           operationId,
-          token,
-          this.cancelQuantity // Передаём количество для отмены в API вызов
+          token
         )
-
         if (response.success) {
-          // Обновляем данные в интерфейсе
+          // Update the item directly if using Vue 3's reactive system
           const item = this.filteredData.find((x) => x.id === operationId)
           if (item) {
             item.cancelled = true
-            item.canceller_login = response.canceller_login // Предполагается, что ответ включает логин отменившего
+            item.canceller_login = response.canceller_login // Assuming response includes the canceller's login
           }
           alert('Операция успешно отменена')
           this.$emit('operation-cancelled', operationId)
