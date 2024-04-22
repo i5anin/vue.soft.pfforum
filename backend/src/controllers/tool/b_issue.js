@@ -299,7 +299,7 @@ async function cancelOperationAdmin(req, res) {
 
 async function cancelOperation(req, res) {
   const { id } = req.params // The operation ID
-  const { issueToken } = req.body // Token passed in the request body
+  const { issueToken, cancelQuantity } = req.body // Token and quantity to cancel passed in the request body
 
   if (!id) {
     return res
@@ -311,7 +311,11 @@ async function cancelOperation(req, res) {
     return res.status(401).send('Authentication token is required.')
   }
 
-  // Token validation logic - simplistic check
+  if (!cancelQuantity || cancelQuantity <= 0) {
+    return res.status(400).send('Укажите корректное количество для отмены.')
+  }
+
+  // Token validation logic
   const userValidationQuery = 'SELECT id FROM dbo.vue_users WHERE token = $1'
   const userResult = await pool.query(userValidationQuery, [issueToken])
 
@@ -321,7 +325,9 @@ async function cancelOperation(req, res) {
 
   const issuerId = userResult.rows[0].id
 
-  console.log(`Cancel operation requested by User ID: ${issuerId}`)
+  console.log(
+    `Cancel operation requested by User ID: ${issuerId} for ${cancelQuantity} items`
+  )
 
   try {
     await pool.query('BEGIN')
@@ -340,7 +346,12 @@ async function cancelOperation(req, res) {
       return res.status(400).send('Операция уже была отменена')
     }
 
-    // Checking if the cancellation request is within 3 days of the operation's timestamp
+    if (cancelQuantity > operation.rows[0].quantity) {
+      await pool.query('ROLLBACK')
+      return res.status(400).send('Количество для отмены превышает доступное.')
+    }
+
+    // Check if the cancellation request is within 3 days of the operation's timestamp
     const currentDate = new Date()
     const operationDate = new Date(operation.rows[0].timestamp)
     const differenceInDays = Math.floor(
@@ -356,14 +367,14 @@ async function cancelOperation(req, res) {
         )
     }
 
-    // Update the history to mark the operation as cancelled and set the canceller
-    const updateOperationQuery = `UPDATE dbo.tool_history_nom SET cancelled = true, cancelled_id = $2 WHERE id = $1`
-    await pool.query(updateOperationQuery, [id, issuerId])
+    // Update the history to mark the operation as partially or fully cancelled
+    const updateOperationQuery = `UPDATE dbo.tool_history_nom SET quantity = quantity - $2, cancelled = (quantity - $2 = 0), cancelled_id = $3 WHERE id = $1`
+    await pool.query(updateOperationQuery, [id, cancelQuantity, issuerId])
 
     // Optionally, update the stock quantity
     const updateStockQuery = `UPDATE dbo.tool_nom SET sklad = sklad + $1 WHERE id = $2`
     await pool.query(updateStockQuery, [
-      operation.rows[0].quantity,
+      cancelQuantity,
       operation.rows[0].id_tool,
     ])
 
@@ -375,7 +386,7 @@ async function cancelOperation(req, res) {
       operationId: id,
       details: {
         toolId: operation.rows[0].id_tool,
-        quantityReturned: operation.rows[0].quantity,
+        quantityReturned: cancelQuantity,
       },
     })
   } catch (error) {
@@ -391,7 +402,6 @@ async function cancelOperation(req, res) {
 
 module.exports = {
   cancelOperation,
-  cancelOperationAdmin,
   findDetailProduction,
   issueTool,
   issueTools,

@@ -31,10 +31,12 @@ export const issueHistoryApi = {
       .catch(handleApiError)
   },
 
-  cancelOperation: async (operationId, key) => {
-    const params = { operationId, key }
+  cancelOperation: async (operationId, token, quantity) => {
     return axiosInstance
-      .get(`/issue/cancel-operation`, { params })
+      .post(`/issue/cancel-operation/${operationId}`, {
+        issueToken: token,
+        cancelQuantity: quantity,
+      })
       .then(handleResponse)
       .catch(handleApiError)
   },

@@ -55,10 +55,7 @@ router.delete('/tools-tree/:id', treeController.dellFolderTree)
 router.get('/detail/id', issueController.findDetailProduction)
 router.get('/operators/fio', issueController.getFioOperators)
 
-// router.get(
-//   '/issue/cancel-operation-admin/:id',
-//   issueController.cancelOperationAdmin
-// ) // отмена любой
+// router.get('/issue/cancel-operation-admin/:id', issueController.cancelOperationAdmin) // отмена любой
 router.post('/issue/cancel-operation/:id', issueController.cancelOperation) //отмена 3 дня
 
 router.post('/issue', issueController.issueTool)
