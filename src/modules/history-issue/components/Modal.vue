@@ -4,9 +4,9 @@
       <div style="padding-left: 16px">
         <v-row>
           <div>
-            <v-text v-if="info" class="text-h5 ml-3 py-4">
+            <h2 v-if="info" class="text-h5 ml-3 py-4">
               {{ info.name }} - {{ info.description }}
-            </v-text>
+            </h2>
             <v-col cols="12" class="my-2">
               <div>
                 Прогресс:
@@ -25,18 +25,8 @@
               </div>
             </v-col>
           </div>
-
           <v-spacer />
-          <v-col cols="12" md="3">
-            <v-select
-              label="Операция"
-              v-model="selectedOperation"
-              :items="availableOperations"
-              @update:model-value="filterData"
-              solo
-            />
-          </v-col>
-          <v-col cols="12" md="3">
+          <v-col v-if="this.selectedOperation !== 'all'" cols="12" md="2">
             <v-text-field
               label="Количество для отмены"
               v-model="cancelQuantity"
@@ -46,6 +36,15 @@
               solo
             />
             <!--todo: selectedOperationQuantity  предполагается, что вы каким-то образом знаете максимальное количество-->
+          </v-col>
+          <v-col cols="12" md="3">
+            <v-select
+              label="Операция"
+              v-model="selectedOperation"
+              :items="availableOperations"
+              @update:model-value="filterData"
+              solo
+            />
           </v-col>
         </v-row>
       </div>
@@ -79,7 +78,7 @@
                     icon
                     small
                     :disabled="
-                      new Date() - new Date(item.timestamp) > 259200000
+                      new Date() - new Date(item.timestamp) > 432000000
                     "
                     @click.stop="cancelOperation(item.id)"
                     color="error"
