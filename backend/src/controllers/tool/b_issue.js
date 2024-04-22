@@ -235,6 +235,12 @@ async function cancelOperation(req, res) {
   const { id } = req.params // The operation ID
   const { issueToken, cancelQuantity } = req.body // Token and quantity to cancel passed in the request body
 
+  console.log('Received cancel operation request:', {
+    id,
+    issueToken,
+    cancelQuantity,
+  })
+
   if (!id) {
     return res
       .status(400)
@@ -258,13 +264,15 @@ async function cancelOperation(req, res) {
   }
 
   const issuerId = userResult.rows[0].id
+  console.log('Token validated for user ID:', issuerId)
 
   try {
     await pool.query('BEGIN')
-
     const operationQuery =
       'SELECT id, id_tool, quantity, cancelled, cancelled_quantity, timestamp FROM dbo.tool_history_nom WHERE id = $1'
     const operation = await pool.query(operationQuery, [id])
+
+    console.log('Operation data fetched:', operation.rows[0])
 
     if (operation.rows.length === 0) {
       await pool.query('ROLLBACK')
@@ -278,7 +286,7 @@ async function cancelOperation(req, res) {
 
     if (
       cancelQuantity >
-      operation.rows[0].quantity - operation.rows[0].cancelled_quantity
+      operation.rows[0].quantity - (operation.rows[0].cancelled_quantity || 0)
     ) {
       await pool.query('ROLLBACK')
       return res.status(400).send('Количество для отмены превышает доступное.')
@@ -289,6 +297,11 @@ async function cancelOperation(req, res) {
     const differenceInDays = Math.floor(
       (currentDate - operationDate) / (1000 * 60 * 60 * 24)
     )
+    console.log('Cancellation request timing:', {
+      currentDate,
+      operationDate,
+      differenceInDays,
+    })
 
     if (differenceInDays > 5) {
       await pool.query('ROLLBACK')
@@ -299,11 +312,20 @@ async function cancelOperation(req, res) {
         )
     }
 
-    // Update the history to mark the operation as partially or fully cancelled
-    const updateOperationQuery = `UPDATE dbo.tool_history_nom SET cancelled = (quantity - $2 = 0), cancelled_id = $3, cancelled_quantity = cancelled_quantity + $2 WHERE id = $1`
-    await pool.query(updateOperationQuery, [id, cancelQuantity, issuerId])
+    const updateOperationQuery = `
+      UPDATE dbo.tool_history_nom
+      SET cancelled = (quantity - $2 = 0),
+          cancelled_id = $3,
+          cancelled_quantity = COALESCE(cancelled_quantity, 0) + $2
+      WHERE id = $1 AND (quantity - COALESCE(cancelled_quantity, 0) >= $2);
+    `
+    const updateResult = await pool.query(updateOperationQuery, [
+      id,
+      cancelQuantity,
+      issuerId,
+    ])
+    console.log('Update operation result:', updateResult)
 
-    // Optionally, update the stock quantity
     const updateStockQuery = `UPDATE dbo.tool_nom SET sklad = sklad + $1 WHERE id = $2`
     await pool.query(updateStockQuery, [
       cancelQuantity,
@@ -324,6 +346,7 @@ async function cancelOperation(req, res) {
   } catch (error) {
     await pool.query('ROLLBACK')
     console.error('Ошибка при отмене операции:', error)
+    console.error('Детали ошибки:', error.stack)
     res.status(500).json({
       success: false,
       message: 'Внутренняя ошибка сервера',
