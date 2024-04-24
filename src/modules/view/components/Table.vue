@@ -35,7 +35,6 @@
       density="compact"
       @update:page="onChangePage"
       @update:items-per-page="onUpdateItemsPerPage"
-      @click:row="onEditRow"
       class="elevation-1"
       hover
       fixed-header
@@ -185,10 +184,6 @@ export default {
     //   this.editingToolId = null
     //   this.openDialog = true
     // },
-    onEditRow(event, { item: tool }) {
-      this.editingToolId = tool.id
-      this.openDialog = true
-    },
   },
 }
 </script>

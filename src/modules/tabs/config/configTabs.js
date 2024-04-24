@@ -60,7 +60,7 @@ const tabs = [
     name: 'Дерево',
     url: '#tree',
     component: markRaw(ToolTabTree),
-    access: ['Admin', 'Editor', 'Issue', 'Sklad'],
+    access: ['Admin', 'Editor', 'Issue', 'Sklad', 'View'],
     ico: 'mdi-file-tree',
   },
   {
