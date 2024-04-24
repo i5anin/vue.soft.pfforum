@@ -2,7 +2,7 @@
   <v-app class="custom-container">
     <v-app-bar app dark>
       <div class="text-h6 pl-5">
-        <!--        <v-icon class="mr-2">mdi-folder</v-icon>-->
+        <!-- <v-icon class="mr-2">mdi-folder</v-icon>-->
         {{ currentItem ? currentItem.label : 'Выдать' }}
       </div>
       <v-spacer />

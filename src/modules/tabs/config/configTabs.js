@@ -11,6 +11,8 @@ import ReportBuh from '@/modules/report-buh/components/Report.vue'
 import EditorCatalog from '@/modules/editor/components/Catalog.vue'
 import IssueCatalog from '@/modules/issue/components/Catalog.vue'
 
+import ViewCatalog from '@/modules/view/components/Catalog.vue'
+
 const tabs = [
   {
     name: 'Редактор',
@@ -46,6 +48,13 @@ const tabs = [
     component: markRaw(HistoryDamaged),
     access: ['Admin', 'Editor', 'Issue'],
     ico: 'mdi-history',
+  },
+  {
+    name: 'Просмотр',
+    url: '#view',
+    component: markRaw(ViewCatalog),
+    access: ['Admin', 'View'],
+    ico: 'mdi-eye',
   },
   {
     name: 'Дерево',

@@ -26,17 +26,6 @@
             </v-col>
           </div>
           <v-spacer />
-          <v-col v-if="this.selectedOperation !== 'all'" cols="12" md="2">
-            <v-text-field
-              label="Количество для отмены"
-              v-model="cancelQuantity"
-              type="number"
-              min="1"
-              :max="selectedOperationQuantity"
-              solo
-            />
-            <!--todo: selectedOperationQuantity  предполагается, что вы каким-то образом знаете максимальное количество-->
-          </v-col>
           <v-col cols="12" md="3">
             <v-select
               label="Операция"
@@ -80,7 +69,7 @@
                     :disabled="
                       new Date() - new Date(item.timestamp) > 432000000
                     "
-                    @click.stop="cancelOperation(item.id)"
+                    @click.stop="promptCancelQuantity(item.id)"
                     color="error"
                   >
                     <v-icon>mdi-close</v-icon>
@@ -108,6 +97,29 @@
         Закрыть
       </v-btn>
     </template>
+    <v-dialog v-model="showCancelDialog" persistent max-width="350">
+      <v-card>
+        <v-card-title class="headline">Подтверждение отмены</v-card-title>
+        <v-card-text>
+          Введите количество для отмены:
+          <v-text-field
+            v-model="cancelQuantity"
+            type="number"
+            label="Количество"
+            :rules="[(v) => v > 0 || 'Введите положительное число']"
+          ></v-text-field>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="green darken-1" text @click="confirmCancelOperation"
+            >Подтвердить</v-btn
+          >
+          <v-btn color="red darken-1" text @click="showCancelDialog = false"
+            >Отмена</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </Modal>
 </template>
 
@@ -125,6 +137,7 @@ export default {
   },
   data() {
     return {
+      showCancelDialog: false,
       cancelQuantity: 1,
       selectedOperationQuantity: 100,
       operations: [],
@@ -163,33 +176,21 @@ export default {
       ]
     },
   },
-  watch: {
-    selectedOperation: {
-      immediate: true,
-      handler() {
-        this.filterData()
-      },
-    },
-  },
   methods: {
+    promptCancelQuantity(operationId) {
+      this.currentOperationId = operationId
+      this.showCancelDialog = true
+    },
+    async confirmCancelOperation() {
+      this.showCancelDialog = false
+      await this.cancelOperation(this.currentOperationId)
+    },
     async cancelOperation(operationId) {
       if (!operationId) {
         console.error('Invalid operation ID:', operationId)
         alert('Internal error: The operation ID is invalid.')
         return
       }
-
-      // Проверяем, что количество для отмены валидно
-      if (
-        !this.cancelQuantity ||
-        this.cancelQuantity <= 0 ||
-        this.cancelQuantity > this.selectedOperationQuantity
-      ) {
-        alert('Некорректное количество для отмены.')
-        return
-      }
-
-      // Подтверждение действия пользователем
       if (
         !confirm(
           `Вы уверены, что хотите отменить ${this.cancelQuantity} из этой операции?`
@@ -197,27 +198,23 @@ export default {
       ) {
         return
       }
-
       const token = localStorage.getItem('token')
       if (!token) {
         console.error('Token not found in local storage.')
         alert('Ошибка авторизации: Токен не найден.')
         return
       }
-
       try {
         const response = await issueHistoryApi.cancelOperation(
           operationId,
           token,
-          this.cancelQuantity // Передаём количество для отмены в API вызов
+          this.cancelQuantity
         )
-
         if (response.success) {
-          // Обновляем данные в интерфейсе
           const item = this.filteredData.find((x) => x.id === operationId)
           if (item) {
             item.cancelled = true
-            item.canceller_login = response.canceller_login // Предполагается, что ответ включает логин отменившего
+            item.canceller_login = response.canceller_login // Assuming response includes the canceller's login
           }
           alert('Операция успешно отменена')
           this.$emit('operation-cancelled', operationId)
@@ -229,7 +226,6 @@ export default {
         alert('Ошибка при отмене операции: ' + error.message)
       }
     },
-
     filterData() {
       if (this.selectedOperation === 'all') {
         this.filteredData = this.originalData['all'] || []
@@ -257,10 +253,8 @@ export default {
         const partInfoResponse = await issueHistoryApi.fetchHistoryByPartIdInfo(
           this.id_part
         )
-
         this.operations = partInfoResponse.info.operations
         this.completedOperations = partInfoResponse.info.completed_operations
-
         if (response && typeof response === 'object') {
           this.info = response.info
           this.originalData = response

@@ -275,6 +275,11 @@ async function cancelOperation(req, res) {
       return res.status(400).send('Операция уже была отменена')
     }
 
+    if (cancelQuantity > operation.rows[0].quantity) {
+      await pool.query('ROLLBACK')
+      return res.status(400).send('Количество для отмены превышает доступное.')
+    }
+
     const currentDate = new Date()
     const operationDate = new Date(operation.rows[0].timestamp)
     const differenceInDays = Math.floor(
@@ -288,11 +293,6 @@ async function cancelOperation(req, res) {
         .send(
           'Отмена операции возможна только в течение 3 дней с момента выполнения.'
         )
-    }
-
-    if (cancelQuantity > operation.rows[0].quantity) {
-      await pool.query('ROLLBACK')
-      return res.status(400).send('Количество для отмены превышает доступное.')
     }
 
     const updateOperationQuery = `UPDATE dbo.tool_history_nom SET quantity = quantity - $2, cancelled = true, cancelled_id = $3 WHERE id = $1`
@@ -313,6 +313,7 @@ async function cancelOperation(req, res) {
       details: {
         toolId: operation.rows[0].id_tool,
         quantityReturned: cancelQuantity,
+        stockUpdated: `Quantity increased by ${cancelQuantity} on stock`,
       },
     })
   } catch (error) {
