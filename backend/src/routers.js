@@ -65,6 +65,7 @@ router.get('/cnc', issueController.getCncData)
 // history
 router.get('/history/:id', historyController.getToolHistoryId)
 router.get('/history', historyController.getToolHistory)
+router.get('/history-all-tool', historyController.getAllIssuedToolIdsWithNames)
 
 router.get('/history-part', historyControllerModal.getToolHistoryByPartId)
 router.get(

@@ -173,7 +173,27 @@ async function getToolHistoryId(req, res) {
   }
 }
 
+async function getAllIssuedToolIdsWithNames(req, res) {
+  console.log('Функция getAllIssuedToolIdsWithNames вызвана')
+
+  try {
+    const query = `
+      SELECT DISTINCT thn.id_tool, tn.name
+      FROM dbo.tool_history_nom thn
+             LEFT JOIN dbo.tool_nom tn ON thn.id_tool = tn.id;
+    `
+    const result = await pool.query(query)
+    res.json(
+      result.rows.map((row) => ({ id_tool: row.id_tool, name: row.name }))
+    )
+  } catch (err) {
+    console.error('Ошибка при получении идентификаторов инструмента:', err)
+    res.status(500).send('Ошибка сервера')
+  }
+}
+
 module.exports = {
   getToolHistory,
   getToolHistoryId,
+  getAllIssuedToolIdsWithNames,
 }

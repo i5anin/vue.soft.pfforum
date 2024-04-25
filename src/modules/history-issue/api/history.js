@@ -48,4 +48,11 @@ export const issueHistoryApi = {
       .then(handleResponse)
       .catch(handleApiError)
   },
+
+  // Новый маршрут для получения идентификаторов инструмента с именами
+  getAllIssuedToolIdsWithNames: async () =>
+    axiosInstance
+      .get('history-all-tool')
+      .then(handleResponse)
+      .catch(handleApiError),
 }
