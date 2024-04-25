@@ -10,7 +10,7 @@
     />
     <div class="d-flex align-center justify-center">
       <v-row class="fill-height">
-        <v-col cols="12" md="5" class="d-flex align-center">
+        <v-col cols="12" md="4" class="d-flex align-center">
           <v-text-field
             variant="outlined"
             clearable
@@ -20,7 +20,17 @@
             @input="debouncedFetchAndFormatToolHistory"
           />
         </v-col>
-        <v-col cols="12" md="4">
+        <v-col cols="12" md="3">
+          <!--          <v-combobox-->
+          <!--            :items="toolOptions"-->
+          <!--            item-value="value"-->
+          <!--            item-title="title"-->
+          <!--            v-model="selectedTool"-->
+          <!--            label="Выберите инструмент"-->
+          <!--            @update:selectedTool="fetchTool"-->
+          <!--          />-->
+        </v-col>
+        <v-col cols="12" md="3">
           <v-select
             :items="dateOptions"
             item-value="value"
@@ -181,9 +191,6 @@ export default {
       }
       return options
     },
-    formatDateISO(date) {
-      return date.toISOString().substr(0, 10)
-    },
     debounce(func, wait) {
       let timeout
       return function (...args) {
@@ -229,7 +236,7 @@ export default {
     onClosePopup() {
       this.openDialog = false
     },
-    onInfoRow({ item: tool }) {
+    onInfoRow(_, { item: tool }) {
       this.editingToolId = tool.id_part
       this.openDialog = true
     },
