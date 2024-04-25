@@ -10,18 +10,27 @@
     />
     <div class="d-flex align-center justify-center">
       <v-row class="fill-height">
-        <v-col cols="12" md="5" class="d-flex align-center">
+        <v-col cols="12" md="4" class="d-flex align-center">
           <v-text-field
             variant="outlined"
-            clearable="true"
+            clearable
             v-model="searchQuery"
             label="Поиск по партии, названию, обозначению"
             class="flex-grow-1 mr-2"
             @input="debouncedFetchAndFormatToolHistory"
           />
-          <!-- <v-btn @click="fetchAndFormatToolHistory">Поиск</v-btn>-->
         </v-col>
-        <v-col cols="12" md="4">
+        <v-col cols="12" md="3">
+          <v-select
+            :items="toolOptions"
+            item-value="value"
+            item-title="title"
+            v-model="selectedTool"
+            label="Выберите инструмент"
+            @update:selectedTool="fetchTool"
+          />
+        </v-col>
+        <v-col cols="12" md="3">
           <v-select
             :items="dateOptions"
             item-value="value"
@@ -54,9 +63,6 @@
       width="true"
     >
       <template v-slot:item.check="{ item }">
-        <!--        {{ item.ready_count }} / {{ item.operation_count }} |-->
-        <!--        {{ item.quantity_prod }} {{ item.quantity_prod_all }} |-->
-        <!--        {{ item.status_otgruzka }}-->
         <span
           v-if="item.status_otgruzka && item.ready_count < item.operation_count"
           class="mdi mdi-help check-icon--large--red"
@@ -108,7 +114,9 @@ export default {
     return {
       searchQuery: '',
       selectedDate: '',
+      selectedTool: '',
       dateOptions: this.generateDateOptions(),
+      toolOptions: [],
       date: '',
       debouncedFetchAndFormatToolHistory: null,
       openDialog: false,
@@ -134,24 +142,18 @@ export default {
           sortable: false,
           width: '80px',
         },
-        // {
-        //   title: 'Произведено продукции',
-        //   value: 'quantity_prod',
-        //   sortable: false,
-        //   width: '80px',
-        // },
+
         {
           title: 'Готовность операций',
           value: 'operation_status',
           sortable: false,
-        }, // Новый столбец
+        },
         {
           title: 'Произведено / План',
           value: 'quantity_prod_all',
           sortable: false,
           width: '180px',
         },
-        // { title: 'Операций', value: 'records_count', sortable: false },
       ],
     }
   },
@@ -164,15 +166,23 @@ export default {
     },
   },
   created() {
+    this.generateToolOptions()
     this.dateOptions = this.generateDateOptions()
-    // console.log(this.dateOptions)
-    // console.log(JSON.parse(JSON.stringify(this.dateOptions)))
     this.debouncedFetchAndFormatToolHistory = this.debounce(
       this.fetchAndFormatToolHistory,
       500
     )
   },
   methods: {
+    async generateToolOptions() {
+      try {
+        console.log('generateToolOptions')
+        this.toolOptions = await issueHistoryApi.getAllIssuedToolIdsWithNames()
+      } catch (error) {
+        console.error('Ошибка при загрузке списка инструментов:', error)
+      }
+    },
+
     generateDateOptions() {
       const options = [{ value: '', title: 'ВСЕ' }]
       const baseDate = new Date()
@@ -193,25 +203,6 @@ export default {
         options.push({ value: isoDate, title: `${formattedDate}${suffix}` })
       }
       return options
-    },
-
-    resetDate() {
-      this.date = '' // Сброс даты
-      this.fetchAndFormatToolHistory() // Обновление истории инструментов без фильтрации по дате
-    },
-    setToday() {
-      const today = new Date()
-      this.date = this.formatDateISO(today) // Установка даты в нужном формате
-      this.fetchAndFormatToolHistory() // Вызов обновления данных
-    },
-    setYesterday() {
-      const yesterday = new Date()
-      yesterday.setDate(yesterday.getDate() - 1)
-      this.date = this.formatDateISO(yesterday) // Установка даты в нужном формате
-      this.fetchAndFormatToolHistory() // Вызов обновления данных
-    },
-    formatDateISO(date) {
-      return date.toISOString().substr(0, 10)
     },
     debounce(func, wait) {
       let timeout
@@ -234,21 +225,12 @@ export default {
     formatDate(date) {
       return format(parseISO(date), 'dd.MM.yyyy')
     },
-    async fetchAndFormatToolHistory() {
+    async fetchTool() {
       this.isLoading = true
-      // console.log('Current date being sent:', this.selectedDate) // Updated to use selectedDate
       try {
-        const response = await issueHistoryApi.fetchToolHistory(
-          this.searchQuery,
-          this.filters.currentPage,
-          this.filters.itemsPerPage,
-          this.selectedDate // Use the selectedDate variable here
-        )
-        this.toolsHistory = response.toolsHistory.map((tool) => ({
-          ...tool,
-          first_issue_date: this.formatDate(tool.first_issue_date),
-        }))
-        this.totalCount = response.totalCount
+        console.log('fetchTool')
+        const response = await issueHistoryApi.getAllIssuedToolIdsWithNames()
+        console.log(response)
       } catch (error) {
         console.error('Ошибка при получении истории инструментов:', error)
         this.$emit('error', error) // Handling errors
@@ -256,10 +238,26 @@ export default {
         this.isLoading = false
       }
     },
+
+    async fetchAndFormatToolHistory() {
+      this.isLoading = true
+      const response = await issueHistoryApi.fetchToolHistory(
+        this.searchQuery,
+        this.filters.currentPage,
+        this.filters.itemsPerPage,
+        this.selectedDate
+      )
+      this.toolsHistory = response.toolsHistory.map((tool) => ({
+        ...tool,
+        first_issue_date: this.formatDate(tool.first_issue_date),
+      }))
+      this.totalCount = response.totalCount
+      this.isLoading = false
+    },
     onClosePopup() {
       this.openDialog = false
     },
-    onInfoRow(event, { item: tool }) {
+    onInfoRow({ item: tool }) {
       this.editingToolId = tool.id_part
       this.openDialog = true
     },
@@ -272,10 +270,6 @@ export default {
 </script>
 
 <style>
-.check-icon--green {
-  color: green;
-}
-
 .check-icon--large--yellow {
   font-size: 16px; /* или любой другой размер, который вам нужен */
   color: #cfcf00; /* Пример изменения цвета */
