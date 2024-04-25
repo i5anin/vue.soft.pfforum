@@ -13,13 +13,12 @@
         <v-col cols="12" md="5" class="d-flex align-center">
           <v-text-field
             variant="outlined"
-            clearable="true"
+            clearable
             v-model="searchQuery"
             label="Поиск по партии, названию, обозначению"
             class="flex-grow-1 mr-2"
             @input="debouncedFetchAndFormatToolHistory"
           />
-          <!-- <v-btn @click="fetchAndFormatToolHistory">Поиск</v-btn>-->
         </v-col>
         <v-col cols="12" md="4">
           <v-select
@@ -54,9 +53,6 @@
       width="true"
     >
       <template v-slot:item.check="{ item }">
-        <!--        {{ item.ready_count }} / {{ item.operation_count }} |-->
-        <!--        {{ item.quantity_prod }} {{ item.quantity_prod_all }} |-->
-        <!--        {{ item.status_otgruzka }}-->
         <span
           v-if="item.status_otgruzka && item.ready_count < item.operation_count"
           class="mdi mdi-help check-icon--large--red"
@@ -90,7 +86,6 @@
       </template>
       <template v-slot:item.quantity_prod_all="{ item }">
         {{ item.quantity_prod }} / {{ item.quantity_prod_all }}
-        <!--({{((item.quantity_prod / item.quantity_prod_all) * 100).toFixed(2)}}%)-->
       </template>
     </v-data-table-server>
   </v-container>
@@ -134,12 +129,6 @@ export default {
           sortable: false,
           width: '80px',
         },
-        // {
-        //   title: 'Произведено продукции',
-        //   value: 'quantity_prod',
-        //   sortable: false,
-        //   width: '80px',
-        // },
         {
           title: 'Готовность операций',
           value: 'operation_status',
@@ -151,7 +140,6 @@ export default {
           sortable: false,
           width: '180px',
         },
-        // { title: 'Операций', value: 'records_count', sortable: false },
       ],
     }
   },
@@ -165,8 +153,6 @@ export default {
   },
   created() {
     this.dateOptions = this.generateDateOptions()
-    // console.log(this.dateOptions)
-    // console.log(JSON.parse(JSON.stringify(this.dateOptions)))
     this.debouncedFetchAndFormatToolHistory = this.debounce(
       this.fetchAndFormatToolHistory,
       500
@@ -176,7 +162,8 @@ export default {
     generateDateOptions() {
       const options = [{ value: '', title: 'ВСЕ' }]
       const baseDate = new Date()
-      baseDate.setHours(0, 0, 0, 0) // Установка времени на начало дня (полночь), чтобы избежать проблем с временными зонами
+      baseDate.setHours(0, 0, 0, 0)
+      // Установка времени на начало дня (полночь), чтобы избежать проблем с временными зонами
 
       for (let i = 0; i < 30; i++) {
         const date = new Date(baseDate)
@@ -193,22 +180,6 @@ export default {
         options.push({ value: isoDate, title: `${formattedDate}${suffix}` })
       }
       return options
-    },
-
-    resetDate() {
-      this.date = '' // Сброс даты
-      this.fetchAndFormatToolHistory() // Обновление истории инструментов без фильтрации по дате
-    },
-    setToday() {
-      const today = new Date()
-      this.date = this.formatDateISO(today) // Установка даты в нужном формате
-      this.fetchAndFormatToolHistory() // Вызов обновления данных
-    },
-    setYesterday() {
-      const yesterday = new Date()
-      yesterday.setDate(yesterday.getDate() - 1)
-      this.date = this.formatDateISO(yesterday) // Установка даты в нужном формате
-      this.fetchAndFormatToolHistory() // Вызов обновления данных
     },
     formatDateISO(date) {
       return date.toISOString().substr(0, 10)
@@ -236,13 +207,12 @@ export default {
     },
     async fetchAndFormatToolHistory() {
       this.isLoading = true
-      // console.log('Current date being sent:', this.selectedDate) // Updated to use selectedDate
       try {
         const response = await issueHistoryApi.fetchToolHistory(
           this.searchQuery,
           this.filters.currentPage,
           this.filters.itemsPerPage,
-          this.selectedDate // Use the selectedDate variable here
+          this.selectedDate
         )
         this.toolsHistory = response.toolsHistory.map((tool) => ({
           ...tool,
@@ -251,7 +221,7 @@ export default {
         this.totalCount = response.totalCount
       } catch (error) {
         console.error('Ошибка при получении истории инструментов:', error)
-        this.$emit('error', error) // Handling errors
+        this.$emit('error', error)
       } finally {
         this.isLoading = false
       }
@@ -259,7 +229,7 @@ export default {
     onClosePopup() {
       this.openDialog = false
     },
-    onInfoRow(event, { item: tool }) {
+    onInfoRow({ item: tool }) {
       this.editingToolId = tool.id_part
       this.openDialog = true
     },
@@ -272,10 +242,6 @@ export default {
 </script>
 
 <style>
-.check-icon--green {
-  color: green;
-}
-
 .check-icon--large--yellow {
   font-size: 16px; /* или любой другой размер, который вам нужен */
   color: #cfcf00; /* Пример изменения цвета */
