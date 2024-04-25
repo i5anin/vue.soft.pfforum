@@ -14,7 +14,11 @@
   "dependencies": {
     "@fontsource/nunito": "^5.0.15",
     "@mdi/font": "^7.0.96",
+    "@sentry/replay": "^7.112.2",
+    "@sentry/tracing": "^7.112.2",
+    "@sentry/vue": "^7.112.2",
     "@ventralnet/vue3-jstree": "^0.0.10",
+    "axios": "^1.6.8",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "date-fns": "^3.0.6",
