@@ -117,6 +117,7 @@ export default {
       selectedTool: '',
       dateOptions: this.generateDateOptions(),
       toolOptions: [],
+      toolHistoryOptions: [],
       date: '',
       debouncedFetchAndFormatToolHistory: null,
       openDialog: false,
@@ -166,23 +167,22 @@ export default {
     },
   },
   created() {
-    this.generateToolOptions()
-    this.dateOptions = this.generateDateOptions()
-    this.debouncedFetchAndFormatToolHistory = this.debounce(
-      this.fetchAndFormatToolHistory,
-      500
-    )
+    this.toolHistoryOptions = this.generateToolOptions() //Параметры истории инструмента
+    this.dateOptions = this.generateDateOptions() //дата Опции
+    this.debouncedFetchAndFormatToolHistory = //обновлена история инструмента выборки и форматирования
+      this.debounce(this.fetchAndFormatToolHistory, 500)
   },
   methods: {
     async generateToolOptions() {
       try {
         console.log('generateToolOptions')
+
         this.toolOptions = await issueHistoryApi.getAllIssuedToolIdsWithNames()
       } catch (error) {
         console.error('Ошибка при загрузке списка инструментов:', error)
       }
     },
-
+    // ---------------- todo: заменить на датапикер vuetify ----------------
     generateDateOptions() {
       const options = [{ value: '', title: 'ВСЕ' }]
       const baseDate = new Date()
@@ -227,16 +227,10 @@ export default {
     },
     async fetchTool() {
       this.isLoading = true
-      try {
-        console.log('fetchTool')
-        const response = await issueHistoryApi.getAllIssuedToolIdsWithNames()
-        console.log(response)
-      } catch (error) {
-        console.error('Ошибка при получении истории инструментов:', error)
-        this.$emit('error', error) // Handling errors
-      } finally {
-        this.isLoading = false
-      }
+      //получить все выпущенные идентификаторы инструментов с именами
+      const response = await issueHistoryApi.getAllIssuedToolIdsWithNames()
+      console.log(response)
+      this.isLoading = false
     },
 
     async fetchAndFormatToolHistory() {
