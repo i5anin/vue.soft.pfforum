@@ -12,6 +12,14 @@
               />
               {{ info?.name }} - {{ info?.description }}
             </h2>
+            <v-btn
+              color="blue darken-1"
+              variant="text"
+              @click="fetchHistoryData"
+              class="text-none text-subtitle-1 ml-3"
+            >
+              Обновить
+            </v-btn>
             <v-col cols="12" class="my-2">
               <div>
                 Прогресс:
@@ -153,7 +161,8 @@ export default {
       availableOperations: [],
       headers: [
         { title: 'Инструмент', value: 'name_tool' },
-        { title: 'Кол-во', value: 'quantity', width: '90px' },
+        { title: 'Кол-во выдано', value: 'quantity', width: '90px' },
+        { title: 'На складе инструмента', value: 'current_stock' },
         { title: 'Выдано', value: 'user_fio' },
         { title: 'Тип выдачи', value: 'type_issue' },
         { title: 'Дата время', value: 'timestamp' },
@@ -223,6 +232,7 @@ export default {
           }
           alert('Операция успешно отменена')
           this.$emit('operation-cancelled', operationId)
+          await this.fetchHistoryData()
         } else {
           alert('Не удалось отменить операцию: ' + response.message)
         }

@@ -92,28 +92,29 @@ async function getToolHistoryByPartId(req, res) {
 
     let operationsQuery = `
       SELECT thn.id,
-             sno.id                                              AS specs_op_id,
-             sn.ID                                               AS id_part,
+             sno.id                                                AS specs_op_id,
+             sn.ID                                                 AS id_part,
              sn.NAME,
              sn.description,
-             oon.no                                              AS no_oper,
-             dbo.get_full_cnc_type(dbo.get_op_type_code(sno.ID)) AS type_oper,
+             oon.no                                                AS no_oper,
+             dbo.get_full_cnc_type(dbo.get_op_type_code(sno.ID))   AS type_oper,
              thn.quantity,
              CASE
                WHEN thn.id_user < 0 THEN (SELECT name FROM dbo.tool_user_custom_list WHERE -id = thn.id_user)
                ELSE o.fio
-               END                                               AS user_fio,
+               END                                                   AS user_fio,
              thn.id_user,
              thn.timestamp,
-             tn.name                                             AS name_tool,
+             tn.name                                               AS name_tool,
              thn.id_tool,
              thn.type_issue,
              thn.comment,
              thn.cancelled,
              thn.issuer_id,
-             vu.login                                            AS issuer_fio,
-             vu2.login                                           AS canceller_login,  -- Added canceller's login
-             sno.status_ready                                    AS operation_ready  -- Added operation readiness status
+             vu.login                                              AS issuer_fio,
+             vu2.login                                             AS canceller_login,  -- Added canceller's login
+             sno.status_ready                                      AS operation_ready,  -- Added operation readiness status
+             tn.sklad                                              AS current_stock     -- Added current stock for the tool
       FROM dbo.tool_history_nom thn
              LEFT JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
              LEFT JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
@@ -185,6 +186,7 @@ async function getToolHistoryByPartId(req, res) {
         issuer_id: row.issuer_id,
         canceller_login: row.canceller_login, // Displaying canceller's login
         operation_ready: row.operation_ready, // Adding operation readiness status
+        current_stock: row.current_stock, // Добавляем текущее количество на складе
       })
 
       // if (!info) {
