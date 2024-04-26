@@ -149,6 +149,10 @@ async function issueTool(req, res) {
 async function issueTools(req, res) {
   const { operationId, userId, tools, typeIssue, issueToken } = req.body // Добавлен issueToken в деструктуризацию
 
+  if (!issueToken) {
+    return res.status(401).send('Authentication token is required.')
+  }
+
   try {
     // Начало транзакции
     await pool.query('BEGIN')
@@ -158,7 +162,8 @@ async function issueTools(req, res) {
     const tokenResult = await pool.query(tokenQuery, [issueToken])
 
     if (tokenResult.rows.length === 0) {
-      throw new Error('Invalid token: Access denied.')
+      await pool.query('ROLLBACK')
+      return res.status(403).send('Invalid token.')
     }
 
     const issuerId = tokenResult.rows[0].id
@@ -172,8 +177,13 @@ async function issueTools(req, res) {
         stockResult.rows.length === 0 ||
         stockResult.rows[0].sklad < quantity
       ) {
-        throw new Error(`Insufficient stock for tool ID=${toolId}`)
+        await pool.query('ROLLBACK')
+        return res
+          .status(404)
+          .send(`Недостаточно инструмента с ID=${toolId} на складе.`)
       }
+
+      const newStock = stockResult.rows[0].sklad - quantity
 
       // Вставка записи в историю инструмента
       const insertQuery = `
@@ -190,9 +200,13 @@ async function issueTools(req, res) {
       ])
 
       // Обновление количества инструмента на складе
-      const updateQuery =
-        'UPDATE dbo.tool_nom SET sklad = sklad - $1 WHERE id = $2'
-      await pool.query(updateQuery, [quantity, toolId])
+      const updateQuery = 'UPDATE dbo.tool_nom SET sklad = $1 WHERE id = $2'
+      await pool.query(updateQuery, [newStock, toolId])
+
+      // Логирование операции выдачи инструмента
+      const logMessage = `Выдача инструмента ${toolId}: ${quantity} ед. Пользователь: ${userId}, Осталось на складе: ${newStock}.`
+      const logQuery = `INSERT INTO dbo.vue_log (message, tool_id, user_id, datetime_log) VALUES ($1, $2, $3, NOW())`
+      await pool.query(logQuery, [logMessage, toolId, issuerId])
     }
 
     // Завершение транзакции
@@ -203,6 +217,7 @@ async function issueTools(req, res) {
     await pool.query('ROLLBACK')
     console.error('Ошибка при выдаче инструмента:', error)
     res.status(500).json({
+      success: false,
       error: 'Internal Server Error',
       message: error.message || 'Please contact the administrator.',
     })
