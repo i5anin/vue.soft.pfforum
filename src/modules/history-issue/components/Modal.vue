@@ -162,7 +162,7 @@ export default {
       headers: [
         { title: 'Инструмент', value: 'name_tool' },
         { title: 'Кол-во выдано', value: 'quantity', width: '90px' },
-        { title: 'На складе инструмента', value: 'current_stock' },
+        { title: 'На складе', value: 'current_stock' },
         { title: 'Выдано', value: 'user_fio' },
         { title: 'Тип выдачи', value: 'type_issue' },
         { title: 'Дата время', value: 'timestamp' },

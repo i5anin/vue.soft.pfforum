@@ -92,37 +92,37 @@ async function getToolHistoryByPartId(req, res) {
 
     let operationsQuery = `
       SELECT thn.id,
-             sno.id                                                AS specs_op_id,
-             sn.ID                                                 AS id_part,
+             sno.id AS specs_op_id,
+             sn.ID AS id_part,
              sn.NAME,
              sn.description,
-             oon.no                                                AS no_oper,
-             dbo.get_full_cnc_type(dbo.get_op_type_code(sno.ID))   AS type_oper,
+             oon.no AS no_oper,
+             dbo.get_full_cnc_type(dbo.get_op_type_code(sno.ID)) AS type_oper,
              thn.quantity,
              CASE
                WHEN thn.id_user < 0 THEN (SELECT name FROM dbo.tool_user_custom_list WHERE -id = thn.id_user)
                ELSE o.fio
-               END                                                   AS user_fio,
+               END AS user_fio,
              thn.id_user,
              thn.timestamp,
-             tn.name                                               AS name_tool,
+             tn.name AS name_tool,
              thn.id_tool,
              thn.type_issue,
              thn.comment,
              thn.cancelled,
              thn.issuer_id,
-             vu.login                                              AS issuer_fio,
-             vu2.login                                             AS canceller_login,  -- Added canceller's login
-             sno.status_ready                                      AS operation_ready,  -- Added operation readiness status
-             tn.sklad                                              AS current_stock     -- Added current stock for the tool
+             vu.login AS issuer_fio,
+             vu2.login AS canceller_login,
+             sno.status_ready AS operation_ready,
+             tn.sklad AS current_stock
       FROM dbo.tool_history_nom thn
-             LEFT JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
-             LEFT JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
-             LEFT JOIN dbo.operations_ordersnom oon ON oon.op_id = sno.ordersnom_op_id
-             LEFT JOIN dbo.operators o ON thn.id_user = o.id
-             LEFT JOIN dbo.tool_nom tn ON thn.id_tool = tn.id
-             LEFT JOIN dbo.vue_users vu ON thn.issuer_id = vu.id
-             LEFT JOIN dbo.vue_users vu2 ON thn.cancelled_id = vu2.id  -- Join to get canceller's login
+      LEFT JOIN dbo.specs_nom_operations sno ON thn.specs_op_id = sno.id
+      LEFT JOIN dbo.specs_nom sn ON sno.specs_nom_id = sn.id
+      LEFT JOIN dbo.operations_ordersnom oon ON oon.op_id = sno.ordersnom_op_id
+      LEFT JOIN dbo.operators o ON thn.id_user = o.id
+      LEFT JOIN dbo.tool_nom tn ON thn.id_tool = tn.id
+      LEFT JOIN dbo.vue_users vu ON thn.issuer_id = vu.id
+      LEFT JOIN dbo.vue_users vu2 ON thn.cancelled_id = vu2.id
       WHERE sn.ID = $1
     `
 
@@ -142,7 +142,6 @@ async function getToolHistoryByPartId(req, res) {
 
     const allTools = {}
     const operationsData = {}
-    let info = null
 
     operationsResult.rows.forEach((row) => {
       const typeIssueMap = { 0: 'Себе', 1: 'На ночь', 2: 'Наладка' }
@@ -167,7 +166,10 @@ async function getToolHistoryByPartId(req, res) {
         }
       }
 
-      operationsData[row.no_oper] = operationsData[row.no_oper] || []
+      if (!operationsData[row.no_oper]) {
+        operationsData[row.no_oper] = []
+      }
+
       operationsData[row.no_oper].push({
         id: row.id,
         specs_op_id: Number(row.specs_op_id),
@@ -188,15 +190,16 @@ async function getToolHistoryByPartId(req, res) {
         operation_ready: row.operation_ready, // Adding operation readiness status
         current_stock: row.current_stock, // Добавляем текущее количество на складе
       })
+    })
 
-      // if (!info) {
-      //   info = {
-      //     id_part: row.id_part,
-      //     name: row.name,
-      //     description: row.description,
-      //     timestamp: row.timestamp,
-      //   }
-      // }
+    // Обновленная сортировка: сначала по дате, затем по имени инструмента
+    Object.keys(operationsData).forEach((no_oper) => {
+      operationsData[no_oper].sort((a, b) => {
+        return (
+          new Date(b.timestamp) - new Date(a.timestamp) ||
+          a.name_tool.localeCompare(b.name_tool)
+        )
+      })
     })
 
     const finalData = {
