@@ -64,7 +64,14 @@
     >
       <template v-slot:item.check="{ item }">
         <span
-          v-if="item.status_otgruzka && item.ready_count < item.operation_count"
+          v-if="item.is_archive"
+          class="mdi mdi-archive check-icon--large--blue"
+          title="В архиве"
+        />
+        <span
+          v-else-if="
+            item.status_otgruzka && item.ready_count < item.operation_count
+          "
           class="mdi mdi-help check-icon--large--red"
           title="Отгружено, не все операции завершены, не в производстве"
         />
@@ -84,11 +91,6 @@
           v-else-if="item.status_ready"
           class="mdi mdi-stop check-icon--large--yellow"
           title="Не в производстве"
-        />
-        <span
-          v-else-if="item.archive"
-          class="mdi mdi-archive-check-outline"
-          title="В архиве"
         />
       </template>
       <template v-slot:item.operation_status="{ item }">
@@ -262,5 +264,14 @@ export default {
 .check-icon--large--red {
   font-size: 24px; /* или любой другой размер, который вам нужен */
   color: #950000; /* Пример изменения цвета */
+}
+
+.check-icon--large--blue {
+  font-size: 24px; /* или любой другой размер, который вам нужен */
+  color: #848484; /* Пример синего цвета */
+}
+
+.text-grey {
+  color: #757575; /* Или любой оттенок серого */
 }
 </style>

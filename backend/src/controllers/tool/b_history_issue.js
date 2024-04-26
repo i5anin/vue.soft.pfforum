@@ -50,13 +50,15 @@ async function getToolHistory(req, res) {
              CAST(dbo.kolvo_prod_ready(specs_nom.ID) AS INTEGER) AS quantity_prod,
              specs_nom.kolvo AS quantity_prod_all,
              specs_nom.status_otgruzka,
+             dbo.tool_part_archive.archive AS is_archive,
              COUNT(*) OVER() AS total_count
       FROM dbo.specs_nom
              INNER JOIN dbo.specs_nom_operations ON specs_nom.ID = specs_nom_operations.specs_nom_id
              INNER JOIN dbo.operations_ordersnom ON operations_ordersnom.op_id = specs_nom_operations.ordersnom_op_id
              LEFT JOIN dbo.tool_history_nom ON specs_nom_operations.ID = tool_history_nom.specs_op_id
+             LEFT JOIN dbo.tool_part_archive ON specs_nom.ID = dbo.tool_part_archive.specs_nom_id
                ${whereStatement}
-      GROUP BY specs_nom.ID, specs_nom.NAME, specs_nom.description, specs_nom.status_otgruzka
+      GROUP BY specs_nom.ID, specs_nom.NAME, specs_nom.description, specs_nom.status_otgruzka, dbo.tool_part_archive.archive
       HAVING COALESCE(SUM(tool_history_nom.quantity), 0) > 0
       ORDER BY MIN(tool_history_nom.TIMESTAMP) DESC
       LIMIT ${limit} OFFSET ${offset};
@@ -85,6 +87,7 @@ async function getToolHistory(req, res) {
         quantity_prod_all: row.quantity_prod_all,
         status_ready: row.ready_count === row.operation_count,
         status_otgruzka: row.status_otgruzka,
+        is_archive: row.is_archive,
       })),
     })
   } catch (err) {
