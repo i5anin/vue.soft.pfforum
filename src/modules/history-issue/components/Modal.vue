@@ -4,22 +4,29 @@
       <div style="padding-left: 16px">
         <v-row>
           <div>
-            <h2 v-if="info" class="text-h5 ml-3 py-4">
-              <v-icon
-                v-if="info?.is_archive"
-                icon="mdi-archive  check-icon--large--gray"
-                class="mr-2"
-              />
-              {{ info?.name }} - {{ info?.description }}
-            </h2>
-            <v-btn
-              color="blue darken-1"
-              variant="text"
-              @click="fetchHistoryData"
-              class="text-none text-subtitle-1 ml-3"
-            >
-              Обновить
-            </v-btn>
+            <v-row align="center" class="ml-3 py-4">
+              <v-col cols="auto" class="d-flex align-center">
+                <v-icon
+                  v-if="info?.is_archive"
+                  icon="mdi-archive check-icon--large--gray"
+                  class="mr-2"
+                />
+                <h2 v-if="info" class="text-h5 my-0">
+                  {{ info?.name }} - {{ info?.description }}
+                </h2>
+              </v-col>
+
+              <v-col cols="auto">
+                <v-btn
+                  color="blue darken-1"
+                  variant="text"
+                  @click="fetchHistoryData"
+                  class="text-none text-subtitle-1"
+                >
+                  Обновить
+                </v-btn>
+              </v-col>
+            </v-row>
             <v-col cols="12" class="my-2">
               <div>
                 Прогресс:

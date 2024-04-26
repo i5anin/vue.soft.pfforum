@@ -256,7 +256,7 @@ async function cancelOperation(req, res) {
     return res.status(403).send('Invalid token.')
   }
 
-  const issuerId = userResult.rows[0].id
+  const issuerId = userResult.rows[0].id // ID of the user who initiated the cancellation
 
   try {
     await pool.query('BEGIN')
@@ -280,6 +280,12 @@ async function cancelOperation(req, res) {
       return res.status(400).send('Количество для отмены превышает доступное.')
     }
 
+    const stockQuery = `SELECT sklad FROM dbo.tool_nom WHERE id = $1`
+    const stockResult = await pool.query(stockQuery, [
+      operation.rows[0].id_tool,
+    ])
+    const oldQuantity = stockResult.rows[0].sklad
+
     const currentDate = new Date()
     const operationDate = new Date(operation.rows[0].timestamp)
     const differenceInDays = Math.floor(
@@ -298,10 +304,18 @@ async function cancelOperation(req, res) {
     const updateOperationQuery = `UPDATE dbo.tool_history_nom SET quantity = quantity - $2, cancelled = true, cancelled_id = $3 WHERE id = $1`
     await pool.query(updateOperationQuery, [id, cancelQuantity, issuerId])
 
-    const updateStockQuery = `UPDATE dbo.tool_nom SET sklad = sklad + $1 WHERE id = $2`
-    await pool.query(updateStockQuery, [
-      cancelQuantity,
+    const newQuantity = oldQuantity + cancelQuantity
+
+    const updateStockQuery = `UPDATE dbo.tool_nom SET sklad = $1 WHERE id = $2`
+    await pool.query(updateStockQuery, [newQuantity, operation.rows[0].id_tool])
+
+    // Логирование операции возврата
+    const logMessage = `Отмена операции ${id}: ${cancelQuantity} ед. возвращено на склад. Было: ${oldQuantity}, стало: ${newQuantity}.`
+    const logQuery = `INSERT INTO dbo.vue_log (message, tool_id, user_id, datetime_log) VALUES ($1, $2, $3, NOW())`
+    await pool.query(logQuery, [
+      logMessage,
       operation.rows[0].id_tool,
+      issuerId,
     ])
 
     await pool.query('COMMIT')
@@ -313,7 +327,7 @@ async function cancelOperation(req, res) {
       details: {
         toolId: operation.rows[0].id_tool,
         quantityReturned: cancelQuantity,
-        stockUpdated: `Quantity increased by ${cancelQuantity} on stock`,
+        stockUpdated: `Было ${oldQuantity}, стало ${newQuantity} на складе.`,
       },
     })
   } catch (error) {
