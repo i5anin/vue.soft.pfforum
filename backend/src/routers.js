@@ -68,6 +68,7 @@ router.get('/history', historyController.getToolHistory)
 router.get('/history-all-tool', historyController.getAllIssuedToolIdsWithNames)
 
 router.get('/history-part', historyControllerModal.getToolHistoryByPartId)
+router.get('/history-add-archive/:id', historyControllerModal.addToArchive)
 router.get(
   '/history-part/info',
   historyControllerModal.getToolHistoryByPartIdInfo

@@ -65,7 +65,7 @@
       <template v-slot:item.check="{ item }">
         <span
           v-if="item.is_archive"
-          class="mdi mdi-archive check-icon--large--blue"
+          class="mdi mdi-archive check-icon--large--gray"
           title="В архиве"
         />
         <span
@@ -266,12 +266,8 @@ export default {
   color: #950000; /* Пример изменения цвета */
 }
 
-.check-icon--large--blue {
+.check-icon--large--gray {
   font-size: 24px; /* или любой другой размер, который вам нужен */
   color: #848484; /* Пример синего цвета */
-}
-
-.text-grey {
-  color: #757575; /* Или любой оттенок серого */
 }
 </style>

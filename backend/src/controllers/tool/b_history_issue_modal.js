@@ -31,7 +31,7 @@ async function getToolHistoryByPartIdInfo(req, res) {
       LEFT JOIN dbo.operations_ordersnom oon ON sno.ordersnom_op_id = oon.op_id
       LEFT JOIN dbo.tool_history_nom thn ON sno.id = thn.specs_op_id AND thn.timestamp >= $2::date AND thn.timestamp < $2::date + interval '1 day'
       LEFT JOIN dbo.tool_part_archive tpa ON sn.id = tpa.specs_nom_id
-      WHERE sn.ID = $1
+      WHERE sn.ID = $1 AND (T OR tf OR f OR f4 OR fg OR dmc OR hision)
       ORDER BY oon.no;
     `
 
@@ -69,7 +69,7 @@ async function getToolHistoryByPartIdInfo(req, res) {
 
       // Update part info if not set
       if (!info.name) {
-        info.name = row.NAME
+        info.name = row.name
         info.description = row.description
         info.is_archive = row.is_archive // Обновляем статус архива
       }
@@ -187,18 +187,17 @@ async function getToolHistoryByPartId(req, res) {
         operation_ready: row.operation_ready, // Adding operation readiness status
       })
 
-      if (!info) {
-        info = {
-          id_part: row.id_part,
-          name: row.name,
-          description: row.description,
-          timestamp: row.timestamp,
-        }
-      }
+      // if (!info) {
+      //   info = {
+      //     id_part: row.id_part,
+      //     name: row.name,
+      //     description: row.description,
+      //     timestamp: row.timestamp,
+      //   }
+      // }
     })
 
     const finalData = {
-      info,
       all: Object.values(allTools),
     }
 
@@ -215,7 +214,50 @@ async function getToolHistoryByPartId(req, res) {
   }
 }
 
+async function addToArchive(req, res) {
+  const client = await pool.connect()
+  try {
+    // Получаем idPart из параметров маршрута
+    const idPart = req.params.id
+
+    // Проверка на существование записи в tool_part_archive
+    const checkExistsQuery = `
+      SELECT id
+      FROM dbo.tool_part_archive
+      WHERE specs_nom_id = $1;
+    `
+    const checkExistsResult = await client.query(checkExistsQuery, [idPart])
+
+    if (checkExistsResult.rows.length > 0) {
+      // Если запись существует, обновляем флаг архива
+      const updateQuery = `
+        UPDATE dbo.tool_part_archive
+        SET archive = true
+        WHERE specs_nom_id = $1;
+      `
+      await client.query(updateQuery, [idPart])
+    } else {
+      // Если записи нет, создаем новую запись с флагом архива
+      const insertQuery = `
+        INSERT INTO dbo.tool_part_archive (specs_nom_id, archive)
+        VALUES ($1, true);
+      `
+      await client.query(insertQuery, [idPart])
+    }
+
+    await client.query('COMMIT')
+    res.send('Запись была успешно добавлена в архив.')
+  } catch (err) {
+    await client.query('ROLLBACK')
+    console.error('Ошибка при добавлении в архив', err.stack)
+    res.status(500).send('Ошибка при выполнении операции добавления в архив.')
+  } finally {
+    client.release()
+  }
+}
+
 module.exports = {
   getToolHistoryByPartId,
   getToolHistoryByPartIdInfo,
+  addToArchive,
 }

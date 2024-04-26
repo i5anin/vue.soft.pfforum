@@ -5,7 +5,12 @@
         <v-row>
           <div>
             <h2 v-if="info" class="text-h5 ml-3 py-4">
-              {{ info.name }} - {{ info.description }}
+              <v-icon
+                v-if="info?.is_archive"
+                icon="mdi-archive  check-icon--large--gray"
+                class="mr-2"
+              />
+              {{ info?.name }} - {{ info?.description }}
             </h2>
             <v-col cols="12" class="my-2">
               <div>
@@ -107,16 +112,16 @@
             type="number"
             label="Количество"
             :rules="[(v) => v > 0 || 'Введите положительное число']"
-          ></v-text-field>
+          />
         </v-card-text>
         <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="green darken-1" text @click="confirmCancelOperation"
-            >Подтвердить</v-btn
-          >
-          <v-btn color="red darken-1" text @click="showCancelDialog = false"
-            >Отмена</v-btn
-          >
+          <v-spacer />
+          <v-btn color="green darken-1" text @click="confirmCancelOperation">
+            Подтвердить
+          </v-btn>
+          <v-btn color="red darken-1" text @click="showCancelDialog = false">
+            Отмена
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -244,6 +249,22 @@ export default {
     onCancel() {
       this.$emit('canceled')
     },
+    async addToArchive(idPart) {
+      try {
+        // Используем новый метод API для добавления в архив
+        const response = await issueHistoryApi.addToArchive(idPart)
+        if (response) {
+          this.info.is_archive = true
+          // Отображение сообщения об успешном добавлении в архив
+          // Обновляем данные в родительском компоненте или в текущем компоненте
+          this.$emit('update:info', { ...this.info, is_archive: true })
+          alert('Запись была успешно добавлена в архив.')
+        }
+      } catch (error) {
+        console.error('Ошибка при добавлении в архив:', error)
+        alert('Не удалось добавить в архив: ' + error.message)
+      }
+    },
     async fetchHistoryData() {
       try {
         const response = await issueHistoryApi.fetchHistoryByPartId(
@@ -253,10 +274,11 @@ export default {
         const partInfoResponse = await issueHistoryApi.fetchHistoryByPartIdInfo(
           this.id_part
         )
+        console.log(partInfoResponse)
         this.operations = partInfoResponse.info.operations
         this.completedOperations = partInfoResponse.info.completed_operations
         if (response && typeof response === 'object') {
-          this.info = response.info
+          this.info = partInfoResponse.info
           this.originalData = response
           this.availableOperations = Object.keys(this.originalData).filter(
             (key) => key !== 'info'
@@ -277,3 +299,10 @@ export default {
   },
 }
 </script>
+
+<style>
+.check-icon--large--gray {
+  font-size: 24px; /* или любой другой размер, который вам нужен */
+  color: #848484; /* Пример синего цвета */
+}
+</style>
