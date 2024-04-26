@@ -30,28 +30,15 @@ async function getToolHistory(req, res) {
       )`
     }
 
-    if (date)
+    if (date) {
       whereStatement += ` AND (CAST(tool_history_nom.timestamp AS DATE) = CAST('${date}' AS DATE))`
+    }
 
     // Добавлено условие в WHERE
     whereStatement += ` AND (T OR tf OR f OR f4 OR fg OR dmc OR hision)`
 
-    // Запрос на подсчет totalCount с учетом условия HAVING
-    const countQuery = `
-      SELECT COUNT(*)
-      FROM (
-             SELECT specs_nom.ID
-             FROM dbo.specs_nom
-                    INNER JOIN dbo.specs_nom_operations ON specs_nom.ID = specs_nom_operations.specs_nom_id
-                    INNER JOIN dbo.operations_ordersnom ON operations_ordersnom.op_id = specs_nom_operations.ordersnom_id
-                    LEFT JOIN dbo.tool_history_nom ON specs_nom_operations.ID = tool_history_nom.specs_op_id
-               ${whereStatement}
-             GROUP BY specs_nom.ID
-             HAVING COALESCE(SUM(tool_history_nom.quantity), 0) > 0
-           ) AS filtered_ids;
-    `
-
     // Запрос данных
+    // Мы удаляем подзапрос для подсчета totalCount и используем оконную функцию COUNT() OVER()
     const dataQuery = `
       SELECT specs_nom.ID AS id_part,
              specs_nom.NAME,
@@ -62,25 +49,28 @@ async function getToolHistory(req, res) {
              MIN(tool_history_nom.TIMESTAMP) AS first_issue_date,
              CAST(dbo.kolvo_prod_ready(specs_nom.ID) AS INTEGER) AS quantity_prod,
              specs_nom.kolvo AS quantity_prod_all,
-             specs_nom.status_otgruzka
+             specs_nom.status_otgruzka,
+             COUNT(*) OVER() AS total_count
       FROM dbo.specs_nom
              INNER JOIN dbo.specs_nom_operations ON specs_nom.ID = specs_nom_operations.specs_nom_id
              INNER JOIN dbo.operations_ordersnom ON operations_ordersnom.op_id = specs_nom_operations.ordersnom_op_id
              LEFT JOIN dbo.tool_history_nom ON specs_nom_operations.ID = tool_history_nom.specs_op_id
-        ${whereStatement}
+               ${whereStatement}
       GROUP BY specs_nom.ID, specs_nom.NAME, specs_nom.description, specs_nom.status_otgruzka
       HAVING COALESCE(SUM(tool_history_nom.quantity), 0) > 0
       ORDER BY MIN(tool_history_nom.TIMESTAMP) DESC
       LIMIT ${limit} OFFSET ${offset};
     `
 
-    const countResult = await pool.query(countQuery)
     const dataResult = await pool.query(dataQuery)
+
+    const totalCount =
+      dataResult.rows.length > 0 ? dataResult.rows[0].total_count : 0 // Получаем totalCount из первой записи или устанавливаем 0
 
     res.json({
       currentPage: page,
       itemsPerPage: limit,
-      totalCount: parseInt(countResult.rows[0].count, 10),
+      totalCount: totalCount,
       toolsHistory: dataResult.rows.map((row) => ({
         id_part: row.id_part,
         name: row.name,
