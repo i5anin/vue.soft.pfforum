@@ -17,7 +17,6 @@ async function getToolHistoryByPartIdInfo(req, res) {
     const idPart = req.query.id_part
     const selectedDate = req.query.selectedDate
 
-    // Основной запрос для получения данных операций и связанной истории
     let operationsQuery = `
       SELECT sn.ID AS id_part,
              sn.NAME,
@@ -25,12 +24,14 @@ async function getToolHistoryByPartIdInfo(req, res) {
              oon.no AS no_oper,
              sno.status_ready AS operation_ready,
              sno.id AS specs_op_id,
-             thn.id AS tool_history_id
+             thn.id AS tool_history_id,
+             COALESCE(tpa.archive, false) AS is_archive
       FROM dbo.specs_nom sn
       LEFT JOIN dbo.specs_nom_operations sno ON sn.id = sno.specs_nom_id
       LEFT JOIN dbo.operations_ordersnom oon ON sno.ordersnom_op_id = oon.op_id
       LEFT JOIN dbo.tool_history_nom thn ON sno.id = thn.specs_op_id AND thn.timestamp >= $2::date AND thn.timestamp < $2::date + interval '1 day'
-      WHERE sn.ID = $1  AND (T OR tf OR f OR f4 OR fg OR dmc OR hision)
+      LEFT JOIN dbo.tool_part_archive tpa ON sn.id = tpa.specs_nom_id
+      WHERE sn.ID = $1
       ORDER BY oon.no;
     `
 
@@ -38,13 +39,15 @@ async function getToolHistoryByPartIdInfo(req, res) {
     if (selectedDate) {
       queryParams.push(selectedDate)
     } else {
-      queryParams.push(new Date()) // Default to current date if not provided
+      // If not provided, default to current date
+      queryParams.push(new Date())
     }
 
     const operationsResult = await pool.query(operationsQuery, queryParams)
 
-    if (operationsResult.rows.length === 0)
+    if (operationsResult.rows.length === 0) {
       return res.status(404).send('Операции для данной партии не найдены')
+    }
 
     let info = {
       id_part: idPart,
@@ -52,6 +55,7 @@ async function getToolHistoryByPartIdInfo(req, res) {
       description: '',
       operations: [],
       completed_operations: [],
+      is_archive: false, // Добавляем сюда по умолчанию false
     }
 
     const operations = new Set()
@@ -65,9 +69,9 @@ async function getToolHistoryByPartIdInfo(req, res) {
 
       // Update part info if not set
       if (!info.name) {
-        info.name = row.name
+        info.name = row.NAME
         info.description = row.description
-        info.timestamp = row.timestamp
+        info.is_archive = row.is_archive // Обновляем статус архива
       }
     })
 
