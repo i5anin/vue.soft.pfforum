@@ -53,7 +53,7 @@ const tabs = [
     name: 'Просмотр',
     url: '#view',
     component: markRaw(ViewCatalog),
-    access: ['Admin', 'View'],
+    access: ['Admin', 'View', 'Editor'],
     ico: 'mdi-eye',
   },
   {
