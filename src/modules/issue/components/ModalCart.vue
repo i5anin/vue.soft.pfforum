@@ -2,6 +2,10 @@
   <v-snackbar v-model="snackbar" :timeout="3000" color="error">
     {{ snackbarText }}
   </v-snackbar>
+  <!--  <v-snackbar v-model="snackbar" color="success" right>-->
+  <!--    {{ snackbarText }}-->
+  <!--    <v-btn color="white" text @click="snackbar = false"> Закрыть </v-btn>-->
+  <!--  </v-snackbar>-->
   <Modal :title="popupTitle" widthDefault="600px">
     <template #content>
       <v-container>
@@ -126,6 +130,15 @@
         :disabled="submitButtonDisabled"
       >
         Выдать
+        <!-- Добавление класса ml-2 (margin left 2) для отступа -->
+        <v-chip
+          v-if="cartItemsTotalQuantity"
+          color="red"
+          variant="flat"
+          class="ml-2"
+        >
+          {{ cartItemsTotalQuantity }} шт
+        </v-chip>
       </v-btn>
     </template>
   </Modal>
@@ -228,6 +241,11 @@ export default {
       set(value) {
         this.handleSelectionChange(value) // вызов метода для обновления Vuex хранилища
       },
+    },
+    cartItemsTotalQuantity() {
+      return this.cartItems
+        ? this.cartItems.reduce((total, item) => total + item.quantity, 0)
+        : 0
     },
     currentFolderName() {
       return this.toolId === null ? this.idParent.label : this.tool.folder_name
