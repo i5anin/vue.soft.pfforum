@@ -39,4 +39,11 @@ export const editorToolApi = {
       .get(`/tools-params-name/${parentId}`)
       .then(handleResponse)
       .catch(handleApiError),
+
+  // Получить движение инструмента по ID
+  getToolMovementById: async (toolId) =>
+    axiosInstance
+      .get(`/tool-movement/${toolId}`)
+      .then(handleResponse)
+      .catch(handleApiError),
 }

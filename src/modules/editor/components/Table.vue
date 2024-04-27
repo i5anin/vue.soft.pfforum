@@ -185,7 +185,7 @@ export default {
       this.editingToolId = null
       this.openDialog = true
     },
-    onEditRow(event, { item: tool }) {
+    onEditRow(_, { item: tool }) {
       this.editingToolId = tool.id
       this.openDialog = true
     },

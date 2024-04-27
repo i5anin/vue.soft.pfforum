@@ -13,13 +13,13 @@
     <!--        Новый инструмент-->
     <!--      </v-btn>-->
     <!--    </div>-->
-    <!--    <editor-tool-modal-->
-    <!--      v-if="openDialog"-->
-    <!--      :persistent="true"-->
-    <!--      :tool-id="editingToolId"-->
-    <!--      @canceled="onClosePopup"-->
-    <!--      @changes-saved="onSaveChanges"-->
-    <!--    />-->
+    <editor-tool-modal
+      v-if="openDialog"
+      :persistent="true"
+      :tool-id="editingToolId"
+      @canceled="onClosePopup"
+      @changes-saved="onSaveChanges"
+    />
     <v-data-table-server
       v-if="isDataLoaded"
       noDataText="Нет данных"
@@ -35,6 +35,7 @@
       density="compact"
       @update:page="onChangePage"
       @update:items-per-page="onUpdateItemsPerPage"
+      @click:row="onEditRow"
       class="elevation-1"
       hover
       fixed-header
@@ -65,15 +66,15 @@
 </template>
 
 <script>
-// import EditorToolModal from './Modal.vue'
+import EditorToolModal from './Modal.vue'
 import ToolFilter from './ToolFilter.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
-import ViewToolStore from '@/modules/view/store'
 
 export default {
   emits: [],
   components: {
+    EditorToolModal,
     VDataTableServer,
     ToolFilter,
   },
@@ -124,6 +125,7 @@ export default {
           { title: 'Норма', key: 'norma', sortable: false },
           { title: 'Склад', key: 'sklad', sortable: false },
           { title: 'Заказ', key: 'zakaz', sortable: false },
+          // { title: 'Передвижение', key: 'movement', sortable: false },
           // { title: 'Лимит', key: 'limit', sortable: false },
         ]
       },
@@ -144,6 +146,11 @@ export default {
       'setItemsPerPage',
       'setSelectedDynamicFilters',
     ]),
+
+    onEditRow(_, { item: tool }) {
+      this.editingToolId = tool.id
+      this.openDialog = true
+    },
     // Метод для обработки обновления параметров фильтра
     onParamsFilterUpdate({ key, value }) {
       this.setSelectedDynamicFilters({
