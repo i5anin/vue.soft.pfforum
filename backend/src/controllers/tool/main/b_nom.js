@@ -243,7 +243,6 @@ async function addTool(req, res) {
         .status(400)
         .json({ error: 'parent_id must be greater than 1.' })
 
-    // После проверки parent_id
     if (property && property.id) {
       const propertyIdCheckResult = await pool.query(
         'SELECT id FROM dbo.tool_params WHERE id = $1',
@@ -257,7 +256,6 @@ async function addTool(req, res) {
       }
     }
 
-    // Проверка существования parent_id в таблице dbo.tool_tree
     const parentCheckResult = await pool.query(
       'SELECT id FROM dbo.tool_tree WHERE id = $1',
       [parent_id]
@@ -272,7 +270,6 @@ async function addTool(req, res) {
     const propertyWithoutNull = removeNullProperties(property)
     const propertyString = JSON.stringify(propertyWithoutNull)
 
-    // Добавляем поля sklad и norma в запрос
     const toolInsertResult = await pool.query(
       'INSERT INTO dbo.tool_nom (name, parent_id, property, sklad, norma) ' +
         'VALUES ($1, $2, $3, $4, $5) RETURNING id',
@@ -280,6 +277,13 @@ async function addTool(req, res) {
     )
 
     const toolId = toolInsertResult.rows[0].id
+
+    // Логирование добавления инструмента
+    const logMessage = `Инструмент успешно добавлен ID ${toolId}.`
+    await pool.query(
+      'INSERT INTO dbo.vue_log (message, tool_id, datetime_log, new_amount) VALUES ($1, $2, NOW(), $3)',
+      [logMessage, toolId, sklad]
+    )
 
     // Получение полной информации о добавленном инструменте
     const newToolResult = await pool.query(
