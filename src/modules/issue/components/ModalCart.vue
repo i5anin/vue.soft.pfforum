@@ -1,11 +1,6 @@
 <template>
   <v-snackbar v-model="snackbar" :timeout="3000" color="error">
     {{ snackbarText }}
-    <!--    <template v-slot:action="{ attrs }">-->
-    <!--      <v-btn icon v-bind="attrs" @click="snackbar = false">-->
-    <!--        <v-icon>mdi-close</v-icon>-->
-    <!--      </v-btn>-->
-    <!--    </template>-->
   </v-snackbar>
   <Modal :title="popupTitle" widthDefault="600px">
     <template #content>
@@ -14,13 +9,12 @@
         <v-row>
           <v-col>
             <v-text-field
-              density="compact"
-              label="поиск по ID"
+              variant="outlined"
+              label="поиск детали по ID партии"
               required
               @update:model-value="onIdChanged"
             />
             <v-select
-              density="compact"
               label="Название Обозначение"
               required
               v-model="toolModel.detailDescription"
@@ -28,9 +22,7 @@
               :items="options.idNameDescription"
               @update:model-value="onIdSelected"
             />
-
             <v-select
-              density="compact"
               label="Номер Тип"
               required
               v-model="toolModel.numberType"
@@ -42,6 +34,7 @@
             />
             <h2 class="text-h6 pl-5 mb-2">Кому выдать:</h2>
             <v-combobox
+              icon="mdi-account"
               v-model="selectedFio"
               :items="fioOptions"
               item-title="text"
@@ -49,7 +42,7 @@
               label="ФИО"
               @update:modelValue="handleSelectionChange"
             />
-            <v-combobox
+            <v-select
               v-model="toolModel.typeIssue"
               :items="typeIssueOptions"
               item-text="title"
@@ -63,11 +56,11 @@
         <v-table hover>
           <thead>
             <tr>
-              <th>#</th>
+              <th />
               <th>Инструмент</th>
               <th>Кол-во</th>
               <th>Склад</th>
-              <th></th>
+              <th />
             </tr>
           </thead>
           <tbody>
@@ -77,32 +70,35 @@
               <td>
                 <div class="d-flex align-center">
                   <v-btn
+                    class="hover-effect-red"
                     icon
                     size="x-small"
                     @click="decreaseQuantity(index)"
                     :disabled="item.quantity <= 1"
                   >
-                    <v-icon>mdi-minus</v-icon>
+                    <v-icon icon="mdi-minus" />
                   </v-btn>
                   <div class="mx-2">{{ item.quantity }}</div>
                   <v-btn
+                    class="hover-effect-red"
                     icon
                     size="x-small"
                     @click="increaseQuantity(index)"
                     :disabled="item.quantity >= item.sklad"
                   >
-                    <v-icon>mdi-plus</v-icon>
+                    <v-icon icon="mdi-plus" />
                   </v-btn>
                 </div>
               </td>
               <td>{{ item.sklad }}</td>
               <td>
                 <v-btn
+                  class="hover-effect-grey"
                   icon
                   size="x-small"
                   @click="removeFromCartAction(item.toolId)"
                 >
-                  <v-icon>mdi-delete</v-icon>
+                  <v-icon icon="mdi-delete" />
                 </v-btn>
               </td>
             </tr>
@@ -211,7 +207,7 @@ export default {
           this.resetToolModel()
         } else {
           await this.fetchToolById(editingToolId)
-          // this.updateToolModel()
+          this.updateToolModel()
         }
       },
     },
@@ -384,7 +380,6 @@ export default {
         norma: null,
         property: {},
       }
-      // console.log(this.toolModel)
     },
     decreaseQuantity(index) {
       const item = this.cartItems[index]
@@ -440,5 +435,15 @@ export default {
 <style>
 .gray {
   color: gray;
+}
+
+.hover-effect-grey:hover {
+  background-color: grey; /* Цвет фона при наведении */
+  color: white; /* Цвет иконки или текста при наведении */
+}
+
+.hover-effect-red:hover {
+  background-color: red; /* Цвет фона при наведении */
+  color: white; /* Цвет иконки или текста при наведении */
 }
 </style>
