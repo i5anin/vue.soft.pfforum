@@ -300,7 +300,7 @@ async function addTool(req, res) {
 
 async function editTool(req, res) {
   const { id } = req.params
-  const { name, parent_id, property, sklad, norma, limit } = req.body
+  const { name, parent_id, property, sklad: newSklad, norma, limit } = req.body
   // Преобразование запятых в точки в числах в property
   replaceCommaWithDotInNumbers(property)
 
@@ -310,7 +310,6 @@ async function editTool(req, res) {
         .status(400)
         .json({ error: 'parent_id must be greater than 1.' })
 
-    // После проверки parent_id
     if (property && property.id) {
       const propertyIdCheckResult = await pool.query(
         'SELECT id FROM dbo.tool_params WHERE id = $1',
@@ -334,15 +333,35 @@ async function editTool(req, res) {
         .status(400)
         .json({ error: 'Specified parent_id does not exist.' })
 
+    // Получение текущего значения на складе
+    const currentSkladResult = await pool.query(
+      'SELECT sklad FROM dbo.tool_nom WHERE id = $1',
+      [id]
+    )
+
+    if (currentSkladResult.rowCount === 0)
+      return res
+        .status(404)
+        .json({ error: 'Tool with the specified ID not found.' })
+
+    const oldSklad = currentSkladResult.rows[0].sklad
+
     const propertyWithoutNull = removeNullProperties(property)
     const propertyString = JSON.stringify(propertyWithoutNull)
 
+    // Обновление инструмента с новым значением на складе
     const result = await pool.query(
       'UPDATE dbo.tool_nom SET name=$1, parent_id=$2, property=$3, sklad=$4, norma=$5, "limit"=$7 WHERE id=$6 RETURNING *',
-      [name, parent_id, propertyString, sklad, norma, id, limit]
+      [name, parent_id, propertyString, newSklad, norma, id, limit]
     )
 
     if (result.rowCount > 0) {
+      // Логирование изменений на складе (old_amount и new_amount)
+      await pool.query(
+        'INSERT INTO dbo.vue_log (message, tool_id, datetime_log, old_amount, new_amount) VALUES ($1, $2, NOW(), $3, $4)',
+        [`Обновлен ID инструмента ${id}`, id, oldSklad, newSklad]
+      )
+
       res.status(200).json({ success: 'OK', data: result.rows[0] })
     } else {
       res.status(404).json({ error: 'Tool with the specified ID not found.' })
