@@ -147,6 +147,10 @@ export default {
       'setSelectedDynamicFilters',
     ]),
 
+    onClosePopup() {
+      this.openDialog = false // Эта переменная должна контролировать открытие модального окна.
+    },
+
     onEditRow(_, { item: tool }) {
       this.editingToolId = tool.id
       this.openDialog = true
