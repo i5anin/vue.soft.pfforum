@@ -117,14 +117,10 @@ export default {
         ? import.meta.env.VITE_BUILD_COLOR
         : import.meta.env.VITE_DEV_COLOR
     },
-    originalMenuItemsComputed() {
-      return this.filterForHohlov(originalMenuItems)
-    },
     plotsMenuItemsComputed() {
       return this.filterForHohlov(plotsMenuItems)
     },
     groupStates() {
-      // Инициализация состояния группы, если необходимо
       return []
     },
   },
@@ -144,7 +140,6 @@ export default {
       this.currentModal = null
     },
     onSaveChanges() {
-      // Здесь может быть логика для обработки сохранения изменений в модальном окне
       this.onClosePopup()
     },
     filterForHohlov(items) {
