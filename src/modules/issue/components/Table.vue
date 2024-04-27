@@ -27,15 +27,15 @@
       @changes-saved="onSaveChanges"
       @close="openDialog = false"
     />
-    <ModalIssue
-      v-if="openDialog && currentModal === 'issue'"
-      :key="'modal-issue'"
-      :persistent="true"
-      :tool-id="editingToolId"
-      @canceled="onClosePopup"
-      @changes-saved="onSaveChanges"
-      @close="openDialog = false"
-    />
+    <!--    <ModalIssue-->
+    <!--      v-if="openDialog && currentModal === 'issue'"-->
+    <!--      :key="'modal-issue'"-->
+    <!--      :persistent="true"-->
+    <!--      :tool-id="editingToolId"-->
+    <!--      @canceled="onClosePopup"-->
+    <!--      @changes-saved="onSaveChanges"-->
+    <!--      @close="openDialog = false"-->
+    <!--    />-->
     <v-data-table-server
       v-if="isDataLoaded"
       noDataText="Нет данных"
@@ -110,7 +110,6 @@ export default {
   components: {
     VDataTableServer,
     ToolFilter,
-    ModalIssue,
     ModalDamaged,
   },
   props: {
@@ -190,6 +189,9 @@ export default {
       'setItemsPerPage',
       'setSelectedDynamicFilters',
     ]),
+    async updateTableData() {
+      await this.fetchToolsByFilter() // полагаем, что этот метод обновляет данные таблицы
+    },
     refreshData() {
       this.fetchToolsByFilter() // Assuming this method fetches and refreshes the data
     },
@@ -293,10 +295,6 @@ export default {
       this.openDialog = false
       this.fetchToolsDynamicFilters()
       this.fetchToolsByFilter()
-    },
-    onAddTool() {
-      this.editingToolId = null
-      this.openDialog = true
     },
   },
 }

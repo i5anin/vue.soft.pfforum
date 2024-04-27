@@ -254,9 +254,6 @@ export default {
       'updateCartItemQuantityAction',
       'removeFromCartAction',
     ]),
-    reloadData() {
-      this.fetchToolsByFilter() // Предполагаем, что это метод для загрузки данных таблицы
-    },
     onOperationSelected(selectedValue) {
       console.log('Выбранное значение:', selectedValue)
       const operationId = this.operationMapping[selectedValue]
@@ -360,11 +357,26 @@ export default {
     async onSave() {
       this.isSubmitting = true
       try {
-        this.issueToken = localStorage.getItem('token') // Move token retrieval here
+        this.issueToken = localStorage.getItem('token') // Проверка токена аутентификации
         if (!this.issueToken) throw new Error('Authentication token not found.')
+
+        // Подготавливаем данные для обновления
+        const toolData = {
+          // Пример данных, которые вы бы отправили
+          id: this.toolId, // или другой уникальный идентификатор
+          quantity: this.quantity, // к примеру количество
+          typeIssue: this.toolModel.typeIssue.id,
+          // Дополните данными, которые необходимо обновить
+        }
+
+        // Отправляем запрос на обновление
+        await issueToolApi.updateToolData(toolData)
+
+        // (Продолжение вашей логики для sendIssueDataToApi)
+
         const isSuccess = await this.sendIssueDataToApi()
         if (isSuccess) {
-          this.snackbarText = 'Успешно выдано'
+          this.snackbarText = 'Информация обновлена и успешно выдано'
           this.snackbar = true
           this.$emit('changes-saved')
         }
