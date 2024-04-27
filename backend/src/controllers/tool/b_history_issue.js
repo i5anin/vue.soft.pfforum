@@ -185,8 +185,61 @@ async function getAllIssuedToolIdsWithNames(req, res) {
   }
 }
 
+async function getToolMovementById(req, res) {
+  console.log('Функция getToolMovementById вызвана')
+
+  const toolId = req.params.id // Получаем id инструмента из параметров запроса
+
+  try {
+    const query = `
+      SELECT
+        "l".id AS log_id,
+        "l".message,
+        "l".datetime_log,
+        "l".new_amount,
+        "l".old_amount,
+        "tn".name AS tool_name,
+        "vu".login AS user_login,
+        "tn".id AS tool_nom_id,
+        "vu".id AS vue_users_id
+      FROM
+        "dbo"."vue_log" "l"
+        LEFT JOIN "dbo"."tool_nom" "tn" ON "l".tool_id = "tn".id
+        LEFT JOIN "dbo"."vue_users" "vu" ON "l".user_id = "vu".id
+      WHERE
+        "l".tool_id = $1
+      ORDER BY
+        "l".datetime_log DESC;
+    `
+
+    const result = await pool.query(query, [toolId])
+
+    if (result.rows.length > 0) {
+      res.status(200).json(
+        result.rows.map((row) => ({
+          log_id: row.log_id,
+          message: row.message,
+          datetime_log: row.datetime_log,
+          new_amount: row.new_amount,
+          old_amount: row.old_amount,
+          tool_name: row.tool_name,
+          user_login: row.user_login,
+          tool_nom_id: row.tool_nom_id,
+          vue_users_id: row.vue_users_id,
+        }))
+      )
+    } else {
+      res.status(404).send('Движение для данного инструмента не найдено.')
+    }
+  } catch (err) {
+    console.error('Ошибка при запросе движения инструмента:', err)
+    res.status(500).send('Ошибка сервера')
+  }
+}
+
 module.exports = {
   getToolHistory,
   getToolHistoryId,
   getAllIssuedToolIdsWithNames,
+  getToolMovementById,
 }
