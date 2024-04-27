@@ -121,6 +121,7 @@
       </v-btn>
       <v-spacer />
       <v-btn
+        v-if="cartItemsTotalQuantity"
         prepend-icon="mdi-hand-extended"
         @click="onSave"
         class="text-none text-subtitle-1 pl-3"
@@ -131,12 +132,7 @@
       >
         Выдать
         <!-- Добавление класса ml-2 (margin left 2) для отступа -->
-        <v-chip
-          v-if="cartItemsTotalQuantity"
-          color="red"
-          variant="flat"
-          class="ml-2"
-        >
+        <v-chip color="red" variant="flat" class="ml-2">
           {{ cartItemsTotalQuantity }} шт
         </v-chip>
       </v-btn>
