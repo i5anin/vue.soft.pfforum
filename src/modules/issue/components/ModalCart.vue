@@ -46,7 +46,8 @@
               label="ФИО"
               @update:modelValue="handleSelectionChange"
             />
-            <v-select
+            <!--fixme-->
+            <v-combobox
               v-model="toolModel.typeIssue"
               :items="typeIssueOptions"
               item-text="title"
