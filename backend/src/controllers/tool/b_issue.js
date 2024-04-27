@@ -184,6 +184,7 @@ async function issueTools(req, res) {
       }
 
       const newStock = stockResult.rows[0].sklad - quantity
+      const oldStock = stockResult.rows[0].sklad // Добавлено для логирования предыдущего значения
 
       // Вставка записи в историю инструмента
       const insertQuery = `
@@ -205,8 +206,15 @@ async function issueTools(req, res) {
 
       // Логирование операции выдачи инструмента
       const logMessage = `Выдача инструмента ${toolId}: ${quantity} ед. Пользователь: ${userId}, Осталось на складе: ${newStock}.`
-      const logQuery = `INSERT INTO dbo.vue_log (message, tool_id, user_id, datetime_log) VALUES ($1, $2, $3, NOW())`
-      await pool.query(logQuery, [logMessage, toolId, issuerId])
+      const logQuery =
+        'INSERT INTO dbo.vue_log (message, tool_id, user_id, datetime_log, old_amount, new_amount) VALUES ($1, $2, $3, NOW(), $4, $5)'
+      await pool.query(logQuery, [
+        logMessage,
+        toolId,
+        issuerId,
+        oldStock,
+        newStock,
+      ])
     }
 
     // Завершение транзакции
@@ -299,7 +307,7 @@ async function cancelOperation(req, res) {
     const stockResult = await pool.query(stockQuery, [
       operation.rows[0].id_tool,
     ])
-    const oldQuantity = stockResult.rows[0].sklad
+    const oldQuantity = parseInt(stockResult.rows[0].sklad, 10)
 
     const currentDate = new Date()
     const operationDate = new Date(operation.rows[0].timestamp)
@@ -319,18 +327,20 @@ async function cancelOperation(req, res) {
     const updateOperationQuery = `UPDATE dbo.tool_history_nom SET quantity = quantity - $2, cancelled = true, cancelled_id = $3 WHERE id = $1`
     await pool.query(updateOperationQuery, [id, cancelQuantity, issuerId])
 
-    const newQuantity = oldQuantity + cancelQuantity
+    const newQuantity = oldQuantity + parseInt(cancelQuantity, 10)
 
     const updateStockQuery = `UPDATE dbo.tool_nom SET sklad = $1 WHERE id = $2`
     await pool.query(updateStockQuery, [newQuantity, operation.rows[0].id_tool])
 
     // Логирование операции возврата
     const logMessage = `Отмена операции ${id}: ${cancelQuantity} ед. возвращено на склад. Было: ${oldQuantity}, стало: ${newQuantity}.`
-    const logQuery = `INSERT INTO dbo.vue_log (message, tool_id, user_id, datetime_log) VALUES ($1, $2, $3, NOW())`
+    const logQuery = `INSERT INTO dbo.vue_log (message, tool_id, user_id, datetime_log, old_amount, new_amount) VALUES ($1, $2, $3, NOW(), $4, $5)`
     await pool.query(logQuery, [
       logMessage,
       operation.rows[0].id_tool,
       issuerId,
+      oldQuantity,
+      newQuantity,
     ])
 
     await pool.query('COMMIT')
