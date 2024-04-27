@@ -305,16 +305,14 @@ async function addTool(req, res) {
 async function editTool(req, res) {
   const { id } = req.params
   const { name, parent_id, property, sklad: newSklad, norma, limit } = req.body
-
   // Преобразование запятых в точки в числах в property
   replaceCommaWithDotInNumbers(property)
 
   try {
-    if (parent_id <= 1) {
+    if (parent_id <= 1)
       return res
         .status(400)
         .json({ error: 'parent_id must be greater than 1.' })
-    }
 
     if (property && property.id) {
       const propertyIdCheckResult = await pool.query(
@@ -334,11 +332,10 @@ async function editTool(req, res) {
       [parent_id]
     )
 
-    if (parentCheckResult.rowCount === 0) {
+    if (parentCheckResult.rowCount === 0)
       return res
         .status(400)
         .json({ error: 'Specified parent_id does not exist.' })
-    }
 
     // Получение текущего значения на складе
     const currentSkladResult = await pool.query(
@@ -346,48 +343,36 @@ async function editTool(req, res) {
       [id]
     )
 
-    if (currentSkladResult.rowCount === 0) {
+    if (currentSkladResult.rowCount === 0)
       return res
         .status(404)
         .json({ error: 'Tool with the specified ID not found.' })
-    }
 
     const oldSklad = currentSkladResult.rows[0].sklad
 
-    if (oldSklad !== newSklad) {
-      // Обновление инструмента с новым значением на складе
-      const propertyWithoutNull = removeNullProperties(property)
-      const propertyString = JSON.stringify(propertyWithoutNull)
+    const propertyWithoutNull = removeNullProperties(property)
+    const propertyString = JSON.stringify(propertyWithoutNull)
 
-      const result = await pool.query(
-        'UPDATE dbo.tool_nom SET name=$1, parent_id=$2, property=$3, sklad=$4, norma=$5, "limit"=$7 WHERE id=$6 RETURNING *',
-        [name, parent_id, propertyString, newSklad, norma, id, limit]
+    // Обновление инструмента с новым значением на складе
+    const result = await pool.query(
+      'UPDATE dbo.tool_nom SET name=$1, parent_id=$2, property=$3, sklad=$4, norma=$5, "limit"=$7 WHERE id=$6 RETURNING *',
+      [name, parent_id, propertyString, newSklad, norma, id, limit]
+    )
+
+    if (result.rowCount > 0) {
+      // Логирование изменений на складе (old_amount и new_amount)
+      await pool.query(
+        'INSERT INTO dbo.vue_log (message, tool_id, datetime_log, old_amount, new_amount) VALUES ($1, $2, NOW(), $3, $4)',
+        [`Обновлен ID инструмента ${id}`, id, oldSklad, newSklad]
       )
 
-      if (result.rowCount > 0) {
-        // Логирование изменений на складе (old_amount и new_amount)
-        await pool.query(
-          'INSERT INTO dbo.vue_log (message, tool_id, datetime_log, old_amount, new_amount) VALUES ($1, $2, NOW(), $3, $4)',
-          [`Обновлен ID инструмента ${id}`, id, oldSklad, newSklad]
-        )
-
-        return res.status(200).json({ success: 'OK', data: result.rows[0] })
-      } else {
-        return res
-          .status(404)
-          .json({ error: 'Tool with the specified ID not found.' })
-      }
+      res.status(200).json({ success: 'OK', data: result.rows[0] })
     } else {
-      // Если количество на складе не изменилось, возвращаем успех без обновления записи
-      return res
-        .status(200)
-        .json({ success: 'OK', message: 'No changes in sklad.' })
+      res.status(404).json({ error: 'Tool with the specified ID not found.' })
     }
   } catch (err) {
     console.error('Error:', err.message)
-    return res
-      .status(500)
-      .json({ error: 'Error updating tool: ' + err.message })
+    res.status(500).json({ error: 'Error updating tool: ' + err.message })
   }
 }
 
