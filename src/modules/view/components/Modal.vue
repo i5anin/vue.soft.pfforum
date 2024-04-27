@@ -2,7 +2,9 @@
   <Modal :title="popupTitle" widthDefault="1550px">
     <template #content>
       <v-container>
-        {{ cartItems[0].name }}
+        <span v-if="cartItems && cartItems.length > 0">
+          {{ cartItems[0]?.name }}
+        </span>
         <v-table hover>
           <thead>
             <tr>
@@ -20,7 +22,7 @@
           <tbody>
             <tr v-for="(item, index) in cartItems" :key="item.id">
               <td class="gray">{{ index + 1 }}</td>
-              <!--              <td>{{ item.name }}</td>-->
+              <!-- <td>{{ item.name }}</td>-->
               <td>{{ item.date }}</td>
               <td>{{ item.comment }}</td>
               <td>{{ item.was }}</td>
