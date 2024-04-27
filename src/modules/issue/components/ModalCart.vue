@@ -1,11 +1,11 @@
 <template>
   <v-snackbar v-model="snackbar" :timeout="3000" color="error">
     {{ snackbarText }}
-    <template #action="{ attrs }">
-      <v-btn icon v-bind="attrs" @click="snackbar = false">
-        <v-icon>mdi-close</v-icon>
-      </v-btn>
-    </template>
+    <!--    <template v-slot:action="{ attrs }">-->
+    <!--      <v-btn icon v-bind="attrs" @click="snackbar = false">-->
+    <!--        <v-icon>mdi-close</v-icon>-->
+    <!--      </v-btn>-->
+    <!--    </template>-->
   </v-snackbar>
   <Modal :title="popupTitle" widthDefault="600px">
     <template #content>
@@ -47,8 +47,6 @@
               item-title="text"
               item-value="value"
               label="ФИО"
-              return-object="false"
-              single-line="false"
               @update:modelValue="handleSelectionChange"
             />
             <v-combobox
@@ -57,14 +55,12 @@
               item-text="title"
               item-value="id"
               label="Тип выдачи"
-              return-object="false"
-              single-line="false"
               :rules="issueTypeRules"
               required
             />
           </v-col>
         </v-row>
-        <v-table hover="true">
+        <v-table hover>
           <thead>
             <tr>
               <th>#</th>
@@ -318,10 +314,9 @@ export default {
     },
 
     async sendIssueDataToApi() {
-      // console.log('Отправляемые данные:', this.toolModel) - ???
       const issueData = {
         // Составление данных для отправки API
-        issueToken: this.issueToken, // Ensure this is being sent correctly
+        issueToken: this.issueToken,
         operationId: this.toolModel.operationType,
         userId: this.selectedFio.value,
         typeIssue: this.toolModel.typeIssue.id,
@@ -340,8 +335,6 @@ export default {
           this.$emit('canceled')
           this.$store.dispatch('IssueToolStore/clearCart')
           return true
-        } else {
-          throw new Error('Ответ сервера не соответствует ожидаемому')
         }
       } catch (error) {
         this.snackbarText =
@@ -358,7 +351,7 @@ export default {
       this.isSubmitting = true
       try {
         this.issueToken = localStorage.getItem('token') // Move token retrieval here
-        if (!this.issueToken) throw new Error('Authentication token not found.')
+        if (!this.issueToken) new Error('Authentication token not found.')
         const isSuccess = await this.sendIssueDataToApi()
         if (isSuccess) {
           this.snackbarText = 'Успешно выдано'
@@ -420,23 +413,6 @@ export default {
         }
       })
       return Array.from(uniqueSet)
-    },
-
-    initializeLocalState() {
-      if (this.toolId) {
-        this.fetchToolById(this.toolId).then(() => {
-          this.toolModel.sklad = this.tool.sklad
-          this.toolModel.norma = this.tool.norma
-        })
-      } else {
-        this.localParentId = this.idParent.id
-        this.currentFolderName = this.idParent.label
-      }
-    },
-
-    prependOptionIfNeeded(value, optionsList) {
-      if (value && !optionsList.some((option) => option.value === value))
-        optionsList.unshift(value)
     },
 
     onCancel() {
