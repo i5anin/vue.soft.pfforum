@@ -205,8 +205,24 @@ async function issueTools(req, res) {
 
       // Логирование операции выдачи инструмента
       const logMessage = `Выдача инструмента ${toolId}: ${quantity} ед. Пользователь: ${userId}, Осталось на складе: ${newStock}.`
-      const logQuery = `INSERT INTO dbo.vue_log (message, tool_id, user_id, datetime_log) VALUES ($1, $2, $3, NOW())`
-      await pool.query(logQuery, [logMessage, toolId, issuerId])
+      const logQuery = `INSERT INTO dbo.vue_log (
+        message,
+        tool_id,
+        user_id,
+        datetime_log,
+        old_amount,
+        new_amount
+      ) VALUES ($1, $2, $3, NOW(), $4, $5)`
+      const oldAmount = stockResult.rows[0].sklad // Количество до выдачи
+      const newAmount = newStock // Количество после выдачи
+
+      await pool.query(logQuery, [
+        logMessage,
+        toolId,
+        issuerId,
+        oldAmount,
+        newAmount,
+      ])
     }
 
     // Завершение транзакции
@@ -359,7 +375,7 @@ async function cancelOperation(req, res) {
 module.exports = {
   cancelOperation,
   findDetailProduction,
-  issueTool,
+  // issueTool,
   issueTools,
   getFioOperators,
   getCncData,
