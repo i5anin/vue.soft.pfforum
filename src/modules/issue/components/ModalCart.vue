@@ -368,6 +368,8 @@ export default {
           this.snackbarText = 'Успешно выдано'
           this.snackbar = true
           this.$emit('changes-saved')
+          this.$store.dispatch('IssueToolStore/clearCart')
+          await this.fetchToolsByFilter() // Обновление данных таблицы
         }
       } catch (error) {
         console.error('Произошла ошибка при отправке данных:', error)
