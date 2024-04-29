@@ -25,8 +25,8 @@
               <!-- <td>{{ item.name }}</td>-->
               <td>{{ item.date }}</td>
               <td>{{ item.comment }}</td>
-              <td>{{ item.was }}</td>
-              <td>{{ item.now }}</td>
+              <td style="color: grey">{{ item.was }}</td>
+              <td style="color: grey">{{ item.now }}</td>
               <td>
                 <v-icon small v-if="item.change > 0" color="green" class="pr-3">
                   mdi-arrow-up
@@ -141,7 +141,7 @@ export default {
     },
     popupTitle() {
       return this.tool?.id != null
-        ? `Движение инструмента ID: ${this.tool.id}`
+        ? `Движение инструмента на складе ID: ${this.tool.id}`
         : 'Движение инструмента'
     },
   },
@@ -170,7 +170,6 @@ export default {
       if (this.toolId) {
         try {
           const data = await editorToolApi.getToolMovementById(this.toolId)
-          console.log(data) // Добавим для проверки данных
           this.cartItems = data.map((item) => ({
             id: item.log_id,
             name: item.tool_name,
