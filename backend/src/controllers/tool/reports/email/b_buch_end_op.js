@@ -55,7 +55,6 @@ async function checkStatusChanges() {
       WHERE sent != TRUE
       ORDER BY
         specs_op_id
-        LIMIT 5
     `)
 
     const operations = operationsResult.rows
@@ -73,29 +72,55 @@ async function checkStatusChanges() {
       // Получаем данные для отправки уведомлений, сгруппированные по операции
       const toolsResult = await pool.query(
         `
-          SELECT tool_nom.NAME                                           AS tool_name,
-                 SUM(tool_history_nom.quantity)                          AS total_quantity,
-                 dbo.kolvo_prod_ready(specs_nom_operations.specs_nom_id) AS quantity_prod,
-                 specs_nom_operations.specs_nom_id
+          SELECT
+            tool_nom.NAME                                           AS tool_name,
+            SUM(tool_history_nom.quantity)                          AS total_quantity,
+            dbo.kolvo_prod_ready(specs_nom_operations.specs_nom_id) AS quantity_prod,
+            specs_nom_operations.specs_nom_id,
+            specs_nom.NAME                                          AS specs_name,
+            specs_nom.description                                   AS description,
+            operations_ordersnom.no                                 AS no,
+            dbo.get_full_cnc_type(dbo.get_op_type_code(specs_nom_operations.ID)) AS cnc_type
           FROM dbo.tool_history_nom
-                 JOIN dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.ID
-                 JOIN dbo.specs_nom_operations ON tool_history_nom.specs_op_id = specs_nom_operations.ID
+            LEFT JOIN dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.ID
+            LEFT JOIN dbo.specs_nom_operations ON tool_history_nom.specs_op_id = specs_nom_operations.ID
+            LEFT JOIN dbo.specs_nom ON specs_nom_operations.specs_nom_id = specs_nom.ID
+            LEFT JOIN dbo.operations_ordersnom ON specs_nom_operations.ordersnom_op_id = operations_ordersnom.ID
           WHERE tool_history_nom.specs_op_id = $1
           GROUP BY tool_nom.NAME,
-                   specs_nom_operations.specs_nom_id
+            specs_nom_operations.specs_nom_id,
+            specs_nom.NAME,
+            specs_nom.description,
+            operations_ordersnom.no,
+            specs_nom_operations.ID
         `,
         [specsOpId]
       )
+
+      console.log(toolsResult.rows)
 
       const tools = toolsResult.rows
 
       // Формируем HTML уведомления
       let htmlContent = `<h2>Операция завершена: ${specsOpId}</h2>`
+
+      if (tools.length === 0) {
+        throw new Error('Ошибка: набор tools пуст.')
+      }
+
       if (tools.length > 0) {
-        // Добавляем название операции, её описание и другие детали в заголовок
-        const firstTool = tools[0] // Предполагаем, что все инструменты относятся к одной операции и имеют одинаковые детали
+        const firstTool = tools[0] // Получаем первый элемент из массива результатов запроса
+        // Если информация отсутствует, выдаем ошибку
+
+        if (!firstTool.specs_name || !firstTool.quantity_prod) {
+          throw new Error('Отсутствуют данные для формирования уведомления.')
+        }
+
+        console.log(firstTool)
+
+        // Продолжаем формирование HTML с правильными данными
         htmlContent += `<p>${firstTool.specs_name} - ${firstTool.description} - ${firstTool.no} - ${firstTool.cnc_type}</p>`
-        htmlContent += `<h3>Кол-во продукции: ${firstTool.quantity_prod}</h3>` // Указываем количество продукции в заголовке
+        htmlContent += `<h3>Кол-во продукции: ${firstTool.quantity_prod}</h3>`
       }
       htmlContent += `<table border='1'><tr><th>Название инструмента</th><th>Кол-во выдано</th></tr>`
 
