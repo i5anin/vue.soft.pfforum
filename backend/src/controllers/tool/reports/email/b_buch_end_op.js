@@ -72,17 +72,17 @@ async function checkStatusChanges() {
       // Получаем данные для отправки уведомлений, сгруппированные по операции
       const toolsResult = await pool.query(
         `
-          SELECT
-            tool_nom.NAME                                           AS tool_name,
-            SUM(tool_history_nom.quantity)                          AS total_quantity,
-            dbo.kolvo_prod_ready(specs_nom_operations.specs_nom_id) AS quantity_prod,
-            specs_nom_operations.specs_nom_id,
-            specs_nom.NAME                                          AS specs_name,
-            specs_nom.description                                   AS description,
-            operations_ordersnom.no                                 AS no,
+          SELECT tool_nom.NAME                                           AS tool_name,
+                 SUM(tool_history_nom.quantity)                          AS total_quantity,
+                 dbo.kolvo_prod_ready(specs_nom_operations.specs_nom_id) AS quantity_prod,
+                 specs_nom_operations.specs_nom_id,
+                 specs_nom.NAME                                          AS specs_name,
+                 specs_nom.description                                   AS description,
+                 operations_ordersnom.no AS no,
             dbo.get_full_cnc_type(dbo.get_op_type_code(specs_nom_operations.ID)) AS cnc_type
           FROM dbo.tool_history_nom
-            LEFT JOIN dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.ID
+            LEFT JOIN dbo.tool_nom
+          ON tool_history_nom.id_tool = tool_nom.ID
             LEFT JOIN dbo.specs_nom_operations ON tool_history_nom.specs_op_id = specs_nom_operations.ID
             LEFT JOIN dbo.specs_nom ON specs_nom_operations.specs_nom_id = specs_nom.ID
             LEFT JOIN dbo.operations_ordersnom ON specs_nom_operations.ordersnom_op_id = operations_ordersnom.ID
@@ -100,6 +100,12 @@ async function checkStatusChanges() {
       console.log(toolsResult.rows)
 
       const tools = toolsResult.rows
+
+      // Если для указанной операции нет инструментов в базе данных
+      if (tools.length === 0) {
+        await logError(specsOpId, 'Ошибка: набор tools пуст.', pool)
+        continue
+      }
 
       // Формируем HTML уведомления
       let htmlContent = `<h2>Операция завершена: ${specsOpId}</h2>`
@@ -155,6 +161,13 @@ async function checkStatusChanges() {
               WHERE specs_op_id = $1
             `,
             [specsOpId]
+          )
+          await pool.query(
+            `INSERT INTO dbo.vue_log (message, datetime_log)
+             VALUES ($1, NOW())`,
+            [
+              `Операция: ${specsOpId}, кол-во инструмента: ${tools.length}, отправлено на почту: ${process.env.MAIL_TO}`,
+            ]
           )
         }
       })
