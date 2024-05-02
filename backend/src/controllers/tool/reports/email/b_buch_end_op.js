@@ -48,100 +48,112 @@ const sentNotifications = []
 
 async function checkStatusChanges() {
   try {
-    // Выбираем уникальные ID операций, для которых уведомления еще не отправлены
-    const operationsResult = await pool.query(`
-      SELECT DISTINCT specs_op_id
-      FROM dbo.tool_history_nom
-      WHERE sent != TRUE
-      ORDER BY
-        specs_op_id
-        LIMIT 5
+    const { rows } = await pool.query(`
+      SELECT
+        tool_nom.ID AS tool_id,
+        tool_nom.NAME AS tool_name,
+        SUM(tool_history_nom.quantity) AS total_quantity,
+        tool_history_nom.specs_op_id,
+        dbo.kolvo_prod_ready(specs_nom_operations.specs_nom_id) AS quantity_prod,
+        specs_nom_operations.specs_nom_id,
+        specs_nom.NAME AS specs_name,
+        specs_nom.description,
+        operations_ordersnom.no,
+        dbo.get_full_cnc_type(dbo.get_op_type_code(specs_nom_operations.ID)) as cnc_type
+      FROM
+        dbo.tool_history_nom
+        JOIN dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.ID
+        JOIN dbo.specs_nom_operations ON tool_history_nom.specs_op_id = specs_nom_operations.ID
+        JOIN dbo.specs_nom ON specs_nom_operations.specs_nom_id = specs_nom.ID
+        JOIN dbo.operations_ordersnom ON specs_nom_operations.ordersnom_op_id = operations_ordersnom.ID
+      WHERE
+        (tool_history_nom.sent IS NULL OR NOT tool_history_nom.sent)
+        AND (specs_nom_operations.status_ready IS NULL OR specs_nom_operations.status_ready)
+      GROUP BY
+        tool_nom.ID,
+        tool_nom.NAME,
+        tool_history_nom.specs_op_id,
+        specs_nom_operations.specs_nom_id,
+        specs_nom.NAME,
+        specs_nom.description,
+        operations_ordersnom.no,
+        specs_nom_operations.ID
     `)
 
-    const operations = operationsResult.rows
-
-    // Если операций нет, то ничего не делаем
-    if (operations.length === 0) {
-      console.log('Нет операций для отправки уведомлений.')
+    if (rows.length === 0) {
+      console.log('Нет обновлений среди завершенных операций.')
       return
     }
 
-    // Перебираем операции и отправляем уведомления
-    for (const operation of operations) {
-      const specsOpId = operation.specs_op_id
-
-      // Получаем данные для отправки уведомлений, сгруппированные по операции
-      const toolsResult = await pool.query(
-        `
-          SELECT tool_nom.NAME                                           AS tool_name,
-                 SUM(tool_history_nom.quantity)                          AS total_quantity,
-                 dbo.kolvo_prod_ready(specs_nom_operations.specs_nom_id) AS quantity_prod,
-                 specs_nom_operations.specs_nom_id
-          FROM dbo.tool_history_nom
-                 JOIN dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.ID
-                 JOIN dbo.specs_nom_operations ON tool_history_nom.specs_op_id = specs_nom_operations.ID
-          WHERE tool_history_nom.specs_op_id = $1
-          GROUP BY tool_nom.NAME,
-                   specs_nom_operations.specs_nom_id
-        `,
-        [specsOpId]
+    for (const row of rows) {
+      const detailedDescription = `${row.specs_name} - ${row.description} - ${row.no} - ${row.cnc_type}`
+      console.log(
+        `Отправка уведомления для операции: ${detailedDescription}...`
       )
+      let htmlContent = `<h2>Операция завершена: ${detailedDescription}</h2>`
+      htmlContent += '<table border="1"><tr>'
 
-      const tools = toolsResult.rows
+      const tableStructure = [
+        { label: 'specs_op_id', text: 'ID операции' },
+        { label: 'specs_nom_id', text: 'ID партии' },
+        { label: 'tool_name', text: 'Название инструмента' },
+        { label: 'total_quantity', text: 'Кол-во выдано' },
+        { label: 'quantity_prod', text: 'Кол-во продукции' },
+        // { label: 'specs_name', text: 'Название' },
+        // { label: 'description', text: 'Описание' },
+        // { label: 'no', text: 'Номер' },
+        // { label: 'cnc_type', text: 'Тип CNC' },
+      ]
 
-      // Формируем HTML уведомления
-      let htmlContent = `<h2>Операция завершена: ${specsOpId}</h2>`
-      if (tools.length > 0) {
-        // Добавляем название операции, её описание и другие детали в заголовок
-        const firstTool = tools[0] // Предполагаем, что все инструменты относятся к одной операции и имеют одинаковые детали
-        htmlContent += `<p>${firstTool.specs_name} - ${firstTool.description} - ${firstTool.no} - ${firstTool.cnc_type}</p>`
-        htmlContent += `<h3>Кол-во продукции: ${firstTool.quantity_prod}</h3>` // Указываем количество продукции в заголовке
-      }
-      htmlContent += `<table border='1'><tr><th>Название инструмента</th><th>Кол-во выдано</th></tr>`
-
-      // Теперь добавляем только инструменты и их количество
-      tools.forEach((tool) => {
-        htmlContent += `<tr><td>${tool.tool_name}</td><td>${tool.total_quantity}</td></tr>`
+      // Добавляем заголовки в таблицу
+      tableStructure.forEach((header) => {
+        htmlContent += `<th>${header.text}</th>`
       })
+      htmlContent += '</tr><tr>'
 
-      htmlContent += `</table>`
+      // Добавляем данные для строки
+      tableStructure.forEach((header) => {
+        htmlContent += `<td>${row[header.label] ?? 'N/A'}</td>`
+      })
+      htmlContent += '</tr></table>'
 
-      // Определите переменные среды для адреса отправителя и получателя
+      console.log('From:', process.env.MAIL_USER)
+      console.log('To:', process.env.MAIL_TO)
+
       const mailOptions = {
         from: process.env.MAIL_USER,
         to: process.env.MAIL_TO,
-        subject: `Отчет по завершению операции: ${specsOpId}`,
+        subject: `Бухгалтерия: отчет по завершению операции: ${detailedDescription}`,
         html: htmlContent,
       }
 
+      if (!mailOptions.from || !mailOptions.to) {
+        throw new Error('Не указан адрес отправителя или получателя')
+      }
+
       // Отправка уведомления
-      transporter.sendMail(mailOptions, async function (error, info) {
+      transporter.sendMail(mailOptions, function (error, info) {
         if (error) {
           console.log(error)
         } else {
           console.log(
-            `Отправлено уведомление для операции: ${specsOpId}. Status info: ${info.response}`
-          )
-          // Обновляем статус отправки для операции, если уведомление успешно отправлено
-          await pool.query(
-            `
-              UPDATE dbo.tool_history_nom
-              SET sent = TRUE
-              WHERE specs_op_id = $1
-            `,
-            [specsOpId]
+            `Отправлено уведомление для операции: ${detailedDescription}. Status info: ${info.response}`
           )
         }
       })
+
+      // !!! Обновляем статус отправки для обработанных строк
+      await pool.query(
+        `UPDATE dbo.tool_history_nom
+         SET sent = TRUE
+         WHERE specs_op_id = $1 AND NOT sent`,
+        [row.specs_op_id]
+      )
     }
   } catch (error) {
-    console.error('Ошибка отправки уведомлений:', error)
+    console.error('Ошибка при проверке статуса изменений:', error)
   }
 }
-
-// Код для инициализации и настройки nodemailer, cron и подключения к базе данных остается прежним.
-
-module.exports = { checkStatusChanges }
 
 // Schedule the cron job
 min15 = '0 */15 * * * *'
