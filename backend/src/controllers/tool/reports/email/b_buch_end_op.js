@@ -53,7 +53,8 @@ async function checkStatusChanges() {
       SELECT DISTINCT specs_op_id
       FROM dbo.tool_history_nom
       WHERE sent != TRUE
-      ORDER BY specs_op_id
+      ORDER BY
+        specs_op_id
         LIMIT 5
     `)
 
@@ -72,34 +73,28 @@ async function checkStatusChanges() {
       // Получаем данные для отправки уведомлений, сгруппированные по операции
       const toolsResult = await pool.query(
         `
-        SELECT
-          tool_nom.NAME AS tool_name,
-          SUM(tool_history_nom.quantity) AS total_quantity,
-          dbo.kolvo_prod_ready(specs_nom_operations.specs_nom_id) AS quantity_prod,
-          specs_nom_operations.specs_nom_id
-        FROM
-          dbo.tool_history_nom
-            JOIN dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.ID
-            JOIN dbo.specs_nom_operations ON tool_history_nom.specs_op_id = specs_nom_operations.ID
-        WHERE
-          tool_history_nom.specs_op_id = $1
-        GROUP BY
-          tool_nom.NAME,
-          specs_nom_operations.specs_nom_id
-      `,
+          SELECT tool_nom.NAME                                           AS tool_name,
+                 SUM(tool_history_nom.quantity)                          AS total_quantity,
+                 dbo.kolvo_prod_ready(specs_nom_operations.specs_nom_id) AS quantity_prod,
+                 specs_nom_operations.specs_nom_id
+          FROM dbo.tool_history_nom
+                 JOIN dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.ID
+                 JOIN dbo.specs_nom_operations ON tool_history_nom.specs_op_id = specs_nom_operations.ID
+          WHERE tool_history_nom.specs_op_id = $1
+          GROUP BY tool_nom.NAME,
+                   specs_nom_operations.specs_nom_id
+        `,
         [specsOpId]
       )
 
       const tools = toolsResult.rows
 
       // Формируем HTML уведомления
-      let htmlContent =
-        `<h2>Операция завершена: ${specsOpId}</h2>` +
-        `<h2>Кол-во продукции: ${tool.quantity_prod}</h2>`
-      htmlContent += `<table border="1"><tr><th>Название инструмента</th><th>Кол-во выдано</th></tr>`
+      let htmlContent = `<h2>Операция завершена: ${specsOpId}</h2>`
+      htmlContent += `<table border='1'><tr><th>Название инструмента</th><th>Кол-во выдано</th><th>Кол-во продукции</th></tr>`
 
       tools.forEach((tool) => {
-        htmlContent += `<tr><td>${tool.tool_name}</td><td>${tool.total_quantity}</td></tr>`
+        htmlContent += `<tr><td>${tool.tool_name}</td><td>${tool.total_quantity}</td><td>${tool.quantity_prod}</td></tr>`
       })
 
       htmlContent += `</table>`
@@ -123,10 +118,10 @@ async function checkStatusChanges() {
           // Обновляем статус отправки для операции, если уведомление успешно отправлено
           await pool.query(
             `
-            UPDATE dbo.tool_history_nom
-            SET sent = TRUE
-            WHERE specs_op_id = $1
-          `,
+              UPDATE dbo.tool_history_nom
+              SET sent = TRUE
+              WHERE specs_op_id = $1
+            `,
             [specsOpId]
           )
         }
