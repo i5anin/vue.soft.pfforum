@@ -118,14 +118,16 @@ async function checkStatusChanges() {
         const firstTool = tools[0] // Получаем первый элемент из массива результатов запроса
         // Если информация отсутствует, выдаем ошибку
 
-        if (!firstTool.specs_name || !firstTool.quantity_prod) {
+        if (!firstTool.specs_name) {
           throw new Error('Отсутствуют данные для формирования уведомления.')
         }
 
         console.log(firstTool)
 
         // Продолжаем формирование HTML с правильными данными
-        htmlContent += `<p>${firstTool.specs_name} - ${firstTool.description} - ${firstTool.no} - ${firstTool.cnc_type}</p>`
+        htmlContent += `<p>${firstTool.specs_name} - ${
+          firstTool.description
+        } - ${firstTool.no || ''} - ${firstTool.cnc_type}</p>`
         htmlContent += `<h3>Кол-во продукции: ${firstTool.quantity_prod}</h3>`
       }
       htmlContent += `<table border='1'><tr><th>Название инструмента</th><th>Кол-во выдано</th></tr>`
@@ -137,12 +139,54 @@ async function checkStatusChanges() {
 
       htmlContent += `</table>`
 
-      // Определите переменные среды для адреса отправителя и получателя
-      const mailOptions = {
-        from: process.env.MAIL_USER,
-        to: process.env.MAIL_TO,
-        subject: `Отчет по завершению операции: ${specsOpId}`,
-        html: htmlContent,
+      const financeUserEmailResult = await pool.query(`
+    SELECT email
+    FROM dbo.vue_users
+    WHERE role = 'finance'
+    ORDER BY id
+    LIMIT 1
+`)
+
+      let financeUserEmail = null
+
+      if (financeUserEmailResult.rows.length > 0) {
+        financeUserEmail = financeUserEmailResult.rows[0].email
+      } else {
+        console.log('Пользователь с ролью finance не найден.')
+      }
+
+      const adminEmailResult = await pool.query(`
+    SELECT email
+    FROM dbo.vue_users
+    WHERE role = 'Admin'
+    ORDER BY id
+    LIMIT 1
+`)
+
+      let adminUserEmail = null
+
+      if (adminEmailResult.rows.length > 0) {
+        adminUserEmail = adminEmailResult.rows[0].email
+      } else {
+        console.log('Пользователь с ролью Admin не найден.')
+      }
+
+      let mailOptions = {}
+
+      if (process.env.VITE_NODE_ENV === 'build' && financeUserEmail) {
+        mailOptions = {
+          from: process.env.MAIL_USER,
+          to: financeUserEmail,
+          subject: `Отчет по завершению операции: ${specsOpId}`,
+          html: htmlContent,
+        }
+      } else if (adminUserEmail) {
+        mailOptions = {
+          from: process.env.MAIL_USER,
+          to: adminUserEmail,
+          subject: `Отчет по завершению операции для администратора: ${specsOpId}`,
+          html: htmlContent,
+        }
       }
 
       // Отправка уведомления
@@ -184,7 +228,7 @@ module.exports = { checkStatusChanges }
 // Schedule the cron job
 min15 = '0 */15 * * * *'
 sec10 = '*/10 * * * * *'
-cron.schedule(sec10, () => {
+cron.schedule(min15, () => {
   checkStatusChanges()
     .then(() => {
       // console.log('Задача выполнена успешно.')
