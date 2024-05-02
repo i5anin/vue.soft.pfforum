@@ -79,7 +79,7 @@ async function checkStatusChanges() {
                  specs_nom.NAME                                          AS specs_name,
                  specs_nom.description                                   AS description,
                  operations_ordersnom.no AS no,
-            dbo.get_full_cnc_type(dbo.get_op_type_code(specs_nom_operations.ID)) AS cnc_type
+        dbo.get_full_cnc_type(dbo.get_op_type_code(specs_nom_operations.ID)) AS cnc_type
           FROM dbo.tool_history_nom
             LEFT JOIN dbo.tool_nom
           ON tool_history_nom.id_tool = tool_nom.ID
@@ -87,6 +87,7 @@ async function checkStatusChanges() {
             LEFT JOIN dbo.specs_nom ON specs_nom_operations.specs_nom_id = specs_nom.ID
             LEFT JOIN dbo.operations_ordersnom ON specs_nom_operations.ordersnom_op_id = operations_ordersnom.ID
           WHERE tool_history_nom.specs_op_id = $1
+            AND tool_history_nom.quantity != 0
           GROUP BY tool_nom.NAME,
             specs_nom_operations.specs_nom_id,
             specs_nom.NAME,
@@ -140,12 +141,11 @@ async function checkStatusChanges() {
       htmlContent += `</table>`
 
       const financeUserEmailResult = await pool.query(`
-    SELECT email
-    FROM dbo.vue_users
-    WHERE role = 'finance'
-    ORDER BY id
-    LIMIT 1
-`)
+        SELECT email
+        FROM dbo.vue_users
+        WHERE role = 'finance'
+        ORDER BY id LIMIT 1
+      `)
 
       let financeUserEmail = null
 
@@ -156,12 +156,11 @@ async function checkStatusChanges() {
       }
 
       const adminEmailResult = await pool.query(`
-    SELECT email
-    FROM dbo.vue_users
-    WHERE role = 'Admin'
-    ORDER BY id
-    LIMIT 1
-`)
+        SELECT email
+        FROM dbo.vue_users
+        WHERE role = 'Admin'
+        ORDER BY id LIMIT 1
+      `)
 
       let adminUserEmail = null
 
