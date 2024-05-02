@@ -62,10 +62,10 @@ async function checkStatusChanges() {
         dbo.get_full_cnc_type(dbo.get_op_type_code(specs_nom_operations.ID)) as cnc_type
       FROM
         dbo.tool_history_nom
-          JOIN dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.ID
-          JOIN dbo.specs_nom_operations ON tool_history_nom.specs_op_id = specs_nom_operations.ID
-          JOIN dbo.specs_nom ON specs_nom_operations.specs_nom_id = specs_nom.ID
-          JOIN dbo.operations_ordersnom ON specs_nom_operations.ordersnom_op_id = operations_ordersnom.ID
+        JOIN dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.ID
+        JOIN dbo.specs_nom_operations ON tool_history_nom.specs_op_id = specs_nom_operations.ID
+        JOIN dbo.specs_nom ON specs_nom_operations.specs_nom_id = specs_nom.ID
+        JOIN dbo.operations_ordersnom ON specs_nom_operations.ordersnom_op_id = operations_ordersnom.ID
       WHERE
         (tool_history_nom.sent IS NULL OR NOT tool_history_nom.sent)
         AND (specs_nom_operations.status_ready IS NULL OR specs_nom_operations.status_ready)
@@ -78,11 +78,10 @@ async function checkStatusChanges() {
         specs_nom.description,
         operations_ordersnom.no,
         specs_nom_operations.ID
-      LIMIT 1
     `)
 
     if (rows.length === 0) {
-      console.log('No updates.')
+      console.log('Нет обновлений среди завершенных операций.')
       return
     }
 
@@ -120,39 +119,39 @@ async function checkStatusChanges() {
 
       console.log('From:', process.env.MAIL_USER)
       console.log('To:', process.env.MAIL_TO)
-      const message = `<h2>Операция завершена: ${row.tool_id}</h2>`
 
       const mailOptions = {
-        from: config.emailConfig.user,
-        to: config.emailConfig.to,
-        subject: `Уведомление: завершена операция ${row.tool_id}`,
-        html: message,
+        from: process.env.MAIL_USER,
+        to: process.env.MAIL_TO,
+        subject: `Бухгалтерия: отчет по завершению операции: ${detailedDescription}`,
+        html: htmlContent,
       }
 
-      // Отправляем уведомление
+      if (!mailOptions.from || !mailOptions.to) {
+        throw new Error('Не указан адрес отправителя или получателя')
+      }
+
+      // Отправка уведомления
       transporter.sendMail(mailOptions, function (error, info) {
         if (error) {
           console.log(error)
         } else {
           console.log(
-            `Email sent for tool: ${row.tool_id}. Status info: ${info.response}`
-          )
-          // Добавляем в лог
-          insertLog(
-            `Уведомление отправлено для инструмента: ${row.tool_id} на адрес: ${config.emailConfig.to}`,
-            row.tool_id
+            `Отправлено уведомление для операции: ${detailedDescription}. Status info: ${info.response}`
           )
         }
       })
 
-      // Обновляем статус "sent"
+      // !!! Обновляем статус отправки для обработанных строк
       await pool.query(
-        `UPDATE dbo.tool_history_nom SET sent = TRUE WHERE id = $1`,
-        [row.id]
+        `UPDATE dbo.tool_history_nom
+         SET sent = TRUE
+         WHERE specs_op_id = $1 AND NOT sent`,
+        [row.specs_op_id]
       )
     }
   } catch (error) {
-    console.error('Ошибка при проверке изменений статуса:', error)
+    console.error('Ошибка при проверке статуса изменений:', error)
   }
 }
 
