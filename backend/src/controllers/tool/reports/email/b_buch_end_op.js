@@ -91,10 +91,17 @@ async function checkStatusChanges() {
 
       // Формируем HTML уведомления
       let htmlContent = `<h2>Операция завершена: ${specsOpId}</h2>`
-      htmlContent += `<table border='1'><tr><th>Название инструмента</th><th>Кол-во выдано</th><th>Кол-во продукции</th></tr>`
+      if (tools.length > 0) {
+        // Добавляем название операции, её описание и другие детали в заголовок
+        const firstTool = tools[0] // Предполагаем, что все инструменты относятся к одной операции и имеют одинаковые детали
+        htmlContent += `<p>${firstTool.specs_name} - ${firstTool.description} - ${firstTool.no} - ${firstTool.cnc_type}</p>`
+        htmlContent += `<h3>Кол-во продукции: ${firstTool.quantity_prod}</h3>` // Указываем количество продукции в заголовке
+      }
+      htmlContent += `<table border='1'><tr><th>Название инструмента</th><th>Кол-во выдано</th></tr>`
 
+      // Теперь добавляем только инструменты и их количество
       tools.forEach((tool) => {
-        htmlContent += `<tr><td>${tool.tool_name}</td><td>${tool.total_quantity}</td><td>${tool.quantity_prod}</td></tr>`
+        htmlContent += `<tr><td>${tool.tool_name}</td><td>${tool.total_quantity}</td></tr>`
       })
 
       htmlContent += `</table>`
