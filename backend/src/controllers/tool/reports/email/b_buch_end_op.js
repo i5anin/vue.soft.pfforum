@@ -67,8 +67,8 @@ async function checkStatusChanges() {
         JOIN dbo.specs_nom ON specs_nom_operations.specs_nom_id = specs_nom.ID
         JOIN dbo.operations_ordersnom ON specs_nom_operations.ordersnom_op_id = operations_ordersnom.ID
       WHERE
-        NOT tool_history_nom.sent
-        AND specs_nom_operations.status_ready
+        (tool_history_nom.sent IS NULL OR NOT tool_history_nom.sent)
+        AND (specs_nom_operations.status_ready IS NULL OR specs_nom_operations.status_ready)
       GROUP BY
         tool_nom.ID,
         tool_nom.NAME,
@@ -117,11 +117,18 @@ async function checkStatusChanges() {
       })
       htmlContent += '</tr></table>'
 
+      console.log('From:', process.env.MAIL_USER)
+      console.log('To:', process.env.MAIL_TO)
+
       const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: process.env.EMAIL_TO,
+        from: process.env.MAIL_USER,
+        to: process.env.MAIL_TO,
         subject: `Бухгалтерия: отчет по завершению операции: ${detailedDescription}`,
         html: htmlContent,
+      }
+
+      if (!mailOptions.from || !mailOptions.to) {
+        throw new Error('Не указан адрес отправителя или получателя')
       }
 
       // Отправка уведомления
@@ -135,7 +142,7 @@ async function checkStatusChanges() {
         }
       })
 
-      // Обновляем статус отправки для обработанных строк
+      // !!! Обновляем статус отправки для обработанных строк
       await pool.query(
         `UPDATE dbo.tool_history_nom
          SET sent = TRUE
@@ -150,11 +157,11 @@ async function checkStatusChanges() {
 
 // Schedule the cron job
 min15 = '0 */15 * * * *'
-sec10 = '*/3 * * * * *'
+sec10 = '*/10 * * * * *'
 cron.schedule(min15, () => {
   checkStatusChanges()
     .then(() => {
-      console.log('Задача выполнена успешно.')
+      // console.log('Задача выполнена успешно.')
     })
     .catch((error) => {
       console.error('Ошибка при выполнении задачи: ', error)

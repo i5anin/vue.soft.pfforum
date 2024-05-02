@@ -25,5 +25,7 @@ module.exports = {
     port: process.env.MAIL_PORT,
     user: process.env.MAIL_USER,
     pass: process.env.MAIL_PASS,
+    to: process.env.MAIL_TO,
+    from: process.env.MAIL_FROM,
   },
 }
