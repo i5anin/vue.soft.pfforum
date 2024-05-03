@@ -19,6 +19,7 @@ async function getToolHistory(req, res) {
     const offset = (page - 1) * limit
     const search = req.query.search
     const date = req.query.date // Получаем дату из запроса
+    const toolId = req.query.toolId // Получаем идентификатор инструмента из запроса
 
     let whereStatement = 'WHERE TRUE'
 
@@ -36,6 +37,11 @@ async function getToolHistory(req, res) {
 
     // Добавлено условие в WHERE
     whereStatement += ` AND (T OR tf OR f OR f4 OR fg OR dmc OR hision)`
+
+    let orderStatement = `ORDER BY MIN(tool_history_nom.TIMESTAMP) DESC`
+    if (toolId) {
+      orderStatement = `ORDER BY specs_nom.ID = ${toolId} DESC, MIN(tool_history_nom.TIMESTAMP) DESC`
+    }
 
     // Запрос данных
     // Мы удаляем подзапрос для подсчета totalCount и используем оконную функцию COUNT() OVER()
@@ -60,7 +66,7 @@ async function getToolHistory(req, res) {
                ${whereStatement}
       GROUP BY specs_nom.ID, specs_nom.NAME, specs_nom.description, specs_nom.status_otgruzka, dbo.tool_part_archive.archive
       HAVING COALESCE(SUM(tool_history_nom.quantity), 0) > 0
-      ORDER BY MIN(tool_history_nom.TIMESTAMP) DESC
+        ${orderStatement}
       LIMIT ${limit} OFFSET ${offset};
     `
 
@@ -167,13 +173,12 @@ async function getToolHistoryId(req, res) {
 }
 
 async function getAllIssuedToolIdsWithNames(req, res) {
-  console.log('Функция getAllIssuedToolIdsWithNames вызвана')
-
   try {
     const query = `
       SELECT DISTINCT thn.id_tool, tn.name
       FROM dbo.tool_history_nom thn
-             LEFT JOIN dbo.tool_nom tn ON thn.id_tool = tn.id;
+             LEFT JOIN dbo.tool_nom tn ON thn.id_tool = tn.id
+      ORDER BY tn.name;
     `
     const result = await pool.query(query)
     res.json(

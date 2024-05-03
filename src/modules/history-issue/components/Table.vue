@@ -21,14 +21,15 @@
           />
         </v-col>
         <v-col cols="12" md="3">
-          <!--          <v-combobox-->
-          <!--            :items="toolOptions"-->
-          <!--            item-value="value"-->
-          <!--            item-title="title"-->
-          <!--            v-model="selectedTool"-->
-          <!--            label="Выберите инструмент"-->
-          <!--            @update:selectedTool="fetchTool"-->
-          <!--          />-->
+          <v-combobox
+            clearable
+            :items="toolOptions"
+            item-value="id_tool"
+            item-title="name"
+            v-model="selectedTool"
+            label="Выберите инструмент"
+            @update:modelValue="fetchAndFormatToolHistory"
+          />
         </v-col>
         <v-col cols="12" md="3">
           <v-select
@@ -37,7 +38,7 @@
             item-title="title"
             v-model="selectedDate"
             label="Выберите дату"
-            @update:model-value="fetchAndFormatToolHistory"
+            @update:modelValue="fetchAndFormatToolHistory"
           />
         </v-col>
       </v-row>
@@ -114,6 +115,8 @@ export default {
   components: { EditToolModal, VDataTableServer },
   data() {
     return {
+      toolOptions: [],
+      selectedTool: null,
       searchQuery: '',
       selectedDate: '',
       dateOptions: this.generateDateOptions(),
@@ -157,6 +160,7 @@ export default {
     }
   },
   async mounted() {
+    this.toolOptions = await issueHistoryApi.getAllIssuedToolIdsWithNames()
     await this.fetchAndFormatToolHistory()
   },
   watch: {
@@ -216,14 +220,20 @@ export default {
       return format(parseISO(date), 'dd.MM.yyyy')
     },
     async fetchAndFormatToolHistory() {
+      console.log('fetchAndFormatToolHistory')
       this.isLoading = true
+
       try {
-        const response = await issueHistoryApi.fetchToolHistory(
+        let response = await issueHistoryApi.fetchToolHistory(
           this.searchQuery,
           this.filters.currentPage,
           this.filters.itemsPerPage,
-          this.selectedDate
+          this.selectedDate,
+          this.selectedTool ? this.selectedTool.id_tool : null
         )
+
+        console.log(response)
+
         this.toolsHistory = response.toolsHistory.map((tool) => ({
           ...tool,
           first_issue_date: this.formatDate(tool.first_issue_date),
