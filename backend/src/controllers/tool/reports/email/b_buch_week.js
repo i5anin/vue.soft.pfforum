@@ -4,6 +4,8 @@ const { getNetworkDetails } = require('../../../../db_type')
 const config = require('../../../../config')
 const nodemailer = require('nodemailer')
 const { emailConfig } = require('../../../../config')
+const getEmailRecipients = require('./getEmailRecipients')
+const { schedule } = require('node-cron')
 
 // Настройка подключения к базе данных
 const networkDetails = getNetworkDetails()
@@ -181,12 +183,19 @@ async function genBuchWeek(req, res) {
     const excelStream = await createExcelFileStream(data)
     const emailText = 'Пожалуйста, найдите вложенный отчет в формате Excel.'
 
-    await sendEmailWithExcelStream(
-      process.env.MAIL_TO,
-      emailText,
-      excelStream,
-      data
-    )
+    // Получаем email бухгалтерии и администратора
+    let financeUserEmail = await getEmailRecipients('finance')
+    let adminUserEmail = await getEmailRecipients('Admin')
+
+    let mailTo
+
+    if (process.env.VITE_NODE_ENV === 'build' && financeUserEmail) {
+      mailTo = financeUserEmail
+    } else if (adminUserEmail) {
+      mailTo = adminUserEmail
+    }
+
+    await sendEmailWithExcelStream(mailTo, emailText, excelStream, data)
 
     res.status(200).send('Отчет успешно отправлен на указанный email.')
   } catch (error) {
@@ -194,6 +203,15 @@ async function genBuchWeek(req, res) {
     res.status(500).send('Ошибка при генерации и отправке отчета')
   }
 }
+
+schedule('0 11 * * 4', async function () {
+  console.log('Запускаем genBuchWeek с помощью задачи cron...')
+  try {
+    await genBuchWeek()
+  } catch (error) {
+    console.error(`Error running genBuchWeek: ${error}`)
+  }
+})
 
 module.exports = {
   genBuchWeek,

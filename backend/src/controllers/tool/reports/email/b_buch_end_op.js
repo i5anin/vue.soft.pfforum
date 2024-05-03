@@ -5,6 +5,7 @@ const config = require('../../../../config')
 const { emailConfig } = require('../../../../config')
 const { getNetworkDetails } = require('../../../../db_type')
 const { htmlToText } = require('nodemailer-html-to-text')
+const getEmailRecipients = require('./getEmailRecipients')
 
 console.log('Почтовый сервер:')
 console.log('Host:', process.env.MAIL_HOST)
@@ -47,6 +48,8 @@ transporter.use('compile', htmlToText())
 const sentNotifications = []
 
 async function checkStatusChanges() {
+  let financeUserEmail
+  let adminUserEmail
   try {
     // Выбираем уникальные ID операций, для которых уведомления еще не отправлены
     const operationsResult = await pool.query(`
@@ -139,36 +142,8 @@ async function checkStatusChanges() {
       })
 
       htmlContent += `</table>`
-
-      const financeUserEmailResult = await pool.query(`
-        SELECT email
-        FROM dbo.vue_users
-        WHERE role = 'finance'
-        ORDER BY id LIMIT 1
-      `)
-
-      let financeUserEmail = null
-
-      if (financeUserEmailResult.rows.length > 0) {
-        financeUserEmail = financeUserEmailResult.rows[0].email
-      } else {
-        console.log('Пользователь с ролью finance не найден.')
-      }
-
-      const adminEmailResult = await pool.query(`
-        SELECT email
-        FROM dbo.vue_users
-        WHERE role = 'Admin'
-        ORDER BY id LIMIT 1
-      `)
-
-      let adminUserEmail = null
-
-      if (adminEmailResult.rows.length > 0) {
-        adminUserEmail = adminEmailResult.rows[0].email
-      } else {
-        console.log('Пользователь с ролью Admin не найден.')
-      }
+      financeUserEmail = await getEmailRecipients('finance')
+      adminUserEmail = await getEmailRecipients('Admin')
 
       let mailOptions = {}
 
