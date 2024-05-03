@@ -28,7 +28,7 @@
             item-title="name"
             v-model="selectedTool"
             label="Выберите инструмент"
-            @update:modelValue="fetchAndFormatToolHistory"
+            @update:model-value="fetchAndFormatToolHistory"
           />
         </v-col>
         <v-col cols="12" md="3">
@@ -38,7 +38,7 @@
             item-title="title"
             v-model="selectedDate"
             label="Выберите дату"
-            @update:modelValue="fetchAndFormatToolHistory"
+            @update:model-value="fetchAndFormatToolHistory"
           />
         </v-col>
       </v-row>
@@ -228,7 +228,7 @@ export default {
           this.searchQuery,
           this.filters.currentPage,
           this.filters.itemsPerPage,
-          this.selectedDate,
+          this.selectedDate ? this.selectedDate : null,
           this.selectedTool ? this.selectedTool.id_tool : null
         )
 

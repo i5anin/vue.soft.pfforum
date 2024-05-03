@@ -40,7 +40,7 @@ async function getToolHistory(req, res) {
 
     let orderStatement = `ORDER BY MIN(tool_history_nom.TIMESTAMP) DESC`
     if (toolId) {
-      orderStatement = `ORDER BY specs_nom.ID = ${toolId} DESC, MIN(tool_history_nom.TIMESTAMP) DESC`
+      whereStatement += ` AND (tool_history_nom.id_tool = ${toolId})`
     }
 
     // Запрос данных
@@ -69,6 +69,8 @@ async function getToolHistory(req, res) {
         ${orderStatement}
       LIMIT ${limit} OFFSET ${offset};
     `
+
+    console.log(dataQuery)
 
     const dataResult = await pool.query(dataQuery)
 
