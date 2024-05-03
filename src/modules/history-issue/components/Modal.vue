@@ -78,7 +78,14 @@
           >
             <td class="grey">{{ index + 1 }}</td>
             <td v-for="header in currentHeaders" :key="header.value">
-              <template v-if="header.value === 'name_tool'">
+              <template
+                v-if="
+                  header.value === 'name_tool' &&
+                  item &&
+                  selected_tool &&
+                  item.id_tool === selected_tool.id_tool
+                "
+              >
                 <v-chip
                   v-if="item.id_tool === selected_tool.id_tool"
                   color="green"

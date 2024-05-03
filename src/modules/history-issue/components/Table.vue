@@ -19,6 +19,7 @@
             label="Поиск по партии, названию, обозначению"
             class="flex-grow-1 mr-2"
             @input="debouncedFetchAndFormatToolHistory"
+            prepend-inner-icon="mdi-magnify"
           />
         </v-col>
         <v-col cols="12" md="3">
@@ -30,6 +31,7 @@
             v-model="selectedTool"
             label="Выберите инструмент"
             @update:model-value="fetchAndFormatToolHistory"
+            prepend-inner-icon="mdi-box-cutter"
           />
         </v-col>
         <v-col cols="12" md="3">
@@ -40,6 +42,7 @@
             v-model="selectedDate"
             label="Выберите дату"
             @update:model-value="fetchAndFormatToolHistory"
+            prepend-inner-icon="mdi-calendar"
           />
         </v-col>
       </v-row>
