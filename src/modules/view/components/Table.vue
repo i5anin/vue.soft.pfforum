@@ -36,7 +36,7 @@
       @update:page="onChangePage"
       @update:items-per-page="onUpdateItemsPerPage"
       @click:row="onEditRow"
-      class="elevation-1"
+      class="elevation-1 scrollable-table"
       hover
       fixed-header
       width

@@ -36,7 +36,7 @@
       @update:page="onChangePage"
       @update:items-per-page="onUpdateItemsPerPage"
       @click:row="onEditRow"
-      class="elevation-1"
+      class="elevation-1 scrollable-table"
       hover
       fixed-header
       width
@@ -206,5 +206,10 @@ export default {
 
 .red {
   color: red;
+}
+
+.scrollable-table {
+  height: 74vh; /* Замените это значение на желаемую высоту */
+  overflow-y: auto;
 }
 </style>

@@ -26,6 +26,7 @@
       hover
       fixed-header
       width="true"
+      class="scrollable-table"
     />
   </v-container>
 </template>
@@ -131,3 +132,10 @@ export default {
   },
 }
 </script>
+
+<style>
+.scrollable-table {
+  height: 74vh; /* Замените это значение на желаемую высоту */
+  overflow-y: auto;
+}
+</style>

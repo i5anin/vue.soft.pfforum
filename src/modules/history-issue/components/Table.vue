@@ -44,6 +44,7 @@
     </div>
 
     <v-data-table-server
+      class="scrollable-table"
       v-if="toolsHistory && toolsHistory.length > 0"
       no-data-text="Нет данных"
       items-per-page-text="Пункты на странице:"
@@ -251,6 +252,11 @@ export default {
 </script>
 
 <style>
+.scrollable-table {
+  height: 74vh; /* Замените это значение на желаемую высоту */
+  overflow-y: auto;
+}
+
 .check-icon--large--yellow {
   font-size: 16px; /* или любой другой размер, который вам нужен */
   color: #cfcf00; /* Пример изменения цвета */
