@@ -22,7 +22,7 @@
             prepend-inner-icon="mdi-magnify"
           />
         </v-col>
-        <v-col cols="12" md="3">
+        <v-col cols="12" md="4">
           <v-combobox
             clearable
             :items="toolOptions"
@@ -34,7 +34,7 @@
             prepend-inner-icon="mdi-box-cutter"
           />
         </v-col>
-        <v-col cols="12" md="3">
+        <v-col cols="12" md="4">
           <v-select
             :items="dateOptions"
             item-value="value"
