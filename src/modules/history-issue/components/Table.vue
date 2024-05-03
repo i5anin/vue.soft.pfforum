@@ -5,6 +5,7 @@
       :persistent="true"
       :id_part="editingToolId"
       :selected_date="selectedDate"
+      :selected_tool="selectedTool"
       @canceled="onClosePopup"
       @changes-saved="onSaveChanges"
     />

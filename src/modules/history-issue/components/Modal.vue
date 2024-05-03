@@ -78,7 +78,20 @@
           >
             <td class="grey">{{ index + 1 }}</td>
             <td v-for="header in currentHeaders" :key="header.value">
-              <template v-if="header.value === 'cancelled'">
+              <template v-if="header.value === 'name_tool'">
+                <v-chip
+                  v-if="item.id_tool === selected_tool.id_tool"
+                  color="green"
+                  size="large"
+                  text-color="white"
+                >
+                  {{ item[header.value] }}
+                </v-chip>
+                <span v-else>
+                  {{ item[header.value] }}
+                </span>
+              </template>
+              <template v-else-if="header.value === 'cancelled'">
                 <template v-if="item.cancelled">
                   {{ item.canceller_login }}
                 </template>
@@ -154,6 +167,7 @@ export default {
   props: {
     id_part: { type: Number, default: null },
     selected_date: { type: String, default: '' },
+    selected_tool: { id_tool: String, name: '' },
   },
   data() {
     return {
