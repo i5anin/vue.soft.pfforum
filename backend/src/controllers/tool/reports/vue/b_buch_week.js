@@ -47,24 +47,25 @@ async function getTableReportData(req, res) {
                                          JOIN TreePath tp ON tt.parent_id = tp.id
                      ),
                      last_week_tool_history AS (
-                     SELECT thn.id_tool,
-                           thn.quantity,
-                           tnom.parent_id,
-                           tnom.name
-                    FROM dbo.tool_history_nom thn
-                    JOIN dbo.tool_nom tnom ON thn.id_tool = tnom.id
-                    WHERE thn.timestamp BETWEEN '${startDate}'::date AND '${endDate}'::date
+                       SELECT thn.id_tool,
+                              sum(thn.quantity) as quantity,
+                              tnom.parent_id,
+                              tnom.name
+                       FROM dbo.tool_history_nom thn
+                              JOIN dbo.tool_nom tnom ON thn.id_tool = tnom.id
+                       WHERE thn.timestamp BETWEEN '${startDate}'::date AND '${endDate}'::date
+                       GROUP BY thn.id_tool, tnom.parent_id, tnom.name
                      )
-                SELECT lwt.parent_id,
-                       tp.path,
-                       JSON_AGG(JSON_BUILD_OBJECT('name', lwt.name,
-                                                  'quantity', lwt.quantity
-                               )
-                      ) AS tools
-                FROM last_week_tool_history lwt
-                JOIN TreePath tp ON lwt.parent_id = tp.id
-                GROUP BY lwt.parent_id, tp.path
-                ORDER BY tp.path;
+                   SELECT lwt.parent_id,
+                          tp.path,
+                          JSON_AGG(JSON_BUILD_OBJECT('name', lwt.name,
+                                                     'quantity', lwt.quantity
+                                   )
+                          ) AS tools
+                   FROM last_week_tool_history lwt
+                          JOIN TreePath tp ON lwt.parent_id = tp.id
+                   GROUP BY lwt.parent_id, tp.path
+                   ORDER BY tp.path;
     `
     const { rows } = await pool.query(query)
     res.json(rows)
