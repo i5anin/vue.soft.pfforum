@@ -38,7 +38,7 @@ async function getTableReportData(req, res) {
                                         tool_nom.sklad,
                                         tool_nom.norma,
                                         tool_nom.norma - tool_nom.sklad AS zakaz
-
+                                 -- COALESCE(SUM(tool_history_damaged.quantity), 0) AS damaged_last_7_days
                                  FROM dbo.tool_nom
                                         LEFT JOIN
                                       dbo.tool_history_damaged ON tool_nom.id = tool_history_damaged.id_tool
@@ -57,8 +57,8 @@ async function getTableReportData(req, res) {
                               'name', d.name,
                               'sklad', d.sklad,
                               'norma', d.norma,
-                              'zakaz', d.zakaz,
---                               'damaged_last_7_days', d.damaged_last_7_days
+                              'zakaz', d.zakaz
+                            --'damaged_last_7_days', d.damaged_last_7_days
                             )
                           ) AS tools
                    FROM damaged d
