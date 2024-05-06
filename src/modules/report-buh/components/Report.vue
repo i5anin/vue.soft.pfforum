@@ -15,8 +15,8 @@
           <tbody>
             <tr v-for="(report, index) in reports" :key="index">
               <td>{{ report.name }}</td>
+              <td>{{ report.period }}</td>
               <td>{{ report.info }}</td>
-              <td></td>
               <td>
                 <v-btn color="primary" @click="report.action(report)">
                   Email
@@ -57,6 +57,11 @@ export default {
           action: this.genBuchMonth,
           period: '',
         },
+        // {
+        //   name: 'Отчет заявка на инструмент',
+        //   info: 'раз в неделю каждый ЧТ в 12:00 (за неделю)',
+        //   action: this.genZayavInstrWeek,
+        // },
       ],
     }
   },
