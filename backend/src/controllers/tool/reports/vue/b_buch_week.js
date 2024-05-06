@@ -15,19 +15,15 @@ const pool = new Pool(dbConfig)
 
 async function getTableReportData(req, res) {
   try {
-    // Определите начало и конец недели, начиная с текущего или последнего прошедшего четверга
+    // Определите начало и конец дня для текущего дня
     const today = new Date()
-    const thisThursday = new Date(today)
-    thisThursday.setDate(
-      thisThursday.getDate() - ((thisThursday.getDay() + 3) % 7)
-    )
-    const nextThursday = new Date(thisThursday)
-    nextThursday.setDate(nextThursday.getDate() + 1)
+    const startDate = today.toISOString().split('T')[0]
+    const endDate = new Date(today)
+    endDate.setDate(endDate.getDate() + 1)
+    endDate.setHours(0, 0, 0, 0)
+    const endDateStr = endDate.toISOString().split('T')[0]
 
-    const startDate = thisThursday.toISOString().split('T')[0]
-    const endDate = nextThursday.toISOString().split('T')[0]
-
-    console.log(startDate, endDate)
+    console.log(startDate, endDateStr)
 
     const query = `WITH RECURSIVE
                      TreePath AS (SELECT id,
@@ -55,7 +51,7 @@ async function getTableReportData(req, res) {
                                  FROM dbo.tool_nom
                                         LEFT JOIN dbo.tool_history_nom thn ON tool_nom.id = thn.id_tool
                                                               AND thn.timestamp >= '${startDate}'::date
-                                                              AND thn.timestamp < '${endDate}'::date
+                                                              AND thn.timestamp < '${endDateStr}'::date
                                  WHERE tool_nom.norma IS NOT NULL
                                    AND (tool_nom.norma - tool_nom.sklad) > 0
                                  GROUP BY tool_nom.id,
