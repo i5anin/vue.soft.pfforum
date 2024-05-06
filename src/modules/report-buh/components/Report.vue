@@ -6,9 +6,8 @@
           <thead>
             <tr>
               <th class="text-left">Название</th>
-              <th class="text-left">Информация</th>
-              <th class="text-left">Ближайшая дата</th>
               <th class="text-left">Расчетный период</th>
+              <th class="text-left">Ближайшая дата</th>
               <th class="text-left">На почту</th>
               <!-- <th class="text-left">Загрузить</th>-->
             </tr>
@@ -16,10 +15,8 @@
           <tbody>
             <tr v-for="(report, index) in reports" :key="index">
               <td>{{ report.name }}</td>
-              <td>{{ report.period }}</td>
               <td>{{ report.info }}</td>
               <td></td>
-
               <td>
                 <v-btn color="primary" @click="report.action(report)">
                   Email
@@ -35,6 +32,7 @@
 </template>
 <script>
 import ReportZakaz from './ReportBuh.vue'
+import { reportApi } from '@/modules/report-buh/api/report'
 
 export default {
   components: { ReportZakaz },
@@ -59,16 +57,22 @@ export default {
           action: this.genBuchMonth,
           period: '',
         },
-        // {
-        //   name: 'Отчет заявка на инструмент',
-        //   info: 'раз в неделю каждый ЧТ в 12:00 (за неделю)',
-        //   action: this.genZayavInstrWeek,
-        // },
       ],
     }
   },
+  mounted() {
+    this.genBuchIssuedWeek()
+    this.genBuchMonth()
+  },
 
   methods: {
+    async genBuchEndOp() {
+      await reportApi.genBuchEndOp()
+    },
+
+    async genZayavInstrWeek() {
+      await reportApi.genZayavInstr()
+    },
 
     genBuchIssuedWeek() {
       const now = new Date()
@@ -77,18 +81,51 @@ export default {
       const nextThursday = new Date(lastThursday)
       nextThursday.setDate(nextThursday.getDate() + 7)
 
-      this.reports.find(report => report.action === this.genBuchIssuedWeek).period = `${lastThursday.toISOString().split('T')[0]} - ${nextThursday.toISOString().split('T')[0}`
-
-
+      const string_lastThursday = `${lastThursday
+        .getDate()
+        .toString()
+        .padStart(2, '0')} ${lastThursday
+        .getMonth()
+        .toString()
+        .padStart(2, '0')} ${lastThursday.getFullYear()} 00 00`
+      const string_nextThursday = `${nextThursday
+        .getDate()
+        .toString()
+        .padStart(2, '0')} ${nextThursday
+        .getMonth()
+        .toString()
+        .padStart(2, '0')} ${nextThursday.getFullYear()} 00 00`
+      this.reports.find(
+        (report) => report.action === this.genBuchIssuedWeek
+      ).period = `${string_lastThursday} - ${string_nextThursday}`
     },
+
     genBuchMonth() {
       const now = new Date()
       const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-      const firstDayOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1)
+      const firstDayOfNextMonth = new Date(
+        now.getFullYear(),
+        now.getMonth() + 1,
+        1
+      )
 
-      this.reports.find(report => report.action === this.genBuchMonth).period = `${firstDayOfMonth.toISOString().split('T')[0]} - ${firstDayOfNextMonth.toISOString().split('T')[0}`
-
-
+      const string_firstDayOfMonth = `${firstDayOfMonth
+        .getDate()
+        .toString()
+        .padStart(2, '0')} ${firstDayOfMonth
+        .getMonth()
+        .toString()
+        .padStart(2, '0')} ${firstDayOfMonth.getFullYear()} 00 00`
+      const string_firstDayOfNextMonth = `${firstDayOfNextMonth
+        .getDate()
+        .toString()
+        .padStart(2, '0')} ${firstDayOfNextMonth
+        .getMonth()
+        .toString()
+        .padStart(2, '0')} ${firstDayOfNextMonth.getFullYear()} 00 00`
+      this.reports.find(
+        (report) => report.action === this.genBuchMonth
+      ).period = `${string_firstDayOfMonth} - ${string_firstDayOfNextMonth}`
     },
   },
 }
