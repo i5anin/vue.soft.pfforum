@@ -14,20 +14,14 @@
             <tr>
               <th class="text-left">#</th>
               <th class="text-left">Название</th>
-              <th class="text-left">Заказ</th>
-              <th class="text-left">Склад</th>
-              <th class="text-left">Норма</th>
-              <th class="text-left">Повреждено за 7 дней</th>
+              <th class="text-left">Кол-во</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(tool, toolIndex) in group.tools" :key="toolIndex">
               <td class="grey">{{ toolIndex + 1 }}</td>
               <td>{{ tool.name }}</td>
-              <td>{{ tool.zakaz }}</td>
-              <td class="grey">{{ tool.sklad }}</td>
-              <td class="grey">{{ tool.norma }}</td>
-              <td class="grey">{{ tool.damaged_last_7_days }}</td>
+              <td class="grey">{{ tool.quantity }}</td>
             </tr>
           </tbody>
         </v-table>
