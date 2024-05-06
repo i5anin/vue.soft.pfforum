@@ -54,6 +54,7 @@ async function getTableReportData(req, res) {
                        FROM dbo.tool_history_nom thn
                               JOIN dbo.tool_nom tnom ON thn.id_tool = tnom.id
                        WHERE thn.timestamp BETWEEN '${startDate}'::date AND '${endDate}'::date
+                         AND thn.quantity > 0
                        GROUP BY thn.id_tool, tnom.parent_id, tnom.name
                      )
                    SELECT lwt.parent_id,
