@@ -15,7 +15,6 @@ const pool = new Pool(dbConfig)
 
 async function getTableReportData(req, res) {
   try {
-    // Определите начало и конец недели, начиная с текущего или последнего прошедшего четверга
     const today = new Date()
     const thisThursday = new Date(today)
     thisThursday.setDate(
@@ -26,8 +25,6 @@ async function getTableReportData(req, res) {
 
     const startDate = thisThursday.toISOString().split('T')[0]
     const endDate = nextThursday.toISOString().split('T')[0]
-
-    console.log(startDate, endDate)
 
     const query = `WITH RECURSIVE
                      TreePath AS (SELECT id,
@@ -50,7 +47,9 @@ async function getTableReportData(req, res) {
                        SELECT thn.id_tool,
                               sum(thn.quantity) as quantity,
                               tnom.parent_id,
-                              tnom.name
+                              tnom.name,
+                              MIN(thn.timestamp) as date_start,
+                              MAX(thn.timestamp) as date_end
                        FROM dbo.tool_history_nom thn
                               JOIN dbo.tool_nom tnom ON thn.id_tool = tnom.id
                        WHERE thn.timestamp BETWEEN '${startDate}'::date AND '${endDate}'::date
@@ -59,15 +58,19 @@ async function getTableReportData(req, res) {
                      )
                    SELECT lwt.parent_id,
                           tp.path,
-                          JSON_AGG(JSON_BUILD_OBJECT('name', lwt.name,
-                                                     'quantity', lwt.quantity
-                                   )
+                          JSON_AGG(
+                            JSON_BUILD_OBJECT(
+                              'name', lwt.name,
+                              'quantity', lwt.quantity,
+                              'date_start', lwt.date_start,
+                              'date_end', lwt.date_end
+                            )
                           ) AS tools
                    FROM last_week_tool_history lwt
                           JOIN TreePath tp ON lwt.parent_id = tp.id
                    GROUP BY lwt.parent_id, tp.path
-                   ORDER BY tp.path;
-    `
+                   ORDER BY tp.path;`
+
     const { rows } = await pool.query(query)
     res.json(rows)
   } catch (error) {
