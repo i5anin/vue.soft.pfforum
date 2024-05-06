@@ -15,13 +15,17 @@
               <th class="text-left">#</th>
               <th class="text-left">Название</th>
               <th class="text-left">Кол-во</th>
+              <th class="text-left">Дата начала</th>
+              <th class="text-left">Дата конец</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(tool, toolIndex) in group.tools" :key="toolIndex">
               <td class="grey">{{ toolIndex + 1 }}</td>
               <td>{{ tool.name }}</td>
-              <td class="grey">{{ tool.quantity }}</td>
+              <td>{{ tool.quantity }}</td>
+              <td class="grey">{{ formatDate(tool.date_start) }}</td>
+              <td class="grey">{{ formatDate(tool.date_end) }}</td>
             </tr>
           </tbody>
         </v-table>
@@ -31,7 +35,8 @@
 </template>
 
 <script>
-import { reportApi } from '../api/report' // Импортируем API
+import { reportApi } from '../api/report'
+import { format, parseISO } from 'date-fns' // Импортируем API
 
 export default {
   data() {
@@ -44,6 +49,9 @@ export default {
     this.fetchZakazData()
   },
   methods: {
+    formatDate(date) {
+      return format(parseISO(date), 'dd.MM.yyyy HH:mm') // Формат dd.MM.yyyy, например, 06.05.2024
+    },
     async fetchZakazData() {
       try {
         this.toolGroups = await reportApi.getBuchWeek() // Убедитесь, что это правильный путь к данным в вашем API
