@@ -22,7 +22,7 @@ async function getTableReportData(req, res) {
       thisThursday.getDate() - ((thisThursday.getDay() + 3) % 7)
     )
     const nextThursday = new Date(thisThursday)
-    nextThursday.setDate(nextThursday.getDate() + 1)
+    nextThursday.setDate(nextThursday.getDate() + 7)
 
     const startDate = thisThursday.toISOString().split('T')[0]
     const endDate = nextThursday.toISOString().split('T')[0]
@@ -46,37 +46,25 @@ async function getTableReportData(req, res) {
                                   FROM dbo.tool_tree tt
                                          JOIN TreePath tp ON tt.parent_id = tp.id
                      ),
-                     damaged AS (SELECT tool_nom.id AS id_tool,
-                                        tool_nom.parent_id,
-                                        tool_nom.name,
-                                        tool_nom.sklad,
-                                        tool_nom.norma,
-                                        tool_nom.norma - tool_nom.sklad AS zakaz
-                                 FROM dbo.tool_nom
-                                        LEFT JOIN dbo.tool_history_nom thn ON tool_nom.id = thn.id_tool
-                                                              AND thn.timestamp >= '${startDate}'::date
-                                                              AND thn.timestamp < '${endDate}'::date
-                                 WHERE tool_nom.norma IS NOT NULL
-                                   AND (tool_nom.norma - tool_nom.sklad) > 0
-                                 GROUP BY tool_nom.id,
-                                          tool_nom.parent_id,
-                                          tool_nom.name,
-                                          tool_nom.sklad,
-                                          tool_nom.norma)
-                   SELECT d.parent_id,
-                          tp.path,
-                          JSON_AGG(
-                            JSON_BUILD_OBJECT(
-                              'name', d.name,
-                              'sklad', d.sklad,
-                              'norma', d.norma,
-                              'zakaz', d.zakaz
-                            )
-                          ) AS tools
-                   FROM damaged d
-                          JOIN TreePath tp ON d.parent_id = tp.id
-                   GROUP BY d.parent_id, tp.path
-                   ORDER BY tp.path;
+                     last_week_tool_history AS (
+                     SELECT thn.id_tool,
+                           thn.quantity,
+                           tnom.parent_id,
+                           tnom.name
+                    FROM dbo.tool_history_nom thn
+                    JOIN dbo.tool_nom tnom ON thn.id_tool = tnom.id
+                    WHERE thn.timestamp BETWEEN '${startDate}'::date AND '${endDate}'::date
+                     )
+                SELECT lwt.parent_id,
+                       tp.path,
+                       JSON_AGG(JSON_BUILD_OBJECT('name', lwt.name,
+                                                  'quantity', lwt.quantity
+                               )
+                      ) AS tools
+                FROM last_week_tool_history lwt
+                JOIN TreePath tp ON lwt.parent_id = tp.id
+                GROUP BY lwt.parent_id, tp.path
+                ORDER BY tp.path;
     `
     const { rows } = await pool.query(query)
     res.json(rows)
