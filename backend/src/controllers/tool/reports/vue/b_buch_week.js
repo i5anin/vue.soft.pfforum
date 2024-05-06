@@ -65,6 +65,7 @@ async function getTableReportData(req, res) {
                               'date_start', lwt.date_start,
                               'date_end', lwt.date_end
                             )
+                            ORDER BY lwt.name
                           ) AS tools
                    FROM last_week_tool_history lwt
                           JOIN TreePath tp ON lwt.parent_id = tp.id
