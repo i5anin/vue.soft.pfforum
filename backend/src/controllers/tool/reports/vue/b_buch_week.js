@@ -18,14 +18,13 @@ async function getTableReportData(req, res) {
     // Определите начало и конец недели, начиная с текущего или последнего прошедшего четверга
     const today = new Date()
     const thisThursday = new Date(today)
-    thisThursday.setDate(
-      thisThursday.getDate() - ((thisThursday.getDay() + 3) % 7)
-    )
+    thisThursday.setHours(0, 0, 0, 0)
     const nextThursday = new Date(thisThursday)
     nextThursday.setDate(nextThursday.getDate() + 7)
+    nextThursday.setHours(23, 59, 59, 999)
 
-    const startDate = thisThursday.toISOString().split('T')[0]
-    const endDate = nextThursday.toISOString().split('T')[0]
+    const startDate = thisThursday.toISOString()
+    const endDate = nextThursday.toISOString()
 
     console.log(startDate, endDate)
 
@@ -53,7 +52,7 @@ async function getTableReportData(req, res) {
                               tnom.name
                        FROM dbo.tool_history_nom thn
                               JOIN dbo.tool_nom tnom ON thn.id_tool = tnom.id
-                       WHERE thn.timestamp BETWEEN '${startDate}'::date AND '${endDate}'::date
+                       WHERE thn.timestamp BETWEEN '${startDate}' AND '${endDate}'
                          AND thn.quantity > 0
                        GROUP BY thn.id_tool, tnom.parent_id, tnom.name
                      )
@@ -69,6 +68,9 @@ async function getTableReportData(req, res) {
                    ORDER BY tp.path;
     `
     const { rows } = await pool.query(query)
+
+    console.log(query)
+
     res.json(rows)
   } catch (error) {
     console.error('Ошибка при получении данных для таблицы:', error)
