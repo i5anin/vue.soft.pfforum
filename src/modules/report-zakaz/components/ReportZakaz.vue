@@ -99,20 +99,18 @@ export default {
       if (count <= 10) {
         return 10
       } else {
-        console.log(Math.ceil(count / 10) * 10)
         return Math.ceil(count / 10) * 10
       }
     },
     checkTools(group) {
-      let totalSklad = 0
-      let totalNorma = 0
+      let check = false
 
       group.tools.forEach((tool) => {
-        totalSklad += tool.sklad
-        totalNorma += tool.norma
+        let percentage = (1 - tool.sklad / tool.norma) * 100
+        if (percentage >= 50) check = true
       })
-      console.log(((1 - totalSklad / totalNorma) * 100).toFixed(2))
-      return ((1 - totalSklad / totalNorma) * 100).toFixed(2) >= 50
+
+      return check
     },
     async fetchZakazData() {
       try {
