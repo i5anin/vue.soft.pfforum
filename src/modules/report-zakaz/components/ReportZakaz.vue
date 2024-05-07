@@ -12,7 +12,7 @@
         v-if="checkTools(group)"
         color="red"
         icon=" mdi-alert"
-        title="Есть позиции мение 20%"
+        title="Есть позиции мение 50%"
       />
       <div v-if="visibleGroups.includes(index)">
         <v-table dense>
@@ -32,11 +32,11 @@
               <td
                 :style="{
                   'text-decoration':
-                    ((1 - tool.sklad / tool.norma) * 100).toFixed(2) <= 20
+                    ((1 - tool.sklad / tool.norma) * 100).toFixed(2) >= 50
                       ? 'underline'
                       : 'none',
                   'text-decoration-color':
-                    ((1 - tool.sklad / tool.norma) * 100).toFixed(2) <= 20
+                    ((1 - tool.sklad / tool.norma) * 100).toFixed(2) >= 50
                       ? 'red'
                       : '',
                 }"
@@ -62,7 +62,15 @@
               </td>
               <td class="grey">{{ tool.sklad }}</td>
               <td class="grey">{{ tool.norma }}</td>
-              <td class="grey">
+              <td
+                class="grey"
+                :style="{
+                  color:
+                    ((1 - tool.sklad / tool.norma) * 100).toFixed(0) >= 50
+                      ? 'red'
+                      : 'grey',
+                }"
+              >
                 {{ ((1 - tool.sklad / tool.norma) * 100).toFixed(0) }} %
               </td>
             </tr>
@@ -104,7 +112,7 @@ export default {
         totalNorma += tool.norma
       })
       console.log(((1 - totalSklad / totalNorma) * 100).toFixed(2))
-      return ((1 - totalSklad / totalNorma) * 100).toFixed(2) <= 20
+      return ((1 - totalSklad / totalNorma) * 100).toFixed(2) >= 50
     },
     async fetchZakazData() {
       try {
