@@ -23,7 +23,7 @@
           </thead>
           <tbody>
             <tr v-for="(tool, toolIndex) in group.tools" :key="toolIndex">
-              <td style="min-width: 50px" class="grey">{{ toolIndex + 1 }}</td>
+              <td style="min-width: 10px" class="grey">{{ toolIndex + 1 }}</td>
               <td style="min-width: 350px">{{ tool.name }}</td>
               <td style="min-width: 50px">{{ tool.quantity }}</td>
               <td class="grey" style="min-width: 50px">
@@ -47,6 +47,7 @@ import { format, parseISO } from 'date-fns' // Импортируем API
 export default {
   data() {
     return {
+      tool: { date_end: '', date_start: '' },
       toolGroups: [],
       visibleGroups: [],
     }
