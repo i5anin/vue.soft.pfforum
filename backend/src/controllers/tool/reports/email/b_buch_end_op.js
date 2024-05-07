@@ -8,7 +8,7 @@ const { htmlToText } = require('nodemailer-html-to-text')
 const getEmailRecipients = require('./getEmailRecipients')
 const getDbConfig = require('../../../../databaseConfig')
 
-console.log('Почтовый сервер:')
+console.log('\x1b[36m%s\x1b[0m', '• Почтовый сервер:')
 console.log('Host:', process.env.MAIL_HOST)
 console.log('Port:', process.env.MAIL_PORT)
 console.log('User:', process.env.MAIL_USER)
@@ -16,11 +16,14 @@ console.log('Pass:', process.env.MAIL_PASS)
 console.log('From:', process.env.MAIL_USER)
 console.log('To:', process.env.MAIL_TO)
 
-console.log('\nКонфигурация базы данных:')
+console.log('\x1b[31m%s\x1b[0m', '\n• Конфигурация базы данных:')
 console.log('User:', process.env.DB_USER || process.env.DB_TEST_USER)
 console.log('Host:', process.env.DB_HOST || process.env.DB_TEST_HOST)
 console.log('Database:', process.env.DB_NAME || process.env.DB_TEST_NAME)
-console.log('Password:', process.env.DB_PASSWORD)
+console.log(
+  'Password:',
+  process.env.DB_PASSWORD || process.env.DB_TEST_PASSWORD
+)
 console.log('Port:', process.env.DB_PORT || process.env.DB_TEST_PORT)
 
 // Настройка подключения к базе данных

@@ -36,7 +36,7 @@ async function login(req, res) {
       // Предположим, что IP можно получить напрямую из req.ip, это может отличаться в зависимости от настроек прокси/балансировщика нагрузки
       const userIP = req.ip
 
-      console.log(req.ip)
+      // console.log(req.ip)
 
       const updateTokenAndLoginInfoQuery =
         'UPDATE dbo.vue_users SET token = $1, last_login_date = $2, last_login_ip = $3 WHERE login = $4'
