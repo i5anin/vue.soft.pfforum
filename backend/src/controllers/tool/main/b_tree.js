@@ -1,12 +1,10 @@
 const { Pool } = require('pg')
 const { getNetworkDetails } = require('../../../db_type')
 const config = require('../../../config')
+const getDbConfig = require('../../../databaseConfig')
 
 const networkDetails = getNetworkDetails()
-const dbConfig =
-  networkDetails.databaseType === 'build'
-    ? config.dbConfig
-    : config.dbConfigTest
+const dbConfig = getDbConfig()
 
 // Создание пула соединений с базой данных
 const pool = new Pool(dbConfig)

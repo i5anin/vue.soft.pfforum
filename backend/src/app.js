@@ -5,12 +5,9 @@ const cors = require('cors')
 const config = require('./config')
 const routers = require('./routers')
 const { getNetworkDetails } = require('./db_type')
+const getDbConfig = require('./databaseConfig')
 const networkDetails = getNetworkDetails()
-const dbConfig =
-  networkDetails.databaseType === 'build'
-    ? config.dbConfig
-    : config.dbConfigTest
-
+const dbConfig = getDbConfig()
 const app = express()
 
 app.use(bodyParser.json())

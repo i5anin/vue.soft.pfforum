@@ -2,16 +2,10 @@ const { Pool } = require('pg')
 const { v4: uuidv4 } = require('uuid')
 require('dotenv').config() // Это должно быть в самом верху файла
 // const jwt = require('jsonwebtoken')
-const config = require('../../config')
 const { getNetworkDetails } = require('../../db_type')
-const express = require('express')
-const app = express()
+const getDbConfig = require('../../databaseConfig')
 
-const networkDetails = getNetworkDetails()
-const dbConfig =
-  networkDetails.databaseType === 'build'
-    ? config.dbConfig
-    : config.dbConfigTest
+const dbConfig = getDbConfig()
 const dbName = dbConfig.database // Добавляем название базы данных из конфигурации
 
 // Создание пула соединений с базой данных
@@ -41,6 +35,8 @@ async function login(req, res) {
       const now = new Date()
       // Предположим, что IP можно получить напрямую из req.ip, это может отличаться в зависимости от настроек прокси/балансировщика нагрузки
       const userIP = req.ip
+
+      // console.log(req.ip)
 
       const updateTokenAndLoginInfoQuery =
         'UPDATE dbo.vue_users SET token = $1, last_login_date = $2, last_login_ip = $3 WHERE login = $4'

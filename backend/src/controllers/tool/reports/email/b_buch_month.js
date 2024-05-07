@@ -4,13 +4,11 @@ const { getNetworkDetails } = require('../../../../db_type')
 const config = require('../../../../config')
 const nodemailer = require('nodemailer')
 const { emailConfig } = require('../../../../config')
+const getDbConfig = require('../../../../databaseConfig')
 
 // Настройка подключения к базе данных
 const networkDetails = getNetworkDetails()
-const dbConfig =
-  networkDetails.databaseType === 'build'
-    ? config.dbConfig
-    : config.dbConfigTest
+const dbConfig = getDbConfig()
 const pool = new Pool(dbConfig)
 
 // Функция для получения данных из базы данных
