@@ -7,7 +7,7 @@
             <tr>
               <th class="text-left">Название</th>
               <th class="text-left">Ближайшая дата</th>
-              <th class="text-left">На почту</th>
+              <!--              <th class="text-left">На почту</th>-->
             </tr>
           </thead>
           <tbody>
@@ -15,9 +15,9 @@
               <td>{{ report.name }}</td>
               <td>{{ report.info }}</td>
               <td>
-                <v-btn color="primary" @click="report.action(report)">
-                  Email
-                </v-btn>
+                <!--                <v-btn color="primary" @click="report.action(report)">-->
+                <!--                  Email-->
+                <!--                </v-btn>-->
               </td>
             </tr>
           </tbody>
@@ -28,7 +28,7 @@
   <ReportZakaz />
 </template>
 <script>
-import ReportZakaz from './ReportBuh.vue'
+import ReportZakaz from './ReportBuhTable.vue'
 
 export default {
   components: { ReportZakaz },

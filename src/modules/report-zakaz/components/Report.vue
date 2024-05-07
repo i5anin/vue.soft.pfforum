@@ -23,11 +23,6 @@
                   Email
                 </v-btn>
               </td>
-              <!--              <td>-->
-              <!--                <v-btn color="green" @click="report.action(report)">-->
-              <!--                  Excel-->
-              <!--                </v-btn>-->
-              <!--              </td>-->
             </tr>
           </tbody>
         </v-table>
@@ -38,28 +33,13 @@
 </template>
 <script>
 import { reportApi } from '../api/report'
-import ReportZakaz from './ReportZakaz.vue'
+import ReportZakaz from './ReportZakazTable.vue'
 
 export default {
   components: { ReportZakaz },
   data() {
     return {
       reports: [
-        // {
-        //   name: 'Отчет в бухгалтерию исключен сломанный',
-        //   info: 'раз в неделю каждый ПТ в 12:00 (за неделю)',
-        //   action: this.genBuchIssuedWeek,
-        // },
-        // {
-        //   name: 'Отчет в бухгалтерию',
-        //   info: 'по завершению операции',
-        //   action: this.genBuchEndOp,
-        // },
-        // {
-        //   name: 'Отчет в бухгалтерию журнал поврежденного',
-        //   info: 'раз в месяц каждый ПТ в 12:00 (за месяц)',
-        //   action: this.genBuchMonth,
-        // },
         {
           name: 'Отчет заявка на инструмент',
           info: 'раз в неделю каждый ЧТ в 12:00 (за неделю)',
@@ -70,15 +50,6 @@ export default {
   },
 
   methods: {
-    async genBuchIssuedWeek() {
-      await reportApi.genBuchWeek()
-    },
-    async genBuchEndOp() {
-      await reportApi.genBuchEndOp()
-    },
-    async genBuchMonth() {
-      await reportApi.genBuchMonth()
-    },
     async genZayavInstrWeek() {
       const token = localStorage.getItem('token')
       if (!token) {
