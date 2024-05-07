@@ -54,11 +54,14 @@ async function checkStatusChanges() {
   try {
     // Выбираем уникальные ID операций, для которых уведомления еще не отправлены
     const operationsResult = await pool.query(`
-      SELECT DISTINCT specs_op_id
-      FROM dbo.tool_history_nom
-      WHERE sent != TRUE
-      ORDER BY
-        specs_op_id
+      SELECT DISTINCT
+        thn.specs_op_id
+      FROM
+        "dbo"."tool_history_nom" AS thn
+          LEFT JOIN
+        "dbo"."specs_nom_operations" AS sno ON thn.specs_op_id = sno.id
+      WHERE
+        sno.status_ready = true AND thn.sent IS NULL;
     `)
 
     const operations = operationsResult.rows
@@ -102,8 +105,6 @@ async function checkStatusChanges() {
         [specsOpId]
       )
 
-      console.log(toolsResult.rows)
-
       const tools = toolsResult.rows
 
       // Если для указанной операции нет инструментов в базе данных
@@ -126,8 +127,6 @@ async function checkStatusChanges() {
         if (!firstTool.specs_name) {
           throw new Error('Отсутствуют данные для формирования уведомления.')
         }
-
-        console.log(firstTool)
 
         // Продолжаем формирование HTML с правильными данными
         htmlContent += `<p>${firstTool.specs_name} - ${
