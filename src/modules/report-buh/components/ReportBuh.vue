@@ -7,7 +7,9 @@
         </template>
         {{ group.path }}
       </v-chip>
-      <v-chip variant="flat" color="red">{{ group.tools.length }}</v-chip>
+      <v-chip color="primary" variant="elevated">{{
+        group.tools.length
+      }}</v-chip>
       <div v-if="visibleGroups.includes(index)">
         <v-table dense>
           <thead>
@@ -21,11 +23,15 @@
           </thead>
           <tbody>
             <tr v-for="(tool, toolIndex) in group.tools" :key="toolIndex">
-              <td class="grey">{{ toolIndex + 1 }}</td>
-              <td>{{ tool.name }}</td>
-              <td>{{ tool.quantity }}</td>
-              <td class="grey">{{ formatDate(tool.date_start) }}</td>
-              <td class="grey">{{ formatDate(tool.date_end) }}</td>
+              <td style="min-width: 50px" class="grey">{{ toolIndex + 1 }}</td>
+              <td style="min-width: 350px">{{ tool.name }}</td>
+              <td style="min-width: 50px">{{ tool.quantity }}</td>
+              <td class="grey" style="min-width: 50px">
+                {{ formatDate(tool.date_start) }}
+              </td>
+              <td class="grey" style="min-width: 50px">
+                {{ formatDate(tool.date_end) }}
+              </td>
             </tr>
           </tbody>
         </v-table>
@@ -50,6 +56,7 @@ export default {
   },
   methods: {
     formatDate(date) {
+      if (!date) return
       return format(parseISO(date), 'dd.MM.yyyy HH:mm') // Формат dd.MM.yyyy, например, 06.05.2024
     },
     async fetchZakazData() {
