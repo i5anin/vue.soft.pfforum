@@ -2,10 +2,10 @@
 const { Sequelize, DataTypes } = require('sequelize')
 const { getNetworkDetails } = require('../db_type')
 const config = require('../config')
+const getDbConfig = require('../databaseConfig')
 
 const { databaseType } = getNetworkDetails()
-const dbConfig =
-  databaseType === 'build' ? config.dbConfig : config.dbConfigTest
+const dbConfig = getDbConfig()
 
 const sequelize = new Sequelize(
   dbConfig.database,

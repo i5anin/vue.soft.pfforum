@@ -1,13 +1,11 @@
 const { Pool } = require('pg')
 const config = require('../../../../config')
 const { getNetworkDetails } = require('../../../../db_type')
+const getDbConfig = require('../../../../databaseConfig')
 
 // Настройка подключения к базе данных
 const networkDetails = getNetworkDetails()
-const dbConfig =
-  networkDetails.databaseType === 'build'
-    ? config.dbConfig
-    : config.dbConfigTest
+const dbConfig = getDbConfig()
 const pool = new Pool(dbConfig)
 
 async function getEmailRecipients(role) {

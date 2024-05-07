@@ -6,6 +6,7 @@ const { emailConfig } = require('../../../../config')
 const { getNetworkDetails } = require('../../../../db_type')
 const { htmlToText } = require('nodemailer-html-to-text')
 const getEmailRecipients = require('./getEmailRecipients')
+const getDbConfig = require('../../../../databaseConfig')
 
 console.log('Почтовый сервер:')
 console.log('Host:', process.env.MAIL_HOST)
@@ -24,10 +25,7 @@ console.log('Port:', process.env.DB_PORT || process.env.DB_TEST_PORT)
 
 // Настройка подключения к базе данных
 const networkDetails = getNetworkDetails()
-const dbConfig =
-  networkDetails.databaseType === 'build'
-    ? config.dbConfig
-    : config.dbConfigTest
+const dbConfig = getDbConfig()
 const pool = new Pool(dbConfig)
 
 // Set up Nodemailer
