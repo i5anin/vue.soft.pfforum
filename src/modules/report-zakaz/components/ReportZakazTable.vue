@@ -15,12 +15,6 @@
         {{ group.path }}
       </v-chip>
       <v-chip color="while">{{ group.tools.length }}</v-chip>
-      <!--      <v-icon-->
-      <!--        v-if="checkTools(group)"-->
-      <!--        color="red"-->
-      <!--        icon="mdi-alert-circle-outline"-->
-      <!--        title="Есть позиции мение 50%"-->
-      <!--      />-->
       <div v-if="visibleGroups.includes(index)">
         <v-table dense>
           <thead>
@@ -56,7 +50,6 @@
                     ? getRoundedCount(tool.zakaz)
                     : tool.zakaz
                 }}
-                <!-- Only display this when 'tool.zakaz' is not zero, and there is a difference between the rounded and original values -->
                 <template
                   v-if="
                     group.path.includes('Пластины') &&
