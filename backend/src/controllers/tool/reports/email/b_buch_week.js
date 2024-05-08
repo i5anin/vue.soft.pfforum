@@ -202,7 +202,7 @@ async function genBuchWeek(req, res) {
 min15 = '0 */15 * * * *'
 sec10 = '*/10 * * * * *'
 week = '0 11 * * 4'
-schedule(sec10, async function () {
+schedule(week, async function () {
   console.log('Запускаем genBuchWeek с помощью задачи cron...')
   try {
     await genBuchWeek()
