@@ -166,7 +166,9 @@ async function checkStatusChanges() {
             `INSERT INTO dbo.vue_log (message, datetime_log)
              VALUES ($1, NOW())`,
             [
-              `Операция: ${specsOpId}, кол-во инструмента: ${tools.length}, отправлено на почту: ${process.env.MAIL_TO}`,
+              `Операция: ${specsOpId}, кол-во инструмента: ${
+                tools.length
+              }, отправлено на почту: ${adminUserEmail || financeUserEmail}`,
             ]
           )
         }

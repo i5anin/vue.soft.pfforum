@@ -62,7 +62,7 @@ export default {
           sortable: false,
           width: '280px',
         },
-        { title: 'ФИО', value: 'user_name', sortable: false, width: '150px' },
+        { title: 'ФИО', value: 'user_name', sortable: false, width: '350px' },
         {
           title: 'CNC название',
           value: 'cnc_name',
