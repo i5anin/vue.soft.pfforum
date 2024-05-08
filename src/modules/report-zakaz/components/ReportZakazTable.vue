@@ -3,17 +3,18 @@
     <div v-for="(group, index) in toolGroups" :key="index" class="tool-group">
       <v-chip variant="text" size="large" @click="toggleVisibility(index)">
         <template v-slot:prepend>
-          <v-icon icon="mdi-folder" start />
+          <v-icon v-if="!checkTools(group)" icon="mdi-folder" start />
+          <v-icon
+            v-if="checkTools(group)"
+            icon="mdi-folder-alert"
+            start
+            color="red-lighten-2"
+            title="Есть позиции мение 50%"
+          />
         </template>
         {{ group.path }}
       </v-chip>
       <v-chip color="while">{{ group.tools.length }}</v-chip>
-      <v-icon
-        v-if="checkTools(group)"
-        color="red"
-        icon=" mdi-alert"
-        title="Есть позиции мение 50%"
-      />
       <div v-if="visibleGroups.includes(index)">
         <v-table dense>
           <thead>
@@ -49,7 +50,6 @@
                     ? getRoundedCount(tool.zakaz)
                     : tool.zakaz
                 }}
-                <!-- Only display this when 'tool.zakaz' is not zero, and there is a difference between the rounded and original values -->
                 <template
                   v-if="
                     group.path.includes('Пластины') &&
@@ -96,11 +96,10 @@ export default {
   },
   methods: {
     getRoundedCount(count) {
-      if (count <= 10) {
-        return 10
-      } else {
-        return Math.ceil(count / 10) * 10
-      }
+      if (count < 10) return 10
+      return count % 10 < 5
+        ? Math.floor(count / 10) * 10
+        : Math.ceil(count / 10) * 10
     },
     checkTools(group) {
       let check = false
@@ -139,9 +138,5 @@ export default {
 
 .tool-group + .tool-group {
   margin-top: 10px;
-}
-
-.red-text {
-  color: red;
 }
 </style>

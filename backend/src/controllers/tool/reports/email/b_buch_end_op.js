@@ -153,20 +153,29 @@ async function checkStatusChanges() {
           console.log(
             `Отправлено уведомление для операции: ${specsOpId}. Status info: ${info.response}`
           )
+
+          // Получаем адрес электронной почты в зависимости от окружения
+          const emailToSendLogs =
+            process.env.VITE_NODE_ENV === 'build'
+              ? financeUserEmail
+              : adminUserEmail
+
           // Обновляем статус отправки для операции, если уведомление успешно отправлено
           await pool.query(
             `
-              UPDATE dbo.tool_history_nom
-              SET sent = TRUE
-              WHERE specs_op_id = $1
-            `,
+        UPDATE dbo.tool_history_nom
+        SET sent = TRUE
+        WHERE specs_op_id = $1
+      `,
             [specsOpId]
           )
+
+          // Логируем отправленное уведомление
           await pool.query(
             `INSERT INTO dbo.vue_log (message, datetime_log)
-             VALUES ($1, NOW())`,
+       VALUES ($1, NOW())`,
             [
-              `Операция: ${specsOpId}, кол-во инструмента: ${tools.length}, отправлено на почту: ${process.env.MAIL_TO}`,
+              `Операция: ${specsOpId}, кол-во инструмента: ${tools.length}, отправлено на почту: ${emailToSendLogs}`,
             ]
           )
         }

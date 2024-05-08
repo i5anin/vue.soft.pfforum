@@ -60,14 +60,14 @@ export default {
           title: 'Название инструмента',
           value: 'tool_name',
           sortable: false,
-          width: '280px',
+          width: '200px',
         },
-        { title: 'ФИО', value: 'user_name', sortable: false, width: '150px' },
+        { title: 'ФИО', value: 'user_name', sortable: false, width: '320px' },
         {
           title: 'CNC название',
           value: 'cnc_name',
           sortable: false,
-          width: '150px',
+          width: '200px',
         },
         { title: 'Комментарий', value: 'comment', sortable: false },
         { title: 'Кол-во', key: 'quantity', sortable: false, width: '80px' },
@@ -93,10 +93,6 @@ export default {
 
     formatDate(date) {
       return format(parseISO(date), 'dd.MM.yyyy hh:mm')
-    },
-    onAddTool() {
-      this.editingToolId = null
-      this.openDialog = true
     },
 
     async fetchAndFormatToolHistory() {
