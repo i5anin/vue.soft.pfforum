@@ -98,17 +98,14 @@ async function checkStatusChanges() {
       // Формируем HTML уведомления
       let htmlContent = `<h2>Операция завершена: ${specsOpId}</h2>`
 
-      if (tools.length === 0) {
-        throw new Error('Ошибка: набор tools пуст.')
-      }
+      if (tools.length === 0) throw new Error('Ошибка: набор tools пуст.')
 
       if (tools.length > 0) {
         const firstTool = tools[0] // Получаем первый элемент из массива результатов запроса
-        // Если информация отсутствует, выдаем ошибку
 
-        if (!firstTool.specs_name) {
+        // Если информация отсутствует, выдаем ошибку
+        if (!firstTool.specs_name)
           throw new Error('Отсутствуют данные для формирования уведомления.')
-        }
 
         // Продолжаем формирование HTML с правильными данными
         htmlContent += `<p>${firstTool.specs_name} - ${
