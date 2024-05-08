@@ -21,7 +21,7 @@ const reportZakazController = require('./controllers/tool/reports/email/b_order_
 const reportVueZakazController = require('./controllers/tool/reports/vue/b_order_Instr')
 const reportVueBuhController = require('./controllers/tool/reports/vue/b_buch_week')
 
-const excelZakazController = require('./controllers/tool/reports/excel/b_order_Instr')
+// const excelZakazController = require('./controllers/tool/reports/excel/b_order_Instr')
 
 // Маршруты для аутентификации
 router.post('/login', loginController.login)
@@ -94,9 +94,9 @@ router.get('/report/getBuchWeek', reportVueBuhController.getTableReportData) // 
 router.get('/report/getZakaz', reportVueZakazController.getTableReportData) // заявка на инструмент	раз в неделю каждый ЧТ в 12:00 (за неделю)
 
 // excel report
-router.get(
-  '/report/genZayavInstrExcel',
-  excelZakazController.createExcelFileStream
-) // заявка на инструмент	раз в неделю каждый ЧТ в 12:00 (за неделю)
+// router.get(
+//   '/report/genZayavInstrExcel',
+//   excelZakazController.createExcelFileStream
+// ) // заявка на инструмент	раз в неделю каждый ЧТ в 12:00 (за неделю)
 
 module.exports = router
