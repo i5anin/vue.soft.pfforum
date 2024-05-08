@@ -96,11 +96,10 @@ export default {
   },
   methods: {
     getRoundedCount(count) {
-      if (count <= 10) {
-        return 10
-      } else {
-        return Math.ceil(count / 10) * 10
-      }
+      if (count < 10) return 10
+      return count % 10 < 5
+        ? Math.floor(count / 10) * 10
+        : Math.ceil(count / 10) * 10
     },
     checkTools(group) {
       let check = false
