@@ -170,16 +170,16 @@ async function checkStatusChanges() {
 }
 
 // Schedule the cron job
-const min15 = '0 */15 * * * *'
-const sec10 = '*/10 * * * * *'
-cron.schedule(min15, () => {
-  checkStatusChanges()
-    .then(() => {
-      // console.log('Задача выполнена успешно.')
-    })
-    .catch((error) => {
-      console.error('Ошибка при выполнении задачи:', error)
-    })
-})
+// const min15 = '0 */15 * * * *'
+// const sec10 = '*/10 * * * * *'
+// cron.schedule(min15, () => {
+//   checkStatusChanges()
+//     .then(() => {
+//       // console.log('Задача выполнена успешно.')
+//     })
+//     .catch((error) => {
+//       console.error('Ошибка при выполнении задачи:', error)
+//     })
+// })
 
 module.exports = { checkStatusChanges }

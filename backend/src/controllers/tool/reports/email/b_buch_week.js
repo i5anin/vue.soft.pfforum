@@ -100,10 +100,7 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
     host: emailConfig.host,
     port: emailConfig.port,
     secure: emailConfig.secure, // В зависимости от вашего сервера это может быть true
-    auth: {
-      user: emailConfig.user,
-      pass: emailConfig.pass,
-    },
+    auth: { user: emailConfig.user, pass: emailConfig.pass },
   })
 
   // Даты для определения периода отчета
