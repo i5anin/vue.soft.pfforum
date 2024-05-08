@@ -5,7 +5,7 @@ const app = express()
 
 function getDbConfig() {
   let databaseType = process.env.NODE_ENV
-  console.log(databaseType)
+  // console.log(databaseType)
   // const networkDetails = 'определить ip клиента!!!'
 
   // if (networkDetails.ip === '192.168.0.200') {
