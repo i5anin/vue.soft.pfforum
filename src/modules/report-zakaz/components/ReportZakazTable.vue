@@ -3,17 +3,24 @@
     <div v-for="(group, index) in toolGroups" :key="index" class="tool-group">
       <v-chip variant="text" size="large" @click="toggleVisibility(index)">
         <template v-slot:prepend>
-          <v-icon icon="mdi-folder" start />
+          <v-icon v-if="!checkTools(group)" icon="mdi-folder" start />
+          <v-icon
+            v-if="checkTools(group)"
+            icon="mdi-folder-alert"
+            start
+            color="red-lighten-2"
+            title="Есть позиции мение 50%"
+          />
         </template>
         {{ group.path }}
       </v-chip>
       <v-chip color="while">{{ group.tools.length }}</v-chip>
-      <v-icon
-        v-if="checkTools(group)"
-        color="red"
-        icon="mdi-alert-circle-outline"
-        title="Есть позиции мение 50%"
-      />
+      <!--      <v-icon-->
+      <!--        v-if="checkTools(group)"-->
+      <!--        color="red"-->
+      <!--        icon="mdi-alert-circle-outline"-->
+      <!--        title="Есть позиции мение 50%"-->
+      <!--      />-->
       <div v-if="visibleGroups.includes(index)">
         <v-table dense>
           <thead>
@@ -138,9 +145,5 @@ export default {
 
 .tool-group + .tool-group {
   margin-top: 10px;
-}
-
-.red-text {
-  color: red;
 }
 </style>
