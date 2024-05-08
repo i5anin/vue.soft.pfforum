@@ -27,8 +27,26 @@ const transporter = nodemailer.createTransport({
 // Use htmlToText plugin
 transporter.use('compile', htmlToText())
 
-// Массив для отслеживания уже отправленных уведомлений
-const sentNotifications = []
+// Функция для формирования содержимого электронного письма
+function createMailContent(tools, specsOpId) {
+  let htmlContent = `<h2>Операция завершена: ${specsOpId}</h2>`
+  if (tools.length > 0) {
+    const firstTool = tools[0]
+    if (!firstTool.specs_name)
+      throw new Error('Отсутствуют данные для формирования уведомления.')
+
+    htmlContent += `<p>${firstTool.specs_name} - ${firstTool.description} - ${
+      firstTool.no || ''
+    } - ${firstTool.cnc_type}</p>`
+    htmlContent += `<h3>Кол-во продукции: ${firstTool.quantity_prod}</h3>`
+    htmlContent += `<table border='1'><tr><th>Название инструмента</th><th>Кол-во выдано</th></tr>`
+    tools.forEach((tool) => {
+      htmlContent += `<tr><td>${tool.tool_name}</td><td>${tool.total_quantity}</td></tr>`
+    })
+    htmlContent += `</table>`
+  }
+  return htmlContent
+}
 
 async function checkStatusChanges() {
   let financeUserEmail
@@ -96,36 +114,10 @@ async function checkStatusChanges() {
       }
 
       // Формируем HTML уведомления
-      let htmlContent = `<h2>Операция завершена: ${specsOpId}</h2>`
+      const htmlContent = createMailContent(tools, specsOpId)
 
-      if (tools.length === 0) {
-        throw new Error('Ошибка: набор tools пуст.')
-      }
-
-      if (tools.length > 0) {
-        const firstTool = tools[0] // Получаем первый элемент из массива результатов запроса
-        // Если информация отсутствует, выдаем ошибку
-
-        if (!firstTool.specs_name) {
-          throw new Error('Отсутствуют данные для формирования уведомления.')
-        }
-
-        // Продолжаем формирование HTML с правильными данными
-        htmlContent += `<p>${firstTool.specs_name} - ${
-          firstTool.description
-        } - ${firstTool.no || ''} - ${firstTool.cnc_type}</p>`
-        htmlContent += `<h3>Кол-во продукции: ${firstTool.quantity_prod}</h3>`
-      }
-      htmlContent += `<table border='1'><tr><th>Название инструмента</th><th>Кол-во выдано</th></tr>`
-
-      // Теперь добавляем только инструменты и их количество
-      tools.forEach((tool) => {
-        htmlContent += `<tr><td>${tool.tool_name}</td><td>${tool.total_quantity}</td></tr>`
-      })
-
-      htmlContent += `</table>`
       financeUserEmail = await getEmailRecipients('finance')
-      adminUserEmail = await getEmailRecipients('Admin')
+      adminUserEmail = await getEmailRecipients('admin')
 
       let mailOptions = {}
 
@@ -169,38 +161,25 @@ async function checkStatusChanges() {
       `,
             [specsOpId]
           )
-
-          // Логируем отправленное уведомление
-          await pool.query(
-            `INSERT INTO dbo.vue_log (message, datetime_log)
-       VALUES ($1, NOW())`,
-            [
-              `Операция: ${specsOpId}, кол-во инструмента: ${tools.length}, отправлено на почту: ${emailToSendLogs}`,
-            ]
-          )
         }
       })
     }
   } catch (error) {
-    console.error('Ошибка отправки уведомлений:', error)
+    console.error('Ошибка отправки уведомлений: ', error)
   }
 }
 
-// Код для инициализации и настройки nodemailer, cron и подключения к базе данных остается прежним.
-
-module.exports = { checkStatusChanges }
-
 // Schedule the cron job
-min15 = '0 */15 * * * *'
-sec10 = '*/10 * * * * *'
-cron.schedule(min15, () => {
-  checkStatusChanges()
-    .then(() => {
-      // console.log('Задача выполнена успешно.')
-    })
-    .catch((error) => {
-      console.error('Ошибка при выполнении задачи: ', error)
-    })
-})
+// const min15 = '0 */15 * * * *'
+// const sec10 = '*/10 * * * * *'
+// cron.schedule(min15, () => {
+//   checkStatusChanges()
+//     .then(() => {
+//       // console.log('Задача выполнена успешно.')
+//     })
+//     .catch((error) => {
+//       console.error('Ошибка при выполнении задачи:', error)
+//     })
+// })
 
 module.exports = { checkStatusChanges }

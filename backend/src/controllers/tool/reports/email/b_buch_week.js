@@ -17,23 +17,18 @@ const pool = new Pool(dbConfig)
 async function getReportData() {
   try {
     const query = `
-      SELECT
-          tool_history_nom.id_tool,
-          tool_nom.name,
-          tool_history_nom.timestamp,
-          SUM(tool_history_nom.quantity) as zakaz
-      FROM
-          dbo.tool_history_nom
-      JOIN
-          dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.id
-      WHERE
-          tool_history_nom.timestamp >= CURRENT_DATE - INTERVAL '7 days'
-      GROUP BY
-          tool_history_nom.id_tool,
-          tool_nom.name,
-          tool_history_nom.timestamp
-      ORDER BY
-          tool_history_nom.timestamp;
+      SELECT tool_history_nom.id_tool,
+             tool_nom.name,
+             tool_history_nom.timestamp,
+             SUM(tool_history_nom.quantity) as zakaz
+      FROM dbo.tool_history_nom
+             JOIN
+           dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.id
+      WHERE tool_history_nom.timestamp >= CURRENT_DATE - INTERVAL '7 days'
+      GROUP BY tool_history_nom.id_tool,
+               tool_nom.name,
+               tool_history_nom.timestamp
+      ORDER BY tool_history_nom.timestamp;
     `
     const { rows } = await pool.query(query)
     return rows
@@ -51,7 +46,7 @@ async function createExcelFileStream(data) {
   worksheet.mergeCells('A1:E1')
   const titleRow = worksheet.getCell('A1')
   titleRow.value =
-    'Бухгалтерия: Журнал уничтожен ого раз в месяц. Отчет каждый ПТ в 12:00 (за месяц)'
+    'Бухгалтерия: Журнал уничтоженного раз в месяц. Отчет каждый ПТ в 12:00 (за месяц)'
   titleRow.font = { bold: true, size: 14 }
 
   // Определение дат начала и окончания недели
@@ -100,10 +95,7 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
     host: emailConfig.host,
     port: emailConfig.port,
     secure: emailConfig.secure, // В зависимости от вашего сервера это может быть true
-    auth: {
-      user: emailConfig.user,
-      pass: emailConfig.pass,
-    },
+    auth: { user: emailConfig.user, pass: emailConfig.pass },
   })
 
   // Даты для определения периода отчета
@@ -113,7 +105,7 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
 
   // Генерация HTML таблицы для тела письма
   let htmlContent = `<h2>${subject}</h2>`
-  htmlContent += `<table border="1" style="border-collapse: collapse;"><tr><th>№</th><th>Название</th><th>Дата</th><th>Количество</th></tr>`
+  htmlContent += `<table border='1' style='border-collapse: collapse;'><tr><th>№</th><th>Название</th><th>Дата</th><th>Количество</th></tr>`
 
   let rowNumber = 1
   data.forEach((item) => {
@@ -169,40 +161,48 @@ function getCurrentWeekDates() {
 }
 
 // Объединение функционала
-async function genBuchWeek(req, res) {
+async function genBuchWeek() {
   try {
-    const data = await getReportData()
-
-    if (data.length === 0) {
-      res.status(404).send('Нет данных для создания отчета.')
-      return
-    }
-
-    const excelStream = await createExcelFileStream(data)
-    const emailText = 'Пожалуйста, найдите вложенный отчет в формате Excel.'
-
     // Получаем email бухгалтерии и администратора
-    let financeUserEmail = await getEmailRecipients('finance')
-    let adminUserEmail = await getEmailRecipients('Admin')
+    const financeUserEmail = await getEmailRecipients('finance')
+    const adminUserEmail = await getEmailRecipients('Admin')
 
-    let mailTo
-
-    if (process.env.VITE_NODE_ENV === 'build' && financeUserEmail) {
-      mailTo = financeUserEmail
-    } else if (adminUserEmail) {
-      mailTo = adminUserEmail
+    // Отправляем отчет финансовому отделу
+    if (financeUserEmail && process.env.VITE_NODE_ENV === 'build') {
+      await sendReport(financeUserEmail)
     }
 
-    await sendEmailWithExcelStream(mailTo, emailText, excelStream, data)
-
-    res.status(200).send('Отчет успешно отправлен на указанный email.')
+    // Отправляем отчет администратору
+    if (adminUserEmail) {
+      await sendReport(adminUserEmail)
+    }
   } catch (error) {
     console.error('Ошибка при генерации и отправке отчета:', error)
-    res.status(500).send('Ошибка при генерации и отправке отчета')
+    // При необходимости, добавьте обработку ошибки
   }
 }
 
-schedule('0 11 * * 4', async function () {
+async function sendReport(email) {
+  // Получение данных для отчета
+  const data = await getReportData()
+
+  if (data.length === 0) {
+    console.log('Нет данных для создания отчета.')
+    return // Ничего не делаем, если данных нет
+  }
+
+  // Создание Excel файла
+  const excelStream = await createExcelFileStream(data)
+  const emailText = 'Пожалуйста, найдите вложенный отчет в формате Excel.'
+  await sendEmailWithExcelStream(email, emailText, excelStream, data)
+
+  console.log(`Отчет успешно отправлен на email: ${email}`)
+}
+
+min15 = '0 */15 * * * *'
+sec10 = '*/10 * * * * *'
+week = '0 11 * * 5'
+schedule(week, async function () {
   console.log('Запускаем genBuchWeek с помощью задачи cron...')
   try {
     await genBuchWeek()
