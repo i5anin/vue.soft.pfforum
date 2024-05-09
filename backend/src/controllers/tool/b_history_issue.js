@@ -1,10 +1,6 @@
 const { Pool } = require('pg')
-const { getNetworkDetails } = require('../../db_type')
-const config = require('../../config')
 const getDbConfig = require('../../databaseConfig')
 
-// Получение настроек для подключения к базе данных
-const networkDetails = getNetworkDetails()
 const dbConfig = getDbConfig()
 // Создание соединения с базой данных
 const pool = new Pool(dbConfig)
@@ -43,29 +39,32 @@ async function getToolHistory(req, res) {
     // Запрос данных
     // Мы удаляем подзапрос для подсчета totalCount и используем оконную функцию COUNT() OVER()
     const dataQuery = `
-      SELECT specs_nom.ID AS id_part,
+      SELECT specs_nom.ID                                                                             AS id_part,
              specs_nom.NAME,
              specs_nom.description,
-             COALESCE(SUM(tool_history_nom.quantity), 0) AS quantity_tool,
-             COUNT(DISTINCT specs_nom_operations.ID) AS operation_count,
+             COALESCE(SUM(tool_history_nom.quantity), 0)                                              AS quantity_tool,
+             COUNT(DISTINCT specs_nom_operations.ID)                                                  AS operation_count,
              COUNT(DISTINCT specs_nom_operations.ID) FILTER (WHERE specs_nom_operations.status_ready) AS ready_count,
-             MIN(tool_history_nom.TIMESTAMP) AS first_issue_date,
-             CAST(dbo.kolvo_prod_ready(specs_nom.ID) AS INTEGER) AS quantity_prod,
-             specs_nom.kolvo AS quantity_prod_all,
+             MIN(tool_history_nom.TIMESTAMP)                                                          AS first_issue_date,
+             CAST(dbo.kolvo_prod_ready(specs_nom.ID) AS INTEGER)                                      AS quantity_prod,
+             specs_nom.kolvo                                                                          AS quantity_prod_all,
              specs_nom.status_otgruzka,
-             dbo.tool_part_archive.archive AS is_archive,
-             COUNT(*) OVER() AS total_count
+             dbo.tool_part_archive.archive                                                            AS is_archive,
+             COUNT(*) OVER ()                                                                         AS total_count
       FROM dbo.specs_nom
              INNER JOIN dbo.specs_nom_operations ON specs_nom.ID = specs_nom_operations.specs_nom_id
              INNER JOIN dbo.operations_ordersnom ON operations_ordersnom.op_id = specs_nom_operations.ordersnom_op_id
              LEFT JOIN dbo.tool_history_nom ON specs_nom_operations.ID = tool_history_nom.specs_op_id
              LEFT JOIN dbo.tool_part_archive ON specs_nom.ID = dbo.tool_part_archive.specs_nom_id
-               ${whereStatement}
-      GROUP BY specs_nom.ID, specs_nom.NAME, specs_nom.description, specs_nom.status_otgruzka, dbo.tool_part_archive.archive
+        ${whereStatement}
+      GROUP BY specs_nom.ID, specs_nom.NAME, specs_nom.description, specs_nom.status_otgruzka,
+               dbo.tool_part_archive.archive
       HAVING COALESCE(SUM(tool_history_nom.quantity), 0) > 0
         ${orderStatement}
       LIMIT ${limit} OFFSET ${offset};
     `
+    console.log('dataQuery=', dataQuery)
+    console.log('whereStatement=', whereStatement)
 
     const dataResult = await pool.query(dataQuery)
 
@@ -194,24 +193,20 @@ async function getToolMovementById(req, res) {
 
   try {
     const query = `
-      SELECT
-        "l".id AS log_id,
-        "l".message,
-        "l".datetime_log,
-        "l".new_amount,
-        "l".old_amount,
-        "tn".name AS tool_name,
-        "vu".login AS user_login,
-        "tn".id AS tool_nom_id,
-        "vu".id AS vue_users_id
-      FROM
-        "dbo"."vue_log" "l"
-        LEFT JOIN "dbo"."tool_nom" "tn" ON "l".tool_id = "tn".id
-        LEFT JOIN "dbo"."vue_users" "vu" ON "l".user_id = "vu".id
-      WHERE
-        "l".tool_id = $1
-      ORDER BY
-        "l".datetime_log DESC;
+      SELECT "l".id     AS log_id,
+             "l".message,
+             "l".datetime_log,
+             "l".new_amount,
+             "l".old_amount,
+             "tn".name  AS tool_name,
+             "vu".login AS user_login,
+             "tn".id    AS tool_nom_id,
+             "vu".id    AS vue_users_id
+      FROM "dbo"."vue_log" "l"
+             LEFT JOIN "dbo"."tool_nom" "tn" ON "l".tool_id = "tn".id
+             LEFT JOIN "dbo"."vue_users" "vu" ON "l".user_id = "vu".id
+      WHERE "l".tool_id = $1
+      ORDER BY "l".datetime_log DESC;
     `
 
     const result = await pool.query(query, [toolId])

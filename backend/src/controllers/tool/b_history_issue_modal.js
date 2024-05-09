@@ -1,10 +1,7 @@
 const { Pool } = require('pg')
-const { getNetworkDetails } = require('../../db_type')
-const config = require('../../config')
 const getDbConfig = require('../../databaseConfig')
 
 // Получение настроек для подключения к базе данных
-const networkDetails = getNetworkDetails()
 const dbConfig = getDbConfig()
 // Создание соединения с базой данных
 const pool = new Pool(dbConfig)
@@ -219,10 +216,20 @@ async function getToolHistoryByPartId(req, res) {
 async function addToArchive(req, res) {
   const client = await pool.connect()
   try {
-    // Получаем idPart из параметров маршрута
-    const idPart = req.params.id
+    const { id_part: idPart, archive: newArchiveState, token } = req.body
 
-    // Проверка на существование записи в tool_part_archive
+    // Проверяем пользователя и его роль
+    const userRoleQuery = 'SELECT role FROM dbo.vue_users WHERE token = $1'
+    const userRoleResult = await client.query(userRoleQuery, [token])
+
+    if (
+      userRoleResult.rows.length === 0 ||
+      userRoleResult.rows[0].role !== 'Editor'
+    ) {
+      return res.status(403).send('Доступ запрещен. Требуется роль Editor.')
+    }
+
+    // Проверка на существование записи
     const checkExistsQuery = `
       SELECT id
       FROM dbo.tool_part_archive
@@ -231,28 +238,32 @@ async function addToArchive(req, res) {
     const checkExistsResult = await client.query(checkExistsQuery, [idPart])
 
     if (checkExistsResult.rows.length > 0) {
-      // Если запись существует, обновляем флаг архива
+      // Обновляем флаг
       const updateQuery = `
         UPDATE dbo.tool_part_archive
-        SET archive = true
+        SET archive = $2
         WHERE specs_nom_id = $1;
       `
-      await client.query(updateQuery, [idPart])
+      await client.query(updateQuery, [idPart, newArchiveState])
     } else {
-      // Если записи нет, создаем новую запись с флагом архива
+      // Создаем запись
       const insertQuery = `
         INSERT INTO dbo.tool_part_archive (specs_nom_id, archive)
-        VALUES ($1, true);
+        VALUES ($1, $2);
       `
-      await client.query(insertQuery, [idPart])
+      await client.query(insertQuery, [idPart, newArchiveState])
     }
 
     await client.query('COMMIT')
-    res.send('Запись была успешно добавлена в архив.')
+    res.send(
+      newArchiveState
+        ? 'Запись добавлена в архив.'
+        : 'Запись удалена из архива.'
+    )
   } catch (err) {
     await client.query('ROLLBACK')
-    console.error('Ошибка при добавлении в архив', err.stack)
-    res.status(500).send('Ошибка при выполнении операции добавления в архив.')
+    console.error('Ошибка при изменении архивного состояния', err.stack)
+    res.status(500).send('Ошибка при изменении архивного состояния.')
   } finally {
     client.release()
   }

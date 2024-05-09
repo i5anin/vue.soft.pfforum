@@ -80,7 +80,7 @@
 </template>
 
 <script>
-import { originalMenuItems, plotsMenuItems } from '@/main-app/data/menuItems'
+import { plotsMenuItems } from '@/main-app/data/menuItems'
 import ModalCart from '@/modules/issue/components/ModalCart.vue'
 import MenuList from '@/main-app/SidebarMenuList.vue'
 import { authApi } from '@/api/login'

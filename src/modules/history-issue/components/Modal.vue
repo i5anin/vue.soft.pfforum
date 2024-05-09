@@ -10,9 +10,14 @@
                   v-if="info?.is_archive"
                   icon="mdi-archive check-icon--large--gray"
                   class="mr-2"
+                  title="В архиве"
                 />
-                <h2 v-if="info" class="text-h5 my-0">
-                  {{ info?.name }} - {{ info?.description }}
+                <h2
+                  v-if="info"
+                  :class="{ 'text-grey': info.is_archive }"
+                  class="text-h5 my-0"
+                >
+                  {{ info.name }} - {{ info.description }}
                 </h2>
               </v-col>
 
@@ -25,6 +30,13 @@
                 >
                   Обновить
                 </v-btn>
+              </v-col>
+              <v-col v-if="userRole === 'Editor'">
+                <v-checkbox
+                  v-model="info.is_archive"
+                  label="Добавлен в архив"
+                  @change="toggleArchiveStatus"
+                />
               </v-col>
             </v-row>
             <v-col cols="12" class="my-2">
@@ -164,6 +176,7 @@
 </template>
 
 <script>
+import { authApi } from '@/api/login'
 import Modal from '@/modules/shared/components/Modal.vue'
 import { issueHistoryApi } from '../api/history'
 import { format, parseISO } from 'date-fns'
@@ -178,6 +191,7 @@ export default {
   },
   data() {
     return {
+      userRole: null,
       showCancelDialog: false,
       cancelQuantity: 1,
       selectedOperationQuantity: 100,
@@ -219,6 +233,39 @@ export default {
     },
   },
   methods: {
+    async checkLogin() {
+      const token = localStorage.getItem('token')
+      try {
+        const response = await authApi.checkLogin(token)
+        if (response.data.status === 'ok') {
+          // Сохраняем роль пользователя после успешной проверки логина
+          this.userRole = response.data.role
+        }
+      } catch (error) {
+        console.error('Ошибка при проверке логина:', error)
+      }
+    },
+    async toggleArchiveStatus() {
+      const archiveState = this.info.is_archive
+      const token = localStorage.getItem('token') // Получаем токен из localStorage
+
+      console.log('Архивный статус изменился, новое значение:', archiveState)
+
+      try {
+        const response = await issueHistoryApi.addToArchive(
+          this.id_part,
+          archiveState,
+          token
+        )
+        console.log('Ответ сервера:', response)
+        alert(`Статус архива для id_part ${this.id_part} успешно обновлен.`)
+        // Обновляем данные на фронте
+        await this.fetchHistoryData()
+      } catch (error) {
+        console.error('Ошибка при изменении статуса архива:', error)
+        alert('Произошла ошибка при изменении статуса архива.')
+      }
+    },
     promptCancelQuantity(operationId) {
       this.currentOperationId = operationId
       this.showCancelDialog = true
@@ -287,22 +334,6 @@ export default {
     onCancel() {
       this.$emit('canceled')
     },
-    async addToArchive(idPart) {
-      try {
-        // Используем новый метод API для добавления в архив
-        const response = await issueHistoryApi.addToArchive(idPart)
-        if (response) {
-          this.info.is_archive = true
-          // Отображение сообщения об успешном добавлении в архив
-          // Обновляем данные в родительском компоненте или в текущем компоненте
-          this.$emit('update:info', { ...this.info, is_archive: true })
-          alert('Запись была успешно добавлена в архив.')
-        }
-      } catch (error) {
-        console.error('Ошибка при добавлении в архив:', error)
-        alert('Не удалось добавить в архив: ' + error.message)
-      }
-    },
     async fetchHistoryData() {
       try {
         const response = await issueHistoryApi.fetchHistoryByPartId(
@@ -334,6 +365,7 @@ export default {
   },
   created() {
     this.fetchHistoryData()
+    this.checkLogin()
   },
 }
 </script>
