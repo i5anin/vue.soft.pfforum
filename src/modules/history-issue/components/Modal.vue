@@ -10,9 +10,14 @@
                   v-if="info?.is_archive"
                   icon="mdi-archive check-icon--large--gray"
                   class="mr-2"
+                  title="В архиве"
                 />
-                <h2 v-if="info" class="text-h5 my-0">
-                  {{ info?.name }} - {{ info?.description }}
+                <h2
+                  v-if="info"
+                  :class="{ 'text-grey': info.is_archive }"
+                  class="text-h5 my-0"
+                >
+                  {{ info.name }} - {{ info.description }}
                 </h2>
               </v-col>
 
@@ -25,6 +30,13 @@
                 >
                   Обновить
                 </v-btn>
+              </v-col>
+              <v-col>
+                <v-checkbox
+                  v-model="info.is_archive"
+                  label="Добавлен в архив"
+                  @change="toggleArchiveStatus"
+                />
               </v-col>
             </v-row>
             <v-col cols="12" class="my-2">
@@ -219,6 +231,13 @@ export default {
     },
   },
   methods: {
+    toggleArchiveStatus(value) {
+      // В этом методе вы можете отправить значение чекбокса на сервер
+      // чтобы обновить статус архива для элемента
+      console.log('Архивный статус изменился, новое значение:', value)
+      // Пример API запроса для обновления статуса архива
+      // Вместо 'console.log' здесь будет ваш код для запроса к API
+    },
     promptCancelQuantity(operationId) {
       this.currentOperationId = operationId
       this.showCancelDialog = true
@@ -286,22 +305,6 @@ export default {
     },
     onCancel() {
       this.$emit('canceled')
-    },
-    async addToArchive(idPart) {
-      try {
-        // Используем новый метод API для добавления в архив
-        const response = await issueHistoryApi.addToArchive(idPart)
-        if (response) {
-          this.info.is_archive = true
-          // Отображение сообщения об успешном добавлении в архив
-          // Обновляем данные в родительском компоненте или в текущем компоненте
-          this.$emit('update:info', { ...this.info, is_archive: true })
-          alert('Запись была успешно добавлена в архив.')
-        }
-      } catch (error) {
-        console.error('Ошибка при добавлении в архив:', error)
-        alert('Не удалось добавить в архив: ' + error.message)
-      }
     },
     async fetchHistoryData() {
       try {

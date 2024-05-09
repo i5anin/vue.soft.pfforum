@@ -1,10 +1,7 @@
 const { Pool } = require('pg')
-const { getNetworkDetails } = require('../../db_type')
-const config = require('../../config')
 const getDbConfig = require('../../databaseConfig')
 
 // Получение настроек для подключения к базе данных
-const networkDetails = getNetworkDetails()
 const dbConfig = getDbConfig()
 // Создание соединения с базой данных
 const pool = new Pool(dbConfig)
@@ -221,6 +218,8 @@ async function addToArchive(req, res) {
   try {
     // Получаем idPart из параметров маршрута
     const idPart = req.params.id
+    // Получаем новое состояние архивации из тела запроса
+    const newArchiveState = req.body.archive // true или false
 
     // Проверка на существование записи в tool_part_archive
     const checkExistsQuery = `
@@ -234,25 +233,28 @@ async function addToArchive(req, res) {
       // Если запись существует, обновляем флаг архива
       const updateQuery = `
         UPDATE dbo.tool_part_archive
-        SET archive = true
+        SET archive = $2
         WHERE specs_nom_id = $1;
       `
-      await client.query(updateQuery, [idPart])
+      await client.query(updateQuery, [idPart, newArchiveState])
     } else {
-      // Если записи нет, создаем новую запись с флагом архива
+      // Если записи нет, создаем новую запись с заданным флагом архива
       const insertQuery = `
         INSERT INTO dbo.tool_part_archive (specs_nom_id, archive)
-        VALUES ($1, true);
+        VALUES ($1, $2);
       `
-      await client.query(insertQuery, [idPart])
+      await client.query(insertQuery, [idPart, newArchiveState])
     }
 
     await client.query('COMMIT')
-    res.send('Запись была успешно добавлена в архив.')
+    const message = newArchiveState
+      ? 'Запись была успешно добавлена в архив.'
+      : 'Запись была успешно удалена из архива.'
+    res.send(message)
   } catch (err) {
     await client.query('ROLLBACK')
-    console.error('Ошибка при добавлении в архив', err.stack)
-    res.status(500).send('Ошибка при выполнении операции добавления в архив.')
+    console.error('Ошибка при изменении архивного состояния', err.stack)
+    res.status(500).send('Ошибка при изменении архивного состояния.')
   } finally {
     client.release()
   }

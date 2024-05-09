@@ -60,7 +60,7 @@ export const issueHistoryApi = {
   // Новый метод для добавления записи в архив
   addToArchive: async (partId) =>
     axiosInstance
-      .post(`/history-add-archive`, { id_part: partId })
+      .post(`/history-add-archive`, { id_part: partId, archive: archiveState })
       .then(handleResponse)
       .catch(handleApiError),
 }
