@@ -47,6 +47,8 @@ async function getTableReportData(req, res) {
                                           tool_nom.group_id)
                    SELECT d.parent_id,
                           tp.path,
+                          d.group_id,
+                          d.name,
                           JSON_AGG(
                             JSON_BUILD_OBJECT(
                               'id_tool', d.id_tool,
@@ -60,8 +62,8 @@ async function getTableReportData(req, res) {
                           ) AS tools
                    FROM damaged d
                           JOIN TreePath tp ON d.parent_id = tp.id
-                   GROUP BY d.parent_id, tp.path
-                   ORDER BY tp.path;
+                   GROUP BY d.parent_id, tp.path, d.group_id, d.name
+                   ORDER BY tp.path, d.group_id, d.name;
     `
     const { rows } = await pool.query(query)
     res.json(rows) // Отправляем данные в формате JSON
