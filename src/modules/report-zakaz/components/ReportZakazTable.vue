@@ -9,7 +9,7 @@
             icon="mdi-folder-alert"
             start
             color="red-lighten-2"
-            title="Есть позиции мение 50%"
+            title="Есть позиции менее 50%"
           />
         </template>
         {{ group.path }}
@@ -104,7 +104,6 @@ export default {
   methods: {
     getColorForGroup(index) {
       const hue = index * 137.508 // используем золотое сечение
-      console.log(hue)
       return `hsl(${hue % 360}, 50%, 50%)`
     },
     getRoundedCount(count) {
