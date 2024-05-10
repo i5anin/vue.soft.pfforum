@@ -31,7 +31,7 @@
                   Обновить
                 </v-btn>
               </v-col>
-              <v-col>
+              <v-col v-if="userRole === 'Editor'">
                 <v-checkbox
                   v-model="info.is_archive"
                   label="Добавлен в архив"
@@ -176,6 +176,7 @@
 </template>
 
 <script>
+import { authApi } from '@/api/login'
 import Modal from '@/modules/shared/components/Modal.vue'
 import { issueHistoryApi } from '../api/history'
 import { format, parseISO } from 'date-fns'
@@ -190,6 +191,7 @@ export default {
   },
   data() {
     return {
+      userRole: null,
       showCancelDialog: false,
       cancelQuantity: 1,
       selectedOperationQuantity: 100,
@@ -231,6 +233,18 @@ export default {
     },
   },
   methods: {
+    async checkLogin() {
+      const token = localStorage.getItem('token')
+      try {
+        const response = await authApi.checkLogin(token)
+        if (response.data.status === 'ok') {
+          // Сохраняем роль пользователя после успешной проверки логина
+          this.userRole = response.data.role
+        }
+      } catch (error) {
+        console.error('Ошибка при проверке логина:', error)
+      }
+    },
     async toggleArchiveStatus() {
       const archiveState = this.info.is_archive
       const token = localStorage.getItem('token') // Получаем токен из localStorage
@@ -351,6 +365,7 @@ export default {
   },
   created() {
     this.fetchHistoryData()
+    this.checkLogin()
   },
 }
 </script>
