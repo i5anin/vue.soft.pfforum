@@ -1,13 +1,8 @@
 const { Pool } = require('pg')
-const ExcelJS = require('exceljs')
-const { getNetworkDetails } = require('../../../../db_type')
-const config = require('../../../../config')
-const nodemailer = require('nodemailer')
-const { emailConfig } = require('../../../../config')
 const getDbConfig = require('../../../../databaseConfig')
 
 // Настройка подключения к базе данных
-const networkDetails = getNetworkDetails()
+
 const dbConfig = getDbConfig()
 const pool = new Pool(dbConfig)
 
@@ -32,9 +27,10 @@ async function getTableReportData(req, res) {
                      ),
                      damaged AS (SELECT tool_nom.id                                     AS id_tool,
                                         tool_nom.parent_id,
+                                        tool_nom.group_id,
                                         tool_nom.name,
-                                        tool_nom.sklad, -- Добавляем это поле
-                                        tool_nom.norma, -- Добавляем это поле
+                                        tool_nom.sklad,
+                                        tool_nom.norma,
                                         tool_nom.norma - tool_nom.sklad                 AS zakaz,
                                         COALESCE(SUM(tool_history_damaged.quantity), 0) AS damaged_last_7_days
                                  FROM dbo.tool_nom
@@ -47,12 +43,15 @@ async function getTableReportData(req, res) {
                                           tool_nom.parent_id,
                                           tool_nom.name,
                                           tool_nom.sklad,
-                                          tool_nom.norma)
+                                          tool_nom.norma,
+                                          tool_nom.group_id)
                    SELECT d.parent_id,
                           tp.path,
                           JSON_AGG(
                             JSON_BUILD_OBJECT(
+                              'id_tool', d.id_tool, -- Предположим, вы также хотите включить id инструмента в вывод
                               'name', d.name,
+                              'group_id', d.group_id, -- Добавили вывод group_id
                               'sklad', d.sklad,
                               'norma', d.norma,
                               'zakaz', d.zakaz,

@@ -29,7 +29,7 @@
       </v-col>
     </v-row>
   </v-container>
-  <ReportZakaz></ReportZakaz>
+  <ReportZakaz />
 </template>
 <script>
 import { reportApi } from '../api/report'

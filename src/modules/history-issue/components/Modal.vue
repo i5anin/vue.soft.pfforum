@@ -356,7 +356,6 @@ export default {
         const partInfoResponse = await issueHistoryApi.fetchHistoryByPartIdInfo(
           this.id_part
         )
-        console.log(partInfoResponse)
         this.operations = partInfoResponse.info.operations
         this.completedOperations = partInfoResponse.info.completed_operations
         if (response && typeof response === 'object') {
