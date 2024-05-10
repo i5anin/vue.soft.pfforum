@@ -1,64 +1,39 @@
 const { Pool } = require('pg')
 const ExcelJS = require('exceljs')
-const { getNetworkDetails } = require('../../../../db_type')
-const config = require('../../../../config')
 const nodemailer = require('nodemailer')
 const { emailConfig } = require('../../../../config')
 const getDbConfig = require('../../../../databaseConfig')
 
 // Настройка подключения к базе данных
-const networkDetails = getNetworkDetails()
+
 const dbConfig = getDbConfig()
 const pool = new Pool(dbConfig)
 
 // Функция для получения данных из базы данных
 async function getReportData() {
   const query = `
-WITH RECURSIVE TreePath AS (
-  SELECT
-    id,
-    CAST(name AS TEXT) AS path,
-    parent_id
-  FROM
-    dbo.tool_tree
-  WHERE
-    parent_id = 1
-  UNION ALL
-  SELECT
-    tt.id,
-    CONCAT(tp.path, ' / ', tt.name) AS path,
-    tt.parent_id
-  FROM
-    dbo.tool_tree tt
-    JOIN TreePath tp ON tt.parent_id = tp.id
-)
-, ToolReport AS (
-  SELECT
-    tn.id AS id_tool,
-    tn.name,
-    tn.sklad,
-    tn.norma,
-    tn.norma - tn.sklad AS zakaz,
-    tn.parent_id
-  FROM
-    dbo.tool_nom tn
-  WHERE
-    tn.norma IS NOT NULL AND (tn.norma - tn.sklad) > 0
-)
-SELECT
-  tr.id_tool,
-  tr.name,
-  tr.sklad,
-  tr.norma,
-  tr.zakaz,
-  tp.path AS tool_path
-FROM
-  ToolReport tr
-LEFT JOIN
-  TreePath tp ON tr.parent_id = tp.id
-ORDER BY
-  tp.path,
-  tr.name;
+    WITH RECURSIVE
+      TreePath AS (SELECT id, CAST(name AS TEXT) AS path, parent_id
+                   FROM dbo.tool_tree
+                   WHERE parent_id = 1
+                   UNION ALL
+                   SELECT tt.id, CONCAT(tp.path, ' / ', tt.name) AS path, tt.parent_id
+                   FROM dbo.tool_tree tt
+                          JOIN TreePath tp ON tt.parent_id = tp.id),
+      ToolReport AS (SELECT tn.id               AS id_tool,
+                            tn.name,
+                            tn.sklad,
+                            tn.norma,
+                            tn.norma - tn.sklad AS zakaz,
+                            tn.parent_id,
+                            tn.group_id
+                     FROM dbo.tool_nom tn
+                     WHERE tn.norma IS NOT NULL
+                       AND (tn.norma - tn.sklad) > 0)
+    SELECT tr.id_tool, tr.name, tr.sklad, tr.norma, tr.zakaz, tp.path AS tool_path, tr.group_id
+    FROM ToolReport tr
+           LEFT JOIN TreePath tp ON tr.parent_id = tp.id
+    ORDER BY tp.path, tr.name;
   `
 
   const { rows } = await pool.query(query)
@@ -85,23 +60,50 @@ function getCurrentMonthDates() {
 }
 
 // Функция для создания Excel файла и возврата его как потока данных
+// Функция для создания Excel файла и возврата его как потока данных
 async function createExcelFileStream(data) {
   const workbook = new ExcelJS.Workbook()
-  const worksheet = workbook.addWorksheet('Заказ')
+  const worksheet = workbook.addWorksheet('Отчёт')
 
   // Добавляем заголовки
-  worksheet.addRow(['ID', 'Название', 'На складе', 'Норма', 'Заказ', 'Путь'])
+  worksheet.columns = [
+    { header: 'ID', key: 'id_tool', width: 10 },
+    { header: 'Название', key: 'name', width: 32 },
+    { header: 'На складе', key: 'sklad', width: 10 },
+    { header: 'Норма', key: 'norma', width: 10 },
+    { header: 'Заказ', key: 'zakaz', width: 10 },
+    { header: 'Группа', key: 'group_id', width: 15 },
+    { header: 'Путь', key: 'tool_path', width: 30 },
+  ]
 
-  // Заполняем строки данными
+  // Добавляем данные
   data.forEach((item) => {
-    worksheet.addRow([
-      item.id_tool,
-      item.name,
-      item.sklad,
-      item.norma,
-      item.zakaz,
-      item.tool_path,
-    ])
+    const zakazRounded = item.tool_path.includes('Пластины')
+      ? Math.floor(item.zakaz / 10) * 10
+      : item.zakaz
+    const group_id = item.group_id === null ? 'нет группы' : item.group_id
+
+    worksheet.addRow({
+      id_tool: item.id_tool,
+      name: item.name,
+      sklad: item.sklad,
+      norma: item.norma,
+      zakaz: zakazRounded,
+      group_id: group_id,
+      tool_path: item.tool_path,
+    })
+  })
+
+  // Автонастройка ширины ячеек
+  worksheet.columns.forEach((column) => {
+    let maxLength = 0
+    column.eachCell({ includeEmpty: true }, (cell) => {
+      let cellLength = cell.value ? cell.value.toString().length : 10
+      if (cellLength > maxLength) {
+        maxLength = cellLength
+      }
+    })
+    column.width = maxLength < 10 ? 10 : maxLength // Устанавливаем минимальную ширину 10
   })
 
   const stream = new require('stream').PassThrough()
@@ -137,23 +139,30 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
 <tr>
 <th>ID</th>
 <th>Название</th>
-<th>Количество</th>
+<th>На складе</th>
+<th>Норма</th>
+<th>Заказ округленный</th>
+<th>Группа</th>
 <th>Путь</th>
 </tr>`
 
-  let rowNumber = 1
   data.forEach((item) => {
-    let formattedDate = ''
-    // Проверяем, существует ли timestamp и можно ли его преобразовать в дату
-    if (item.timestamp && !isNaN(new Date(item.timestamp).getTime())) {
-      new Date(item.timestamp).toISOString().split('T')[0] // Форматирование даты
-    }
+    // Округление заказа для пластин до ближайшего меньшего кратного 10
+    const zakazRounded = item.tool_path.includes('Пластины')
+      ? Math.floor(item.zakaz / 10) * 10
+      : item.zakaz
+
+    // Корректное отображение отсутствующей группы
+    const groupDisplay = item.group_id === null ? 'нет группы' : item.group_id
 
     htmlContent += `
 <tr>
 <td>${item.id_tool}</td>
 <td>${item.name}</td>
-<td>${item.zakaz}</td>
+<td>${item.sklad}</td>
+<td>${item.norma}</td>
+<td>${zakazRounded}</td>
+<td>${groupDisplay}</td>
 <td>${item.tool_path}</td>
 </tr>`
   })
