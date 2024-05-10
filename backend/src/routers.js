@@ -69,7 +69,7 @@ router.get('/history-all-tool', historyController.getAllIssuedToolIdsWithNames)
 router.get('/tool-movement/:id', historyController.getToolMovementById)
 
 router.get('/history-part', historyControllerModal.getToolHistoryByPartId)
-router.get('/history-add-archive/:id', historyControllerModal.addToArchive)
+router.post('/history-add-archive', historyControllerModal.addToArchive)
 router.get(
   '/history-part/info',
   historyControllerModal.getToolHistoryByPartIdInfo

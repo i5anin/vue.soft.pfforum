@@ -216,12 +216,20 @@ async function getToolHistoryByPartId(req, res) {
 async function addToArchive(req, res) {
   const client = await pool.connect()
   try {
-    // Получаем idPart из параметров маршрута
-    const idPart = req.params.id
-    // Получаем новое состояние архивации из тела запроса
-    const newArchiveState = req.body.archive // true или false
+    const { id_part: idPart, archive: newArchiveState, token } = req.body
 
-    // Проверка на существование записи в tool_part_archive
+    // Проверяем пользователя и его роль
+    const userRoleQuery = 'SELECT role FROM dbo.vue_users WHERE token = $1'
+    const userRoleResult = await client.query(userRoleQuery, [token])
+
+    if (
+      userRoleResult.rows.length === 0 ||
+      userRoleResult.rows[0].role !== 'Editor'
+    ) {
+      return res.status(403).send('Доступ запрещен. Требуется роль Editor.')
+    }
+
+    // Проверка на существование записи
     const checkExistsQuery = `
       SELECT id
       FROM dbo.tool_part_archive
@@ -230,7 +238,7 @@ async function addToArchive(req, res) {
     const checkExistsResult = await client.query(checkExistsQuery, [idPart])
 
     if (checkExistsResult.rows.length > 0) {
-      // Если запись существует, обновляем флаг архива
+      // Обновляем флаг
       const updateQuery = `
         UPDATE dbo.tool_part_archive
         SET archive = $2
@@ -238,7 +246,7 @@ async function addToArchive(req, res) {
       `
       await client.query(updateQuery, [idPart, newArchiveState])
     } else {
-      // Если записи нет, создаем новую запись с заданным флагом архива
+      // Создаем запись
       const insertQuery = `
         INSERT INTO dbo.tool_part_archive (specs_nom_id, archive)
         VALUES ($1, $2);
@@ -247,10 +255,11 @@ async function addToArchive(req, res) {
     }
 
     await client.query('COMMIT')
-    const message = newArchiveState
-      ? 'Запись была успешно добавлена в архив.'
-      : 'Запись была успешно удалена из архива.'
-    res.send(message)
+    res.send(
+      newArchiveState
+        ? 'Запись добавлена в архив.'
+        : 'Запись удалена из архива.'
+    )
   } catch (err) {
     await client.query('ROLLBACK')
     console.error('Ошибка при изменении архивного состояния', err.stack)

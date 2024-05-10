@@ -231,12 +231,26 @@ export default {
     },
   },
   methods: {
-    toggleArchiveStatus(value) {
-      // В этом методе вы можете отправить значение чекбокса на сервер
-      // чтобы обновить статус архива для элемента
-      console.log('Архивный статус изменился, новое значение:', value)
-      // Пример API запроса для обновления статуса архива
-      // Вместо 'console.log' здесь будет ваш код для запроса к API
+    async toggleArchiveStatus() {
+      const archiveState = this.info.is_archive
+      const token = localStorage.getItem('token') // Получаем токен из localStorage
+
+      console.log('Архивный статус изменился, новое значение:', archiveState)
+
+      try {
+        const response = await issueHistoryApi.addToArchive(
+          this.id_part,
+          archiveState,
+          token
+        )
+        console.log('Ответ сервера:', response)
+        alert(`Статус архива для id_part ${this.id_part} успешно обновлен.`)
+        // Обновляем данные на фронте
+        await this.fetchHistoryData()
+      } catch (error) {
+        console.error('Ошибка при изменении статуса архива:', error)
+        alert('Произошла ошибка при изменении статуса архива.')
+      }
     },
     promptCancelQuantity(operationId) {
       this.currentOperationId = operationId
