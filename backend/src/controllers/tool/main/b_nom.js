@@ -234,10 +234,11 @@ async function addTool(req, res) {
   replaceCommaWithDotInNumbers(property)
 
   try {
-    if (parent_id <= 1)
+    if (parent_id <= 1) {
       return res
         .status(400)
         .json({ error: 'parent_id must be greater than 1.' })
+    }
 
     if (property && property.id) {
       const propertyIdCheckResult = await pool.query(
@@ -287,6 +288,7 @@ async function addTool(req, res) {
     )
 
     const toolId = toolInsertResult.rows[0].id
+
     // Логирование добавления инструмента
     const logMessage = `Инструмент успешно добавлен ID ${toolId}, группа ${group_id}.`
     await pool.query(
