@@ -225,7 +225,6 @@ export default {
       return format(parseISO(date), 'dd.MM.yyyy')
     },
     async fetchAndFormatToolHistory() {
-      console.log('fetchAndFormatToolHistory')
       this.isLoading = true
 
       try {
@@ -236,8 +235,6 @@ export default {
           this.selectedDate ? this.selectedDate : null,
           this.selectedTool ? this.selectedTool.id_tool : null
         )
-
-        console.log(response)
 
         this.toolsHistory = response.toolsHistory.map((tool) => ({
           ...tool,
