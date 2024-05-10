@@ -23,7 +23,7 @@ async function getTableReportData(req, res) {
                                          tt.parent_id,
                                          CONCAT(tp.path, ' / ', tt.name) -- Строим путь, добавляя имя текущей записи
                                   FROM dbo.tool_tree tt
-                                         JOIN TreePath tp ON tt.parent_id = tp.id
+                                         JOIN TreePath tp ON tt.parent_id = tp.id -- Присоединяем дочерние элементы к родительским
                      ),
                      damaged AS (SELECT tool_nom.id                                     AS id_tool,
                                         tool_nom.parent_id,
@@ -49,9 +49,9 @@ async function getTableReportData(req, res) {
                           tp.path,
                           JSON_AGG(
                             JSON_BUILD_OBJECT(
-                              'id_tool', d.id_tool,
+                              'id_tool', d.id_tool, -- Предположим, вы также хотите включить id инструмента в вывод
                               'name', d.name,
-                              'group_id', d.group_id,
+                              'group_id', d.group_id, -- Добавили вывод group_id
                               'sklad', d.sklad,
                               'norma', d.norma,
                               'zakaz', d.zakaz,
@@ -60,8 +60,9 @@ async function getTableReportData(req, res) {
                           ) AS tools
                    FROM damaged d
                           JOIN TreePath tp ON d.parent_id = tp.id
-                   GROUP BY d.parent_id, tp.path, d.group_id, d.name
-                   ORDER BY tp.path, d.group_id, d.name;`
+                   GROUP BY d.parent_id, tp.path
+                   ORDER BY tp.path;
+    `
     const { rows } = await pool.query(query)
     res.json(rows) // Отправляем данные в формате JSON
   } catch (error) {
