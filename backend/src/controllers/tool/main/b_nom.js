@@ -229,7 +229,7 @@ async function deleteTool(req, res) {
 }
 
 async function addTool(req, res) {
-  const { name, parent_id, property, sklad, norma } = req.body
+  const { name, parent_id, property, sklad, norma, group_id } = req.body
   // Преобразование запятых в точки в числах в property
   replaceCommaWithDotInNumbers(property)
 
@@ -263,25 +263,38 @@ async function addTool(req, res) {
         .json({ error: 'Specified parent_id does not exist.' })
     }
 
+    // Проверка на существование group_id в базе данных (псевдокод, реализация зависит от структуры вашей БД)
+    if (group_id) {
+      const groupCheckResult = await pool.query(
+        'SELECT id FROM dbo.tool_groups WHERE id = $1',
+        [group_id]
+      )
+
+      if (groupCheckResult.rowCount === 0) {
+        return res.status(400).json({
+          error: 'Specified group_id does not exist.',
+        })
+      }
+    }
+
     const propertyWithoutNull = removeNullProperties(property)
     const propertyString = JSON.stringify(propertyWithoutNull)
 
     const toolInsertResult = await pool.query(
-      'INSERT INTO dbo.tool_nom (name, parent_id, property, sklad, norma) ' +
-        'VALUES ($1, $2, $3, $4, $5) RETURNING id',
-      [name, parent_id, propertyString, sklad, norma]
+      'INSERT INTO dbo.tool_nom (name, parent_id, property, sklad, norma, group_id) ' +
+        'VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+      [name, parent_id, propertyString, sklad, norma, group_id]
     )
 
     const toolId = toolInsertResult.rows[0].id
-
     // Логирование добавления инструмента
-    const logMessage = `Инструмент успешно добавлен ID ${toolId}.`
+    const logMessage = `Инструмент успешно добавлен ID ${toolId}, группа ${group_id}.`
     await pool.query(
       'INSERT INTO dbo.vue_log (message, tool_id, datetime_log, new_amount) VALUES ($1, $2, NOW(), $3)',
       [logMessage, toolId, sklad]
     )
 
-    // Получение полной информации о добавленном инструменте
+    // Получение полной информации о добавленном инструмента
     const newToolResult = await pool.query(
       'SELECT * FROM dbo.tool_nom WHERE id = $1',
       [toolId]
