@@ -1,10 +1,8 @@
 // models/tool_nom.js
 const { Sequelize, DataTypes } = require('sequelize')
-const { getNetworkDetails } = require('../db_type')
-const config = require('../config')
+
 const getDbConfig = require('../databaseConfig')
 
-const { databaseType } = getNetworkDetails()
 const dbConfig = getDbConfig()
 
 const sequelize = new Sequelize(
