@@ -31,7 +31,7 @@
                   Обновить
                 </v-btn>
               </v-col>
-              <v-col v-if="userRole === 'Editor'">
+              <v-col v-if="userRole === 'Editor' || 'Admin'">
                 <v-checkbox
                   v-model="info.is_archive"
                   label="Добавлен в архив"
@@ -233,6 +233,19 @@ export default {
     },
   },
   methods: {
+    close() {
+      this.$emit('close')
+    },
+    async submitChange() {
+      // Здесь код для отправки данных на сервер
+      try {
+        await issueHistoryApi.updateData(/* подходящие параметры */)
+        this.$emit('changes-saved')
+        this.$emit('close')
+      } catch (error) {
+        console.error('Ошибка при обновлении данных:', error)
+      }
+    },
     async checkLogin() {
       const token = localStorage.getItem('token')
       try {
