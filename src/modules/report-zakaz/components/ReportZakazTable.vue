@@ -9,7 +9,7 @@
             icon="mdi-folder-alert"
             start
             color="red-lighten-2"
-            title="Есть позиции мение 50%"
+            title="Есть позиции менее 50%"
           />
         </template>
         {{ group.path }}
@@ -43,6 +43,12 @@
                 }"
               >
                 {{ tool.name }}
+                <v-chip
+                  v-if="tool.group_id"
+                  :color="getColorForGroup(tool.group_id)"
+                  :title="'Группа ' + tool.group_id"
+                  >G{{ tool.group_id }}</v-chip
+                >
               </td>
               <td>
                 {{
@@ -89,12 +95,17 @@ export default {
     return {
       toolGroups: [],
       visibleGroups: [],
+      colors: ['red', 'green', 'blue', 'orange', 'purple', 'cyan'],
     }
   },
   mounted() {
     this.fetchZakazData()
   },
   methods: {
+    getColorForGroup(index) {
+      const hue = index * 137.508 // используем золотое сечение
+      return `hsl(${hue % 360}, 50%, 50%)`
+    },
     getRoundedCount(count) {
       if (count < 10) return 10
       return count % 10 < 5

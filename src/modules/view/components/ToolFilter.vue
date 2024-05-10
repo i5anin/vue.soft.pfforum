@@ -40,7 +40,6 @@
 <script>
 import { mapActions, mapMutations, mapGetters } from 'vuex'
 import store from '@/store/store'
-import ViewToolStore from '@/modules/view/store'
 
 export default {
   computed: {

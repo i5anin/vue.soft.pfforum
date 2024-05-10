@@ -30,7 +30,7 @@ export const reportApi = {
       .catch(handleApiError),
   getZakaz: async () =>
     axiosInstance
-      .get('/report/getZakaz')
+      .get('/report/get-zakaz')
       .then(handleResponse)
       .catch(handleApiError),
 }

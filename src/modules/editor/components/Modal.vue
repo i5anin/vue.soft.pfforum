@@ -5,7 +5,7 @@
         <v-row>
           <v-col>
             <v-row>
-              <v-col cols="6">
+              <v-col cols="5">
                 <v-text-field
                   label="Папка"
                   required
@@ -14,13 +14,22 @@
                   :disabled="true"
                 />
               </v-col>
-              <v-col cols="6">
+              <v-col cols="3">
                 <v-text-field
                   label="ID папки"
                   required
                   type="Number"
                   v-model="parentCatalog.id"
                   :rules="parentIdRules"
+                />
+              </v-col>
+              <v-col cols="3">
+                <v-text-field
+                  label="ID группы"
+                  required
+                  type="Number"
+                  v-model="toolModel.group_id"
+                  :rules="groupIdRules"
                 />
               </v-col>
             </v-row>
@@ -128,10 +137,10 @@
         Закрыть
       </v-btn>
       <v-btn
-        prepend-icon="mdi-check-circle"
+        prepend-icon="mdi-check"
         @click="onSave"
         class="text-none text-subtitle-1 pl-3"
-        color="blue darken-1"
+        color="green"
         size="large"
         variant="flat"
       >
@@ -170,7 +179,7 @@ export default {
       toolModel: {
         name: null,
         property: {},
-        limit: null,
+        group_id: null,
         sklad: null,
         norma: null,
       },
@@ -183,6 +192,10 @@ export default {
       confirmDeleteDialog: false,
       typeSelected: false,
       selectedType: '',
+      groupIdRules: [
+        (v) => !!v || 'ID группы обязательно',
+        (v) => parseInt(v, 10) > 0 || 'ID группы должен быть больше 0',
+      ],
       parentIdRules: [
         (v) => !!v || 'ID папки обязательно',
         (v) => v > 1 || 'ID папки должен быть больше 1',

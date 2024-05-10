@@ -69,7 +69,7 @@
           </v-col>
         </v-row>
       </div>
-      <v-table hover class="elevation-1">
+      <v-table hover="true" class="elevation-1">
         <thead>
           <tr>
             <th>#</th>
@@ -149,7 +149,7 @@
         Закрыть
       </v-btn>
     </template>
-    <v-dialog v-model="showCancelDialog" persistent max-width="350">
+    <v-dialog v-model="showCancelDialog" persistent="true" max-width="350">
       <v-card>
         <v-card-title class="headline">Подтверждение отмены</v-card-title>
         <v-card-text>
@@ -163,10 +163,18 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn color="green darken-1" text @click="confirmCancelOperation">
+          <v-btn
+            color="green darken-1"
+            text="true"
+            @click="confirmCancelOperation"
+          >
             Подтвердить
           </v-btn>
-          <v-btn color="red darken-1" text @click="showCancelDialog = false">
+          <v-btn
+            color="red darken-1"
+            text="true"
+            @click="showCancelDialog = false"
+          >
             Отмена
           </v-btn>
         </v-card-actions>
@@ -191,13 +199,13 @@ export default {
   },
   data() {
     return {
+      info: { is_archive: false },
       userRole: null,
       showCancelDialog: false,
       cancelQuantity: 1,
       selectedOperationQuantity: 100,
       operations: [],
       completedOperations: [],
-      info: null,
       originalData: [],
       selectedOperation: 'all',
       availableOperations: [],
@@ -233,26 +241,13 @@ export default {
     },
   },
   methods: {
-    close() {
-      this.$emit('close')
-    },
-    async submitChange() {
-      // Здесь код для отправки данных на сервер
-      try {
-        await issueHistoryApi.updateData(/* подходящие параметры */)
-        this.$emit('changes-saved')
-        this.$emit('close')
-      } catch (error) {
-        console.error('Ошибка при обновлении данных:', error)
-      }
-    },
     async checkLogin() {
       const token = localStorage.getItem('token')
       try {
         const response = await authApi.checkLogin(token)
-        if (response.data.status === 'ok') {
+        if (response.status === 'ok') {
           // Сохраняем роль пользователя после успешной проверки логина
-          this.userRole = response.data.role
+          this.userRole = response.role
         }
       } catch (error) {
         console.error('Ошибка при проверке логина:', error)
@@ -356,7 +351,6 @@ export default {
         const partInfoResponse = await issueHistoryApi.fetchHistoryByPartIdInfo(
           this.id_part
         )
-        console.log(partInfoResponse)
         this.operations = partInfoResponse.info.operations
         this.completedOperations = partInfoResponse.info.completed_operations
         if (response && typeof response === 'object') {

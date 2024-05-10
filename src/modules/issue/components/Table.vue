@@ -99,7 +99,6 @@
 </template>
 
 <script>
-import ModalIssue from './ModalIssue.vue'
 import ModalDamaged from './ModalDamaged.vue'
 import ToolFilter from './ToolFilter.vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'

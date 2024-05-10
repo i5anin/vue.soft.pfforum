@@ -87,8 +87,7 @@ async function getTools(req, res) {
              tool_nom.name,
              tool_nom.property,
              tool_nom.sklad,
-             tool_nom.norma,
-             tool_nom.limit
+             tool_nom.norma
       FROM dbo.tool_nom as tool_nom
       ${whereClause}
       ORDER BY

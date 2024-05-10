@@ -48,6 +48,13 @@
       <template v-slot:item.name="{ item }">
         <td :class="colorClassGrey(item)" style="white-space: nowrap">
           {{ item.name }}
+          <v-chip
+            size="x-small"
+            v-if="item.group_id"
+            :color="getColorForGroup(item.group_id)"
+            :title="'Группа ' + item.group_id"
+            >G{{ item.group_id }}</v-chip
+          >
         </td>
       </template>
       <template v-slot:item.sklad="{ item }">
@@ -145,6 +152,11 @@ export default {
       'setItemsPerPage',
       'setSelectedDynamicFilters',
     ]),
+
+    getColorForGroup(index) {
+      const hue = index * 137.508 // используем золотое сечение
+      return `hsl(${hue % 360}, 50%, 50%)`
+    },
     // Метод для обработки обновления параметров фильтра
     onParamsFilterUpdate({ key, value }) {
       this.setSelectedDynamicFilters({

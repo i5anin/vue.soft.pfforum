@@ -63,8 +63,6 @@ async function getToolHistory(req, res) {
         ${orderStatement}
       LIMIT ${limit} OFFSET ${offset};
     `
-    console.log('dataQuery=', dataQuery)
-    console.log('whereStatement=', whereStatement)
 
     const dataResult = await pool.query(dataQuery)
 
