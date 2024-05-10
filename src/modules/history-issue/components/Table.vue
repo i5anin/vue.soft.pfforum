@@ -7,7 +7,8 @@
       :selected_date="selectedDate"
       :selected_tool="selectedTool"
       @canceled="onClosePopup"
-      @changes-saved="onSaveChanges"
+      @changes-saved="fetchAndFormatToolHistory"
+      @close="onClosePopup"
     />
     <div class="d-flex align-center justify-center">
       <v-row class="fill-height">
@@ -252,14 +253,15 @@ export default {
     },
     onClosePopup() {
       this.openDialog = false
+      this.fetchAndFormatToolHistory()
     },
     onInfoRow(_, { item: tool }) {
       this.editingToolId = tool.id_part
       this.openDialog = true
     },
     onSaveChanges() {
+      this.fetchAndFormatToolHistory()
       this.openDialog = false
-      this.$emit('changes-saved')
     },
   },
 }
