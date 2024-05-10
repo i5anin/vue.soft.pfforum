@@ -1,9 +1,6 @@
 const { Pool } = require('pg')
-const { getNetworkDetails } = require('../../db_type')
-const config = require('../../config')
 const getDbConfig = require('../../databaseConfig')
 
-const networkDetails = getNetworkDetails()
 const dbConfig = getDbConfig()
 // Создание пула соединений с базой данных
 const pool = new Pool(dbConfig)
@@ -77,11 +74,11 @@ async function addToolHistoryDamaged(req, res) {
     }
 
     // Проверяем существование пользователя
-    const userQuery = `SELECT id FROM dbo.operators WHERE id = $1 AND active = 't'`
-    const userResult = await pool.query(userQuery, [id_user])
-    // if (userResult.rows.length === 0) {
-    //   return res.status(400).send('Пользователь не найден')
-    // }
+    // const userQuery = `SELECT id FROM dbo.operators WHERE id = $1 AND active = 't'`
+    // const userResult = await pool.query(userQuery, [id_user])
+    //  if (userResult.rows.length === 0) {
+    //    return res.status(400).send('Пользователь не найден')
+    //  }
 
     // Проверяем существование станка
     const cncQuery = `SELECT cnc_code FROM dbo.cnc WHERE cnc_code = $1 AND active = true;`

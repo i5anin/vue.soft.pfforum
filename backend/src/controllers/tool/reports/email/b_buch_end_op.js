@@ -1,15 +1,12 @@
-const cron = require('node-cron')
 const nodemailer = require('nodemailer')
 const { Pool } = require('pg')
-const config = require('../../../../config')
 const { emailConfig } = require('../../../../config')
-const { getNetworkDetails } = require('../../../../db_type')
 const { htmlToText } = require('nodemailer-html-to-text')
 const getEmailRecipients = require('./getEmailRecipients')
 const getDbConfig = require('../../../../databaseConfig')
 
 // Настройка подключения к базе данных
-const networkDetails = getNetworkDetails()
+
 const dbConfig = getDbConfig()
 const pool = new Pool(dbConfig)
 
@@ -109,7 +106,7 @@ async function checkStatusChanges() {
 
       // Если для указанной операции нет инструментов в базе данных
       if (tools.length === 0) {
-        await logError(specsOpId, 'Ошибка: набор tools пуст.', pool)
+        await console.log(specsOpId, 'Ошибка: набор tools пуст.', pool)
         continue
       }
 
@@ -147,11 +144,6 @@ async function checkStatusChanges() {
           )
 
           // Получаем адрес электронной почты в зависимости от окружения
-          const emailToSendLogs =
-            process.env.VITE_NODE_ENV === 'build'
-              ? financeUserEmail
-              : adminUserEmail
-
           // Обновляем статус отправки для операции, если уведомление успешно отправлено
           await pool.query(
             `

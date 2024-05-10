@@ -15,7 +15,7 @@
         <v-col cols="12" md="4" class="d-flex align-center">
           <v-text-field
             variant="outlined"
-            clearable
+            clearable="true"
             v-model="searchQuery"
             label="Поиск по партии, названию, обозначению"
             class="flex-grow-1 mr-2"
@@ -25,7 +25,7 @@
         </v-col>
         <v-col cols="12" md="4">
           <v-combobox
-            clearable
+            clearable="true"
             :items="toolOptions"
             item-value="id_tool"
             item-title="name"
@@ -37,6 +37,7 @@
         </v-col>
         <v-col cols="12" md="4">
           <v-select
+            clearable="true"
             :items="dateOptions"
             item-value="value"
             item-title="title"

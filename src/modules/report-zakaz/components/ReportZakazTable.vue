@@ -44,6 +44,7 @@
               >
                 {{ tool.name }}
                 <v-chip
+                  size="x-small"
                   v-if="tool.group_id"
                   :color="getColorForGroup(tool.group_id)"
                   :title="'Группа ' + tool.group_id"

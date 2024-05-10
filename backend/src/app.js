@@ -6,7 +6,6 @@ const config = require('./config')
 const routers = require('./routers')
 const { getNetworkDetails } = require('./db_type')
 const getDbConfig = require('./databaseConfig')
-const networkDetails = getNetworkDetails()
 const dbConfig = getDbConfig()
 const app = express()
 

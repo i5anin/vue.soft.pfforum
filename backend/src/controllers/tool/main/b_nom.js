@@ -1,10 +1,7 @@
 // Импорт зависимостей
 const { Pool } = require('pg')
-const { getNetworkDetails } = require('../../../db_type')
-const config = require('../../../config')
 const getDbConfig = require('../../../databaseConfig')
 
-const networkDetails = getNetworkDetails()
 const dbConfig = getDbConfig()
 // Создание пула подключений к БД
 const pool = new Pool(dbConfig)
@@ -83,15 +80,17 @@ async function getTools(req, res) {
     `
 
     const toolQuery = `
-      SELECT tool_nom.id,
-             tool_nom.name,
-             tool_nom.property,
-             tool_nom.sklad,
-             tool_nom.norma
-      FROM dbo.tool_nom as tool_nom
-      ${whereClause}
-      ORDER BY
-        CASE WHEN tool_nom.sklad > 0 THEN 1 ELSE 2 END,
+        SELECT tool_nom.id,
+               tool_nom.name,
+               tool_nom.property,
+               tool_nom.sklad,
+               tool_nom.norma,
+               tool_nom.group_id
+        FROM dbo.tool_nom as tool_nom
+            ${whereClause}
+        ORDER BY
+            CASE WHEN tool_nom.sklad > 0 THEN 1 ELSE 2
+        END,
         tool_nom.name
       LIMIT ${limitNumber} OFFSET ${offset}
     `
@@ -141,15 +140,14 @@ async function getTools(req, res) {
         property: formattedProperty,
         sklad: tool.sklad,
         norma: tool.norma,
-        limit: tool.limit,
+        group_id: tool.group_id,
       }
     })
 
     Object.keys(propertyValues).forEach((key) => {
       propertyValues[key] = Array.from(propertyValues[key])
     })
-
-    const paramsList = Array.from(uniqueParams)
+    Array.from(uniqueParams)
       .map((key) => {
         const values = propertyValues[key]
         if (values && values.length > 1) {
@@ -162,7 +160,6 @@ async function getTools(req, res) {
         return null
       })
       .filter((item) => item != null)
-
     // Отправка ответа
     res.json({
       currentPage: pageNumber,
@@ -230,15 +227,16 @@ async function deleteTool(req, res) {
 }
 
 async function addTool(req, res) {
-  const { name, parent_id, property, sklad, norma } = req.body
+  const { name, parent_id, property, sklad, norma, group_id } = req.body
   // Преобразование запятых в точки в числах в property
   replaceCommaWithDotInNumbers(property)
 
   try {
-    if (parent_id <= 1)
+    if (parent_id <= 1) {
       return res
         .status(400)
         .json({ error: 'parent_id must be greater than 1.' })
+    }
 
     if (property && property.id) {
       const propertyIdCheckResult = await pool.query(
@@ -264,25 +262,39 @@ async function addTool(req, res) {
         .json({ error: 'Specified parent_id does not exist.' })
     }
 
+    // Проверка на существование group_id в базе данных (псевдокод, реализация зависит от структуры вашей БД)
+    if (group_id) {
+      const groupCheckResult = await pool.query(
+        'SELECT id FROM dbo.tool_groups WHERE id = $1',
+        [group_id]
+      )
+
+      if (groupCheckResult.rowCount === 0) {
+        return res.status(400).json({
+          error: 'Specified group_id does not exist.',
+        })
+      }
+    }
+
     const propertyWithoutNull = removeNullProperties(property)
     const propertyString = JSON.stringify(propertyWithoutNull)
 
     const toolInsertResult = await pool.query(
-      'INSERT INTO dbo.tool_nom (name, parent_id, property, sklad, norma) ' +
-        'VALUES ($1, $2, $3, $4, $5) RETURNING id',
-      [name, parent_id, propertyString, sklad, norma]
+      'INSERT INTO dbo.tool_nom (name, parent_id, property, sklad, norma, group_id) ' +
+        'VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+      [name, parent_id, propertyString, sklad, norma, group_id]
     )
 
     const toolId = toolInsertResult.rows[0].id
 
     // Логирование добавления инструмента
-    const logMessage = `Инструмент успешно добавлен ID ${toolId}.`
+    const logMessage = `Инструмент успешно добавлен ID ${toolId}, группа ${group_id}.`
     await pool.query(
       'INSERT INTO dbo.vue_log (message, tool_id, datetime_log, new_amount) VALUES ($1, $2, NOW(), $3)',
       [logMessage, toolId, sklad]
     )
 
-    // Получение полной информации о добавленном инструменте
+    // Получение полной информации о добавленном инструмента
     const newToolResult = await pool.query(
       'SELECT * FROM dbo.tool_nom WHERE id = $1',
       [toolId]
@@ -301,15 +313,23 @@ async function addTool(req, res) {
 
 async function editTool(req, res) {
   const { id } = req.params
-  const { name, parent_id, property, sklad: newSklad, norma, limit } = req.body
+  const {
+    name,
+    parent_id,
+    property,
+    sklad: newSklad,
+    norma,
+    group_id,
+  } = req.body
   // Преобразование запятых в точки в числах в property
   replaceCommaWithDotInNumbers(property)
 
   try {
-    if (parent_id <= 1)
+    if (parent_id <= 1) {
       return res
         .status(400)
         .json({ error: 'parent_id must be greater than 1.' })
+    }
 
     if (property && property.id) {
       const propertyIdCheckResult = await pool.query(
@@ -329,10 +349,11 @@ async function editTool(req, res) {
       [parent_id]
     )
 
-    if (parentCheckResult.rowCount === 0)
+    if (parentCheckResult.rowCount === 0) {
       return res
         .status(400)
         .json({ error: 'Specified parent_id does not exist.' })
+    }
 
     // Получение текущего значения на складе
     const currentSkladResult = await pool.query(
@@ -340,10 +361,11 @@ async function editTool(req, res) {
       [id]
     )
 
-    if (currentSkladResult.rowCount === 0)
+    if (currentSkladResult.rowCount === 0) {
       return res
         .status(404)
         .json({ error: 'Tool with the specified ID not found.' })
+    }
 
     const oldSklad = currentSkladResult.rows[0].sklad
 
@@ -352,8 +374,8 @@ async function editTool(req, res) {
 
     // Обновление инструмента с новым значением на складе
     const result = await pool.query(
-      'UPDATE dbo.tool_nom SET name=$1, parent_id=$2, property=$3, sklad=$4, norma=$5, "limit"=$7 WHERE id=$6 RETURNING *',
-      [name, parent_id, propertyString, newSklad, norma, id, limit]
+      'UPDATE dbo.tool_nom SET name=$1, parent_id=$2, property=$3, sklad=$4, norma=$5, group_id=$7 WHERE id=$6 RETURNING *',
+      [name, parent_id, propertyString, newSklad, norma, id, group_id]
     )
 
     if (result.rowCount > 0) {
@@ -397,7 +419,7 @@ async function getToolById(req, res) {
         folder_name: toolData.folder_name,
         property: toolData.property,
         sklad: toolData.sklad,
-        limit: toolData.limit,
+        group_id: toolData.group_id,
         norma: toolData.norma,
       }
 
