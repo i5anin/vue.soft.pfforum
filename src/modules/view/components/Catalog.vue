@@ -197,11 +197,11 @@ export default {
     },
     goTo(index) {
       this.currentItem = this.tree[index]
-      console.log(
-        'Хлебные крошки. Выбрана папка:',
-        this.currentItem.id,
-        this.currentItem.label
-      )
+      // console.log(
+      //   'Хлебные крошки. Выбрана папка:',
+      //   this.currentItem.id,
+      //   this.currentItem.label
+      // )
       this.setParentCatalog({
         id: this.currentItem.id,
         label: this.currentItem.label,

@@ -147,8 +147,7 @@ async function getTools(req, res) {
     Object.keys(propertyValues).forEach((key) => {
       propertyValues[key] = Array.from(propertyValues[key])
     })
-
-    const paramsList = Array.from(uniqueParams)
+    Array.from(uniqueParams)
       .map((key) => {
         const values = propertyValues[key]
         if (values && values.length > 1) {
@@ -161,7 +160,6 @@ async function getTools(req, res) {
         return null
       })
       .filter((item) => item != null)
-
     // Отправка ответа
     res.json({
       currentPage: pageNumber,

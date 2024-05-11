@@ -1,7 +1,4 @@
-const { getNetworkDetails } = require('./db_type')
 const config = require('./config')
-const express = require('express')
-const app = express()
 
 function getDbConfig() {
   let databaseType = process.env.NODE_ENV

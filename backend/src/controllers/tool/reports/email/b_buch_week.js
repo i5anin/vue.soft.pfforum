@@ -1,7 +1,5 @@
 const { Pool } = require('pg')
 const ExcelJS = require('exceljs')
-const { getNetworkDetails } = require('../../../../db_type')
-const config = require('../../../../config')
 const nodemailer = require('nodemailer')
 const { emailConfig } = require('../../../../config')
 const getEmailRecipients = require('./getEmailRecipients')
@@ -9,7 +7,6 @@ const { schedule } = require('node-cron')
 const getDbConfig = require('../../../../databaseConfig')
 
 // Настройка подключения к базе данных
-const networkDetails = getNetworkDetails()
 const dbConfig = getDbConfig()
 const pool = new Pool(dbConfig)
 
@@ -199,9 +196,9 @@ async function sendReport(email) {
   console.log(`Отчет успешно отправлен на email: ${email}`)
 }
 
-min15 = '0 */15 * * * *'
-sec10 = '*/10 * * * * *'
-week = '0 11 * * 5'
+// const min15 = '0 */15 * * * *'
+// const sec10 = '*/10 * * * * *'
+const week = '0 11 * * 5'
 schedule(week, async function () {
   console.log('Запускаем genBuchWeek с помощью задачи cron...')
   try {
