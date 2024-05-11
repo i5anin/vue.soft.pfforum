@@ -1,12 +1,11 @@
 <template>
   <v-menu v-model="isMenuOpen" :close-on-content-click="false">
-    <template v-slot:activator="{ on, attrs }">
+    <template v-slot:activator="{ props }">
       <v-text-field
         :label="label"
         :model-value="formattedDate"
         readonly
-        v-bind="attrs"
-        v-on="on"
+        v-bind="props"
         variant="solo"
         hide-details
       ></v-text-field>
@@ -20,7 +19,9 @@
       hide-actions
       title=""
       :color="color"
-    ></v-date-picker>
+    >
+      <template v-slot:header></template>
+    </v-date-picker>
   </v-menu>
 </template>
 
