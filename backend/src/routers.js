@@ -2,9 +2,9 @@ const express = require('express')
 const router = express.Router()
 
 const loginController = require('./controllers/login/b_login')
-const nomController = require('./controllers/tool/main/b_nom')
-const paramController = require('./controllers/tool/main/b_param')
-const treeController = require('./controllers/tool/main/b_tree')
+const nomController = require('./controllers/tool/b_nom')
+const paramController = require('./controllers/tool/b_param')
+const treeController = require('./controllers/tool/b_tree')
 const skladController = require('./controllers/tool/b_sklad')
 
 const historyController = require('./controllers/tool/b_history_issue')

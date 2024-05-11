@@ -1,6 +1,6 @@
 // Импорт зависимостей
 const { Pool } = require('pg')
-const getDbConfig = require('../../../databaseConfig')
+const getDbConfig = require('../../databaseConfig')
 
 const dbConfig = getDbConfig()
 // Создание пула подключений к БД
