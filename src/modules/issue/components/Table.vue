@@ -101,13 +101,12 @@
 <script>
 import ModalDamaged from './ModalDamaged.vue'
 import ToolFilter from './ToolFilter.vue'
-import { VDataTableServer } from 'vuetify/labs/VDataTable'
+
 import { mapActions, mapMutations, mapGetters } from 'vuex'
 
 export default {
   emits: ['changes-saved', 'canceled', 'page-changed', 'page-limit-changed'],
   components: {
-    VDataTableServer,
     ToolFilter,
     ModalDamaged,
   },

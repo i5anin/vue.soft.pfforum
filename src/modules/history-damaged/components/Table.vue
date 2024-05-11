@@ -32,7 +32,6 @@
 </template>
 
 <script>
-import { VDataTableServer } from 'vuetify/labs/components'
 import { format, parseISO } from 'date-fns'
 import HistoryDamagedModal from './Modal.vue'
 import { damagedHistoryApi } from '../api/damaged'
@@ -40,7 +39,6 @@ import { damagedHistoryApi } from '../api/damaged'
 export default {
   components: {
     EditToolModal: HistoryDamagedModal,
-    VDataTableServer,
   },
 
   data() {

@@ -75,13 +75,11 @@
 <script>
 import EditorToolModal from './Modal.vue'
 import ToolFilter from './ToolFilter.vue'
-import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
 
 export default {
   emits: [],
   components: {
-    VDataTableServer,
     EditorToolModal,
     ToolFilter,
   },
