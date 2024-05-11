@@ -60,7 +60,6 @@ function getCurrentMonthDates() {
 }
 
 // Функция для создания Excel файла и возврата его как потока данных
-// Функция для создания Excel файла и возврата его как потока данных
 async function createExcelFileStream(data) {
   const workbook = new ExcelJS.Workbook()
   const worksheet = workbook.addWorksheet('Отчёт')
@@ -121,10 +120,7 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
     host: emailConfig.host,
     port: emailConfig.port,
     secure: emailConfig.secure, // В зависимости от вашего сервера это может быть true
-    auth: {
-      user: emailConfig.user,
-      pass: emailConfig.pass,
-    },
+    auth: { user: emailConfig.user, pass: emailConfig.pass },
   })
 
   // Даты для имени файла и темы письма
