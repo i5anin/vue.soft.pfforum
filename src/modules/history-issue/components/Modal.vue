@@ -94,12 +94,12 @@
                 v-if="
                   header.value === 'name_tool' &&
                   item &&
-                  selectedTool &&
-                  item.id_tool === selectedTool.id_tool
+                  selected_tool &&
+                  item.id_tool === selected_tool.id_tool
                 "
               >
                 <v-chip
-                  v-if="item.id_tool === selectedTool.id_tool"
+                  v-if="item.id_tool === selected_tool.id_tool"
                   color="green"
                   size="large"
                   text-color="white"
@@ -193,14 +193,11 @@ export default {
   name: 'HistoryModal',
   components: { Modal },
   props: {
-    idPart: { type: Number, default: null },
-    selectedDate: { type: String, default: '' },
-    selectedTool: {
-      type: Object,
-      default: () => ({ id_tool: null, name: '' }),
-    },
+    id_part: { type: Number, default: null },
+    selected_date: { type: String, default: '' },
+    selected_tool: { id_tool: String, name: '' },
   },
-  emits: ['canceled', 'operation-cancelled'],
+  emits: ['canceled'],
   data() {
     return {
       info: { is_archive: false },
@@ -230,7 +227,7 @@ export default {
   computed: {
     popupTitle() {
       return this.info
-        ? `Инструмент затраченный на партию: ${this.idPart}`
+        ? `Инструмент затраченный на партию: ${this.id_part}`
         : 'Информация о партии'
     },
     currentHeaders() {
@@ -262,8 +259,19 @@ export default {
       }
     },
     async toggleArchiveStatus() {
+      const archiveState = this.info.is_archive
+      const token = localStorage.getItem('token') // Получаем токен из localStorage
+
+      console.log('Архивный статус изменился, новое значение:', archiveState)
+
       try {
-        alert(`Статус архива для idPart ${this.idPart} успешно обновлен.`)
+        const response = await issueHistoryApi.addToArchive(
+          this.id_part,
+          archiveState,
+          token
+        )
+        console.log('Ответ сервера:', response)
+        alert(`Статус архива для id_part ${this.id_part} успешно обновлен.`)
         // Обновляем данные на фронте
         await this.fetchHistoryData()
       } catch (error) {
@@ -342,11 +350,11 @@ export default {
     async fetchHistoryData() {
       try {
         const response = await issueHistoryApi.fetchHistoryByPartId(
-          this.idPart,
-          this.selectedDate
+          this.id_part,
+          this.selected_date
         )
         const partInfoResponse = await issueHistoryApi.fetchHistoryByPartIdInfo(
-          this.idPart
+          this.id_part
         )
         this.operations = partInfoResponse.info.operations
         this.completedOperations = partInfoResponse.info.completed_operations
@@ -358,6 +366,7 @@ export default {
           )
           this.filterData()
         } else {
+          console.log('No history data found')
           this.filteredData = []
           this.availableOperations = ['all']
         }
