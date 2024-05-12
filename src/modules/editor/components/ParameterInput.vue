@@ -113,16 +113,7 @@ export default {
         Object.keys(this.toolModel.property)
       ).size
       const totalAvailableParams = this.toolParams.length
-      const isVisible = uniqueSelectedParamsCount < totalAvailableParams
-      console.log(
-        isVisible,
-        '=',
-        uniqueSelectedParamsCount,
-        '<',
-        totalAvailableParams
-      )
-
-      return isVisible
+      return uniqueSelectedParamsCount < totalAvailableParams
     },
     availableToolParamOptions() {
       // Фильтрация toolParamOptions, чтобы показывать только те, которые еще не выбраны
@@ -151,9 +142,7 @@ export default {
     toolId: {
       immediate: true,
       async handler(editingToolId) {
-        if (editingToolId == null) {
-          this.resetToolModel()
-        } else {
+        if (editingToolId != null) {
           await this.fetchToolById(editingToolId)
           this.updateToolModel()
         }
@@ -267,17 +256,6 @@ export default {
       )
     },
 
-    resetToolModel() {
-      console.log('Новый инструмент resetToolModel')
-      this.toolModel = {
-        name: null,
-        sklad: null,
-        norma: null,
-        property: {},
-      }
-      console.log(this.toolModel)
-    },
-
     updateToolModel() {
       if (this.tool) this.toolModel = JSON.parse(JSON.stringify(this.tool))
     },
@@ -298,12 +276,8 @@ export default {
     async onDelete() {
       const { id } = this.toolModel
       if (id != null) {
-        try {
-          const response = await editorToolApi.deleteTool(id)
-          if (response.success === 'OK') this.$emit('changes-saved')
-        } catch (error) {
-          console.error('Ошибка при удалении инструмента:', error)
-        }
+        const response = await editorToolApi.deleteTool(id)
+        if (response.success === 'OK') this.$emit('changes-saved')
       }
     },
     onCancel() {
