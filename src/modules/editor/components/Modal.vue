@@ -29,7 +29,6 @@
                   label="ID группы"
                   required
                   type="Number"
-                  :rules="groupIdRules"
                 />
               </v-col>
             </v-row>
@@ -192,10 +191,6 @@ export default {
       confirmDeleteDialog: false,
       typeSelected: false,
       selectedType: '',
-      groupIdRules: [
-        (v) => !!v || 'ID группы обязательно',
-        (v) => parseInt(v, 10) > 0 || 'ID группы должен быть больше 0',
-      ],
       parentIdRules: [
         (v) => !!v || 'ID папки обязательно',
         (v) => v > 1 || 'ID папки должен быть больше 1',
