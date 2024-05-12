@@ -1,19 +1,19 @@
 <template>
-  <Modal :title="popupTitle" widthDefault="1300px">
+  <Modal :title="popupTitle" width-default="1300px">
     <template #content>
       <div style="padding-left: 16px">
         <v-row>
-          <h2 v-if="this.info" style="padding-left: 25px">
-            {{ this?.info.name }} {{ this?.info.description }}
+          <h2 v-if="info" style="padding-left: 25px">
+            {{ info.name }} {{ info.description }}
           </h2>
           <v-spacer />
           <v-col cols="12" md="3">
             <v-select
-              label="Операция"
               v-model="selectedOperation"
+              label="Операция"
               :items="availableOperations"
-              @update:model-value="filterData"
               solo
+              @update:model-value="filterData"
             />
           </v-col>
         </v-row>
@@ -52,8 +52,8 @@
       <v-btn
         color="red darken-1"
         variant="text"
-        @click="onCancel"
         class="text-none text-subtitle-1 ml-3"
+        @click="onCancel"
       >
         Закрыть
       </v-btn>
@@ -108,6 +108,9 @@ export default {
       }
     },
   },
+  created() {
+    this.fetchHistoryData()
+  },
   methods: {
     filterData() {
       this.filteredData =
@@ -148,9 +151,6 @@ export default {
         console.error('Error fetching history data:', error)
       }
     },
-  },
-  created() {
-    this.fetchHistoryData()
   },
 }
 </script>

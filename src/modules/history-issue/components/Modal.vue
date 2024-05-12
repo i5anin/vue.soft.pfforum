@@ -1,5 +1,5 @@
 <template>
-  <Modal :title="popupTitle" widthDefault="1450px">
+  <Modal :title="popupTitle" width-default="1450px">
     <template #content>
       <div style="padding-left: 16px">
         <v-row>
@@ -25,8 +25,8 @@
                 <v-btn
                   color="blue darken-1"
                   variant="text"
-                  @click="fetchHistoryData"
                   class="text-none text-subtitle-1"
+                  @click="fetchHistoryData"
                 >
                   Обновить
                 </v-btn>
@@ -60,11 +60,11 @@
           <v-spacer />
           <v-col cols="12" md="3">
             <v-select
-              label="Операция"
               v-model="selectedOperation"
+              label="Операция"
               :items="availableOperations"
-              @update:model-value="filterData"
               solo
+              @update:model-value="filterData"
             />
           </v-col>
         </v-row>
@@ -121,8 +121,8 @@
                     :disabled="
                       new Date() - new Date(item.timestamp) > 432000000
                     "
-                    @click.stop="promptCancelQuantity(item.id)"
                     color="error"
+                    @click.stop="promptCancelQuantity(item.id)"
                   >
                     <v-icon>mdi-close</v-icon>
                   </v-btn>
@@ -143,8 +143,8 @@
       <v-btn
         color="red darken-1"
         variant="text"
-        @click="onCancel"
         class="text-none text-subtitle-1 ml-3"
+        @click="onCancel"
       >
         Закрыть
       </v-btn>
@@ -239,6 +239,10 @@ export default {
         { title: 'Кол-во', value: 'quantity', width: '90px' },
       ]
     },
+  },
+  created() {
+    this.fetchHistoryData()
+    this.checkLogin()
   },
   methods: {
     async checkLogin() {
@@ -369,10 +373,6 @@ export default {
         console.error('Error fetching history data:', error)
       }
     },
-  },
-  created() {
-    this.fetchHistoryData()
-    this.checkLogin()
   },
 }
 </script>

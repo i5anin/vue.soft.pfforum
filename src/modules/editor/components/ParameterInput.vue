@@ -29,9 +29,9 @@
             </v-container>
           </div>
           <v-btn
+            v-show="isAddButtonVisible"
             color="primary"
             @click="addParameterValuePair"
-            v-show="isAddButtonVisible"
           >
             Добавить
           </v-btn>
@@ -43,8 +43,8 @@
     <v-btn
       color="red darken-1"
       variant="text"
-      @click="confirmDelete"
       class="text-none text-subtitle-1 ml-3"
+      @click="confirmDelete"
     >
       Удалить
     </v-btn>
@@ -52,18 +52,18 @@
     <v-btn
       color="red darken-1"
       variant="text"
-      @click="onCancel"
       class="text-none text-subtitle-1 ml-3"
+      @click="onCancel"
     >
       Закрыть
     </v-btn>
     <v-btn
       prepend-icon="mdi-check-circle"
-      @click="onSave"
       class="text-none text-subtitle-1 pl-3"
       color="blue darken-1"
       size="large"
       variant="flat"
+      @click="onSave"
     >
       Сохранить
     </v-btn>
@@ -78,11 +78,11 @@ import { issueToolApi } from '@/modules/issue/api/issue'
 
 export default {
   name: 'FillingModal',
-  emits: ['canceled', 'changes-saved'],
   props: {
     persistent: { type: Boolean, default: false },
     toolId: { type: Number, default: null },
   },
+  emits: ['canceled', 'changes-saved'],
   data() {
     return {
       toolModel: {

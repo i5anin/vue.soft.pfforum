@@ -14,45 +14,45 @@
       <v-row class="fill-height">
         <v-col cols="12" md="4" class="d-flex align-center">
           <v-text-field
+            v-model="searchQuery"
             variant="outlined"
             clearable="true"
-            v-model="searchQuery"
             label="Поиск по партии, названию, обозначению"
             class="flex-grow-1 mr-2"
-            @input="debouncedFetchAndFormatToolHistory"
             prepend-inner-icon="mdi-magnify"
+            @input="debouncedFetchAndFormatToolHistory"
           />
         </v-col>
         <v-col cols="12" md="4">
           <v-combobox
+            v-model="selectedTool"
             clearable="true"
             :items="toolOptions"
             item-value="id_tool"
             item-title="name"
-            v-model="selectedTool"
             label="Выберите инструмент"
-            @update:model-value="fetchAndFormatToolHistory"
             prepend-inner-icon="mdi-box-cutter"
+            @update:model-value="fetchAndFormatToolHistory"
           />
         </v-col>
         <v-col cols="12" md="4">
           <v-select
+            v-model="selectedDate"
             clearable="true"
             :items="dateOptions"
             item-value="value"
             item-title="title"
-            v-model="selectedDate"
             label="Выберите дату"
-            @update:model-value="fetchAndFormatToolHistory"
             prepend-inner-icon="mdi-calendar"
+            @update:model-value="fetchAndFormatToolHistory"
           />
         </v-col>
       </v-row>
     </div>
 
     <v-data-table-server
-      class="scrollable-table"
       v-if="toolsHistory && toolsHistory.length > 0"
+      class="scrollable-table"
       no-data-text="Нет данных"
       items-per-page-text="Пункты на странице:"
       loading-text="Загрузка данных"
@@ -63,14 +63,14 @@
       :page="filters.currentPage"
       :loading="isLoading"
       :items-per-page-options="[15, 50, 100, 300]"
-      @update:page="onChangePage"
-      @update:items-per-page="onUpdateItemsPerPage"
-      @click:row="onInfoRow"
       hover
       fixed-header
       width="true"
+      @update:page="onChangePage"
+      @update:items-per-page="onUpdateItemsPerPage"
+      @click:row="onInfoRow"
     >
-      <template v-slot:item.check="{ item }">
+      <template #item.check="{ item }">
         <span
           v-if="item.is_archive"
           class="mdi mdi-archive check-icon--large--gray"
@@ -101,10 +101,10 @@
           title="Не в производстве"
         />
       </template>
-      <template v-slot:item.operation_status="{ item }">
+      <template #item.operation_status="{ item }">
         {{ item.ready_count }} / {{ item.operation_count }}
       </template>
-      <template v-slot:item.quantity_prod_all="{ item }">
+      <template #item.quantity_prod_all="{ item }">
         {{ item.quantity_prod }} / {{ item.quantity_prod_all }}
       </template>
     </v-data-table-server>
@@ -164,14 +164,14 @@ export default {
       ],
     }
   },
-  async mounted() {
-    this.toolOptions = await issueHistoryApi.getAllIssuedToolIdsWithNames()
-    await this.fetchAndFormatToolHistory()
-  },
   watch: {
     searchQuery(newQuery, oldQuery) {
       if (newQuery !== oldQuery) this.debouncedFetchAndFormatToolHistory()
     },
+  },
+  async mounted() {
+    this.toolOptions = await issueHistoryApi.getAllIssuedToolIdsWithNames()
+    await this.fetchAndFormatToolHistory()
   },
   created() {
     this.dateOptions = this.generateDateOptions()

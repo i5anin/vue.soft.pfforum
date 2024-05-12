@@ -16,8 +16,8 @@
     <v-list-item
       v-for="item in currentItem.nodes"
       :key="item.id"
-      @click="selectItem(item)"
       class="align-center"
+      @click="selectItem(item)"
     >
       <div class="flex">
         <v-icon :color="appColor" icon="mdi-folder" class="icon" />
@@ -37,7 +37,6 @@
 <script>
 export default {
   name: 'CatalogBreadcrumbs',
-  emits: ['go-to', 'item-selected'],
   props: {
     tree: {
       type: Array,
@@ -48,6 +47,7 @@ export default {
       default: () => null,
     },
   },
+  emits: ['go-to', 'item-selected'],
   computed: {
     appColor() {
       return import.meta.env.VITE_NODE_ENV === 'build'

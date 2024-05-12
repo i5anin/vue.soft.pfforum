@@ -5,8 +5,8 @@
         variant="plain"
         density="compact"
         icon
-        @click.stop="toggle"
         :disabled="!node.nodes || node.nodes.length === 0"
+        @click.stop="toggle"
       >
         <v-icon size="x-small">
           {{ isExpanded ? 'mdi-chevron-down' : 'mdi-chevron-right' }}
@@ -18,7 +18,7 @@
         {{ node.label }}
         <span v-if="node.available !== 0">
           <v-chip class="ma-2" color="secondary" label>
-            <template v-slot:prepend>
+            <template #prepend>
               <v-icon icon="mdi-wrench-check" start />
             </template>
             {{ node.available }} / {{ node.elements }}
@@ -30,7 +30,7 @@
         <span class="node-id">id: {{ node.id }} </span>
       </span>
 
-      <div class="pl-3" v-if="isExpanded && node.nodes && node.nodes.length">
+      <div v-if="isExpanded && node.nodes && node.nodes.length" class="pl-3">
         <tree-node
           v-for="child in node.nodes"
           :key="child.id"
@@ -51,16 +51,16 @@ export default {
       isExpanded: false, // Добавляем состояние для отслеживания свернуто/развернуто
     }
   },
-  methods: {
-    toggle() {
-      this.isExpanded = !this.isExpanded // Меняем состояние при клике
-    },
-  },
   computed: {
     appColor() {
       return import.meta.env.VITE_NODE_ENV === 'build'
         ? import.meta.env.VITE_BUILD_COLOR
         : import.meta.env.VITE_DEV_COLOR
+    },
+  },
+  methods: {
+    toggle() {
+      this.isExpanded = !this.isExpanded // Меняем состояние при клике
     },
   },
 }

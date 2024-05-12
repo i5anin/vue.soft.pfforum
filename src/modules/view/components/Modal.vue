@@ -1,5 +1,5 @@
 <template>
-  <Modal :title="popupTitle" widthDefault="1550px">
+  <Modal :title="popupTitle" width-default="1550px">
     <template #content>
       <v-container>
         <span v-if="cartItems && cartItems.length > 0">
@@ -28,10 +28,10 @@
               <td style="color: grey">{{ item.was }}</td>
               <td style="color: grey">{{ item.now }}</td>
               <td>
-                <v-icon small v-if="item.change > 0" color="green" class="pr-3">
+                <v-icon v-if="item.change > 0" small color="green" class="pr-3">
                   mdi-arrow-up
                 </v-icon>
-                <v-icon small v-if="item.change < 0" color="red" class="pr-3">
+                <v-icon v-if="item.change < 0" small color="red" class="pr-3">
                   mdi-arrow-down
                 </v-icon>
                 <span v-if="item.change !== 0">{{ item.change }}</span>
@@ -46,8 +46,8 @@
       <v-btn
         color="red darken-1"
         variant="text"
-        @click="onCancel"
         class="text-none text-subtitle-1 ml-3"
+        @click="onCancel"
       >
         Закрыть
       </v-btn>
@@ -72,12 +72,12 @@ import { format, parseISO } from 'date-fns'
 
 export default {
   name: 'FillingModal',
-  emits: ['canceled', 'changes-saved'],
+  components: { Modal },
   props: {
     persistent: { type: Boolean, default: false },
     toolId: { type: Number, default: null },
   },
-  components: { Modal },
+  emits: ['canceled', 'changes-saved'],
   data() {
     return {
       cartItems: [],

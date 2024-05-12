@@ -45,7 +45,7 @@
 
       <v-spacer />
       <!-- <div>openDialog: {{ openDialog }}, currentModal: {{ currentModal }}</div>-->
-      <div @click="openCartModal" v-if="cartItemsLength > 0" class="ma-5">
+      <div v-if="cartItemsLength > 0" class="ma-5" @click="openCartModal">
         <v-btn icon>
           <v-icon>mdi-cart-outline</v-icon>
         </v-btn>
@@ -57,7 +57,7 @@
       </div>
 
       <v-chip v-if="userInfo.user" class="ma-2" label dark>
-        <template v-slot:prepend>
+        <template #prepend>
           <v-icon icon="mdi-account" start />
         </template>
         {{ userInfo.user }}

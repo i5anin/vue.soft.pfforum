@@ -6,13 +6,13 @@
           <v-text-field
             v-if="isEditing"
             v-model="editableLabel"
-            @blur="finishEditing"
-            @keyup.enter="finishEditing"
             dense
             solo
             hide-details
             :flat="true"
             :autofocus="true"
+            @blur="finishEditing"
+            @keyup.enter="finishEditing"
           />
           <!-- Показываем название и иконку, если редактирование не активно -->
           <span v-else @click="startEditing">

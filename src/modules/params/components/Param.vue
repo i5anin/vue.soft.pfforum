@@ -15,8 +15,8 @@
             <v-card-title>{{ dialogTitle }}</v-card-title>
             <v-card-text>
               <v-text-field
-                label="Название"
                 v-model="paramInfo"
+                label="Название"
                 required
               ></v-text-field>
             </v-card-text>
@@ -76,6 +76,9 @@ export default {
       paramInfo: '',
       editingParam: null,
     }
+  },
+  mounted() {
+    this.getData()
   },
   methods: {
     async getData() {
@@ -170,9 +173,6 @@ export default {
         }
       }
     },
-  },
-  mounted() {
-    this.getData()
   },
 }
 </script>

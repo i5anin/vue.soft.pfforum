@@ -14,7 +14,7 @@
       :filters="filters"
       @filter-update="onParamsFilterUpdate"
     />
-    <v-btn color="primary" @click="refreshData" class="mb-2">
+    <v-btn color="primary" class="mb-2" @click="refreshData">
       <v-icon left>mdi-refresh</v-icon>
       Обновить
     </v-btn>
@@ -38,57 +38,57 @@
     <!--    />-->
     <v-data-table-server
       v-if="isDataLoaded"
-      noDataText="Нет данных"
-      itemsPerPageText="Пункты на странице:"
-      loadingText="Загрузка данных"
+      no-data-text="Нет данных"
+      items-per-page-text="Пункты на странице:"
+      loading-text="Загрузка данных"
       :headers="toolTableHeaders"
       :items="formattedTools"
-      :itemsLength="toolsTotalCount"
+      :items-length="toolsTotalCount"
       :items-per-page="filters.itemsPerPage"
       :page="filters.currentPage"
       :loading="isLoading"
       :items-per-page-options="[15, 50, 100, 300]"
       density="compact"
-      @update:page="onChangePage"
-      @update:items-per-page="onUpdateItemsPerPage"
       class="elevation-1 scrollable-table"
       hover
       fixed-header
       width
+      @update:page="onChangePage"
+      @update:items-per-page="onUpdateItemsPerPage"
     >
-      <template v-slot:item.index="{ index }">
+      <template #item.index="{ index }">
         <td class="index">{{ index + 1 }}</td>
       </template>
       <!--name-->
-      <template v-slot:item.name="{ item }">
+      <template #item.name="{ item }">
         <td :class="colorClassGrey(item)" style="white-space: nowrap">
           {{ item.name }}
         </td>
       </template>
-      <template v-slot:item.sklad="{ item }">
+      <template #item.sklad="{ item }">
         <td :class="colorClassRed(item)" style="white-space: nowrap">
           {{ item.sklad }}
         </td>
       </template>
-      <template v-slot:item.norma="{ item }">
+      <template #item.norma="{ item }">
         <td style="white-space: nowrap">{{ item.norma }}</td>
       </template>
-      <template v-slot:item.zakaz="{ item }">
+      <template #item.zakaz="{ item }">
         <td style="white-space: nowrap">{{ calculateOrder(item) }}</td>
       </template>
-      <template v-slot:item.issue="{ item }">
+      <template #item.issue="{ item }">
         <v-btn color="primary" @click="(event) => onIssueTool(event, item)">
           <v-icon icon="mdi-hand-extended" />
         </v-btn>
       </template>
-      <template v-slot:item.damaged="{ item }">
+      <template #item.damaged="{ item }">
         <v-btn color="red" @click="(event) => onDamagedTool(event, item)">
           <v-icon icon="mdi-image-broken-variant" />
         </v-btn>
       </template>
-      <template v-slot:item.cart="{ item }">
+      <template #item.cart="{ item }">
         <v-btn color="yellow" @click="addToolToCart(item.id, 1)">
-          <template v-slot:prepend>
+          <template #prepend>
             <v-icon start icon="mdi-cart-arrow-down" />
           </template>
           В корзину
@@ -105,7 +105,6 @@ import ToolFilter from './ToolFilter.vue'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
 
 export default {
-  emits: ['changes-saved', 'canceled', 'page-changed', 'page-limit-changed'],
   components: {
     ToolFilter,
     ModalDamaged,
@@ -116,6 +115,7 @@ export default {
       default: 'tool',
     },
   },
+  emits: ['changes-saved', 'canceled', 'page-changed', 'page-limit-changed'],
   computed: {
     ...mapGetters('IssueToolStore', [
       'toolsTotalCount',

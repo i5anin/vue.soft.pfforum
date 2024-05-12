@@ -7,9 +7,9 @@
             <!--левый столбец -->
             <div>
               <v-combobox
+                v-model="toolModel.name"
                 density="compact"
                 label="Маркировка"
-                v-model="toolModel.name"
                 item-text="text"
                 item-value="value"
                 required
@@ -26,19 +26,19 @@
               @update:model-value="onIdChanged"
             />
             <v-select
+              v-model="toolModel.detailDescription"
               density="compact"
               label="Название Обозначение"
               required
-              v-model="toolModel.detailDescription"
               :disabled="!options.idNameDescription.length"
               :items="options.idNameDescription"
               @update:model-value="onIdSelected"
             />
             <v-select
+              v-model="toolModel.operationType"
               density="compact"
               label="Номер Тип"
               required
-              v-model="toolModel.operationType"
               :disabled="!options.numberType.length"
               :items="options.numberType"
               @update:model-value="onOperationSelected"
@@ -52,7 +52,7 @@
               label="ФИО"
               return-object="false"
               single-line="false"
-              @update:modelValue="handleSelectionChange"
+              @update:model-value="handleSelectionChange"
             />
             <v-combobox
               v-model="toolModel.typeIssue"
@@ -67,17 +67,17 @@
             />
             <h2 class="text-h6">Сколько выдать:</h2>
             <v-text-field
+              v-model="toolModel.issue"
               density="compact"
               label="Количество"
               required
-              v-model="toolModel.issue"
               :rules="issueRules"
             />
             <v-textarea
               v-if="overNorm"
+              v-model="comment"
               class="comment-field"
               label="Комментарий"
-              v-model="comment"
               rows="3"
               required
             />
@@ -90,19 +90,19 @@
       <v-btn
         color="red darken-1"
         variant="text"
-        @click="onCancel"
         class="text-none text-subtitle-1 ml-3"
+        @click="onCancel"
       >
         Закрыть
       </v-btn>
       <v-spacer />
       <v-btn
         prepend-icon="mdi-check-circle"
-        @click="onSave"
         class="text-none text-subtitle-1 pl-3"
         color="blue darken-1"
         size="large"
         variant="flat"
+        @click="onSave"
       >
         Выдать
       </v-btn>
@@ -117,12 +117,12 @@ import { issueToolApi } from '@/modules/issue/api/issue'
 
 export default {
   name: 'FillingModal',
-  emits: ['canceled', 'changes-saved'],
+  components: { Modal },
   props: {
     persistent: { type: Boolean, default: false },
     toolId: { type: Number, default: null },
   },
-  components: { Modal },
+  emits: ['canceled', 'changes-saved'],
   data() {
     return {
       typeIssueOptions: [

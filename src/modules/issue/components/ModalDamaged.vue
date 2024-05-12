@@ -7,9 +7,9 @@
           <v-col>
             <div>
               <v-combobox
+                v-model="toolModel.name"
                 density="compact"
                 label="Маркировка"
-                v-model="toolModel.name"
                 :items="nameOptions"
                 item-text="text"
                 item-value="value"
@@ -29,8 +29,8 @@
               single-line="false"
             />
             <v-text-field
-              label="Количество"
               v-model="damagedQuantity"
+              label="Количество"
               type="number"
               min="1"
               required
@@ -43,12 +43,12 @@
               label="ФИО кто повредил"
               return-object="false"
               single-line="false"
-              @update:modelValue="handleSelectionChange"
+              @update:model-value="handleSelectionChange"
             />
             <v-textarea
+              v-model="comment"
               class="comment-field"
               label="Комментарий"
-              v-model="comment"
               rows="3"
               required
             />
@@ -60,19 +60,19 @@
       <v-btn
         color="red darken-1"
         variant="text"
-        @click="onCancel"
         class="text-none text-subtitle-1 ml-3"
+        @click="onCancel"
       >
         Закрыть
       </v-btn>
       <v-spacer />
       <v-btn
         prepend-icon="mdi-check-circle"
-        @click="onSave"
         class="text-none text-subtitle-1 pl-3"
         color="blue darken-1"
         size="large"
         variant="flat"
+        @click="onSave"
       >
         Сохранить
       </v-btn>
@@ -86,14 +86,14 @@ import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { issueToolApi } from '@/modules/issue/api/issue'
 
 export default {
-  name: 'Issue-Modal',
-  emits: ['canceled', 'changes-saved'],
+  name: 'IssueModal',
+  components: { Modal },
   props: {
     persistent: { type: Boolean, default: false },
     toolId: { type: Number, default: null },
     radiusOptions: { type: Array },
   },
-  components: { Modal },
+  emits: ['canceled', 'changes-saved'],
   data: () => ({
     damagedQuantity: 1,
     comment: null,

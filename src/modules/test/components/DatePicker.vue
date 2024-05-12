@@ -1,6 +1,6 @@
 <template>
   <v-menu v-model="isMenuOpen" :close-on-content-click="false">
-    <template v-slot:activator="{ props }">
+    <template #activator="{ props }">
       <v-text-field
         :label="label"
         :model-value="formattedDate"
@@ -11,16 +11,16 @@
       ></v-text-field>
     </template>
     <v-date-picker
+      v-model="selectedDate"
       :first-day-of-week="2"
       header="Укажите дату начала"
       width="480"
       show-week
-      v-model="selectedDate"
       hide-actions
       title=""
       :color="color"
     >
-      <template v-slot:header></template>
+      <template #header></template>
     </v-date-picker>
   </v-menu>
 </template>

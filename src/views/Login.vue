@@ -33,17 +33,17 @@
             placeholder="Password"
             prepend-inner-icon="mdi-lock-outline"
             variant="outlined"
-            @click:append-inner="toggleVisibility"
             :rules="passwordRules"
+            @click:append-inner="toggleVisibility"
           />
           <v-btn
             :disabled="!formValid"
-            @click="submit"
             block
             class="mb-8"
             color="blue"
             size="large"
             variant="tonal"
+            @click="submit"
             >Войти</v-btn
           >
           <v-alert

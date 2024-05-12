@@ -22,43 +22,43 @@
     />
     <v-data-table-server
       v-if="isDataLoaded"
-      noDataText="Нет данных"
-      itemsPerPageText="Пункты на странице:"
-      loadingText="Загрузка данных"
+      no-data-text="Нет данных"
+      items-per-page-text="Пункты на странице:"
+      loading-text="Загрузка данных"
       :headers="toolTableHeaders"
       :items="formattedTools"
-      :itemsLength="toolsTotalCount"
+      :items-length="toolsTotalCount"
       :items-per-page="filters.itemsPerPage"
       :page="filters.currentPage"
       :loading="isLoading"
       :items-per-page-options="[15, 50, 100, 300]"
       density="compact"
-      @update:page="onChangePage"
-      @update:items-per-page="onUpdateItemsPerPage"
-      @click:row="onEditRow"
       class="elevation-1 scrollable-table"
       hover
       fixed-header
       width
+      @update:page="onChangePage"
+      @update:items-per-page="onUpdateItemsPerPage"
+      @click:row="onEditRow"
     >
-      <template v-slot:item.index="{ index }">
+      <template #item.index="{ index }">
         <td class="index">{{ index + 1 }}</td>
       </template>
       <!--name-->
-      <template v-slot:item.name="{ item }">
+      <template #item.name="{ item }">
         <td :class="colorClassGrey(item)" style="white-space: nowrap">
           {{ item.name }}
         </td>
       </template>
-      <template v-slot:item.sklad="{ item }">
+      <template #item.sklad="{ item }">
         <td :class="colorClassRed(item)" style="white-space: nowrap">
           {{ item.sklad }}
         </td>
       </template>
-      <template v-slot:item.norma="{ item }">
+      <template #item.norma="{ item }">
         <td style="white-space: nowrap">{{ item.norma }}</td>
       </template>
-      <template v-slot:item.zakaz="{ item }">
+      <template #item.zakaz="{ item }">
         <td style="white-space: nowrap">{{ calculateOrder(item) }}</td>
       </template>
     </v-data-table-server>
@@ -72,7 +72,6 @@ import ToolFilter from './ToolFilter.vue'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
 
 export default {
-  emits: [],
   components: {
     EditorToolModal,
 
@@ -84,6 +83,7 @@ export default {
       default: 'tool',
     },
   },
+  emits: [],
   computed: {
     ...mapGetters('ViewToolStore', [
       'toolsTotalCount',

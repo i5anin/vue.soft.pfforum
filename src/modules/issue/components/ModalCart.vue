@@ -6,7 +6,7 @@
   <!--    {{ snackbarText }}-->
   <!--    <v-btn color="white" text @click="snackbar = false"> Закрыть </v-btn>-->
   <!--  </v-snackbar>-->
-  <Modal :title="popupTitle" widthDefault="600px">
+  <Modal :title="popupTitle" width-default="600px">
     <template #content>
       <v-container>
         <div class="text-h6 pl-5 mb-2">Выбрать деталь:</div>
@@ -19,17 +19,17 @@
               @update:model-value="onIdChanged"
             />
             <v-select
+              v-model="toolModel.detailDescription"
               label="Название Обозначение"
               required
-              v-model="toolModel.detailDescription"
               :disabled="!options.idNameDescription.length"
               :items="options.idNameDescription"
               @update:model-value="onIdSelected"
             />
             <v-select
+              v-model="toolModel.numberType"
               label="Номер Тип"
               required
-              v-model="toolModel.numberType"
               :disabled="!options.numberType.length"
               :items="options.numberType"
               item-value="id"
@@ -38,13 +38,13 @@
             />
             <h2 class="text-h6 pl-5 mb-2">Кому выдать:</h2>
             <v-combobox
-              icon="mdi-account"
               v-model="selectedFio"
+              icon="mdi-account"
               :items="fioOptions"
               item-title="text"
               item-value="value"
               label="ФИО"
-              @update:modelValue="handleSelectionChange"
+              @update:model-value="handleSelectionChange"
             />
             <!--fixme-->
             <v-combobox
@@ -78,8 +78,8 @@
                     class="hover-effect-red"
                     icon
                     size="x-small"
-                    @click="decreaseQuantity(index)"
                     :disabled="item.quantity <= 1"
+                    @click="decreaseQuantity(index)"
                   >
                     <v-icon icon="mdi-minus" />
                   </v-btn>
@@ -88,8 +88,8 @@
                     class="hover-effect-red"
                     icon
                     size="x-small"
-                    @click="increaseQuantity(index)"
                     :disabled="item.quantity >= item.sklad"
+                    @click="increaseQuantity(index)"
                   >
                     <v-icon icon="mdi-plus" />
                   </v-btn>
@@ -115,8 +115,8 @@
       <v-btn
         color="red darken-1"
         variant="text"
-        @click="onCancel"
         class="text-none text-subtitle-1 ml-3"
+        @click="onCancel"
       >
         Закрыть
       </v-btn>
@@ -124,12 +124,12 @@
       <v-btn
         v-if="cartItemsTotalQuantity"
         prepend-icon="mdi-hand-extended"
-        @click="onSave"
         class="text-none text-subtitle-1 pl-3"
         color="blue darken-1"
         size="large"
         variant="flat"
         :disabled="submitButtonDisabled"
+        @click="onSave"
       >
         Выдать
         <!-- Добавление класса ml-2 (margin left 2) для отступа -->
@@ -148,14 +148,14 @@ import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { toolTreeApi } from '@/modules/tree/api/tree'
 
 export default {
-  name: 'Cart-Modal',
-  emits: ['canceled', 'changes-saved', 'updatePage'],
+  name: 'CartModal',
+  components: { Modal },
   props: {
     persistent: { type: Boolean, default: false },
     toolId: { type: Number, default: null },
     radiusOptions: { type: Array },
   },
-  components: { Modal },
+  emits: ['canceled', 'changes-saved', 'updatePage'],
   data: () => ({
     selectedFio: null,
     typeIssueOptions: [

@@ -21,12 +21,12 @@
       :page="filters.currentPage"
       :loading="isLoading"
       :items-per-page-options="[15, 50, 100, 300]"
-      @update:page="onChangePage"
-      @update:items-per-page="onUpdateItemsPerPage"
       hover
       fixed-header
       width="true"
       class="scrollable-table"
+      @update:page="onChangePage"
+      @update:items-per-page="onUpdateItemsPerPage"
     />
   </v-container>
 </template>

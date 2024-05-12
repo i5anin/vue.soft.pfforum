@@ -2,7 +2,7 @@
   <div>
     <div v-for="(group, index) in toolGroups" :key="index" class="tool-group">
       <v-chip variant="text" size="large" @click="toggleVisibility(index)">
-        <template v-slot:prepend>
+        <template #prepend>
           <v-icon icon="mdi-folder" start />
         </template>
         {{ group.path }}

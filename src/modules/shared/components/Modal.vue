@@ -5,12 +5,12 @@
     v-bind="modalProps"
     :width="widthDefault"
   >
-    <template v-slot:activator="{ props }">
+    <template #activator="{ props }">
       <slot name="default" v-bind="props" />
     </template>
 
     <!-- Удалено '{ isActive }' из объявления слота -->
-    <template v-slot:default>
+    <template #default>
       <v-card>
         <v-card-title> {{ title }}</v-card-title>
         <v-spacer />

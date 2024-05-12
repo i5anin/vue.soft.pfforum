@@ -1,14 +1,14 @@
 <template>
   <date-picker
+    v-model="startDate"
     locale="ru"
     label="Start Date"
-    v-model="startDate"
     color="primary"
   ></date-picker>
   <div>
     <div v-for="(group, index) in toolGroups" :key="index" class="tool-group">
       <v-chip variant="text" size="large" @click="toggleVisibility(index)">
-        <template v-slot:prepend>
+        <template #prepend>
           <v-icon icon="mdi-folder" start />
         </template>
         {{ group.path }}

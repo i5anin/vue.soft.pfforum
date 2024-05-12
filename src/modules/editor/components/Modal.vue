@@ -1,5 +1,5 @@
 <template>
-  <Modal :title="popupTitle" widthDefault="650px">
+  <Modal :title="popupTitle" width-default="650px">
     <template #content>
       <v-container>
         <v-row>
@@ -7,28 +7,28 @@
             <v-row>
               <v-col cols="5">
                 <v-text-field
+                  v-model="parentCatalog.label"
                   label="Папка"
                   required
                   type="Text"
-                  v-model="parentCatalog.label"
                   :disabled="true"
                 />
               </v-col>
               <v-col cols="3">
                 <v-text-field
+                  v-model="parentCatalog.id"
                   label="ID папки"
                   required
                   type="Number"
-                  v-model="parentCatalog.id"
                   :rules="parentIdRules"
                 />
               </v-col>
               <v-col cols="3">
                 <v-text-field
+                  v-model="toolModel.group_id"
                   label="ID группы"
                   required
                   type="Number"
-                  v-model="toolModel.group_id"
                   :rules="groupIdRules"
                 />
               </v-col>
@@ -36,10 +36,10 @@
             <!--левый столбец -->
             <div>
               <v-combobox
+                v-model="toolModel.name"
                 variant="outlined"
                 label="Маркировка"
                 :items="toolNameOptions"
-                v-model="toolModel.name"
                 item-text="text"
                 item-value="value"
                 required
@@ -52,9 +52,9 @@
                 <v-row>
                   <v-col cols="6" class="pa-1">
                     <v-select
+                      v-model="param.info"
                       variant="solo-filled"
                       density="compact"
-                      v-model="param.info"
                       :items="availableToolParamOptions"
                       label="Параметр"
                       single-line="true"
@@ -64,8 +64,8 @@
                   </v-col>
                   <v-col cols="5" class="pa-1">
                     <v-combobox
-                      density="compact"
                       v-model="toolModel.property[param.id]"
+                      density="compact"
                       :items="toolParamsOptions[param.id]"
                       label="Значение"
                       clearable="true"
@@ -84,9 +84,9 @@
             <v-row justify="center">
               <v-col cols="12" class="text-center mb-4">
                 <v-btn
+                  v-show="isAddButtonVisible"
                   color="primary"
                   @click="addParameterValuePair"
-                  v-show="isAddButtonVisible"
                 >
                   Добавить
                 </v-btn>
@@ -97,20 +97,20 @@
             <v-row>
               <v-col cols="6">
                 <v-text-field
+                  v-model="toolModel.norma"
                   type="number"
                   density="compact"
                   label="Нормативный запас"
                   required
-                  v-model="toolModel.norma"
                 />
               </v-col>
               <v-col cols="6">
                 <v-text-field
+                  v-model="toolModel.sklad"
                   type="number"
                   density="compact"
                   label="Склад"
                   required
-                  v-model="toolModel.sklad"
                 />
               </v-col>
             </v-row>
@@ -122,8 +122,8 @@
       <v-btn
         color="red darken-1"
         variant="text"
-        @click="confirmDelete"
         class="text-none text-subtitle-1 ml-3"
+        @click="confirmDelete"
       >
         Удалить
       </v-btn>
@@ -131,18 +131,18 @@
       <v-btn
         color="red darken-1"
         variant="text"
-        @click="onCancel"
         class="text-none text-subtitle-1 ml-3"
+        @click="onCancel"
       >
         Закрыть
       </v-btn>
       <v-btn
         prepend-icon="mdi-check"
-        @click="onSave"
         class="text-none text-subtitle-1 pl-3"
         color="green"
         size="large"
         variant="flat"
+        @click="onSave"
       >
         Сохранить
       </v-btn>
@@ -163,12 +163,12 @@ import { mapActions, mapGetters, mapMutations } from 'vuex'
 
 export default {
   name: 'FillingModal',
-  emits: ['canceled', 'changes-saved'],
+  components: { Modal },
   props: {
     persistent: { type: Boolean, default: false },
     toolId: { type: Number, default: null },
   },
-  components: { Modal },
+  emits: ['canceled', 'changes-saved'],
   data() {
     return {
       snackbar: {
