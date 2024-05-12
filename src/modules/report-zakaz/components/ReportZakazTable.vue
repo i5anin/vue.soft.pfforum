@@ -1,4 +1,10 @@
 <template>
+  <zakaz-tool-modal
+    v-if="openDialog"
+    :persistent="true"
+    :tool-id="editingToolId"
+    @canceled="onClosePopup"
+  />
   <div>
     <div v-for="(group, index) in toolGroups" :key="index" class="tool-group">
       <v-chip variant="text" size="large" @click="toggleVisibility(index)">
@@ -16,19 +22,23 @@
       </v-chip>
       <v-chip color="while">{{ group.tools.length }}</v-chip>
       <div v-if="visibleGroups.includes(index)">
-        <v-table dense>
+        <v-table hover dense>
           <thead>
             <tr>
-              <th class="text-left" style="min-width: 50px">#</th>
-              <th class="text-left" style="min-width: 300px">Название</th>
-              <th class="text-left" style="min-width: 50px">Заказ</th>
-              <th class="text-left" style="min-width: 50px">Склад</th>
-              <th class="text-left" style="min-width: 50px">Норма</th>
-              <th class="text-left" style="min-width: 50px">Не хватает</th>
+              <th class="text-left mw50">#</th>
+              <th class="text-left mw300">Название</th>
+              <th class="text-left mw50">Заказ</th>
+              <th class="text-left mw50">Склад</th>
+              <th class="text-left mw50">Норма</th>
+              <th class="text-left mw50">Не хватает</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(tool, toolIndex) in group.tools" :key="toolIndex">
+            <tr
+              v-for="(tool, toolIndex) in group.tools"
+              :key="toolIndex"
+              @click="openToolModal(tool.id_tool)"
+            >
               <td class="grey">{{ toolIndex + 1 }}</td>
               <td
                 :style="{
@@ -48,8 +58,8 @@
                   size="x-small"
                   :color="getColorForGroup(tool.group_id)"
                   :title="'Группа ' + tool.group_id"
-                  >G{{ tool.group_id }}</v-chip
-                >
+                  >G{{ tool.group_id }}
+                </v-chip>
               </td>
               <td>
                 {{
@@ -90,19 +100,30 @@
 
 <script>
 import { reportApi } from '../api/report' // Импортируем API
+import ZakazToolModal from '@/modules/view/components/Modal.vue'
 
 export default {
+  components: { ZakazToolModal },
   data() {
     return {
       toolGroups: [],
       visibleGroups: [],
       colors: ['red', 'green', 'blue', 'orange', 'purple', 'cyan'],
+      editingToolId: null,
+      openDialog: false,
     }
   },
   mounted() {
     this.fetchZakazData()
   },
   methods: {
+    onClosePopup() {
+      this.openDialog = false
+    },
+    openToolModal(toolId) {
+      this.editingToolId = toolId
+      this.openDialog = true
+    },
     getColorForGroup(index) {
       const hue = index * 137.508 // используем золотое сечение
       return `hsl(${hue % 360}, 50%, 50%)`
@@ -150,5 +171,13 @@ export default {
 
 .tool-group + .tool-group {
   margin-top: 10px;
+}
+
+.mw50 {
+  min-width: 50px;
+}
+
+.mw300 {
+  min-width: 300px;
 }
 </style>
