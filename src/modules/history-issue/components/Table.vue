@@ -3,9 +3,9 @@
     <edit-tool-modal
       v-if="openDialog"
       :persistent="true"
-      :id_part="editingToolId"
-      :selected_date="selectedDate"
-      :selected_tool="selectedTool"
+      :id-part="editingToolId"
+      :selected-date="selectedDate"
+      :selected-tool="selectedTool"
       @canceled="onClosePopup"
       @changes-saved="fetchAndFormatToolHistory"
       @close="onClosePopup"
