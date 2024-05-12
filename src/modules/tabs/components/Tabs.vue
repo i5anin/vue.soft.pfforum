@@ -68,8 +68,6 @@ export default {
           if (this.tabs.length > 0) {
             this.tab = this.tabs[0].name // Установка активной вкладки на первую доступную
           }
-          // console.log('Статус авторизации:', response.status)
-          // console.log('Роль пользователя:', response.role)
         } else {
           console.error('Ошибка доступа:', response.message)
         }

@@ -66,7 +66,6 @@ export default {
     },
 
     async fetchToolsByFilter({ commit, state }) {
-      // console.log('РЕДАКТОР VUEX')
       commit('setIsLoading', true)
       const { currentPage, itemsPerPage, search, includeNull, selectedParams } =
         state.filters

@@ -215,12 +215,6 @@ export default {
     ...mapActions('IssueToolStore', ['fetchToolsByFilter', 'fetchToolById']),
     ...mapMutations('IssueToolStore', ['setTool']),
 
-    handleSelectionChange(selectedItem) {
-      console.log(
-        `Выбрана фамилия: ${selectedItem.text} с ID:`,
-        selectedItem.value
-      )
-    },
     onIdSelected(selectedValue) {
       const id = this.idMapping[selectedValue]
       if (id) {
@@ -246,9 +240,7 @@ export default {
     },
 
     onOperationSelected(value) {
-      const id = this.operationMapping[value]
-      this.toolModel.selectedOperationId = id
-      // console.log('Выбран specs_op_id:', id)
+      this.toolModel.selectedOperationId = this.operationMapping[value]
     },
     resetToolModel() {
       this.toolModel = {
@@ -258,7 +250,6 @@ export default {
         norma: null,
         property: {},
       }
-      console.log(this.toolModel)
     },
     updateToolModel() {
       if (this.tool) {
@@ -299,14 +290,11 @@ export default {
     },
     initializeLocalState() {
       if (this.toolId) {
-        console.log('this.toolId=', this.toolId)
         this.fetchToolById(this.toolId).then(() => {
           this.toolModel.sklad = this.tool.sklad
           this.toolModel.norma = this.tool.norma
         })
       } else {
-        console.log('localParentId=', this.localParentId)
-        // this.localParentId = this.idParent.id
         this.currentFolderName = this.idParent.label
       }
     },
@@ -330,17 +318,10 @@ export default {
           quantity: parseInt(this.toolModel.issue),
           issueToken: token,
         }
-
-        console.log('Отправка данных инструмента на сервер:', issueHistoryData)
-
         // Отправка данных истории инструмента
         const response = await issueToolApi.addHistoryTool(issueHistoryData)
-        console.log('Ответ сервера:', response)
-
         if (response.success === 'OK') {
-          console.log('Данные успешно сохранены на сервере')
           this.$emit('changes-saved')
-          console.log('Событие changes-saved отправлено')
         } else {
           console.error(
             'Ошибка при сохранении данных на сервере: ',

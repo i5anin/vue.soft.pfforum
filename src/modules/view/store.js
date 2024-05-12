@@ -95,9 +95,6 @@ export default {
         selectedDynamicFilters,
       } = state.filters
       const { id: parentId } = state.parentCatalog
-
-      // console.log('Поисковой запрос:', search)
-
       // Формируем URL для запроса
       const params = new URLSearchParams({
         page: currentPage,

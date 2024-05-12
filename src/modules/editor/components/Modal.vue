@@ -367,7 +367,6 @@ export default {
         norma: null,
         property: {},
       }
-      console.log(this.toolModel)
     },
     addParameterValuePair() {
       // Проверяем, существует ли уже параметр с временным ID 0 в selectedParams
@@ -386,9 +385,6 @@ export default {
       if (this.tool) {
         this.toolModel = JSON.parse(JSON.stringify(this.tool))
       }
-    },
-    logModelValue(paramId) {
-      console.log('Value changed for param ID:', paramId)
     },
     prependOptionIfNeeded(value, optionsList) {
       if (value && !optionsList.some((option) => option.value === value))
@@ -434,7 +430,6 @@ export default {
         } else {
           response = await editorToolApi.addTool(toolDataToSend)
         }
-        console.log(response, response.status)
         if (response.success === 'OK') this.$emit('changes-saved')
       } catch (error) {
         console.error(

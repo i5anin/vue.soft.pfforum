@@ -276,9 +276,7 @@ export default {
       'removeFromCartAction',
     ]),
     onOperationSelected(selectedValue) {
-      console.log('Выбранное значение:', selectedValue)
       const operationId = this.operationMapping[selectedValue]
-      console.log('Соответствующий ID операции:', operationId)
       if (operationId) {
         this.toolModel.operationType = operationId // Установка ID операции, выбранной пользователем
       } else {
@@ -309,14 +307,10 @@ export default {
     },
 
     onIdSelected(selectedValue) {
-      console.log('Выбранное значение для Название Обозначение:', selectedValue)
       const id = this.idMapping[selectedValue]
-      console.log('Соответствующий ID:', id)
       if (id) {
         const filteredData = this.originalData.filter((item) => item.id === id)
-        console.log('Фильтрованные данные для Номер Тип:', filteredData)
         this.options.numberType = this.formatOperationOptions(filteredData)
-        console.log('Обновленные options.numberType:', this.options.numberType)
         // Сбросить выбранное значение для "Номер Тип" каждый раз, когда выбирается новое "Название Обозначение"
         this.toolModel.operationType = null
       } else {

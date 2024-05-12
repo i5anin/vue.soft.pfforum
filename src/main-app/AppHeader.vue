@@ -133,7 +133,6 @@ export default {
     },
 
     openCartModal() {
-      console.log('Открытие модального окна...')
       this.openModal()
     },
     onClosePopup() {

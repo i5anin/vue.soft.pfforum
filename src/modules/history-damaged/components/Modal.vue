@@ -143,7 +143,6 @@ export default {
           this.filteredData = operations['all'] || []
           this.availableOperations = Object.keys(operations)
         } else {
-          console.log('No history data found')
           this.originalData = {}
           this.filteredData = []
           this.availableOperations = ['all']

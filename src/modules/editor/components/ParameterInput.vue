@@ -295,7 +295,6 @@ export default {
         } else {
           response = await editorToolApi.addTool(toolDataToSend)
         }
-        console.log(response, response.status)
         if (response.success === 'OK') this.$emit('changes-saved')
       } catch (error) {
         console.error(

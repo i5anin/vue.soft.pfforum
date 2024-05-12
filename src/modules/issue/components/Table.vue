@@ -249,14 +249,12 @@ export default {
       event.stopPropagation()
       this.editingToolId = item.id
       this.currentModal = 'issue'
-      console.log('openDialog')
       this.openDialog = true
     },
     onDamagedTool(event, item) {
       event.stopPropagation()
       this.editingToolId = item.id
       this.currentModal = 'damaged'
-      console.log('openDialog')
       this.openDialog = true
     },
     // Метод для обработки обновления параметров фильтра

@@ -262,18 +262,7 @@ export default {
       }
     },
     async toggleArchiveStatus() {
-      const archiveState = this.info.is_archive
-      const token = localStorage.getItem('token') // Получаем токен из localStorage
-
-      console.log('Архивный статус изменился, новое значение:', archiveState)
-
       try {
-        const response = await issueHistoryApi.addToArchive(
-          this.idPart,
-          archiveState,
-          token
-        )
-        console.log('Ответ сервера:', response)
         alert(`Статус архива для idPart ${this.idPart} успешно обновлен.`)
         // Обновляем данные на фронте
         await this.fetchHistoryData()
@@ -369,7 +358,6 @@ export default {
           )
           this.filterData()
         } else {
-          console.log('No history data found')
           this.filteredData = []
           this.availableOperations = ['all']
         }

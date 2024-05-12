@@ -141,12 +141,6 @@ export default {
     },
   },
   watch: {
-    'tool.sklad': function (newVal) {
-      console.log('tool.sklad changed from ', newVal)
-    },
-    selectedFio(newValue) {
-      console.log('Выбранное значение fio_id:', newValue)
-    },
     tool: {
       deep: true,
       immediate: true,
@@ -204,13 +198,6 @@ export default {
     ...mapMutations('IssueToolStore', ['setTool']),
     ...mapActions('IssueToolStore', ['fetchToolsByFilter', 'fetchToolById']),
 
-    handleSelectionChange(selectedItem) {
-      console.log(
-        `Выбрана фамилия: ${selectedItem.text} с ID:`,
-        selectedItem.value
-      )
-    },
-
     prepareFioOptions(fioData) {
       return fioData.map((item) => ({
         text: item.fio,
@@ -264,10 +251,7 @@ export default {
         // Отправка данных о поврежденном инструменте
         const response =
           await issueToolApi.addToolHistoryDamaged(damagedToolData)
-        console.log('Ответ сервера:', response)
-
         if (response.success === 'OK') {
-          console.log('Данные о поврежденном инструменте успешно сохранены')
           this.$emit('changes-saved')
         } else {
           console.error(

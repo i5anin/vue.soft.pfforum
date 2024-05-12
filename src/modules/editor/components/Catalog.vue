@@ -143,7 +143,6 @@ export default {
       }
     },
     async addItem() {
-      console.log(this.currentItem)
       if (!this.currentItem || !this.currentItem.nodes)
         return alert('Выберите категорию для добавления новой папки.')
 
@@ -207,11 +206,6 @@ export default {
       if (this.tree.length > 1) {
         this.tree.pop() // Удаляем последний элемент истории
         this.currentItem = this.tree[this.tree.length - 1] // Обновляем currentItem на предыдущий элемент
-        console.log(
-          'Кнопка возврат:',
-          this.currentItem.id,
-          this.currentItem.label
-        )
         this.setParentCatalog({
           id: this.currentItem.id,
           label: this.currentItem.label,
@@ -220,11 +214,6 @@ export default {
     },
     goTo(index) {
       this.currentItem = this.tree[index]
-      // console.log(
-      //   'Хлебные крошки. Выбрана папка:',
-      //   this.currentItem.id,
-      //   this.currentItem.label
-      // )
       this.setParentCatalog({
         id: this.currentItem.id,
         label: this.currentItem.label,

@@ -39,19 +39,15 @@ export default {
       state.catalog = newCatalog // Обновление состояния каталога
     },
     setSelectedFio(state, fioId) {
-      console.log('Установка fioId:', fioId)
       state.selectedFio = fioId
     },
     setSelectedOperationId(state, operationId) {
-      console.log('Установка operationId:', operationId)
       state.selectedOperationId = operationId
     },
     setSelectedDetail(state, detail) {
-      console.log('Установка detail:', detail) // И этот log
       state.selectedDetail = detail
     },
     SET_MODAL_STATUS(state, status) {
-      console.log('Изменение состояния модального окна на: ', status)
       state.isModalOpen = status
     },
 
@@ -122,7 +118,6 @@ export default {
   actions: {
     // Действие для очистки корзины
     clearCart({ commit }) {
-      console.log('Очистка корзины') // Лог для подтверждения вызова
       commit('CLEAR_CART')
     },
     // Действие для обновления каталога из сессии
@@ -193,9 +188,6 @@ export default {
         selectedDynamicFilters,
       } = state.filters
       const { id: parentId } = state.parentCatalog
-
-      // console.log('Поисковой запрос:', search)
-
       // Формируем URL для запроса
       const params = new URLSearchParams({
         page: currentPage,
