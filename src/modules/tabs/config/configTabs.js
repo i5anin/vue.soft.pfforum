@@ -7,7 +7,7 @@ import ToolTabParam from '@/modules/params/components/Param.vue'
 import ToolTabTree from '@/modules/tree/components/Tree.vue'
 import Report from '@/modules/report-zakaz/components/Report.vue'
 import ReportBuh from '@/modules/report-buh/components/Report.vue'
-import ReportBuh2 from '@/modules/report-buh2/components/Report.vue'
+import ReportBuh2 from '@/modules/test/components/Report.vue'
 
 import EditorCatalog from '@/modules/editor/components/Catalog.vue'
 import IssueCatalog from '@/modules/issue/components/Catalog.vue'

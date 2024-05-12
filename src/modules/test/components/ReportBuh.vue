@@ -44,7 +44,7 @@
 
 <script>
 import { reportApi } from '../api/report'
-import DatePicker from '@/modules/report-buh2/components/DatePicker.vue' // Импортируем API
+import DatePicker from '@/modules/test/components/DatePicker.vue' // Импортируем API
 
 export default {
   components: { DatePicker },
