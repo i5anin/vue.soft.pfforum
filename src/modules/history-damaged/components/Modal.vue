@@ -70,8 +70,9 @@ export default {
   name: 'HistoryModal',
   components: { Modal },
   props: {
-    id_part: { type: Number, default: null },
+    idPart: { type: Number, default: null },
   },
+  emits: ['canceled', 'operation-cancelled'],
   data() {
     return {
       info: null,

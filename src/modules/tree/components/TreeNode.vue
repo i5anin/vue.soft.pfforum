@@ -45,7 +45,9 @@
 <script>
 export default {
   name: 'TreeNode',
-  props: ['node'],
+  props: {
+    node: { type: Object, required: true },
+  },
   data() {
     return {
       isExpanded: false, // Добавляем состояние для отслеживания свернуто/развернуто

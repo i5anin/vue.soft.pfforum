@@ -94,12 +94,12 @@
                 v-if="
                   header.value === 'name_tool' &&
                   item &&
-                  selected_tool &&
-                  item.id_tool === selected_tool.id_tool
+                  selectedTool &&
+                  item.id_tool === selectedTool.id_tool
                 "
               >
                 <v-chip
-                  v-if="item.id_tool === selected_tool.id_tool"
+                  v-if="item.id_tool === selectedTool.id_tool"
                   color="green"
                   size="large"
                   text-color="white"
@@ -193,10 +193,14 @@ export default {
   name: 'HistoryModal',
   components: { Modal },
   props: {
-    id_part: { type: Number, default: null },
-    selected_date: { type: String, default: '' },
-    selected_tool: { id_tool: String, name: '' },
+    idPart: { type: Number, default: null },
+    selectedDate: { type: String, default: '' },
+    selectedTool: {
+      type: Object,
+      default: () => ({ id_tool: null, name: '' }),
+    },
   },
+  emits: ['canceled', 'operation-cancelled'],
   data() {
     return {
       info: { is_archive: false },
@@ -226,7 +230,7 @@ export default {
   computed: {
     popupTitle() {
       return this.info
-        ? `Инструмент затраченный на партию: ${this.id_part}`
+        ? `Инструмент затраченный на партию: ${this.idPart}`
         : 'Информация о партии'
     },
     currentHeaders() {
@@ -265,12 +269,12 @@ export default {
 
       try {
         const response = await issueHistoryApi.addToArchive(
-          this.id_part,
+          this.idPart,
           archiveState,
           token
         )
         console.log('Ответ сервера:', response)
-        alert(`Статус архива для id_part ${this.id_part} успешно обновлен.`)
+        alert(`Статус архива для idPart ${this.idPart} успешно обновлен.`)
         // Обновляем данные на фронте
         await this.fetchHistoryData()
       } catch (error) {
@@ -349,11 +353,11 @@ export default {
     async fetchHistoryData() {
       try {
         const response = await issueHistoryApi.fetchHistoryByPartId(
-          this.id_part,
-          this.selected_date
+          this.idPart,
+          this.selectedDate
         )
         const partInfoResponse = await issueHistoryApi.fetchHistoryByPartIdInfo(
-          this.id_part
+          this.idPart
         )
         this.operations = partInfoResponse.info.operations
         this.completedOperations = partInfoResponse.info.completed_operations

@@ -69,26 +69,26 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, index) in cartItems" :key="item.id">
+            <tr v-for="(cartItem, index) in cartItems" :key="cartItem.id">
               <td class="gray">{{ index + 1 }}</td>
               <td>{{ item.name }}</td>
               <td>
                 <div class="d-flex align-center">
                   <v-btn
                     class="hover-effect-red"
-                    icon
+                    icon="true"
                     size="x-small"
-                    :disabled="item.quantity <= 1"
+                    :disabled="cartItem.quantity <= 1"
                     @click="decreaseQuantity(index)"
                   >
                     <v-icon icon="mdi-minus" />
                   </v-btn>
-                  <div class="mx-2">{{ item.quantity }}</div>
+                  <div class="mx-2">{{ cartItem.quantity }}</div>
                   <v-btn
                     class="hover-effect-red"
-                    icon
+                    icon="true"
                     size="x-small"
-                    :disabled="item.quantity >= item.sklad"
+                    :disabled="cartItem.quantity >= item.sklad"
                     @click="increaseQuantity(index)"
                   >
                     <v-icon icon="mdi-plus" />
@@ -99,9 +99,9 @@
               <td>
                 <v-btn
                   class="hover-effect-grey"
-                  icon
+                  icon="true"
                   size="x-small"
-                  @click="removeFromCartAction(item.toolId)"
+                  @click="removeFromCartAction(cartItem.toolId)"
                 >
                   <v-icon icon="mdi-delete" />
                 </v-btn>
@@ -153,7 +153,6 @@ export default {
   props: {
     persistent: { type: Boolean, default: false },
     toolId: { type: Number, default: null },
-    radiusOptions: { type: Array },
   },
   emits: ['canceled', 'changes-saved', 'updatePage'],
   data: () => ({
@@ -205,24 +204,6 @@ export default {
       numberType: [],
     },
   }),
-  watch: {
-    'toolModel.detailDescription'(newValue, oldValue) {
-      if (newValue !== oldValue) this.toolModel.operationType = null
-    },
-    tool: {
-      deep: true,
-      immediate: true,
-      async handler(editingToolId) {
-        if (editingToolId == null) {
-          this.resetToolModel()
-        } else {
-          await this.fetchToolById(editingToolId)
-          this.updateToolModel()
-        }
-      },
-    },
-  },
-
   computed: {
     ...mapGetters('IssueToolStore', [
       'nameOptions',
@@ -251,6 +232,39 @@ export default {
     popupTitle() {
       return 'Корзина'
     },
+  },
+  watch: {
+    'toolModel.detailDescription'(newValue, oldValue) {
+      if (newValue !== oldValue) this.toolModel.operationType = null
+    },
+    tool: {
+      deep: true,
+      immediate: true,
+      async handler(editingToolId) {
+        if (editingToolId == null) {
+          this.resetToolModel()
+        } else {
+          await this.fetchToolById(editingToolId)
+          this.updateToolModel()
+        }
+      },
+    },
+  },
+
+  async created() {
+    try {
+      const fioData = await issueToolApi.getDetailFio()
+      this.fioOptions = this.prepareFioOptions(fioData)
+    } catch (error) {
+      console.error('Ошибка при загрузке данных ФИО:', error)
+    }
+
+    // Проверьте, нужно ли здесь ожидать завершения операции
+    const toolsTree = await toolTreeApi.getTree()
+    if (toolsTree && toolsTree.length > 0) {
+      this.currentItem = toolsTree[0]
+      this.tree.push(this.currentItem)
+    }
   },
   methods: {
     ...mapMutations('IssueToolStore', ['setTool']),
@@ -431,27 +445,12 @@ export default {
       this.$emit('canceled')
     },
   },
-  async created() {
-    try {
-      const fioData = await issueToolApi.getDetailFio()
-      this.fioOptions = this.prepareFioOptions(fioData)
-    } catch (error) {
-      console.error('Ошибка при загрузке данных ФИО:', error)
-    }
-
-    // Проверьте, нужно ли здесь ожидать завершения операции
-    const toolsTree = await toolTreeApi.getTree()
-    if (toolsTree && toolsTree.length > 0) {
-      this.currentItem = toolsTree[0]
-      this.tree.push(this.currentItem)
-    }
-  },
 }
 </script>
 
 <style>
 .gray {
-  color: gray;
+  color: grey;
 }
 
 .hover-effect-grey:hover {

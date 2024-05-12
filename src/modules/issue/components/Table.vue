@@ -116,17 +116,6 @@ export default {
     },
   },
   emits: ['changes-saved', 'canceled', 'page-changed', 'page-limit-changed'],
-  computed: {
-    ...mapGetters('IssueToolStore', [
-      'toolsTotalCount',
-      'formattedTools',
-      'dynamicFilters',
-      'filters',
-      'parentCatalog',
-      'isLoading',
-      'cartItems',
-    ]),
-  },
   data() {
     return {
       snackbarVisible: false,
@@ -139,6 +128,18 @@ export default {
       currentModal: null,
     }
   },
+  computed: {
+    ...mapGetters('IssueToolStore', [
+      'toolsTotalCount',
+      'formattedTools',
+      'dynamicFilters',
+      'filters',
+      'parentCatalog',
+      'isLoading',
+      'cartItems',
+    ]),
+  },
+
   watch: {
     'parentCatalog.id'(newId) {
       if (newId != null) {

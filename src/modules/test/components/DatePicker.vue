@@ -25,30 +25,52 @@
   </v-menu>
 </template>
 
-<script setup>
-import { ref, computed, watch, defineProps, defineEmits } from 'vue'
+<script>
+import { ref, computed, watch } from 'vue'
 
-const { label, color, modelValue } = defineProps([
-  'label',
-  'color',
-  'modelValue',
-])
-const emit = defineEmits('update:modelValue')
+export default {
+  props: {
+    label: {
+      type: String,
+      default: '',
+    },
+    color: {
+      type: String,
+      default: 'primary',
+    },
+    modelValue: {
+      type: Date,
+      default: () => new Date(),
+    },
+  },
+  emits: ['update:modelValue'],
+  setup(props, { emit }) {
+    const isMenuOpen = ref(false)
+    const selectedDate = ref(props.modelValue)
+    const formattedDate = computed(() => {
+      return selectedDate.value
+        ? selectedDate.value.toLocaleDateString('en')
+        : ''
+    })
 
-const isMenuOpen = ref(false)
-const selectedDate = ref(modelValue)
+    watch(
+      () => props.modelValue,
+      (newDate) => {
+        selectedDate.value = newDate
+      }
+    )
 
-const formattedDate = computed(() => {
-  return selectedDate.value ? selectedDate.value.toLocaleDateString('en') : ''
-})
+    watch(selectedDate, (newDate) => {
+      emit('update:modelValue', newDate)
+    })
 
-watch(modelValue, (newDate) => {
-  selectedDate.value = newDate
-})
-
-watch(selectedDate, (newDate) => {
-  emit('update:modelValue', newDate)
-})
+    return {
+      isMenuOpen,
+      selectedDate,
+      formattedDate,
+    }
+  },
+}
 </script>
 <style>
 .v-overlay__content:has(> .v-date-picker) {

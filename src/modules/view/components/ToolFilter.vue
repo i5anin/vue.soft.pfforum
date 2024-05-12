@@ -42,6 +42,17 @@ import { mapActions, mapMutations, mapGetters } from 'vuex'
 import store from '@/store/store'
 
 export default {
+  data() {
+    return {
+      searchQuery: '',
+      openDialog: false,
+      isDataLoaded: false,
+      editingToolId: null, //редактирование идентификатора инструмента
+      toolTableHeaders: [], //заголовки таблиц инструментов
+      filterParamsList: [],
+      debouncedSearch: null,
+    }
+  },
   computed: {
     ...mapGetters('ViewToolStore', [
       'toolsTotalCount',
@@ -59,17 +70,6 @@ export default {
       }
       return result
     },
-  },
-  data() {
-    return {
-      searchQuery: '',
-      openDialog: false,
-      isDataLoaded: false,
-      editingToolId: null, //редактирование идентификатора инструмента
-      toolTableHeaders: [], //заголовки таблиц инструментов
-      filterParamsList: [],
-      debouncedSearch: null,
-    }
   },
 
   async mounted() {

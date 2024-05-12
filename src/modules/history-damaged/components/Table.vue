@@ -40,6 +40,7 @@ export default {
   components: {
     EditToolModal: HistoryDamagedModal,
   },
+  emits: ['changes-saved'],
 
   data() {
     return {

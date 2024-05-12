@@ -25,7 +25,7 @@
 <script>
 export default {
   props: {
-    item: Object,
+    item: { type: Object, default: () => ({}) },
   },
   methods: {
     navigate() {

@@ -91,7 +91,6 @@ export default {
   props: {
     persistent: { type: Boolean, default: false },
     toolId: { type: Number, default: null },
-    radiusOptions: { type: Array },
   },
   emits: ['canceled', 'changes-saved'],
   data: () => ({
@@ -128,6 +127,19 @@ export default {
       numberType: [],
     },
   }),
+  computed: {
+    ...mapGetters('IssueToolStore', ['nameOptions', 'tool']),
+    ...mapState('IssueToolStore', ['parentCatalog']),
+    currentFolderName() {
+      return this.toolId === null ? this.idParent.label : this.tool.folder_name
+    },
+
+    popupTitle() {
+      return this.tool?.id != null
+        ? `Инструмент поврежден ID: ${this.tool.id}`
+        : 'Ошибка нет ID'
+    },
+  },
   watch: {
     'tool.sklad': function (newVal) {
       console.log('tool.sklad changed from ', newVal)
@@ -188,19 +200,6 @@ export default {
     }
   },
 
-  computed: {
-    ...mapGetters('IssueToolStore', ['nameOptions', 'tool']),
-    ...mapState('IssueToolStore', ['parentCatalog']),
-    currentFolderName() {
-      return this.toolId === null ? this.idParent.label : this.tool.folder_name
-    },
-
-    popupTitle() {
-      return this.tool?.id != null
-        ? `Инструмент поврежден ID: ${this.tool.id}`
-        : 'Ошибка нет ID'
-    },
-  },
   methods: {
     ...mapMutations('IssueToolStore', ['setTool']),
     ...mapActions('IssueToolStore', ['fetchToolsByFilter', 'fetchToolById']),

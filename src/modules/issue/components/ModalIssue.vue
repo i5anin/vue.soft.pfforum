@@ -191,6 +191,26 @@ export default {
       },
     },
   },
+  async created() {
+    try {
+      const fioData = await issueToolApi.getDetailFio()
+      this.fioOptions = this.prepareFioOptions(fioData)
+    } catch (error) {
+      console.error('Ошибка при загрузке данных ФИО:', error)
+    }
+    // Дополнительное логирование состояния после обработки
+    this.initializeLocalState()
+    if (this.toolId == null) {
+      this.setTool({
+        id: null,
+        name: null,
+        property: {},
+      })
+    } else {
+      await this.fetchToolById(this.toolId)
+      if (this.tool.property === null) this.tool.property = {}
+    }
+  },
   methods: {
     ...mapActions('IssueToolStore', ['fetchToolsByFilter', 'fetchToolById']),
     ...mapMutations('IssueToolStore', ['setTool']),
@@ -334,26 +354,6 @@ export default {
         )
       }
     },
-  },
-  async created() {
-    try {
-      const fioData = await issueToolApi.getDetailFio()
-      this.fioOptions = this.prepareFioOptions(fioData)
-    } catch (error) {
-      console.error('Ошибка при загрузке данных ФИО:', error)
-    }
-    // Дополнительное логирование состояния после обработки
-    this.initializeLocalState()
-    if (this.toolId == null) {
-      this.setTool({
-        id: null,
-        name: null,
-        property: {},
-      })
-    } else {
-      await this.fetchToolById(this.toolId)
-      if (this.tool.property === null) this.tool.property = {}
-    }
   },
 }
 </script>

@@ -47,7 +47,7 @@ import { format, parseISO } from 'date-fns' // Импортируем API
 export default {
   data() {
     return {
-      tool: { date_end: '', date_start: '' },
+      // tool здесь было удалено, поскольку оно не используется в области данных
       toolGroups: [],
       visibleGroups: [],
     }
@@ -57,7 +57,7 @@ export default {
   },
   methods: {
     formatDate(date) {
-      if (!date) return
+      if (!date) return ''
       return format(parseISO(date), 'dd.MM.yyyy HH:mm') // Формат dd.MM.yyyy, например, 06.05.2024
     },
     async fetchZakazData() {

@@ -118,6 +118,7 @@ import { issueHistoryApi } from '@/modules/history-issue/api/history'
 
 export default {
   components: { EditToolModal },
+  emits: ['error'],
   data() {
     return {
       toolOptions: [],

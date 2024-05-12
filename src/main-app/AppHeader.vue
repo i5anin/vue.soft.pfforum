@@ -94,9 +94,6 @@ export default {
     isHovered: false,
     userInfo: {},
   }),
-  async created() {
-    this.userInfo = await authApi.checkLogin()
-  },
   computed: {
     ...mapState('IssueToolStore', ['isModalOpen']),
     ...mapGetters({ cartItems: 'IssueToolStore/cartItems' }),
@@ -124,6 +121,10 @@ export default {
       return []
     },
   },
+  async created() {
+    this.userInfo = await authApi.checkLogin()
+  },
+
   methods: {
     ...mapActions('IssueToolStore', ['openModal', 'closeModal']),
 

@@ -158,6 +158,44 @@ export default {
       },
     },
   },
+  async created() {
+    await this.fetchToolMovement()
+    await this.fetchToolParamsByParentId(this.parentCatalog.id)
+    await this.fetchToolNamesByParentId(this.parentCatalog.id)
+    try {
+      // Получение списка параметров инструмента
+      const rawToolParams = await getToolParams()
+      this.toolParams = [...rawToolParams]
+      this.toolParamOptions = rawToolParams.map((param) => param.info) // Предполагается, что каждый параметр содержит поле info
+
+      // Если модель инструмента уже содержит выбранные параметры, обновите selectedParams
+      if (
+        this.toolModel.property &&
+        Object.keys(this.toolModel.property).length > 0
+      ) {
+        const propertyIds = Object.keys(this.toolModel.property)
+        this.selectedParams = this.toolParams
+          .filter((param) => propertyIds.includes(String(param.id)))
+          .map((param) => param.info)
+      }
+    } catch (error) {
+      console.error('Ошибка при загрузке параметров инструмента:', error)
+    }
+
+    // this.initializeLocalState()
+    if (this.toolId == null) {
+      this.setTool({
+        id: null,
+        name: null,
+        property: {},
+      })
+    } else {
+      await this.fetchToolById(this.toolId)
+      if (this.tool && this.tool.property === null) {
+        this.tool.property = {}
+      }
+    }
+  },
   methods: {
     ...mapActions('EditorToolStore', ['fetchToolsByFilter', 'fetchToolById']),
     ...mapMutations('EditorToolStore', ['setTool']),
@@ -339,44 +377,6 @@ export default {
         )
       }
     },
-  },
-  async created() {
-    this.fetchToolMovement()
-    await this.fetchToolParamsByParentId(this.parentCatalog.id)
-    await this.fetchToolNamesByParentId(this.parentCatalog.id)
-    try {
-      // Получение списка параметров инструмента
-      const rawToolParams = await getToolParams()
-      this.toolParams = [...rawToolParams]
-      this.toolParamOptions = rawToolParams.map((param) => param.info) // Предполагается, что каждый параметр содержит поле info
-
-      // Если модель инструмента уже содержит выбранные параметры, обновите selectedParams
-      if (
-        this.toolModel.property &&
-        Object.keys(this.toolModel.property).length > 0
-      ) {
-        const propertyIds = Object.keys(this.toolModel.property)
-        this.selectedParams = this.toolParams
-          .filter((param) => propertyIds.includes(String(param.id)))
-          .map((param) => param.info)
-      }
-    } catch (error) {
-      console.error('Ошибка при загрузке параметров инструмента:', error)
-    }
-
-    // this.initializeLocalState()
-    if (this.toolId == null) {
-      this.setTool({
-        id: null,
-        name: null,
-        property: {},
-      })
-    } else {
-      await this.fetchToolById(this.toolId)
-      if (this.tool && this.tool.property === null) {
-        this.tool.property = {}
-      }
-    }
   },
 }
 </script>

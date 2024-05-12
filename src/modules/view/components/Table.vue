@@ -84,6 +84,16 @@ export default {
     },
   },
   emits: [],
+  data() {
+    return {
+      openDialog: false,
+      isDataLoaded: false,
+      editingToolId: null, //редактирование идентификатора инструмента
+      toolTableHeaders: [], //заголовки таблиц инструментов
+      filterParamsList: [],
+    }
+  },
+
   computed: {
     ...mapGetters('ViewToolStore', [
       'toolsTotalCount',
@@ -93,15 +103,6 @@ export default {
       'parentCatalog',
       'isLoading',
     ]),
-  },
-  data() {
-    return {
-      openDialog: false,
-      isDataLoaded: false,
-      editingToolId: null, //редактирование идентификатора инструмента
-      toolTableHeaders: [], //заголовки таблиц инструментов
-      filterParamsList: [],
-    }
   },
   watch: {
     'parentCatalog.id'(newId) {

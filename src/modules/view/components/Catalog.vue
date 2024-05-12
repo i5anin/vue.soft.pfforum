@@ -58,6 +58,15 @@ export default {
       editableLabel: '',
     }
   },
+  computed: {
+    ViewToolStore() {
+      return ViewToolStore
+    },
+    ...mapGetters('ViewToolStore', ['parentCatalog']),
+    isTableShown() {
+      return this.parentCatalog.id !== 1
+    },
+  },
   watch: {
     currentItem: {
       handler(currentItem) {
@@ -69,14 +78,13 @@ export default {
       },
     },
   },
-  computed: {
-    ViewToolStore() {
-      return ViewToolStore
-    },
-    ...mapGetters('ViewToolStore', ['parentCatalog']),
-    isTableShown() {
-      return this.parentCatalog.id !== 1
-    },
+
+  async created() {
+    const toolsTree = await toolTreeApi.getTree()
+    if (toolsTree && toolsTree.length > 0) {
+      this.currentItem = toolsTree[0]
+      this.tree.push(this.currentItem)
+    }
   },
   methods: {
     ...mapMutations('ViewToolStore', ['setParentCatalog']),
@@ -209,13 +217,6 @@ export default {
       this.tree = this.tree.slice(0, index + 1)
       this.currentItem = this.tree[index]
     },
-  },
-  async created() {
-    const toolsTree = await toolTreeApi.getTree()
-    if (toolsTree && toolsTree.length > 0) {
-      this.currentItem = toolsTree[0]
-      this.tree.push(this.currentItem)
-    }
   },
 }
 </script>
