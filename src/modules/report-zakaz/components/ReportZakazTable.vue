@@ -14,7 +14,7 @@
             v-if="checkTools(group)"
             icon="mdi-folder-alert"
             start
-            color="red-lighten-2"
+            color="orange"
             title="Есть позиции менее 50%"
           />
         </template>
@@ -42,14 +42,8 @@
               <td class="grey">{{ toolIndex + 1 }}</td>
               <td
                 :style="{
-                  'text-decoration':
-                    ((1 - tool.sklad / tool.norma) * 100).toFixed(2) >= 50
-                      ? 'underline'
-                      : 'none',
-                  'text-decoration-color':
-                    ((1 - tool.sklad / tool.norma) * 100).toFixed(2) >= 50
-                      ? 'red'
-                      : '',
+                  color:
+                    (1 - tool.sklad / tool.norma) * 100 >= 50 ? 'orange' : '',
                 }"
               >
                 {{ tool.name }}
@@ -58,7 +52,8 @@
                   size="x-small"
                   :color="getColorForGroup(tool.group_id)"
                   :title="'Группа ' + tool.group_id"
-                  >G{{ tool.group_id }}
+                >
+                  G{{ tool.group_id }}
                 </v-chip>
               </td>
               <td>
@@ -84,7 +79,7 @@
                 :style="{
                   color:
                     ((1 - tool.sklad / tool.norma) * 100).toFixed(0) >= 50
-                      ? 'red'
+                      ? 'orange'
                       : 'grey',
                 }"
               >
@@ -179,5 +174,9 @@ export default {
 
 .mw300 {
   min-width: 300px;
+}
+
+.red {
+  color: #f44336;
 }
 </style>
