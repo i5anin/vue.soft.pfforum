@@ -11,7 +11,7 @@ export const issueHistoryApi = {
   fetchHistoryByPartId: async (partId, selectedDate) =>
     axiosInstance
       .get(`/history-part`, {
-        params: { id_part: partId, selectedDate: selectedDate },
+        params: { id_part: partId, selected_date: selectedDate },
       })
       .then(handleResponse)
       .catch(handleApiError),
