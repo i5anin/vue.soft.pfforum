@@ -71,7 +71,7 @@
           <tbody>
             <tr v-for="(cartItem, index) in cartItems" :key="cartItem.id">
               <td class="gray">{{ index + 1 }}</td>
-              <td>{{ item.name }}</td>
+              <td>{{ cartItem.name }}</td>
               <td>
                 <div class="d-flex align-center">
                   <v-btn
@@ -95,7 +95,7 @@
                   </v-btn>
                 </div>
               </td>
-              <td>{{ item.sklad }}</td>
+              <td>{{ cartItem.sklad }}</td>
               <td>
                 <v-btn
                   class="hover-effect-grey"
