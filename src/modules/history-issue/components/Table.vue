@@ -137,7 +137,7 @@ export default {
       totalCount: 0,
       headers: [
         { title: '', value: 'check', sortable: false },
-        { title: 'ID партии', value: 'id_part', sortable: false },
+        { title: 'Партия', value: 'id_part', sortable: false },
         { title: 'Название', value: 'name', sortable: false, width: '300px' },
         { title: 'Обозначение', value: 'description', sortable: false },
         {

@@ -14,7 +14,7 @@
           <v-col>
             <v-text-field
               variant="outlined"
-              label="поиск детали по ID партии"
+              label="поиск детали по партии"
               required
               @update:model-value="onIdChanged"
             />

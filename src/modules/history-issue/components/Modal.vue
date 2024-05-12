@@ -12,29 +12,23 @@
                   class="mr-2"
                   title="В архиве"
                 />
-                <h2
-                  v-if="info"
-                  :class="{ 'text-grey': info.is_archive }"
-                  class="text-h5 my-0"
-                >
-                  {{ info.name }} - {{ info.description }}
-                </h2>
               </v-col>
-
-              <v-col cols="auto">
+              <v-col class="d-flex align-center">
+                <!-- Обновить -->
                 <v-btn
                   color="blue darken-1"
                   variant="text"
-                  class="text-none text-subtitle-1"
+                  class="text-none text-subtitle-1 mr-4"
                   @click="fetchHistoryData"
                 >
                   Обновить
                 </v-btn>
-              </v-col>
-              <v-col v-if="userRole === 'Editor' || 'Admin'">
+
+                <!-- Архив (условие отображения перемещено непосредственно к v-checkbox) -->
                 <v-checkbox
+                  v-if="userRole === 'Editor' || userRole === 'Admin'"
                   v-model="info.is_archive"
-                  label="Добавлен в архив"
+                  label="Архив"
                   @change="toggleArchiveStatus"
                 />
               </v-col>
@@ -230,7 +224,7 @@ export default {
   computed: {
     popupTitle() {
       return this.info
-        ? `Инструмент затраченный на партию: ${this.idPart}`
+        ? `${this.info.name} ${this.info.description} (партия ${this.idPart})`
         : 'Информация о партии'
     },
     currentHeaders() {
