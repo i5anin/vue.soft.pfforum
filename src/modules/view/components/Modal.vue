@@ -2,9 +2,9 @@
   <Modal :title="popupTitle" width-default="1550px">
     <template #content>
       <v-container>
-        <span v-if="cartItems && cartItems.length > 0">
-          {{ cartItems[0]?.name }}
-        </span>
+        <!--        <span v-if="cartItems && cartItems.length > 0">-->
+        <!--          {{ cartItems[0]?.name }}-->
+        <!--        </span>-->
         <v-table hover>
           <thead>
             <tr>
@@ -141,7 +141,7 @@ export default {
     },
     popupTitle() {
       return this.tool?.id != null
-        ? `Движение инструмента на складе ID: ${this.tool.id}`
+        ? `Движение инструмента на складе: ${this.cartItems[0]?.name} (ID: ${this.tool.id})`
         : 'Движение инструмента'
     },
   },

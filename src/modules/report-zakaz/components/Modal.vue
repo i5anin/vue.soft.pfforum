@@ -2,9 +2,9 @@
   <Modal :title="popupTitle" width-default="1550px">
     <template #content>
       <v-container>
-        <span v-if="cartItems && cartItems.length > 0">
-          {{ cartItems[0]?.name }}
-        </span>
+        <!--        <span v-if="cartItems && cartItems.length > 0">-->
+        <!--          {{ cartItems[0]?.name }}-->
+        <!--        </span>-->
         <v-table hover>
           <thead>
             <tr>
@@ -65,8 +65,8 @@
 import Modal from '@/modules/shared/components/Modal.vue'
 import { getToolParams } from '@/api'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
+import { editorToolApi } from '../api/view'
 import { format, parseISO } from 'date-fns'
-import { editorToolApi } from '@/modules/view/api/view'
 
 // editorToolApi.getToolMovementById - содержит данные просто их вставь!
 
@@ -141,7 +141,7 @@ export default {
     },
     popupTitle() {
       return this.tool?.id != null
-        ? `Движение инструмента на складе ID: ${this.tool.id}`
+        ? `Движение инструмента на складе: ${this.cartItems[0]?.name} (ID: ${this.tool.id})`
         : 'Движение инструмента'
     },
   },
