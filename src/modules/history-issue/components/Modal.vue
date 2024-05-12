@@ -17,9 +17,7 @@
                   :class="{ 'text-grey': info.is_archive }"
                   class="text-h5 my-0"
                 >
-                  {{ info.name }}
-                  <br />
-                  {{ info.description }}
+                  {{ info.name }} - {{ info.description }}
                 </h2>
               </v-col>
 
