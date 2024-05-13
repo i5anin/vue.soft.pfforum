@@ -70,6 +70,24 @@
       @update:items-per-page="onUpdateItemsPerPage"
       @click:row="onInfoRow"
     >
+      <template #item.id_part="{ item }">
+        <td :class="{ 'item-in-archive': item.is_archive }">
+          {{ item.id_part }}
+        </td>
+      </template>
+      <template #item.name="{ item }">
+        <td :class="{ 'item-in-archive': item.is_archive }">{{ item.name }}</td>
+      </template>
+      <template #item.description="{ item }">
+        <td :class="{ 'item-in-archive': item.is_archive }">
+          {{ item.description }}
+        </td>
+      </template>
+      <template #item.first_issue_date="{ item }">
+        <td :class="{ 'item-in-archive': item.is_archive }">
+          {{ item.first_issue_date }}
+        </td>
+      </template>
       <template #item.check="{ item }">
         <span
           v-if="item.is_archive"
@@ -188,7 +206,7 @@ export default {
       baseDate.setHours(0, 0, 0, 0)
       // Установка времени на начало дня (полночь), чтобы избежать проблем с временными зонами
 
-      for (let i = 0; i < 30; i++) {
+      for (let i = 0; i < 90; i++) {
         const date = new Date(baseDate)
         date.setDate(baseDate.getDate() - i) // Вычитаем дни для создания истории дат
         // Подготовка даты с учетом смещения временной зоны на +3 часа (переводим в UTC)
@@ -289,5 +307,9 @@ export default {
 .check-icon--large--gray {
   font-size: 24px; /* или любой другой размер, который вам нужен */
   color: #848484; /* Пример синего цвета */
+}
+
+.item-in-archive {
+  color: #848484; /* Цвет текста серый */
 }
 </style>
