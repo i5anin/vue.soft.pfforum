@@ -53,7 +53,9 @@
             size="x-small"
             :color="getColorForGroup(item.group_id)"
             :title="'Группа ' + item.group_id"
-            >G{{ item.group_id }}</v-chip
+          >
+            <span v-if="item.group_standard" style="color: yellow">★</span>
+            G{{ item.group_id }}</v-chip
           >
         </td>
       </template>

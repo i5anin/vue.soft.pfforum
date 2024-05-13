@@ -5,17 +5,21 @@
         <v-row>
           <v-col>
             <v-row>
-              <v-col cols="5">
+              <v-col cols="6">
                 <v-text-field
                   v-model="parentCatalog.label"
                   label="Папка"
+                  variant="solo"
+                  density="compact"
                   required
                   type="Text"
                   :disabled="true"
                 />
               </v-col>
-              <v-col cols="3">
+              <v-col cols="6">
                 <v-text-field
+                  variant="solo"
+                  density="compact"
                   v-model="parentCatalog.id"
                   label="ID папки"
                   required
@@ -23,10 +27,21 @@
                   :rules="parentIdRules"
                 />
               </v-col>
-              <v-col cols="3">
+            </v-row>
+            <v-row>
+              <v-col cols="6" class="pl-10">
+                <v-checkbox
+                  v-model="toolModel.group_standard"
+                  label="Эталон группы"
+                  color="yellow"
+                />
+              </v-col>
+              <v-col cols="6">
                 <v-text-field
                   v-model="toolModel.group_id"
                   label="ID группы"
+                  variant="solo"
+                  density="compact"
                   required
                   type="Number"
                 />
@@ -67,6 +82,7 @@
                       density="compact"
                       :items="toolParamsOptions[param.id]"
                       label="Значение"
+                      variant="outlined"
                       clearable="true"
                       single-line="true"
                       solo
@@ -98,7 +114,6 @@
                 <v-text-field
                   v-model="toolModel.norma"
                   type="number"
-                  density="compact"
                   label="Нормативный запас"
                   required
                 />
@@ -107,7 +122,6 @@
                 <v-text-field
                   v-model="toolModel.sklad"
                   type="number"
-                  density="compact"
                   label="Склад"
                   required
                 />
@@ -179,6 +193,7 @@ export default {
         name: null,
         property: {},
         group_id: null,
+        group_standard: null,
         sklad: null,
         norma: null,
       },
@@ -361,6 +376,8 @@ export default {
         sklad: null,
         norma: null,
         property: {},
+        group_id: 0,
+        group_standard: null,
       }
     },
     addParameterValuePair() {
@@ -380,16 +397,6 @@ export default {
       if (this.tool) {
         this.toolModel = JSON.parse(JSON.stringify(this.tool))
       }
-    },
-    prependOptionIfNeeded(value, optionsList) {
-      if (value && !optionsList.some((option) => option.value === value))
-        optionsList.unshift(value)
-    },
-    prepareFioOptions(fioData) {
-      return fioData.map((item) => ({
-        text: item.fio,
-        value: item.id,
-      }))
     },
     confirmDelete() {
       if (window.confirm('Вы уверены, что хотите удалить этот инструмент?'))

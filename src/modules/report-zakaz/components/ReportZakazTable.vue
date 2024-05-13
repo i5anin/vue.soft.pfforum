@@ -53,6 +53,9 @@
                   :color="getColorForGroup(tool.group_id)"
                   :title="'Группа ' + tool.group_id"
                 >
+                  <span v-if="tool.group_standard" style="color: yellow"
+                    >★</span
+                  >
                   G{{ tool.group_id }}
                 </v-chip>
               </td>
