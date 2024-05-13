@@ -224,7 +224,8 @@ async function addToArchive(req, res) {
 
     if (
       userRoleResult.rows.length === 0 ||
-      userRoleResult.rows[0].role !== 'Editor'
+      userRoleResult.rows[0].role !== 'Editor' ||
+      'Admin'
     ) {
       return res.status(403).send('Доступ запрещен. Требуется роль Editor.')
     }

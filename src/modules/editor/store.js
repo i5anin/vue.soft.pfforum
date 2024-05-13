@@ -85,6 +85,9 @@ export default {
     },
 
     async fetchToolsByFilter({ commit, state }) {
+      // Прежде всего сохраняем текущее состояние выбранных фильтров
+      const selectedFilters = { ...state.filters.selectedDynamicFilters }
+      console.log('FetchToolsByFilter', commit, state.filters)
       commit('setIsLoading', true)
       const {
         currentPage,
@@ -121,6 +124,8 @@ export default {
         )
         commit('setTools', tools)
         commit('setToolsTotalCount', totalCount)
+        // Восстанавливаем выбранные фильтры в состояние после загрузки данных
+        commit('setSelectedDynamicFilters', selectedFilters)
       } catch (error) {
         console.error('getTools. Ошибка при получении данных:', error)
       } finally {
