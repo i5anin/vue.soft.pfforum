@@ -259,7 +259,7 @@ export default {
       const archiveState = this.info.is_archive
       const token = localStorage.getItem('token') // Получаем токен из localStorage
       try {
-        await issueHistoryApi.addToArchive(this.id_part, archiveState, token)
+        await issueHistoryApi.addToArchive(this.idPart, archiveState, token)
         alert(`Статус архива для idPart ${this.idPart} успешно обновлен.`)
         await this.fetchHistoryData()
       } catch (error) {
