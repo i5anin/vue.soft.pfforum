@@ -27,7 +27,7 @@ app.use(bodyParser.json())
 app.use(cors())
 app.use('/api', routers)
 
-app.use((err, req, res) => {
+app.use((err, req, res, next) => {
   console.error(err.stack)
   res.status(err.status || 500).send({
     status: err.status || 500,

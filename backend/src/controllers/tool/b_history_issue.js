@@ -185,8 +185,6 @@ async function getAllIssuedToolIdsWithNames(req, res) {
 }
 
 async function getToolMovementById(req, res) {
-  console.log('Функция getToolMovementById вызвана')
-
   const toolId = req.params.id // Получаем id инструмента из параметров запроса
 
   try {

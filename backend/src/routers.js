@@ -21,6 +21,8 @@ const reportZakazController = require('./controllers/tool/reports/email/b_order_
 const reportVueZakazController = require('./controllers/tool/reports/vue/b_order_Instr')
 const reportVueBuhController = require('./controllers/tool/reports/vue/b_buch_week')
 
+const groupsController = require('./controllers/tool/b_group')
+
 // const excelZakazController = require('./controllers/tool/reports/excel/b_order_Instr')
 
 // Маршруты для аутентификации
@@ -67,6 +69,9 @@ router.get('/history/:id', historyController.getToolHistoryId)
 router.get('/history', historyController.getToolHistory)
 router.get('/history-all-tool', historyController.getAllIssuedToolIdsWithNames)
 router.get('/tool-movement/:id', historyController.getToolMovementById)
+
+//groups
+router.get('/tools-groups', groupsController.getGroupedTools)
 
 router.get('/history-part', historyControllerModal.getToolHistoryByPartId)
 router.post('/history-add-archive', historyControllerModal.addToArchive)

@@ -85,7 +85,8 @@ async function getTools(req, res) {
                tool_nom.property,
                tool_nom.sklad,
                tool_nom.norma,
-               tool_nom.group_id
+               tool_nom.group_id,
+               tool_nom.group_standard
         FROM dbo.tool_nom as tool_nom
             ${whereClause}
         ORDER BY
@@ -141,6 +142,7 @@ async function getTools(req, res) {
         sklad: tool.sklad,
         norma: tool.norma,
         group_id: tool.group_id,
+        group_standard: tool.group_standard,
       }
     })
 
@@ -227,7 +229,8 @@ async function deleteTool(req, res) {
 }
 
 async function addTool(req, res) {
-  const { name, parent_id, property, sklad, norma, group_id } = req.body
+  const { name, parent_id, property, sklad, norma, group_id, group_standard } =
+    req.body
   // Преобразование запятых в точки в числах в property
   replaceCommaWithDotInNumbers(property)
 
@@ -262,27 +265,21 @@ async function addTool(req, res) {
         .json({ error: 'Specified parent_id does not exist.' })
     }
 
-    // Проверка на существование group_id в базе данных (псевдокод, реализация зависит от структуры вашей БД)
-    if (group_id) {
-      const groupCheckResult = await pool.query(
-        'SELECT id FROM dbo.tool_groups WHERE id = $1',
-        [group_id]
-      )
-
-      if (groupCheckResult.rowCount === 0) {
-        return res.status(400).json({
-          error: 'Specified group_id does not exist.',
-        })
-      }
-    }
-
     const propertyWithoutNull = removeNullProperties(property)
     const propertyString = JSON.stringify(propertyWithoutNull)
 
+    // Если group_standard == true, то необходимо сбросить флаг эталонного инструмента для предыдущего эталона в той же группе
+    if (group_standard && group_id) {
+      await pool.query(
+        'UPDATE dbo.tool_nom SET group_standard = false WHERE group_id = $1',
+        [group_id]
+      )
+    }
+
     const toolInsertResult = await pool.query(
-      'INSERT INTO dbo.tool_nom (name, parent_id, property, sklad, norma, group_id) ' +
-        'VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
-      [name, parent_id, propertyString, sklad, norma, group_id]
+      'INSERT INTO dbo.tool_nom (name, parent_id, property, sklad, norma, group_id, group_standard) ' +
+        'VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
+      [name, parent_id, propertyString, sklad, norma, group_id, group_standard]
     )
 
     const toolId = toolInsertResult.rows[0].id
@@ -294,7 +291,6 @@ async function addTool(req, res) {
       [logMessage, toolId, sklad]
     )
 
-    // Получение полной информации о добавленном инструмента
     const newToolResult = await pool.query(
       'SELECT * FROM dbo.tool_nom WHERE id = $1',
       [toolId]
@@ -320,8 +316,9 @@ async function editTool(req, res) {
     sklad: newSklad,
     norma,
     group_id,
+    group_standard,
   } = req.body
-  // Преобразование запятых в точки в числах в property
+
   replaceCommaWithDotInNumbers(property)
 
   try {
@@ -355,7 +352,6 @@ async function editTool(req, res) {
         .json({ error: 'Specified parent_id does not exist.' })
     }
 
-    // Получение текущего значения на складе
     const currentSkladResult = await pool.query(
       'SELECT sklad FROM dbo.tool_nom WHERE id = $1',
       [id]
@@ -368,18 +364,32 @@ async function editTool(req, res) {
     }
 
     const oldSklad = currentSkladResult.rows[0].sklad
-
     const propertyWithoutNull = removeNullProperties(property)
     const propertyString = JSON.stringify(propertyWithoutNull)
 
-    // Обновление инструмента с новым значением на складе
+    if (group_standard) {
+      // Сброс флага group_standard для всех инструментов в группе
+      await pool.query(
+        'UPDATE dbo.tool_nom SET group_standard=false WHERE group_id=$1 AND id<>$2',
+        [group_id, id]
+      )
+    }
+
     const result = await pool.query(
-      'UPDATE dbo.tool_nom SET name=$1, parent_id=$2, property=$3, sklad=$4, norma=$5, group_id=$7 WHERE id=$6 RETURNING *',
-      [name, parent_id, propertyString, newSklad, norma, id, group_id]
+      'UPDATE dbo.tool_nom SET name=$1, parent_id=$2, property=$3, sklad=$4, norma=$5, group_id=$7, group_standard=$8 WHERE id=$6 RETURNING *',
+      [
+        name,
+        parent_id,
+        propertyString,
+        newSklad,
+        norma,
+        id,
+        group_id,
+        group_standard,
+      ]
     )
 
     if (result.rowCount > 0) {
-      // Логирование изменений на складе (old_amount и new_amount)
       await pool.query(
         'INSERT INTO dbo.vue_log (message, tool_id, datetime_log, old_amount, new_amount) VALUES ($1, $2, NOW(), $3, $4)',
         [`Обновлен ID инструмента ${id}`, id, oldSklad, newSklad]
@@ -420,6 +430,7 @@ async function getToolById(req, res) {
         property: toolData.property,
         sklad: toolData.sklad,
         group_id: toolData.group_id,
+        group_standard: toolData.group_standard,
         norma: toolData.norma,
       }
 
