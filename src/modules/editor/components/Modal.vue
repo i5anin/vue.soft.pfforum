@@ -112,6 +112,7 @@
             <v-row>
               <v-col cols="6">
                 <v-text-field
+                  :disabled="toolModel.group_id && !toolModel.group_standard"
                   v-model="toolModel.norma"
                   type="number"
                   label="Нормативный запас"

@@ -1,10 +1,11 @@
 <template>
   <!--  {{ this.toolGroups }}-->
-  <zakaz-tool-modal
+  <groups-tool-modal
     v-if="openDialog"
     :persistent="true"
     :tool-id="editingToolId"
     @canceled="onClosePopup"
+    @changes-saved="modalSaved"
   />
   <div>
     <div v-for="(group, index) in toolGroups" :key="index" class="tool-group">
@@ -58,10 +59,10 @@
 
 <script>
 import { toolGroupsApi } from '../api/groups' // Импортируем API
-import ZakazToolModal from './Modal.vue'
+import GroupsToolModal from './Modal.vue'
 
 export default {
-  components: { ZakazToolModal },
+  components: { GroupsToolModal },
   data() {
     return {
       toolGroups: [],
@@ -72,7 +73,7 @@ export default {
     }
   },
   mounted() {
-    this.fetchZakazData()
+    this.fetchGroupsData()
   },
   computed: {
     totalForEachGroup() {
@@ -95,6 +96,10 @@ export default {
     },
   },
   methods: {
+    modalSaved() {
+      this.openDialog = false
+      this.fetchGroupsData()
+    },
     editTool(toolId) {
       this.editingToolId = toolId
       this.openDialog = true
@@ -106,7 +111,7 @@ export default {
       const hue = index * 137.508 // используем золотое сечение
       return `hsl(${hue % 360}, 50%, 50%)`
     },
-    async fetchZakazData() {
+    async fetchGroupsData() {
       try {
         this.toolGroups = await toolGroupsApi.getToolGroups()
       } catch (error) {
