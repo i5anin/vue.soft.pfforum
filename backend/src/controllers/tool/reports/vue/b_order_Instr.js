@@ -12,22 +12,22 @@ async function getTableReportData(req, res) {
                      TreePath AS (SELECT id,
                                          name,
                                          parent_id,
-                                         name AS path -- Начальный путь это просто имя текущей записи
+                                         name AS path
                                   FROM dbo.tool_tree
-                                  WHERE parent_id = 1 -- Стартуем с корня иерархии
+                                  WHERE parent_id = 1
 
                                   UNION ALL
 
                                   SELECT tt.id,
                                          tt.name,
                                          tt.parent_id,
-                                         CONCAT(tp.path, ' / ', tt.name) -- Строим путь, добавляя имя текущей записи
+                                         CONCAT(tp.path, ' / ', tt.name)
                                   FROM dbo.tool_tree tt
                                          JOIN TreePath tp ON tt.parent_id = tp.id),
                      damaged AS (SELECT tool_nom.id                                     AS id_tool,
                                         tool_nom.parent_id,
                                         tool_nom.group_id,
-                                        tool_nom.group_standard, -- Добавляем стандарт группы
+                                        tool_nom.group_standard,
                                         tool_nom.name,
                                         tool_nom.sklad,
                                         tool_nom.norma,
