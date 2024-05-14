@@ -78,12 +78,6 @@ export default {
       const hue = index * 137.508 // используем золотое сечение
       return `hsl(${hue % 360}, 50%, 50%)`
     },
-    getRoundedCount(count) {
-      if (count < 10) return 10
-      return count % 10 < 5
-        ? Math.floor(count / 10) * 10
-        : Math.ceil(count / 10) * 10
-    },
     async fetchZakazData() {
       try {
         this.toolGroups = await toolGroupsApi.getToolGroups()

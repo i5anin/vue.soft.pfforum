@@ -87,7 +87,6 @@ export default {
     async fetchToolsByFilter({ commit, state }) {
       // Прежде всего сохраняем текущее состояние выбранных фильтров
       const selectedFilters = { ...state.filters.selectedDynamicFilters }
-      console.log('FetchToolsByFilter', commit, state.filters)
       commit('setIsLoading', true)
       const {
         currentPage,
