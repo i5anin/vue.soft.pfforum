@@ -15,36 +15,33 @@ async function getTableReportData(req, res) {
                                          name AS path
                                   FROM dbo.tool_tree
                                   WHERE parent_id = 1
-
                                   UNION ALL
-
                                   SELECT tt.id,
                                          tt.name,
                                          tt.parent_id,
                                          CONCAT(tp.path, ' / ', tt.name)
                                   FROM dbo.tool_tree tt
                                          JOIN TreePath tp ON tt.parent_id = tp.id),
-                     damaged AS (SELECT tool_nom.id                                     AS id_tool,
-                                        tool_nom.parent_id,
-                                        tool_nom.group_id,
-                                        tool_nom.group_standard,
-                                        tool_nom.name,
-                                        tool_nom.sklad,
-                                        tool_nom.norma,
-                                        tool_nom.norma - tool_nom.sklad                 AS zakaz,
-                                        COALESCE(SUM(tool_history_damaged.quantity), 0) AS damaged_last_7_days
+                     totals AS (SELECT group_id,
+                                        SUM(sklad) AS group_total_sklad
                                  FROM dbo.tool_nom
-                                        LEFT JOIN dbo.tool_history_damaged ON tool_nom.id = tool_history_damaged.id_tool
-                                   AND tool_history_damaged.timestamp >= CURRENT_DATE - INTERVAL '7 days'
-                                 WHERE tool_nom.norma IS NOT NULL
-                                   AND (tool_nom.norma - tool_nom.sklad) > 0
-                                 GROUP BY tool_nom.id,
-                                          tool_nom.parent_id,
-                                          tool_nom.name,
-                                          tool_nom.sklad,
-                                          tool_nom.norma,
-                                          tool_nom.group_id,
-                                          tool_nom.group_standard)
+                                 GROUP BY group_id),
+                     damaged AS (SELECT tn.id                                     AS id_tool,
+                                        tn.parent_id,
+                                        tn.group_id,
+                                        tn.group_standard,
+                                        tn.name,
+                                        tn.sklad,
+                                        tn.norma,
+                                        tn.norma - tn.sklad                      AS zakaz,
+                                        COALESCE(SUM(thd.quantity), 0)           AS damaged_last_7_days,
+                                        t.group_total_sklad                      AS group_sum
+                                 FROM dbo.tool_nom tn
+                                 LEFT JOIN dbo.tool_history_damaged thd ON tn.id = thd.id_tool
+                                 AND thd.timestamp >= CURRENT_DATE - INTERVAL '7 days'
+                                 LEFT JOIN totals t ON tn.group_id = t.group_id
+                                 WHERE tn.norma - tn.sklad > 0
+                                 GROUP BY tn.id, tn.parent_id, tn.name, tn.sklad, tn.norma, tn.group_id, tn.group_standard, t.group_total_sklad)
                    SELECT d.parent_id,
                           tp.path,
                           JSON_AGG(
@@ -56,7 +53,8 @@ async function getTableReportData(req, res) {
                               'zakaz', d.zakaz,
                               'damaged_last_7_days', d.damaged_last_7_days,
                               'group_id', d.group_id,
-                              'group_standard', d.group_standard
+                              'group_standard', d.group_standard,
+                              'group_sum', CASE WHEN d.group_standard THEN d.group_sum END
                             )
                           ) AS tools
                    FROM damaged d

@@ -29,6 +29,7 @@
               <th class="text-left mw300">Название</th>
               <th class="text-left mw50">Заказ</th>
               <th class="text-left mw50">Склад</th>
+              <th class="text-left mw50">Склад группы</th>
               <th class="text-left mw50">Норма</th>
               <th class="text-left mw50">Не хватает</th>
             </tr>
@@ -76,6 +77,7 @@
                 </template>
               </td>
               <td class="grey">{{ tool.sklad }}</td>
+              <td class="grey">{{ tool.group_sum }}</td>
               <td class="grey">{{ tool.norma }}</td>
               <td
                 class="grey"
