@@ -32,11 +32,12 @@
         <v-table hover dense>
           <thead>
             <tr>
-              <th class="text-left mw50">#</th>
-              <th class="text-left mw300">Инструмент</th>
-              <th class="text-left mw300">Расположение</th>
-              <th class="text-left mw300">Склад</th>
-              <th class="text-left mw300">Норма</th>
+              <th class="text-left mw25">#</th>
+              <th class="text-left mw200">Инструмент</th>
+              <th class="text-left mw200">Расположение</th>
+              <th class="text-left mw25">Склад</th>
+              <th class="text-left mw25">Норма</th>
+              <th class="text-left">Характеристики</th>
             </tr>
           </thead>
           <tbody>
@@ -52,7 +53,8 @@
               </td>
               <td>{{ tool.path }}</td>
               <td>{{ tool.sklad }}</td>
-              <td>{{ tool.norma }}</td>
+              <td>{{ toolIndex === 0 ? tool.norma : '' }}</td>
+              <td>{{ tool.property }}</td>
             </tr>
           </tbody>
         </v-table>
@@ -147,8 +149,16 @@ export default {
   min-width: 50px;
 }
 
+.mw25 {
+  min-width: 25px;
+}
+
 .mw300 {
   min-width: 300px;
+}
+
+.mw200 {
+  min-width: 200px;
 }
 
 .red {
