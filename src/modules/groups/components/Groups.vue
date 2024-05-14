@@ -18,6 +18,10 @@
       </v-chip>
       <v-chip variant="text" size="large" @click="toggleVisibility(index)">
         {{ group[0].name }}
+
+        <span v-if="!group[0].group_standard" class="pl-4 pr-2"
+          >(Эталон не установлен)</span
+        >
         <span class="grey pl-4 pr-2"> Склад группы: </span>
         {{ totalForEachGroup.totalsForEachGroup[group[0].group_id] }}
 
