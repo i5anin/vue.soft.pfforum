@@ -33,7 +33,10 @@ async function getTableReportData(req, res) {
                                         tn.name,
                                         tn.sklad,
                                         tn.norma,
-                                        tn.norma - tn.sklad                      AS zakaz,
+                                        CASE
+                                          WHEN t.group_total_sklad > 0 THEN GREATEST(tn.norma - t.group_total_sklad, 0)
+                                          ELSE GREATEST(tn.norma - tn.sklad, 0)
+                                        END                                            AS zakaz,
                                         COALESCE(SUM(thd.quantity), 0)           AS damaged_last_7_days,
                                         t.group_total_sklad                      AS group_sum
                                  FROM dbo.tool_nom tn
@@ -54,7 +57,7 @@ async function getTableReportData(req, res) {
                               'damaged_last_7_days', d.damaged_last_7_days,
                               'group_id', d.group_id,
                               'group_standard', d.group_standard,
-                              'group_sum', CASE WHEN d.group_standard THEN d.group_sum END
+                              'group_sum', d.group_sum
                             )
                           ) AS tools
                    FROM damaged d
