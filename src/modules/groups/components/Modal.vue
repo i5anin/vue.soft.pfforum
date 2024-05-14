@@ -7,7 +7,7 @@
             <v-row>
               <v-col cols="6">
                 <v-text-field
-                  v-model="parentCatalog.label"
+                  v-model="toolModel.folder_name"
                   label="Папка"
                   variant="solo"
                   density="compact"
@@ -20,7 +20,7 @@
                 <v-text-field
                   variant="solo"
                   density="compact"
-                  v-model="parentCatalog.id"
+                  v-model="toolModel.parent_id"
                   label="ID папки"
                   required
                   type="Number"
@@ -424,7 +424,7 @@ export default {
     async onSave() {
       const toolDataToSend = {
         ...this.toolModel,
-        parent_id: this.parentCatalog.id,
+        parent_id: this.toolModel.parent_id,
       }
       try {
         let response
