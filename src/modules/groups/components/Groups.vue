@@ -35,7 +35,11 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(tool, toolIndex) in group" :key="toolIndex">
+            <tr
+              v-for="(tool, toolIndex) in group"
+              :key="toolIndex"
+              @click="editTool(tool.id)"
+            >
               <td class="grey">{{ toolIndex + 1 }}</td>
               <td>
                 {{ tool.name }}
@@ -54,7 +58,7 @@
 
 <script>
 import { toolGroupsApi } from '../api/groups' // Импортируем API
-import ZakazToolModal from '@/modules/view/components/Modal.vue'
+import ZakazToolModal from './Modal.vue'
 
 export default {
   components: { ZakazToolModal },
@@ -91,6 +95,10 @@ export default {
     },
   },
   methods: {
+    editTool(toolId) {
+      this.editingToolId = toolId
+      this.openDialog = true
+    },
     onClosePopup() {
       this.openDialog = false
     },
