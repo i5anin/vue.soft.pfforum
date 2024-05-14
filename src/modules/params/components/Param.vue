@@ -14,11 +14,7 @@
           <v-card>
             <v-card-title>{{ dialogTitle }}</v-card-title>
             <v-card-text>
-              <v-text-field
-                v-model="paramInfo"
-                label="Название"
-                required
-              ></v-text-field>
+              <v-text-field v-model="paramInfo" label="Название" required />
             </v-card-text>
             <v-card-actions>
               <v-spacer />

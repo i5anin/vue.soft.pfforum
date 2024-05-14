@@ -8,20 +8,21 @@
   />
   <div>
     <div v-for="(group, index) in toolGroups" :key="index" class="tool-group">
+      <v-chip
+        v-if="group[0].group_id"
+        :color="getColorForGroup(group[0].group_id)"
+        :title="'Группа ' + group[0].group_id"
+      >
+        <!--          <span v-if="group[0].group_standard" style="color: yellow">★</span>-->
+        G{{ group[0].group_id }}
+      </v-chip>
       <v-chip variant="text" size="large" @click="toggleVisibility(index)">
-        <template #prepend>
-          <v-icon icon="mdi-box-cutter" start />
-        </template>
         {{ group[0].name }}
-        <v-chip
-          v-if="group[0].group_id"
-          size="x-small"
-          :color="getColorForGroup(group[0].group_id)"
-          :title="'Группа ' + group[0].group_id"
-        >
-          <!--          <span v-if="group[0].group_standard" style="color: yellow">★</span>-->
-          G{{ group[0].group_id }}
-        </v-chip>
+        <span class="grey"> Склад группы: </span>
+        {{ totalForEachGroup.totalsForEachGroup[group[0].group_id] }}
+
+        <span class="grey">Норма:</span>
+        {{ group[0].norma }}
       </v-chip>
       <div v-if="visibleGroups.includes(index)">
         <v-table hover dense>
@@ -30,6 +31,8 @@
               <th class="text-left mw50">#</th>
               <th class="text-left mw300">Инструмент</th>
               <th class="text-left mw300">Расположение</th>
+              <th class="text-left mw300">Склад</th>
+              <th class="text-left mw300">Норма</th>
             </tr>
           </thead>
           <tbody>
@@ -40,6 +43,8 @@
                 <span v-if="tool.group_standard" style="color: yellow">★</span>
               </td>
               <td>{{ tool.path }}</td>
+              <td>{{ tool.sklad }}</td>
+              <td>{{ tool.norma }}</td>
             </tr>
           </tbody>
         </v-table>
@@ -66,13 +71,29 @@ export default {
   mounted() {
     this.fetchZakazData()
   },
+  computed: {
+    totalForEachGroup() {
+      let totalSum = 0
+      const totals = Object.keys(this.toolGroups).reduce((acc, groupId) => {
+        // Используем Object.values чтобы получить массив инструментов каждой группы
+        const groupTotal = this.toolGroups[groupId].reduce(
+          (sum, tool) => sum + tool.sklad,
+          0
+        )
+        // Складываем общую сумму по всем группам
+        totalSum += groupTotal
+        // Записываем сумму для каждой группы
+        acc[groupId] = groupTotal
+        return acc
+      }, {})
+
+      // Возвращаем объект с суммами по каждой группе и общей суммой
+      return { totalsForEachGroup: totals, totalSum }
+    },
+  },
   methods: {
     onClosePopup() {
       this.openDialog = false
-    },
-    openToolModal(toolId) {
-      this.editingToolId = toolId
-      this.openDialog = true
     },
     getColorForGroup(index) {
       const hue = index * 137.508 // используем золотое сечение
@@ -116,5 +137,9 @@ export default {
 
 .red {
   color: #f44336;
+}
+
+.grey {
+  color: grey;
 }
 </style>
