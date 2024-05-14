@@ -13,15 +13,14 @@
         :color="getColorForGroup(group[0].group_id)"
         :title="'Группа ' + group[0].group_id"
       >
-        <!--          <span v-if="group[0].group_standard" style="color: yellow">★</span>-->
         G{{ group[0].group_id }}
       </v-chip>
       <v-chip variant="text" size="large" @click="toggleVisibility(index)">
         {{ group[0].name }}
-        <span class="grey"> Склад группы: </span>
+        <span class="grey pl-4 pr-2"> Склад группы: </span>
         {{ totalForEachGroup.totalsForEachGroup[group[0].group_id] }}
 
-        <span class="grey">Норма:</span>
+        <span class="grey pl-4 pr-2">Норма:</span>
         {{ group[0].norma }}
       </v-chip>
       <div v-if="visibleGroups.includes(index)">
