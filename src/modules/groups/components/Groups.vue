@@ -8,6 +8,7 @@
     @changes-saved="modalSaved"
   />
   <div>
+    <v-btn @click="toggleAllGroups">Развернуть все группы</v-btn>
     <div v-for="(group, index) in toolGroups" :key="index" class="tool-group">
       <v-chip
         v-if="group[0].group_id"
@@ -64,7 +65,7 @@
 </template>
 
 <script>
-import { toolGroupsApi } from '../api/groups' // Импортируем API
+import { toolGroupsApi } from '../api/groups'
 import GroupsToolModal from './Modal.vue'
 
 export default {
@@ -130,6 +131,16 @@ export default {
         this.visibleGroups.push(groupId)
       } else {
         this.visibleGroups.splice(visibleIndex, 1)
+      }
+    },
+    toggleAllGroups() {
+      if (this.visibleGroups.length === this.toolGroups.length) {
+        this.visibleGroups = [] // Свернуть все группы
+      } else {
+        this.visibleGroups = Array.from(
+          { length: this.toolGroups.length },
+          (_, i) => i
+        ) // Развернуть все группы
       }
     },
   },
