@@ -47,7 +47,14 @@
             @update:model-value="fetchAndFormatToolHistory"
           />
         </v-col>
-        <v-checkbox label="Добавить в выборку данные из архива"></v-checkbox>
+        <v-col cols="12" md="2" class="d-flex align-center">
+          <v-checkbox
+            v-model="showArchive"
+            :label="'Показать архив'"
+            hide-details
+            @change="fetchAndFormatToolHistory"
+          />
+        </v-col>
       </v-row>
     </div>
 
@@ -119,12 +126,6 @@
           class="mdi mdi-stop check-icon--large--yellow"
           title="Не в производстве"
         />
-        <v-checkbox
-          v-model="item.is_archive"
-          :label="item.is_archive ? 'В архиве' : 'В архиве'"
-          hide-details
-          @change="updateArchiveStatus(item.id_part, item.is_archive)"
-        />
       </template>
       <template #item.operation_status="{ item }">
         {{ item.ready_count }} / {{ item.operation_count }}
@@ -160,6 +161,7 @@ export default {
       toolsHistory: [],
       editingToolId: null,
       totalCount: 0,
+      showArchive: false, // Флаг для показа архива
       headers: [
         { title: '', value: 'check', sortable: false },
         { title: 'Партия', value: 'id_part', sortable: false },
