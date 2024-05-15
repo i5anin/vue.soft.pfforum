@@ -47,6 +47,7 @@
             @update:model-value="fetchAndFormatToolHistory"
           />
         </v-col>
+        <v-checkbox label="Добавить в выборку данные из архива"></v-checkbox>
       </v-row>
     </div>
 
@@ -117,6 +118,12 @@
           v-else-if="item.status_ready"
           class="mdi mdi-stop check-icon--large--yellow"
           title="Не в производстве"
+        />
+        <v-checkbox
+          v-model="item.is_archive"
+          :label="item.is_archive ? 'В архиве' : 'В архиве'"
+          hide-details
+          @change="updateArchiveStatus(item.id_part, item.is_archive)"
         />
       </template>
       <template #item.operation_status="{ item }">
@@ -252,7 +259,8 @@ export default {
           this.filters.currentPage,
           this.filters.itemsPerPage,
           this.selectedDate ? this.selectedDate : null,
-          this.selectedTool ? this.selectedTool.id_tool : null
+          this.selectedTool ? this.selectedTool.id_tool : null,
+          this.showArchive // Передаем флаг showArchive в API
         )
 
         this.toolsHistory = response.toolsHistory.map((tool) => ({
@@ -278,6 +286,16 @@ export default {
     onSaveChanges() {
       this.fetchAndFormatToolHistory()
       this.openDialog = false
+    },
+    async updateArchiveStatus(idPart, isArchive) {
+      try {
+        await issueHistoryApi.updateArchiveStatus(idPart, isArchive)
+        // Обновление данных в таблице после изменения статуса архива
+        await this.fetchAndFormatToolHistory()
+      } catch (error) {
+        console.error('Ошибка при обновлении статуса архива:', error)
+        this.$emit('error', error)
+      }
     },
   },
 }
