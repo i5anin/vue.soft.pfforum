@@ -8,22 +8,22 @@ function handleResponse(response) {
 export const reportApi = {
   genBuchWeek: async () =>
     axiosInstance
-      .get('/report/buch-week')
+      .get('/report/genBuchWeek')
       .then(handleResponse)
       .catch(handleApiError),
   genBuchEndOp: async () =>
     axiosInstance
-      .get('/report/buch-end-op')
+      .get('/report/genBuchEndOp')
       .then(handleResponse)
       .catch(handleApiError),
   genBuchMonth: async () =>
     axiosInstance
-      .get('/report/buch-month')
+      .get('/report/genBuchMonth')
       .then(handleResponse)
       .catch(handleApiError),
   genZayavInstr: async (token) =>
     axiosInstance
-      .get('/report/zayav-instr', {
+      .get('/report/genZayavInstr', {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then(handleResponse)
