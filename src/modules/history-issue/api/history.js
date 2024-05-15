@@ -30,9 +30,10 @@ export const issueHistoryApi = {
     page = 1,
     limit = 100,
     date = '',
-    toolId = ''
+    toolId = '',
+    showArchive = false // Добавляем параметр showArchive
   ) => {
-    const params = { search, page, limit, date, toolId } // Добавляем date в параметры запроса
+    const params = { search, page, limit, date, toolId, showArchive } // Добавляем date в параметры запроса
 
     return axiosInstance
       .get('/history', { params })
