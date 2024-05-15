@@ -13,6 +13,7 @@ async function getToolHistory(req, res) {
     const search = req.query.search
     const date = req.query.date // Получаем дату из запроса
     const toolId = req.query.toolId // Получаем идентификатор инструмента из запроса
+    const showArchive = req.query.showArchive === 'true' // Получаем флаг показа архива
 
     let whereStatement = 'WHERE TRUE'
 
@@ -31,10 +32,20 @@ async function getToolHistory(req, res) {
     // Добавлено условие в WHERE
     whereStatement += ` AND (T OR tf OR f OR f4 OR fg OR dmc OR hision)`
 
-    let orderStatement = `ORDER BY MIN(tool_history_nom.TIMESTAMP) DESC`
     if (toolId) {
       whereStatement += ` AND (tool_history_nom.id_tool = ${toolId})`
     }
+
+    // Добавляем условие для показа архива
+    // Показываем только данные из архива, если флаг `showArchive` равен true
+    if (showArchive) {
+      whereStatement += ` AND (dbo.tool_part_archive.specs_nom_id IS NOT NULL AND dbo.tool_part_archive.archive IS TRUE)`
+    } else {
+      // В противном случае, показываем только данные не из архива
+      whereStatement += ` AND (dbo.tool_part_archive.specs_nom_id IS NULL OR dbo.tool_part_archive.archive IS FALSE)`
+    }
+
+    let orderStatement = `ORDER BY MIN(tool_history_nom.TIMESTAMP) DESC`
 
     // Запрос данных
     // Мы удаляем подзапрос для подсчета totalCount и используем оконную функцию COUNT() OVER()
