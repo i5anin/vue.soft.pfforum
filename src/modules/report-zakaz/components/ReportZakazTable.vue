@@ -6,12 +6,6 @@
     @canceled="onClosePopup"
   />
   <div>
-    <div class="d-flex justify-end">
-      <v-btn variant="text" @click="toggleAllVisibility">
-        {{ isAllVisible ? 'Свернуть все' : 'Развернуть все' }}
-        ({{ totalToolCount }})
-      </v-btn>
-    </div>
     <div v-for="(group, index) in toolGroups" :key="index" class="tool-group">
       <v-chip variant="text" size="large" @click="toggleVisibility(index)">
         <template #prepend>
@@ -35,7 +29,7 @@
               <th class="text-left mw300">Название</th>
               <th class="text-left mw50">Заказ</th>
               <th class="text-left mw50">Склад</th>
-              <!--              <th class="text-left mw50">Склад группы</th>-->
+              <th class="text-left mw50">Склад группы</th>
               <th class="text-left mw50">Норма</th>
               <th class="text-left mw50">Не хватает</th>
             </tr>
@@ -83,7 +77,7 @@
                 </template>
               </td>
               <td class="grey">{{ tool.sklad }}</td>
-              <!--              <td class="grey">{{ tool.group_sum }}</td>-->
+              <td class="grey">{{ tool.group_sum }}</td>
               <td class="grey">{{ tool.norma }}</td>
               <td
                 class="grey"
@@ -117,21 +111,10 @@ export default {
       colors: ['red', 'green', 'blue', 'orange', 'purple', 'cyan'],
       editingToolId: null,
       openDialog: false,
-      isAllVisible: false, // Состояние - все списки развернуты или нет
-      totalToolCount: 0, // Общее количество инструментов
     }
   },
   mounted() {
     this.fetchZakazData()
-  },
-  computed: {
-    totalToolCount() {
-      let count = 0
-      this.toolGroups.forEach((group) => {
-        count += group.tools.length
-      })
-      return count
-    },
   },
   methods: {
     onClosePopup() {
@@ -175,14 +158,6 @@ export default {
         this.visibleGroups.push(index)
       } else {
         this.visibleGroups.splice(visibleIndex, 1)
-      }
-    },
-    toggleAllVisibility() {
-      this.isAllVisible = !this.isAllVisible
-      if (this.isAllVisible) {
-        this.visibleGroups = [...Array(this.toolGroups.length).keys()]
-      } else {
-        this.visibleGroups = []
       }
     },
   },
