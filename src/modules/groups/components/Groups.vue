@@ -8,7 +8,16 @@
     @changes-saved="modalSaved"
   />
   <div>
-    <div v-for="(group, index) in toolGroups" :key="index" class="tool-group">
+    <div class="d-flex justify-end">
+      <v-btn variant="text" @click="toggleAllVisibility">
+        {{ isAllVisible ? 'Свернуть все' : 'Развернуть все' }}
+      </v-btn>
+    </div>
+    <div
+      v-for="(group, groupIndex) in toolGroups"
+      :key="groupIndex"
+      class="tool-group"
+    >
       <v-chip
         v-if="group[0].group_id"
         :color="getColorForGroup(group[0].group_id)"
@@ -16,7 +25,7 @@
       >
         G{{ group[0].group_id }}
       </v-chip>
-      <v-chip variant="text" size="large" @click="toggleVisibility(index)">
+      <v-chip variant="text" size="large" @click="toggleVisibility(groupIndex)">
         {{ group[0].name }}
 
         <span v-if="!group[0].group_standard" class="pl-4 pr-2"
@@ -42,7 +51,7 @@
           }}
         </div>
       </v-chip>
-      <div v-if="visibleGroups.includes(index)">
+      <div v-if="visibleGroups.includes(groupIndex)">
         <v-table hover dense>
           <thead>
             <tr>
@@ -90,6 +99,7 @@ export default {
       colors: ['red', 'green', 'blue', 'orange', 'purple', 'cyan'],
       editingToolId: null,
       openDialog: false,
+      isAllVisible: false, // Состояние - все списки развернуты или нет
     }
   },
   mounted() {
@@ -138,12 +148,22 @@ export default {
         console.error('Ошибка при получении данных: ', error)
       }
     },
-    toggleVisibility(groupId) {
-      const visibleIndex = this.visibleGroups.indexOf(groupId)
+    toggleVisibility(groupIndex) {
+      const visibleIndex = this.visibleGroups.indexOf(groupIndex)
       if (visibleIndex === -1) {
-        this.visibleGroups.push(groupId)
+        this.visibleGroups.push(groupIndex)
       } else {
         this.visibleGroups.splice(visibleIndex, 1)
+      }
+    },
+    toggleAllVisibility() {
+      this.isAllVisible = !this.isAllVisible
+      if (this.isAllVisible) {
+        // Если isAllVisible становится true,  заполняем visibleGroups индексами всех групп
+        this.visibleGroups = [...Array(this.toolGroups.length).keys()]
+      } else {
+        // Если isAllVisible становится false, очищаем visibleGroups
+        this.visibleGroups = []
       }
     },
   },
