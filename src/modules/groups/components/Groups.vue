@@ -148,10 +148,10 @@ export default {
         console.error('Ошибка при получении данных: ', error)
       }
     },
-    toggleVisibility(groupIndex) {
-      const visibleIndex = this.visibleGroups.indexOf(groupIndex)
+    toggleVisibility(index) {
+      const visibleIndex = this.visibleGroups.indexOf(index)
       if (visibleIndex === -1) {
-        this.visibleGroups.push(groupIndex)
+        this.visibleGroups.push(index)
       } else {
         this.visibleGroups.splice(visibleIndex, 1)
       }
@@ -159,10 +159,8 @@ export default {
     toggleAllVisibility() {
       this.isAllVisible = !this.isAllVisible
       if (this.isAllVisible) {
-        // Если isAllVisible становится true,  заполняем visibleGroups индексами всех групп
         this.visibleGroups = [...Array(this.toolGroups.length).keys()]
       } else {
-        // Если isAllVisible становится false, очищаем visibleGroups
         this.visibleGroups = []
       }
     },
