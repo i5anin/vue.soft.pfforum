@@ -28,9 +28,9 @@
       <v-chip variant="text" size="large" @click="toggleVisibility(groupIndex)">
         {{ group[0].name }}
 
-        <span v-if="!group[0].group_standard" class="pl-4 pr-2"
-          >(Эталон не установлен)</span
-        >
+        <span v-if="!group[0].group_standard" class="pl-4 pr-2">
+          (Эталон не установлен)
+        </span>
         <span class="grey pl-4 pr-2"> Склад группы: </span>
         {{ totalForEachGroup.totalsForEachGroup[group[0].group_id] }}
 
@@ -159,9 +159,10 @@ export default {
     toggleAllVisibility() {
       this.isAllVisible = !this.isAllVisible
       if (this.isAllVisible) {
-        this.visibleGroups = [...Array(this.toolGroups.length).keys()]
+        console.log(this.toolGroups)
+        this.visibleGroups = [...Array(this.toolGroups.length).keys()] // Развернуть все
       } else {
-        this.visibleGroups = []
+        this.visibleGroups = [] // Свернуть все
       }
     },
   },
