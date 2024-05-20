@@ -32,7 +32,7 @@ const tabs = [
   },
   {
     name: 'Группы',
-    url: '#params',
+    url: '#groups',
     component: markRaw(ToolTabGroup),
     access: ['Admin', 'Editor'],
     ico: 'mdi-format-list-group',
