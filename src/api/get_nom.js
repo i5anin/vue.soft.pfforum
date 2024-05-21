@@ -33,7 +33,7 @@ export const toolApi = {
       ...filters,
     }
 
-    return axiosInstance
+    return axiosInstanceLaravel
       .get('/tools', { params })
       .then(handleResponse)
       .catch(handleApiError)
@@ -54,29 +54,3 @@ export const toolApi = {
       .then(handleResponse)
       .catch(handleApiError),
 }
-
-// Новый метод для POST запроса
-/*getToolsPost: async (
-  search = '',
-  page = 1,
-  limit = 10,
-  includeNull = false,
-  parentId = null,
-  onlyInStock = true,
-  filters = {}
-) => {
-  const data = {
-    search,
-    page,
-    limit,
-    includeNull,
-    onlyInStock,
-    parent_id: parentId,
-    ...filters,
-  }
-
-  return axiosInstance
-    .post('/tools', data)
-    .then(handleResponse)
-    .catch(handleApiError)
-},*/
