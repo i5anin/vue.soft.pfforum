@@ -1,5 +1,5 @@
 // Импорт общего экземпляра Axios и обработчиков ошибок
-import axiosInstance from '@/api/axiosConfig'
+import { axiosInstance, axiosInstanceLaravel } from '@/api/axiosConfig'
 import { handleApiError, handleResponse } from '@/api/errorHandler'
 
 export const toolApi = {
@@ -39,32 +39,6 @@ export const toolApi = {
       .catch(handleApiError)
   },
 
-  // Новый метод для POST запроса
-  /*getToolsPost: async (
-    search = '',
-    page = 1,
-    limit = 10,
-    includeNull = false,
-    parentId = null,
-    onlyInStock = true,
-    filters = {}
-  ) => {
-    const data = {
-      search,
-      page,
-      limit,
-      includeNull,
-      onlyInStock,
-      parent_id: parentId,
-      ...filters,
-    }
-
-    return axiosInstance
-      .post('/tools', data)
-      .then(handleResponse)
-      .catch(handleApiError)
-  },*/
-
   // Получить инструмент по ID инструмента
   getToolById: async (id) => {
     return axiosInstance
@@ -80,3 +54,29 @@ export const toolApi = {
       .then(handleResponse)
       .catch(handleApiError),
 }
+
+// Новый метод для POST запроса
+/*getToolsPost: async (
+  search = '',
+  page = 1,
+  limit = 10,
+  includeNull = false,
+  parentId = null,
+  onlyInStock = true,
+  filters = {}
+) => {
+  const data = {
+    search,
+    page,
+    limit,
+    includeNull,
+    onlyInStock,
+    parent_id: parentId,
+    ...filters,
+  }
+
+  return axiosInstance
+    .post('/tools', data)
+    .then(handleResponse)
+    .catch(handleApiError)
+},*/
