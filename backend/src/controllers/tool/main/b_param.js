@@ -27,8 +27,8 @@ async function addToolParam(req, res) {
 
 async function getToolParams(req, res) {
   try {
-    // Query modified to include ORDER BY clause for sorting by id in ascending order
-    const query = 'SELECT id, info FROM dbo.tool_params ORDER BY id ASC'
+    // Query modified to include ORDER BY clause for sorting by info in ascending order
+    const query = 'SELECT id, info FROM dbo.tool_params ORDER BY info ASC'
     const result = await pool.query(query)
     res.json(result.rows) // Send the query result back to the client
   } catch (error) {
