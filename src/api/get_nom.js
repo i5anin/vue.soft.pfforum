@@ -33,7 +33,7 @@ export const toolApi = {
       ...filters,
     }
 
-    return axiosInstanceLaravel
+    return axiosInstance
       .get('/tools', { params })
       .then(handleResponse)
       .catch(handleApiError)
