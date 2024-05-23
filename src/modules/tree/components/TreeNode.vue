@@ -17,10 +17,7 @@
       <span :class="{ 'text-grey': node.totalElements === 0 }">
         {{ node.label }}
         <span v-if="node.available !== 0">
-          <v-chip class="ma-2" color="secondary" label>
-            <template #prepend>
-              <v-icon icon="mdi-wrench-check" start />
-            </template>
+          <v-chip size="x-small" class="ma-2" color="secondary" label>
             {{ node.available }} / {{ node.elements }}
           </v-chip>
 
