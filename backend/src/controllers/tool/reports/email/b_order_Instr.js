@@ -99,9 +99,14 @@ async function createExcelFileStream(data) {
 
   // Добавляем заголовки
   worksheet.columns = [
-    { header: '#', key: 'index', width: 5 },
-    { header: 'ID', key: 'id_tool', width: 10 },
-    { header: 'Название', key: 'name', width: 32 },
+    { header: '# Excel', key: 'index', width: 5 },
+    { header: 'ID', key: 'id_tool', width: 5 },
+    {
+      header: 'Название',
+      key: 'name',
+      width: 28,
+      style: { font: { bold: true } },
+    },
     {
       header: 'Заказ',
       key: 'zakaz',
@@ -114,12 +119,12 @@ async function createExcelFileStream(data) {
         },
       },
     },
-    { header: 'Склад группы', key: 'group_sum', width: 15 },
+    { header: 'Склад группы', key: 'group_sum', width: 20 },
     { header: 'На складе', key: 'sklad', width: 10 },
     { header: 'Норма', key: 'norma', width: 10 },
     { header: 'Путь', key: 'tool_path', width: 30 },
-    { header: 'Группа', key: 'group_display', width: 15 },
-    { header: 'Стандарт', key: 'group_standard', width: 15 },
+    // { header: 'Группа ID', key: 'group_display', width: 15 },
+    // { header: 'Стандарт', key: 'group_standard', width: 15 },
   ]
 
   // Добавляем данные
@@ -135,13 +140,13 @@ async function createExcelFileStream(data) {
       index: index++,
       id_tool: item.id_tool,
       name: item.name,
-      sklad: item.sklad || 0, //  sklad || 0
-      norma: item.norma,
-      zakaz: zakazRounded,
-      group_display: item.group_display,
+      sklad: Number(item.sklad) || Number(0),
+      norma: Number(item.norma) || '',
+      zakaz: Number(zakazRounded) || '',
+      group_display: Number(item.group_display) || '',
       group_standard: item.group_standard ? 'Да' : 'Нет',
       tool_path: item.tool_path ? item.tool_path : 'Не указан',
-      group_sum: item.group_sum,
+      group_sum: Number(item.group_sum) || '',
     })
   })
 
@@ -167,14 +172,14 @@ async function createExcelFileStream(data) {
 function generateHtmlTable(data) {
   // Определение заголовков для таблицы
   const headers = [
-    { header: '#', key: 'index' },
+    { header: '# HTML', key: 'index' },
     { header: 'ID', key: 'id_tool' },
     { header: 'Название', key: 'name' },
     { header: 'Заказ', key: 'zakaz' },
     { header: 'Склад группы', key: 'group_sum' },
     { header: 'На складе', key: 'sklad' },
     { header: 'Норма', key: 'norma' },
-    { header: 'Группа', key: 'group_display' },
+    { header: 'Группа ID', key: 'group_display' },
     { header: 'Стандарт', key: 'group_standard' },
     { header: 'Путь', key: 'tool_path' },
   ]
