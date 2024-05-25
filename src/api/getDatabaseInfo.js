@@ -1,4 +1,4 @@
-import { axiosInstance } from '@/api/axiosConfig'
+import axiosInstance from '@/api/axiosConfig'
 import { handleApiError, handleResponse } from '@/api/errorHandler'
 
 export async function getDatabaseInfo() {

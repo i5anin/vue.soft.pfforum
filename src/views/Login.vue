@@ -61,7 +61,7 @@
 </template>
 
 <script>
-import { axiosInstance } from '@/api/axiosConfig'
+import axiosInstance from '@/api/axiosConfig'
 import { mapActions } from 'vuex'
 
 export default {

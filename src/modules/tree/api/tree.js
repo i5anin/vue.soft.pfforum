@@ -1,5 +1,5 @@
 import { handleApiError } from '@/api/errorHandler'
-import { axiosInstance } from '@/api/axiosConfig'
+import axiosInstance from '@/api/axiosConfig'
 
 function handleResponse(response) {
   return response.data
