@@ -34,6 +34,7 @@
               <th class="text-left">№</th>
               <th class="text-left">Название</th>
               <!--<th class="text-left">ID</th>-->
+              <th class="text-left">Порядок</th>
               <th class="text-left">Действия</th>
             </tr>
           </thead>
@@ -42,6 +43,22 @@
               <td>{{ index + 1 }}</td>
               <td>{{ param.info }}</td>
               <!--<td>{{ param.id }}</td>-->
+              <td>
+                <v-btn
+                  icon
+                  :disabled="index === 0"
+                  @click="moveToolParam(param.id, 'moveUp')"
+                >
+                  <v-icon>mdi-chevron-up</v-icon>
+                </v-btn>
+                <v-btn
+                  icon
+                  :disabled="index === toolParams.length - 1"
+                  @click="moveToolParam(param.id, 'moveDown')"
+                >
+                  <v-icon>mdi-chevron-down</v-icon>
+                </v-btn>
+              </td>
               <td>
                 <v-btn icon @click="startEditing(param)">
                   <v-icon>mdi-pencil</v-icon>
@@ -167,6 +184,42 @@ export default {
         } catch (error) {
           console.error('Error deleting tool parameter:', error)
         }
+      }
+    },
+    async moveToolParam(paramId, direction) {
+      try {
+        await toolParamApi.moveToolParam(paramId, direction)
+
+        // Обновляем данные в массиве toolParams, чтобы отразить изменение порядка
+        if (direction === 'moveUp') {
+          const paramIndex = this.toolParams.findIndex(
+            (param) => param.id === paramId
+          )
+          if (paramIndex > 0) {
+            // Перемещаем элемент вверх
+            ;[this.toolParams[paramIndex], this.toolParams[paramIndex - 1]] = [
+              this.toolParams[paramIndex - 1],
+              this.toolParams[paramIndex],
+            ]
+          }
+        } else if (direction === 'moveDown') {
+          const paramIndex = this.toolParams.findIndex(
+            (param) => param.id === paramId
+          )
+          if (paramIndex < this.toolParams.length - 1) {
+            // Перемещаем элемент вниз
+            ;[this.toolParams[paramIndex], this.toolParams[paramIndex + 1]] = [
+              this.toolParams[paramIndex + 1],
+              this.toolParams[paramIndex],
+            ]
+          }
+        }
+
+        // Можно добавить дополнительную логику для обновления порядка параметров
+        // в таблице toolParams, например, обновить поле param_order
+        // ...
+      } catch (error) {
+        console.error('Error moving tool parameter:', error)
       }
     },
   },
