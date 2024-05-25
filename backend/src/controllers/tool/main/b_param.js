@@ -87,43 +87,44 @@ async function getToolParams(req, res) {
 }
 
 async function getToolParamsParentId(req, res) {
-  const parentId = req.params.id // Используем id из параметров маршрута
+  const parentId = req.params.id
 
   try {
     const query = `
-      SELECT property
-      FROM dbo.tool_nom
-      WHERE parent_id = $1`
+      SELECT id, info, param_order FROM dbo.tool_nom WHERE parent_id = $1 ORDER BY param_order;`
 
     const { rows } = await pool.query(query, [parentId])
 
-    // Используем объект для агрегации значений по каждому ключу
+    // Используем объект для агрегации значений по ключу и регистрации его порядка
     const paramsAggregation = {}
 
     rows.forEach((row) => {
-      const properties = row.property // Считаем, что property уже десериализован из JSON
-      Object.entries(properties).forEach(([key, value]) => {
-        // Если ключа еще нет в агрегации, создаем под него Set
-        if (!paramsAggregation[key]) {
-          paramsAggregation[key] = new Set()
+      // Используем id в качестве ключа
+      const key = row.id.toString()
+      if (!paramsAggregation[key]) {
+        paramsAggregation[key] = {
+          values: new Set(), // Предполагаем, что значения будут добавлены позднее
+          label: row.info,
+          order: parseInt(row.param_order, 10), // Устанавливаем порядок параметра
         }
-        // Добавляем значение в Set для соответствующего ключа
-        paramsAggregation[key].add(value)
-      })
+      }
     })
 
-    // Преобразуем объект агрегации в массив объектов для возврата
-    const aggregatedValues = Object.entries(paramsAggregation).map(
-      ([key, valueSet]) => ({
-        id: key,
-        values: Array.from(valueSet), // Преобразуем Set в массив
+    // TODO: Здесь ваша логика добавления значений в paramsAggregation[key].values
+
+    // Преобразовываем в массив объектов с ключом, меткой, порядком и значениями
+    const result = Object.entries(paramsAggregation).map(
+      ([key, { values, label, order }]) => ({
+        key,
+        label,
+        param_order: order,
+        values: Array.from(values),
       })
     )
 
-    // Возвращаем агрегированные значения в ответе
-    res.json(aggregatedValues)
+    res.json(result)
   } catch (error) {
-    console.error('Ошибка при получении уникальных значений параметра:', error)
+    console.error('Ошибка при получении данных параметров:', error)
     res.status(500).send('Server error')
   }
 }
