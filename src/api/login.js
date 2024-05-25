@@ -1,5 +1,5 @@
 // api/authApi.js
-import axiosInstance from '@/api/axiosConfig'
+import { axiosInstance } from '@/api/axiosConfig'
 import { handleApiError } from '@/api/errorHandler'
 
 function handleResponse(response) {

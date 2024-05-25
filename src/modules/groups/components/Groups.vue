@@ -28,9 +28,9 @@
       <v-chip variant="text" size="large" @click="toggleVisibility(groupIndex)">
         {{ group[0].name }}
 
-        <span v-if="!group[0].group_standard" class="pl-4 pr-2"
-          >(Эталон не установлен)</span
-        >
+        <span v-if="!group[0].group_standard" class="pl-4 pr-2">
+          (Эталон не установлен)
+        </span>
         <span class="grey pl-4 pr-2"> Склад группы: </span>
         {{ totalForEachGroup.totalsForEachGroup[group[0].group_id] }}
 
@@ -60,7 +60,7 @@
               <th class="text-left mw200">Расположение</th>
               <th class="text-left mw25">Склад</th>
               <th class="text-left mw25">Норма</th>
-              <th class="text-left">Характеристики</th>
+              <!--              <th class="text-left">Характеристики</th>-->
             </tr>
           </thead>
           <tbody>
@@ -77,7 +77,7 @@
               <td>{{ tool.path }}</td>
               <td>{{ tool.sklad }}</td>
               <td>{{ toolIndex === 0 ? tool.norma : '' }}</td>
-              <td>{{ tool.property }}</td>
+              <!--              <td>{{ tool.property }}</td>-->
             </tr>
           </tbody>
         </v-table>
@@ -159,7 +159,7 @@ export default {
     toggleAllVisibility() {
       this.isAllVisible = !this.isAllVisible
       if (this.isAllVisible) {
-        this.visibleGroups = [...Array(this.toolGroups.length).keys()]
+        this.visibleGroups = Object.keys(this.toolGroups) // Получаем ключи (group_id)
       } else {
         this.visibleGroups = []
       }
