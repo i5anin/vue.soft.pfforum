@@ -17,20 +17,30 @@
           <!-- Показываем название и иконку, если редактирование не активно -->
           <span v-else @click="startEditing">
             {{ currentItem ? currentItem.label : 'Редактор' }}
-            <v-btn icon small @click.stop="startEditing">
+            <v-btn
+              title="Переименовать папку"
+              icon
+              small
+              @click.stop="startEditing"
+            >
               <v-icon icon="mdi-pencil" />
             </v-btn>
-            <v-btn icon small @click.stop="addItem">
+            <v-btn title="Добавить папку" icon small @click.stop="addItem">
               <v-icon icon="mdi-folder-plus" />
             </v-btn>
-            <v-btn icon small @click.stop="deleteItem(currentItem.id)">
+            <v-btn
+              title="Удалить папку"
+              icon
+              small
+              @click.stop="deleteItem(currentItem.id)"
+            >
               <v-icon icon="mdi-delete" />
             </v-btn>
           </span>
         </div>
       </v-toolbar-title>
       <v-spacer />
-      <v-btn icon @click="goBack">
+      <v-btn title="Назад" icon @click="goBack">
         <v-icon icon="mdi-arrow-left" />
       </v-btn>
     </v-app-bar>
