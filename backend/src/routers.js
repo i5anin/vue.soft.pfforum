@@ -26,6 +26,29 @@ const groupsController = require('./controllers/tool/b_group')
 // const excelZakazController = require('./controllers/tool/reports/excel/b_order_Instr')
 
 // Маршруты для аутентификации
+/**
+ * @swagger
+ * /login:
+ *   post:
+ *     summary: Вход в систему
+ *     tags: [Authentication]
+ *     requestBody:
+ *         required: true
+ *         content:
+ *             application/json:
+ *                 schema:
+ *                     type: object
+ *                     properties:
+ *                         username:
+ *                             type: string
+ *                         password:
+ *                             type: string
+ *     responses:
+ *         200:
+ *             description: Успешный вход в систему
+ *         400:
+ *             description: Ошибка входа
+ */
 router.post('/login', loginController.login)
 router.post('/check-login', loginController.checkLogin)
 
