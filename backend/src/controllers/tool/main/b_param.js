@@ -8,11 +8,11 @@ const dbConfig = getDbConfig()
 const pool = new Pool(dbConfig)
 
 async function addToolParam(req, res) {
-  const { info } = req.body
+  const { label } = req.body
 
   try {
-    const query = 'INSERT INTO dbo.tool_params (info) VALUES ($1) RETURNING *'
-    const result = await pool.query(query, [info])
+    const query = 'INSERT INTO dbo.tool_params (label) VALUES ($1) RETURNING *'
+    const result = await pool.query(query, [label])
 
     if (result.rows.length > 0) {
       res.status(201).json(result.rows[0])
@@ -77,7 +77,7 @@ async function moveToolParam(req, res) {
 async function getToolParams(req, res) {
   try {
     const sortBy = req.query.sort || 'param_order' // Сортировка по умолчанию: param_order
-    const query = `SELECT id, info, param_order FROM dbo.tool_params ORDER BY ${sortBy} ASC`
+    const query = `SELECT id, label, param_order FROM dbo.tool_params ORDER BY ${sortBy} ASC`
     const result = await pool.query(query)
     res.json(result.rows)
   } catch (error) {
@@ -170,11 +170,11 @@ async function deleteToolParam(req, res) {
 
 async function updateToolParam(req, res) {
   const id = req.params.id // Получение ID из параметров запроса
-  const { info } = req.body // Получение нового названия из тела запроса
+  const { label } = req.body // Получение нового названия из тела запроса
 
   try {
-    const query = 'UPDATE dbo.tool_params SET info = $1 WHERE id = $2'
-    const result = await pool.query(query, [info, id])
+    const query = 'UPDATE dbo.tool_params SET label = $1 WHERE id = $2'
+    const result = await pool.query(query, [label, id])
 
     if (result.rowCount === 0) {
       // Нет такого ID в базе данных

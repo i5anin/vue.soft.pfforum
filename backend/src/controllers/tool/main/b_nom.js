@@ -7,10 +7,10 @@ const dbConfig = getDbConfig()
 const pool = new Pool(dbConfig)
 
 async function getParamsMapping() {
-  const query = 'SELECT id, info FROM dbo.tool_params'
+  const query = 'SELECT id, label FROM dbo.tool_params'
   const result = await pool.query(query)
   return result.rows.reduce((acc, row) => {
-    acc[row.id] = { info: row.info }
+    acc[row.id] = { label: row.label }
     return acc
   }, {})
 }
@@ -119,7 +119,7 @@ async function getTools(req, res) {
           (acc, [key, value]) => {
             if (value !== '' && value !== null && paramsMapping[key]) {
               acc[key] = {
-                info: paramsMapping[key].info,
+                label: paramsMapping[key].label,
                 value: value,
               }
               uniqueParams.add(key)
@@ -155,7 +155,7 @@ async function getTools(req, res) {
         if (values && values.length > 1) {
           return {
             key: key,
-            label: paramsMapping[key]?.info || key,
+            label: paramsMapping[key]?.label || key,
             values: values,
           }
         }
@@ -491,7 +491,7 @@ async function getFilterParamsByParentId(req, res) {
     const paramsList = Object.entries(paramsAggregation)
       .map(([key, { numbers, texts }]) => ({
         key: key,
-        label: paramsMapping[key] ? paramsMapping[key].info : key, // Using mapping for labels
+        label: paramsMapping[key] ? paramsMapping[key].label : key, // Using mapping for labels
         values: [
           ...Array.from(numbers).sort((a, b) => a - b),
           ...Array.from(texts).sort(),

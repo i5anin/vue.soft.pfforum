@@ -41,7 +41,7 @@
           <tbody>
             <tr v-for="(param, index) in toolParams" :key="param.id">
               <td>{{ index + 1 }}</td>
-              <td>{{ param.info }}</td>
+              <td>{{ param.label }}</td>
               <!--<td>{{ param.id }}</td>-->
               <td>
                 <v-btn
@@ -109,7 +109,7 @@ export default {
     },
     startEditing(param) {
       this.dialogTitle = 'Редактировать название параметра'
-      this.paramInfo = param.info
+      this.paramInfo = param.label
       this.editingParam = param
       this.showDialog = true
     },
@@ -122,7 +122,7 @@ export default {
         if (
           this.toolParams.some(
             (param) =>
-              param.info.toLowerCase() === normalizedParamInfo.toLowerCase() &&
+              param.label.toLowerCase() === normalizedParamInfo.toLowerCase() &&
               param.id !== this.editingParam?.id
           )
         ) {
@@ -133,7 +133,7 @@ export default {
         try {
           if (this.editingParam) {
             // Обновление существующего параметра
-            const updatedParam = { info: normalizedParamInfo }
+            const updatedParam = { label: normalizedParamInfo }
             const result = await toolParamApi.updateToolParam(
               this.editingParam.id,
               updatedParam
@@ -143,14 +143,14 @@ export default {
               // Обновление данных в массиве toolParams
               this.toolParams = this.toolParams.map((param) =>
                 param.id === this.editingParam.id
-                  ? { ...param, info: normalizedParamInfo }
+                  ? { ...param, label: normalizedParamInfo }
                   : param
               )
             }
           } else {
             // Добавление нового параметра
             const newParam = await toolParamApi.addToolParam({
-              info: normalizedParamInfo,
+              label: normalizedParamInfo,
             })
             if (newParam && newParam.id) {
               this.toolParams.push(newParam)
@@ -172,7 +172,7 @@ export default {
     },
     async deleteParam(param) {
       const confirmDelete = confirm(
-        `Вы уверены, что хотите удалить параметр: ${param.info}?`
+        `Вы уверены, что хотите удалить параметр: ${param.label}?`
       )
       if (confirmDelete) {
         try {
