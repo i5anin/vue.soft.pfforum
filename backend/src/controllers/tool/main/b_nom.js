@@ -445,61 +445,56 @@ async function getToolById(req, res) {
 }
 
 async function getFilterParamsByParentId(req, res) {
-  let { parent_id } = req.params // Получаем parent_id из параметров запроса
-
-  // Преобразуем parent_id в число, если это возможно
+  let { parent_id } = req.params
   parent_id = Number(parent_id)
 
-  // Проверяем, является ли результат преобразования допустимым целым числом
   if (isNaN(parent_id) || !Number.isInteger(parent_id)) {
-    // Возвращаем ошибку клиенту, если parent_id не является целым числом
     return res.status(400).json({ error: 'Parent ID must be an integer' })
   }
 
   try {
-    // Получаем маппинг параметров
-    const paramsMapping = await getParamsMapping()
+    // Получаем маппинг параметров и их порядки
+    const queryMapping = `SELECT id, label, param_order FROM dbo.tool_params` // Выбираем id здесь
+    const mappingResult = await pool.query(queryMapping)
+    const paramsMapping = mappingResult.rows.reduce(
+      (acc, { id, label, param_order }) => {
+        // Используем id как ключ
+        acc[id] = { label, param_order }
+        return acc
+      },
+      {}
+    )
 
-    // SQL запрос для извлечения всех свойств инструментов в определенной категории
-    const query = `
-      SELECT tool_nom.property
-      FROM dbo.tool_nom
-      WHERE tool_nom.parent_id = $1`
-
+    // Запрос на получение свойств инструментов
+    const query = `SELECT property FROM dbo.tool_nom WHERE parent_id = $1`
     const { rows } = await pool.query(query, [parent_id])
 
-    // Агрегируем уникальные значения для каждого параметра
     const paramsAggregation = {}
 
-    // Existing logic to aggregate unique values for each parameter
     rows.forEach((row) => {
       Object.entries(row.property || {}).forEach(([key, value]) => {
-        if (!paramsAggregation[key]) {
+        if (!paramsAggregation[key])
           paramsAggregation[key] = { numbers: new Set(), texts: new Set() }
-        }
-        // Determine if the value is numerical or textual and add it to the appropriate set
         const floatValue = parseFloat(value)
-        if (!isNaN(floatValue) && isFinite(value)) {
+        if (!isNaN(floatValue) && isFinite(value))
           paramsAggregation[key].numbers.add(floatValue)
-        } else {
-          paramsAggregation[key].texts.add(value)
-        }
+        else paramsAggregation[key].texts.add(value)
       })
     })
 
-    // Transform the aggregated data into the required format, sorting numerical values before textual values
-    const paramsList = Object.entries(paramsAggregation)
+    let paramsList = Object.entries(paramsAggregation)
       .map(([key, { numbers, texts }]) => ({
-        key: key,
-        label: paramsMapping[key] ? paramsMapping[key].label : key, // Using mapping for labels
+        param_order: paramsMapping[key]?.param_order, // Добавляем param_order в объект
+        key: key, // Используем key как есть (это id из tool_params)
+        label: paramsMapping[key]?.label || key,
         values: [
           ...Array.from(numbers).sort((a, b) => a - b),
           ...Array.from(texts).sort(),
         ],
       }))
-      .filter((param) => param.values.length > 0) // Exclude parameters with only one value
+      .filter((param) => param.values.length > 0)
+      .sort((a, b) => a.param_order - b.param_order) // Сортируем по param_order
 
-    // Отправка результата
     res.json(paramsList)
   } catch (err) {
     console.error(err)
