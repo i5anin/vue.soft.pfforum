@@ -52,26 +52,19 @@ async function compareINN() {
 async function getUniqueRowsWithMaxId(req, res) {
   try {
     const getQuery = `
-      WITH RankedTable AS (
-        SELECT
-          *,
-          row_number() OVER (PARTITION BY inn ORDER BY id DESC) as rn
-        FROM
-          "dbo"."tabel_1c"
-      )
-      SELECT
-        id,
-        date,
-        type,
-        inn,
-        fio,
-        hours,
-        hours_total,
-        grade
-      FROM
-        RankedTable
-      WHERE
-        rn = 1;
+      WITH RankedTable AS (SELECT *,
+                                  row_number() OVER (PARTITION BY inn ORDER BY id DESC) as rn
+                           FROM "dbo"."tabel_1c")
+      SELECT id,
+             date,
+             type,
+             inn,
+             fio,
+             hours,
+             hours_total,
+             grade
+      FROM RankedTable
+      WHERE rn = 1;
     `
 
     // Выполняем SQL-запрос
