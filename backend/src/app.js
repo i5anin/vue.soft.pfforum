@@ -1,3 +1,5 @@
+//app.js
+
 require('dotenv').config()
 const express = require('express')
 const bodyParser = require('body-parser')
@@ -9,8 +11,7 @@ const getDbConfig = require('./databaseConfig')
 const dbConfig = getDbConfig()
 const swaggerUi = require('swagger-ui-express')
 const swaggerJsdoc = require('swagger-jsdoc')
-const swaggerOptions = require('./swaggerConfig')
-const specs = swaggerJsdoc(swaggerOptions)
+const specs = swaggerJsdoc(require('./swaggerConfig'))
 const app = express()
 
 console.log('\x1b[36m%s\x1b[0m', '• Почтовый сервер:')

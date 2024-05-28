@@ -1,3 +1,5 @@
+// routers.js
+
 const express = require('express')
 const router = express.Router()
 
@@ -26,36 +28,13 @@ const groupsController = require('./controllers/tool/b_group')
 // const excelZakazController = require('./controllers/tool/reports/excel/b_order_Instr')
 
 // Маршруты для аутентификации
-/**
- * @swagger
- * /login:
- *   post:
- *     summary: Вход в систему
- *     tags: [Authentication]
- *     requestBody:
- *         required: true
- *         content:
- *             application/json:
- *                 schema:
- *                     type: object
- *                     properties:
- *                         username:
- *                             type: string
- *                         password:
- *                             type: string
- *     responses:
- *         200:
- *             description: Успешный вход в систему
- *         400:
- *             description: Ошибка входа
- */
 router.post('/login', loginController.login)
 router.post('/check-login', loginController.checkLogin)
 
 router.get('/database-info', loginController.getDatabaseInfo)
 // nom
 router.get('/tool/:id', nomController.getToolById) //1 элемент
-router.get('/tools', nomController.getTools) //GET ALL
+router.get('/tools', nomController.getTools)
 router.post('/tools', nomController.getTools) //POST ALL
 router.post('/tool', nomController.addTool)
 router.put('/tool/:id', nomController.editTool)
@@ -114,7 +93,7 @@ router.post('/sklad/update', skladController.updateToolInventory)
 // email report
 router.get('/report/buch-week', reportBuchWeekController.genBuchWeek) // бухгалтерию исключен сломанный	раз в неделю каждый ПТ в 12:00 (за неделю)
 router.get('/report/buch-end-op', reportBuchEndOpController.checkStatusChanges) // бухгалтерию	по завершению операции
-router.get('/report/buch-month', reportBuchMonthController.genBuchMonth) // бухгалтерию журнал уничтоженого	раз в месяц каждый ПТ в 12:00 (за месяц)
+router.get('/report/buch-month', reportBuchMonthController.genBuchMonth) // бухгалтерию журнал уничтоженного	раз в месяц каждый ПТ в 12:00 (за месяц)
 
 router.get('/report/zayav-instr', reportZakazController.genZayavInstr) // заявка на инструмент	раз в неделю каждый ЧТ в 12:00 (за неделю)
 
