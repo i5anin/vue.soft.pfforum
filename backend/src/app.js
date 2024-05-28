@@ -30,7 +30,7 @@ console.log('Port:', process.env.DB_PORT || process.env.DB_TEST_PORT)
 
 app.use(bodyParser.json())
 app.use(cors())
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs))
+app.use('/api-docs/fN-01-33zX', swaggerUi.serve, swaggerUi.setup(specs))
 
 app.use(bodyParser.json())
 app.use(cors())
