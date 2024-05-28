@@ -66,7 +66,7 @@
                 <v-row>
                   <v-col cols="6" class="pa-1">
                     <v-select
-                      v-model="param.info"
+                      v-model="param.label"
                       variant="solo-filled"
                       density="compact"
                       :items="availableToolParamOptions"
@@ -270,7 +270,7 @@ export default {
       // Получение списка параметров инструмента
       const rawToolParams = await getToolParams()
       this.toolParams = [...rawToolParams]
-      this.toolParamOptions = rawToolParams.map((param) => param.info) // Предполагается, что каждый параметр содержит поле info
+      this.toolParamOptions = rawToolParams.map((param) => param.label) // Предполагается, что каждый параметр содержит поле info
 
       // Если модель инструмента уже содержит выбранные параметры, обновите selectedParams
       if (
@@ -280,7 +280,7 @@ export default {
         const propertyIds = Object.keys(this.toolModel.property)
         this.selectedParams = this.toolParams
           .filter((param) => propertyIds.includes(String(param.id)))
-          .map((param) => param.info)
+          .map((param) => param.label)
       }
     } catch (error) {
       console.error('Ошибка при загрузке параметров инструмента:', error)
@@ -347,7 +347,7 @@ export default {
     },
 
     selectParam(paramInfo) {
-      const selectedParam = this.toolParams.find((p) => p.info === paramInfo)
+      const selectedParam = this.toolParams.find((p) => p.label === paramInfo)
       if (selectedParam) {
         // Удаляем временный ключ, если он был использован
         const newProperty = { ...this.toolModel.property }
@@ -366,9 +366,9 @@ export default {
       this.selectedParams = Object.keys(this.toolModel.property)
         .map((id) => {
           const param = this.toolParams.find((param) => String(param.id) === id)
-          return param ? param.info : null
+          return param ? param.label : null
         })
-        .filter((info) => info !== null)
+        .filter((label) => label !== null)
     },
     resetToolModel() {
       this.toolModel = {
@@ -384,7 +384,7 @@ export default {
     addParameterValuePair() {
       // Проверяем, существует ли уже параметр с временным ID 0 в selectedParams
       if (!this.selectedParams.includes('-1')) {
-        const newToolParam = { id: -1, info: null }
+        const newToolParam = { id: -1, label: null }
         this.toolParams.push(newToolParam)
 
         // Обновляем toolModel.property для добавления нового параметра с временным значением
