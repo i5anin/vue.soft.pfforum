@@ -1,0 +1,176 @@
+openapi: 3.0.0
+info:
+  title: "API Tools"
+  version: "1.0.0"
+  description: "API for managing tools and their organization in a tree structure"
+paths:
+  /tools-tree:
+    get:
+      tags:
+        - Tools
+      summary: "Получить дерево инструментов"
+      responses:
+        '200':
+          description: "Список инструментов в виде дерева"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ToolTreeNode'
+        '500':
+          description: "Внутренняя ошибка сервера"
+    post:
+      tags:
+        - Tools
+      summary: "Добавить новую подпапку"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: "Название новой папки"
+                parentId:
+                  type: integer
+                  description: "ID родительской папки"
+      responses:
+        '200':
+          description: "Новая папка успешно добавлена"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  newBranchId:
+                    type: integer
+        '400':
+          description: "Ошибка при добавлении новой папки"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '500':
+          description: "Внутренняя ошибка сервера"
+    put:
+      tags:
+        - Tools
+      summary: "Обновить название папки"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  description: "ID папки"
+                newName:
+                  type: string
+                  description: "Новое имя папки"
+      responses:
+        '200':
+          description: "Название папки успешно обновлено"
+        '400':
+          description: "Ошибка при обновлении названия папки"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  reason:
+                    type: string
+        '500':
+          description: "Внутренняя ошибка сервера"
+    delete:
+      tags:
+        - Tools
+      summary: "Удалить папку с инструментами"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: "ID папки для удаления"
+      responses:
+        '200':
+          description: "Папка успешно удалена"
+        '400':
+          description: "Ошибка при удалении папки"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  reason:
+                    type: string
+        '500':
+          description: "Внутренняя ошибка сервера"
+  /tools-tree/{id}:
+    delete:
+      tags:
+        - Tools
+      summary: "Удалить папку с инструментами"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: "ID папки для удаления"
+      responses:
+        '200':
+          description: "Папка успешно удалена"
+        '400':
+          description: "Ошибка при удалении папки"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  reason:
+                    type: string
+        '500':
+          description: "Внутренняя ошибка сервера"
+components:
+  schemas:
+    ToolTreeNode:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: "ID инструмента"
+        label:
+          type: string
+          description: "Название инструмента"
+        elements:
+          type: integer
+          description: "Количество элементов в данной папке"
+        available:
+          type: integer
+          description: "Количество доступных элементов в данной папке"
+        totalElements:
+          type: integer
+          description: "Общее количество элементов в данной папке и ее подпапках"
+        totalAvailable:
+          type: integer
+          description: "Общее количество доступных элементов в данной папке и ее подпапках"
+        nodes:
+          type: array
+          description: "Подпапки"
+          items:
+            $ref: '#/components/schemas/ToolTreeNode'
