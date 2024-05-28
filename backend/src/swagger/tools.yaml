@@ -1,0 +1,139 @@
+swagger: "2.0"
+info:
+  description: "Описание вашего API инструмента"
+  version: "1.0.0"
+  title: "API Tools"
+basePath: "/v1"
+tags:
+  - name: "Tools"
+    description: "Работа с инструментами"
+
+paths:
+  /tools:
+    get:
+      tags:
+        - "Tools"
+      summary: "Получить список инструментов"
+      parameters:
+        - name: "search"
+          in: "query"
+          description: "Поиск по имени инструмента"
+          required: false
+          type: "string"
+        - name: "parent_id"
+          in: "query"
+          description: "Фильтр по ID родительской категории"
+          required: false
+          type: "integer"
+        - name: "onlyInStock"
+          in: "query"
+          description: "Фильтр по наличию на складе"
+          required: false
+          type: "string"
+          enum:
+            - "true"
+            - "false"
+        - name: "page"
+          in: "query"
+          description: "Номер страницы для пагинации"
+          required: false
+          type: "integer"
+          default: 1
+        - name: "limit"
+          in: "query"
+          description: "Количество элементов на странице"
+          required: false
+          type: "integer"
+          default: 50
+        - name: "param_{paramId}"
+          in: "query"
+          description: "Динамические параметры для фильтрации"
+          required: false
+          type: "string"
+      responses:
+        "200":
+          description: "Список инструментов"
+          schema:
+            type: "object"
+            properties:
+              currentPage:
+                type: "integer"
+              itemsPerPage:
+                type: "integer"
+              totalCount:
+                type: "integer"
+              tools:
+                type: "array"
+                items:
+                  type: "object"
+                  properties:
+                    id:
+                      type: "integer"
+                    name:
+                      type: "string"
+                    property:
+                      type: "object"
+                      additionalProperties:
+                        type: "object"
+                        properties:
+                          label:
+                            type: "string"
+                          value:
+                            type: "string"
+                    sklad:
+                      type: "integer"
+                    norma:
+                      type: "string"
+                    group_id:
+                      type: "integer"
+                    group_standard:
+                      type: "string"
+        "500":
+          description: "Внутренняя ошибка сервера"
+    post:
+      tags:
+        - "Tools"
+      summary: "Добавить новый инструмент"
+      responses:
+        "201":
+          description: "Инструмент успешно добавлен"
+        "400":
+          description: "Некорректные данные запроса"
+        "500":
+          description: "Внутренняя ошибка сервера"
+    put:
+      tags:
+        - "Tools"
+      summary: "Обновить инструмент"
+      parameters:
+        - name: "id"
+          in: "path"
+          description: "ID инструмента для обновления"
+          required: true
+          type: "integer"
+      responses:
+        "200":
+          description: "Инструмент успешно обновлен"
+        "400":
+          description: "Некорректные данные запроса"
+        "404":
+          description: "Инструмент не найден"
+        "500":
+          description: "Внутренняя ошибка сервера"
+    delete:
+      tags:
+        - "Tools"
+      summary: "Удалить инструмент"
+      parameters:
+        - name: "id"
+          in: "path"
+          description: "ID инструмента для удаления"
+          required: true
+          type: "integer"
+      responses:
+        "204":
+          description: "Инструмент успешно удален"
+        "404":
+          description: "Инструмент не найден"
+        "500":
+          description: "Внутренняя ошибка сервера"

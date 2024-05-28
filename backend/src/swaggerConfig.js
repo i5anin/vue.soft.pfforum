@@ -10,7 +10,7 @@ const swaggerOptions = {
     },
   },
   // Путь к файлам с документированными маршрутами
-  apis: ['./src/*.yaml'], // Исправлен путь без хэштега
+  apis: ['./src/swagger/*.yaml'], // Исправлен путь без хэштега
 }
 
 module.exports = swaggerOptions
