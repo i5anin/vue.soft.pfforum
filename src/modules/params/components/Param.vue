@@ -28,7 +28,7 @@
           </v-card>
         </v-dialog>
 
-        <v-table>
+        <v-table hover>
           <thead>
             <tr>
               <th class="text-left">№</th>
