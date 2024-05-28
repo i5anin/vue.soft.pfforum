@@ -1,139 +1,150 @@
-swagger: "2.0"
+openapi: 3.0.0
 info:
-  description: "Описание вашего API инструмента"
-  version: "1.0.0"
   title: "API Tools"
-basePath: "/v1"
-tags:
-  - name: "Tools"
-    description: "Работа с инструментами"
-
+  version: "1.0.0"
+  description: "Описание вашего API инструмента"
 paths:
-  /tools:
+  /api/tools:
     get:
       tags:
-        - "Tools"
+        - Tools
       summary: "Получить список инструментов"
       parameters:
-        - name: "search"
-          in: "query"
-          description: "Поиск по имени инструмента"
-          required: false
-          type: "string"
-        - name: "parent_id"
-          in: "query"
-          description: "Фильтр по ID родительской категории"
-          required: false
-          type: "integer"
-        - name: "onlyInStock"
-          in: "query"
-          description: "Фильтр по наличию на складе"
-          required: false
-          type: "string"
-          enum:
-            - "true"
-            - "false"
-        - name: "page"
-          in: "query"
-          description: "Номер страницы для пагинации"
-          required: false
-          type: "integer"
-          default: 1
-        - name: "limit"
-          in: "query"
-          description: "Количество элементов на странице"
-          required: false
-          type: "integer"
-          default: 50
-        - name: "param_{paramId}"
-          in: "query"
-          description: "Динамические параметры для фильтрации"
-          required: false
-          type: "string"
-      responses:
-        "200":
-          description: "Список инструментов"
+        - in: query
+          name: search
           schema:
-            type: "object"
-            properties:
-              currentPage:
-                type: "integer"
-              itemsPerPage:
-                type: "integer"
-              totalCount:
-                type: "integer"
-              tools:
-                type: "array"
-                items:
-                  type: "object"
-                  properties:
-                    id:
-                      type: "integer"
-                    name:
-                      type: "string"
-                    property:
-                      type: "object"
-                      additionalProperties:
-                        type: "object"
-                        properties:
-                          label:
-                            type: "string"
-                          value:
-                            type: "string"
-                    sklad:
-                      type: "integer"
-                    norma:
-                      type: "string"
-                    group_id:
-                      type: "integer"
-                    group_standard:
-                      type: "string"
-        "500":
+            type: string
+          description: "Поиск по имени инструмента"
+        - in: query
+          name: parent_id
+          schema:
+            type: integer
+          description: "Фильтр по ID родительской категории"
+        - in: query
+          name: onlyInStock
+          schema:
+            type: string
+            enum:
+              - true
+              - false
+          description: "Фильтр по наличию на складе"
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: "Номер страницы для пагинации"
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 50
+          description: "Количество элементов на странице"
+        - in: query
+          name: param_{paramId}
+          schema:
+            type: string
+          description: "Динамические параметры для фильтрации"
+      responses:
+        '200':
+          description: "Список инструментов"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  currentPage:
+                    type: integer
+                  itemsPerPage:
+                    type: integer
+                  totalCount:
+                    type: integer
+                  tools:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        property:
+                          type: object
+                          additionalProperties:
+                            type: object
+                            properties:
+                              label:
+                                type: string
+                              value:
+                                type: string
+                        sklad:
+                          type: integer
+                        norma:
+                          type: string
+                        group_id:
+                          type: integer
+                        group_standard:
+                          type: string
+        '500':
           description: "Внутренняя ошибка сервера"
     post:
       tags:
-        - "Tools"
+        - Tools
       summary: "Добавить новый инструмент"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              # Define the schema for the request body here
+              type: object
       responses:
-        "201":
+        '201':
           description: "Инструмент успешно добавлен"
-        "400":
+        '400':
           description: "Некорректные данные запроса"
-        "500":
+        '500':
           description: "Внутренняя ошибка сервера"
     put:
       tags:
-        - "Tools"
+        - Tools
       summary: "Обновить инструмент"
       parameters:
-        - name: "id"
-          in: "path"
-          description: "ID инструмента для обновления"
+        - in: path
+          name: id
+          schema:
+            type: integer
           required: true
-          type: "integer"
+          description: "ID инструмента для обновления"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              # Define the schema for the request body here
+              type: object
       responses:
-        "200":
+        '200':
           description: "Инструмент успешно обновлен"
-        "400":
+        '400':
           description: "Некорректные данные запроса"
-        "404":
+        '404':
           description: "Инструмент не найден"
-        "500":
+        '500':
           description: "Внутренняя ошибка сервера"
     delete:
       tags:
-        - "Tools"
+        - Tools
       summary: "Удалить инструмент"
       parameters:
-        - name: "id"
-          in: "path"
-          description: "ID инструмента для удаления"
+        - in: path
+          name: id
+          schema:
+            type: integer
           required: true
-          type: "integer"
+          description: "ID инструмента для удаления"
       responses:
-        "204":
+        '204':
           description: "Инструмент успешно удален"
-        "404":
+        '404':
           description: "Инструмент не найден"
-        "500":
+        '500':
           description: "Внутренняя ошибка сервера"

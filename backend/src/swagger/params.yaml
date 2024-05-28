@@ -1,20 +1,20 @@
-swagger: "2.0"
+swagger: "3.0"
 info:
   description: "API для управления параметрами инструментов"
   version: "1.0.0"
   title: "API Tool Parameters"
-basePath: "/v1"
+url: "/v1/api"
 tags:
   - name: "ToolParams"
     description: "API эндпойнты для параметров инструментов"
 
 paths:
-  /tool-params:
+  /api/tools-params:
     get:
       tags:
         - "ToolParams"
       summary: "Получить параметры инструментов"
-      operationId: "getToolParams"
+      operationId: "getToolsParams"
       produces:
         - "application/json"
       responses:
@@ -24,6 +24,17 @@ paths:
             type: "array"
             items:
               $ref: "#/definitions/ToolParam"
+          examples:
+            application/json:
+              - id: 96
+                label: "1. Диаметр, мм"
+                param_order: 1
+              - id: 94
+                label: "2. Шаг резьбы"
+                param_order: 2
+              - id: 95
+                label: "3. Квалитет"
+                param_order: 3
         "500":
           description: "Ошибка сервера"
     post:
@@ -50,7 +61,7 @@ paths:
         "500":
           description: "Ошибка сервера"
 
-  /tool-params/{id}:
+  /tools-params/{id}:
     parameters:
       - name: "id"
         in: "path"
@@ -99,21 +110,23 @@ paths:
 definitions:
   ToolParam:
     type: "object"
+    required:
+      - id
+      - label
+      - param_order
     properties:
       id:
         type: "integer"
         format: "int64"
         description: "Уникальный идентификатор параметра инструмента"
-        example: 1
       label:
         type: "string"
         description: "Название параметра инструмента"
-        example: "Длина"
       param_order:
         type: "integer"
         format: "int32"
         description: "Порядковый номер параметра инструмента"
-        example: 1
+
   NewToolParam:
     type: "object"
     required:
@@ -121,5 +134,4 @@ definitions:
     properties:
       label:
         type: "string"
-        description: "Название параметра инструмента"
-        example: "Длина"
+        description: "Название нового параметра инструмента"
