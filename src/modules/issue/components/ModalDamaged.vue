@@ -6,17 +6,17 @@
         <v-row>
           <v-col>
             <div>
+              <!--              {{ this.toolId }}-->
+              <!--              v-model="name"-->
               <v-combobox
-                v-model="toolModel.name"
                 density="compact"
                 label="Маркировка"
-                :items="nameOptions"
                 item-text="text"
                 item-value="value"
                 required
                 :rules="typeRules"
-                readonly="true"
-                disabled="true"
+                readonly
+                disabled
               />
             </div>
             <v-combobox
@@ -43,8 +43,8 @@
               label="ФИО кто повредил"
               return-object="false"
               single-line="false"
-              @update:model-value="handleSelectionChange"
             />
+            <!-- @update:model-value="handleSelectionChange"-->
             <v-textarea
               v-model="comment"
               class="comment-field"
@@ -105,7 +105,6 @@ export default {
     fioOptions: [],
     selectedData: { name: null, description: null, no: null, type: null },
     localParentId: null,
-    toolModel: { name: null, property: {}, selectedOperationId: null },
     selectedParams: [],
     toolParams: [],
     confirmDeleteDialog: false,
@@ -157,26 +156,20 @@ export default {
 
   async created() {
     try {
-      // Вызов API для получения данных о ФИО
       const fioData = await issueToolApi.getDetailFio()
-      // Подготовка опций ФИО для селектора
       this.fioOptions = this.prepareFioOptions(fioData)
-
-      // Вызов API для получения списка станков
-      // Получение списка станков
+    } catch (error) {
+      console.error('Ошибка при загрузке данных ФИО:', error)
+    }
+    try {
       const cncData = await issueToolApi.fetchCncList()
-      // Обновление cncList для обеспечения реактивности
       this.cncList = cncData ? [...cncData] : []
-      // Проверка и присвоение полученных данных о станках
       if (cncData && Array.isArray(cncData)) {
         this.cncList = cncData
       } else {
         console.error('Ошибка при получении списка станков:', cncData)
       }
-
-      // Инициализация локального состояния компонента
-      this.initializeLocalState()
-
+      console.log(this.toolId)
       // Если toolId не задан, устанавливаем начальные данные для инструмента
       if (this.toolId == null) {
         this.setTool({
@@ -204,36 +197,6 @@ export default {
         value: item.id,
       }))
     },
-
-    formatOperationOptions(data) {
-      const uniqueSet = new Set()
-      data.forEach((item) => {
-        const label = `${item.no} - ${item.cnc_type}`
-        if (!uniqueSet.has(label)) {
-          uniqueSet.add(label)
-          this.operationMapping[label] = item.specs_op_id
-        }
-      })
-      return Array.from(uniqueSet)
-    },
-
-    initializeLocalState() {
-      if (this.toolId) {
-        this.fetchToolById(this.toolId).then(() => {
-          this.toolModel.sklad = this.tool.sklad
-          this.toolModel.norma = this.tool.norma
-        })
-      } else {
-        this.localParentId = this.idParent.id
-        this.currentFolderName = this.idParent.label
-      }
-    },
-
-    prependOptionIfNeeded(value, optionsList) {
-      if (value && !optionsList.some((option) => option.value === value))
-        optionsList.unshift(value)
-    },
-
     onCancel() {
       this.$emit('canceled')
     },
@@ -242,7 +205,6 @@ export default {
         const damagedToolData = {
           id_tool: this.toolId,
           id_user: this.selectedFio.value,
-          // Убедитесь, что selectedCnc является строкой, представляющей cnc_code
           cnc_code: this.selectedCnc.cnc_code,
           comment: this.comment,
           quantity: this.damagedQuantity,
