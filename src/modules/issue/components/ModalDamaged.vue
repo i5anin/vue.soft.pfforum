@@ -6,18 +6,21 @@
         <v-row>
           <v-col>
             <div>
-              <!--              {{ this.toolId }}-->
-              <!--              v-model="name"-->
-              <v-combobox
-                density="compact"
-                label="Маркировка"
-                item-text="text"
-                item-value="value"
-                required
-                :rules="typeRules"
-                readonly
-                disabled
-              />
+              <v-chip size="large" class="mb-3" color="red">
+                {{ toolTitle }}</v-chip
+              >
+              <!--              <v-combobox-->
+              <!--                v-if="toolTitle"-->
+              <!--                v-model="toolTitle"-->
+              <!--                density="compact"-->
+              <!--                label="Маркировка"-->
+              <!--                item-text="text"-->
+              <!--                item-value="value"-->
+              <!--                required-->
+              <!--                :rules="typeRules"-->
+              <!--                readonly-->
+              <!--                disabled-->
+              <!--              />-->
             </div>
             <v-combobox
               v-model="selectedCnc"
@@ -89,8 +92,8 @@ export default {
   name: 'IssueModal',
   components: { Modal },
   props: {
-    persistent: { type: Boolean, default: false },
     toolId: { type: Number, default: null },
+    toolTitle: { type: String, default: '' },
   },
   emits: ['canceled', 'changes-saved'],
   data: () => ({
@@ -127,7 +130,7 @@ export default {
     },
   }),
   computed: {
-    ...mapGetters('IssueToolStore', ['nameOptions', 'tool']),
+    ...mapGetters('IssueToolStore', ['nameOptions']),
     ...mapState('IssueToolStore', ['parentCatalog']),
     currentFolderName() {
       return this.toolId === null ? this.idParent.label : this.tool.folder_name

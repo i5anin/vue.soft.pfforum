@@ -23,6 +23,8 @@
       :key="'modal-damaged'"
       :persistent="true"
       :tool-id="editingToolId"
+      :tool-title="editingToolName"
+      тут
       @canceled="onClosePopup"
       @changes-saved="onSaveChanges"
       @close="openDialog = false"
@@ -122,7 +124,8 @@ export default {
       snackbarText: '',
       openDialog: false,
       isDataLoaded: false,
-      editingToolId: null, //редактирование идентификатора инструмента
+      editingToolId: null,
+      editingToolName: null,
       toolTableHeaders: [], //заголовки таблиц инструментов
       filterParamsList: [],
       currentModal: null,
@@ -254,6 +257,7 @@ export default {
     onDamagedTool(event, item) {
       event.stopPropagation()
       this.editingToolId = item.id
+      this.editingToolName = item.name
       this.currentModal = 'damaged'
       this.openDialog = true
     },
