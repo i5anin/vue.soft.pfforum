@@ -33,7 +33,7 @@ export const toolApi = {
       ...filters,
     }
 
-    return axiosInstance
+    return axiosInstanceLaravel
       .get('/tools', { params })
       .then(handleResponse)
       .catch(handleApiError)
@@ -41,7 +41,7 @@ export const toolApi = {
 
   // Получить инструмент по ID инструмента
   getToolById: async (id) => {
-    return axiosInstance
+    return axiosInstanceLaravel
       .get(`/tool/${id}`)
       .then(handleResponse)
       .catch(handleApiError)
@@ -49,7 +49,7 @@ export const toolApi = {
 
   // Получить фильтры по ID папки
   filterParamsByParentId: async (parent_id) =>
-    axiosInstance
+    axiosInstanceLaravel
       .get(`/filter-params/${parent_id}`)
       .then(handleResponse)
       .catch(handleApiError),

@@ -4,7 +4,7 @@ const express = require('express')
 const router = express.Router()
 
 const loginController = require('./controllers/login/b_login')
-const nomController = require('./controllers/tool/main/b_nom')
+const nomController = require('./controllers/tool/main/NomController')
 const paramController = require('./controllers/tool/main/b_param')
 const treeController = require('./controllers/tool/main/b_tree')
 const skladController = require('./controllers/tool/b_sklad')
@@ -35,7 +35,7 @@ router.get('/database-info', loginController.getDatabaseInfo)
 // nom
 router.get('/tool/:id', nomController.getToolById) //1 элемент
 router.get('/tools', nomController.getTools)
-router.post('/tools', nomController.getTools) //POST ALL
+// router.post('/tools', nomController.getTools) //POST ALL
 router.post('/tool', nomController.addTool)
 router.put('/tool/:id', nomController.editTool)
 router.delete('/tool/:id', nomController.deleteTool)
