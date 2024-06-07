@@ -3,27 +3,27 @@
 const express = require('express')
 const router = express.Router()
 
-const loginController = require('./controllers/login/b_login')
+const loginController = require('./controllers/login/LoginController')
 const nomController = require('./controllers/tool/main/NomController')
-const paramController = require('./controllers/tool/main/b_param')
-const treeController = require('./controllers/tool/main/b_tree')
-const skladController = require('./controllers/tool/b_sklad')
+const paramController = require('./controllers/tool/main/ParamController')
+const treeController = require('./controllers/tool/main/TreeController')
+const skladController = require('./controllers/tool/SkladController')
 
-const historyController = require('./controllers/tool/b_history_issue')
-const historyControllerModal = require('./controllers/tool/b_history_issue_modal')
+const historyController = require('./controllers/tool/HistoryIssueController')
+const historyControllerModal = require('./controllers/tool/HistoryIssueModalController')
 
-const damagedController = require('./controllers/tool/b_history_damaged')
-const issueController = require('./controllers/tool/b_issue')
+const damagedController = require('./controllers/tool/HistoryDamagedController')
+const issueController = require('./controllers/tool/IssueController')
 
-const reportBuchWeekController = require('./controllers/tool/reports/email/b_buch_week')
-const reportBuchEndOpController = require('./controllers/tool/reports/email/b_buch_end_op')
-const reportBuchMonthController = require('./controllers/tool/reports/email/b_buch_month')
-const reportZakazController = require('./controllers/tool/reports/email/b_order_Instr')
+const reportBuchWeekController = require('./controllers/tool/reports/email/BuchWeekController')
+const reportBuchEndOpController = require('./controllers/tool/reports/email/BuchEndOpController')
+const reportBuchMonthController = require('./controllers/tool/reports/email/BuchMonthController')
+const reportZakazController = require('./controllers/tool/reports/email/OrderToolsController')
 
-const reportVueZakazController = require('./controllers/tool/reports/vue/b_order_Instr')
-const reportVueBuhController = require('./controllers/tool/reports/vue/b_buch_week')
+const reportVueZakazController = require('./controllers/tool/reports/vue/OrderToolsController')
+const reportVueBuhController = require('./controllers/tool/reports/vue/BuchWeekController')
 
-const groupsController = require('./controllers/tool/b_group')
+const groupsController = require('./controllers/tool/main/GroupController')
 
 // const excelZakazController = require('./controllers/tool/reports/excel/b_order_Instr')
 
