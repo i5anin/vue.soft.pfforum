@@ -29,9 +29,9 @@
             </v-container>
           </div>
           <v-btn
+            v-show="isAddButtonVisible"
             color="primary"
             @click="addParameterValuePair"
-            v-show="isAddButtonVisible"
           >
             Добавить
           </v-btn>
@@ -43,8 +43,8 @@
     <v-btn
       color="red darken-1"
       variant="text"
-      @click="confirmDelete"
       class="text-none text-subtitle-1 ml-3"
+      @click="confirmDelete"
     >
       Удалить
     </v-btn>
@@ -52,18 +52,18 @@
     <v-btn
       color="red darken-1"
       variant="text"
-      @click="onCancel"
       class="text-none text-subtitle-1 ml-3"
+      @click="onCancel"
     >
       Закрыть
     </v-btn>
     <v-btn
       prepend-icon="mdi-check-circle"
-      @click="onSave"
       class="text-none text-subtitle-1 pl-3"
       color="blue darken-1"
       size="large"
       variant="flat"
+      @click="onSave"
     >
       Сохранить
     </v-btn>
@@ -78,37 +78,19 @@ import { issueToolApi } from '@/modules/issue/api/issue'
 
 export default {
   name: 'FillingModal',
-  emits: ['canceled', 'changes-saved'],
   props: {
     persistent: { type: Boolean, default: false },
     toolId: { type: Number, default: null },
   },
+  emits: ['canceled', 'changes-saved'],
   data() {
     return {
       toolModel: {
         name: null,
         property: {},
-        limit: null,
         sklad: null,
         norma: null,
       },
-      /*
-      "id": 489,
-      "parent_id": 2,
-      "name": "S32-SUBURB16",
-      "folder_name": "Токарный",
-      "property": {
-        "1": "Резец",
-        "2": "расточной",
-        "3": "универсальная",
-        "11": "32",
-        "13": "35 градусов большая рыбка",
-        "0": "123"
-      },
-      "sklad": 9,
-      "limit": 0,
-      "norma": null
-      */
       toolParamOptions: [], //"Тип", "Группа", "Материал", "Ширина", "Габарит", "Шаг", "Длинна общая", "Длинна рабочей части", "Порядковый номер", "Диаметр хвостовика", "Диаметр", "Радиус", "Геометрия"
       selectedParams: [], // уже выбранные параметры ["Тип", "Группа", "Материал", "Диаметр", "Геометрия"]
       toolParams: [], //глобальные параметры [ { "id": 1, "info": "Тип" }, { "id": 2, "info": "Группа" }, { "id": 3, "info": "Материал" }, { "id": 4, "info": "Ширина" }, { "id": 5, "info": "Габарит" }, { "id": 6, "info": "Шаг" }, { "id": 7, "info": "Длинна общая" }, { "id": 8, "info": "Длинна рабочей части" }, { "id": 9, "info": "Порядковый номер" }, { "id": 10, "info": "Диаметр хвостовика" }, { "id": 11, "info": "Диаметр" }, { "id": 12, "info": "Радиус" }, { "id": 13, "info": "Геометрия" } ]
@@ -131,16 +113,7 @@ export default {
         Object.keys(this.toolModel.property)
       ).size
       const totalAvailableParams = this.toolParams.length
-      const isVisible = uniqueSelectedParamsCount < totalAvailableParams
-      console.log(
-        isVisible,
-        '=',
-        uniqueSelectedParamsCount,
-        '<',
-        totalAvailableParams
-      )
-
-      return isVisible
+      return uniqueSelectedParamsCount < totalAvailableParams
     },
     availableToolParamOptions() {
       // Фильтрация toolParamOptions, чтобы показывать только те, которые еще не выбраны
@@ -169,14 +142,55 @@ export default {
     toolId: {
       immediate: true,
       async handler(editingToolId) {
-        if (editingToolId == null) {
-          this.resetToolModel()
-        } else {
+        if (editingToolId != null) {
           await this.fetchToolById(editingToolId)
           this.updateToolModel()
         }
       },
     },
+  },
+  async created() {
+    this.updateAvailableToolParamOptions() // Вызываем при инициализации
+    try {
+      const fioData = await issueToolApi.getDetailFio()
+      this.fioOptions = this.prepareFioOptions(fioData)
+    } catch (error) {
+      console.error('Ошибка при загрузке данных ФИО:', error)
+    }
+
+    try {
+      // Получение списка параметров инструмента
+      const rawToolParams = await getToolParams()
+      this.toolParams = [...rawToolParams]
+      this.toolParamOptions = rawToolParams.map((param) => param.info) // Предполагается, что каждый параметр содержит поле info
+
+      // Если модель инструмента уже содержит выбранные параметры, обновите selectedParams
+      if (
+        this.toolModel.property &&
+        Object.keys(this.toolModel.property).length > 0
+      ) {
+        const propertyIds = Object.keys(this.toolModel.property)
+        this.selectedParams = this.toolParams
+          .filter((param) => propertyIds.includes(String(param.id)))
+          .map((param) => param.info)
+      }
+    } catch (error) {
+      console.error('Ошибка при загрузке параметров инструмента:', error)
+    }
+
+    // this.initializeLocalState()
+    if (this.toolId == null) {
+      this.setTool({
+        id: null,
+        name: null,
+        property: {},
+      })
+    } else {
+      await this.fetchToolById(this.toolId)
+      if (this.tool && this.tool.property === null) {
+        this.tool.property = {}
+      }
+    }
   },
   methods: {
     ...mapActions('EditorToolStore', ['fetchToolsByFilter', 'fetchToolById']),
@@ -242,18 +256,6 @@ export default {
       )
     },
 
-    resetToolModel() {
-      console.log('Новый инструмент resetToolModel')
-      this.toolModel = {
-        name: null,
-        limit: null,
-        sklad: null,
-        norma: null,
-        property: {},
-      }
-      console.log(this.toolModel)
-    },
-
     updateToolModel() {
       if (this.tool) this.toolModel = JSON.parse(JSON.stringify(this.tool))
     },
@@ -274,12 +276,8 @@ export default {
     async onDelete() {
       const { id } = this.toolModel
       if (id != null) {
-        try {
-          const response = await editorToolApi.deleteTool(id)
-          if (response.success === 'OK') this.$emit('changes-saved')
-        } catch (error) {
-          console.error('Ошибка при удалении инструмента:', error)
-        }
+        const response = await editorToolApi.deleteTool(id)
+        if (response.success === 'OK') this.$emit('changes-saved')
       }
     },
     onCancel() {
@@ -297,7 +295,6 @@ export default {
         } else {
           response = await editorToolApi.addTool(toolDataToSend)
         }
-        console.log(response, response.status)
         if (response.success === 'OK') this.$emit('changes-saved')
       } catch (error) {
         console.error(
@@ -306,49 +303,6 @@ export default {
         )
       }
     },
-  },
-  async created() {
-    this.updateAvailableToolParamOptions() // Вызываем при инициализации
-    try {
-      const fioData = await issueToolApi.getDetailFio()
-      this.fioOptions = this.prepareFioOptions(fioData)
-    } catch (error) {
-      console.error('Ошибка при загрузке данных ФИО:', error)
-    }
-
-    try {
-      // Получение списка параметров инструмента
-      const rawToolParams = await getToolParams()
-      this.toolParams = [...rawToolParams]
-      this.toolParamOptions = rawToolParams.map((param) => param.info) // Предполагается, что каждый параметр содержит поле info
-
-      // Если модель инструмента уже содержит выбранные параметры, обновите selectedParams
-      if (
-        this.toolModel.property &&
-        Object.keys(this.toolModel.property).length > 0
-      ) {
-        const propertyIds = Object.keys(this.toolModel.property)
-        this.selectedParams = this.toolParams
-          .filter((param) => propertyIds.includes(String(param.id)))
-          .map((param) => param.info)
-      }
-    } catch (error) {
-      console.error('Ошибка при загрузке параметров инструмента:', error)
-    }
-
-    // this.initializeLocalState()
-    if (this.toolId == null) {
-      this.setTool({
-        id: null,
-        name: null,
-        property: {},
-      })
-    } else {
-      await this.fetchToolById(this.toolId)
-      if (this.tool && this.tool.property === null) {
-        this.tool.property = {}
-      }
-    }
   },
 }
 </script>

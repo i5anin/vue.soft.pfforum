@@ -9,7 +9,7 @@
       >
       </v-list-item>
       <v-list-group v-else>
-        <template v-slot:activator="{ props }">
+        <template #activator="{ props }">
           <v-list-item
             v-bind="props"
             :prepend-icon="getIcon(item.icon)"
@@ -32,13 +32,13 @@
 import SidebarMenuItem from '@/main-app/SidebarMenuItem.vue'
 
 export default {
+  components: { SidebarMenuItem },
   props: {
     menuItems: {
       type: Array,
       default: () => [],
     },
   },
-  components: { SidebarMenuItem },
   methods: {
     onNavigate(path) {
       this.$router.push(path)

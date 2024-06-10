@@ -38,6 +38,9 @@ export default {
       treeData: [], // Инициализация пустого массива для данных дерева
     }
   },
+  async created() {
+    await this.refreshTreeData()
+  },
   methods: {
     async refreshTreeData() {
       try {
@@ -51,9 +54,6 @@ export default {
         console.error('Ошибка при обновлении дерева:', error)
       }
     },
-  },
-  async created() {
-    await this.refreshTreeData()
   },
 }
 </script>

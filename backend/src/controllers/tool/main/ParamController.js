@@ -1,21 +1,18 @@
 const { Pool } = require('pg')
-const { getNetworkDetails } = require('../../../db_type')
-const config = require('../../../config')
 const getDbConfig = require('../../../databaseConfig')
 
 // Получение настроек для подключения к базе данных
-const networkDetails = getNetworkDetails()
 const dbConfig = getDbConfig()
 
 // Создание соединения с базой данных
 const pool = new Pool(dbConfig)
 
 async function addToolParam(req, res) {
-  const { info } = req.body
+  const { label } = req.body
 
   try {
-    const query = 'INSERT INTO dbo.tool_params (info) VALUES ($1) RETURNING *'
-    const result = await pool.query(query, [info])
+    const query = 'INSERT INTO dbo.tool_params (label) VALUES ($1) RETURNING *'
+    const result = await pool.query(query, [label])
 
     if (result.rows.length > 0) {
       res.status(201).json(result.rows[0])
@@ -28,15 +25,64 @@ async function addToolParam(req, res) {
   }
 }
 
+async function moveToolParam(req, res) {
+  const { id } = req.params // Получаем ID из URL-параметра
+  const { action } = req.body // Получаем действие из тела запроса
+
+  try {
+    // Получаем текущий порядок параметра
+    const currentOrderQuery =
+      'SELECT param_order FROM dbo.tool_params WHERE id = $1'
+    const currentOrderResult = await pool.query(currentOrderQuery, [id])
+    if (currentOrderResult.rows.length === 0) {
+      res.status(404).send('Parameter not found')
+      return
+    }
+    const currentOrder = currentOrderResult.rows[0].param_order
+
+    // Определяем новый порядок в зависимости от действия
+    const newOrderQuery =
+      action === 'moveUp'
+        ? 'SELECT id, param_order FROM dbo.tool_params WHERE param_order < $1 ORDER BY param_order DESC LIMIT 1'
+        : 'SELECT id, param_order FROM dbo.tool_params WHERE param_order > $1 ORDER BY param_order ASC LIMIT 1'
+
+    const newOrderResult = await pool.query(newOrderQuery, [currentOrder])
+    if (newOrderResult.rowCount === 0) {
+      res.status(400).send('No adjacent parameters to swap with')
+      return
+    }
+
+    const adjacentParam = newOrderResult.rows[0]
+    const adjacentOrderId = adjacentParam.id
+    const adjacentOrder = adjacentParam.param_order
+
+    // Запускаем транзакцию для обновления порядка
+    await pool.query('BEGIN')
+    const updateCurrentQuery =
+      'UPDATE dbo.tool_params SET param_order = $1 WHERE id = $2'
+    await pool.query(updateCurrentQuery, [adjacentOrder, id])
+    const updateAdjacentQuery =
+      'UPDATE dbo.tool_params SET param_order = $1 WHERE id = $2'
+    await pool.query(updateAdjacentQuery, [currentOrder, adjacentOrderId])
+    await pool.query('COMMIT')
+
+    res.status(200).send('Parameter order updated successfully')
+  } catch (error) {
+    await pool.query('ROLLBACK')
+    console.error('Error moving tool parameter:', error)
+    res.status(500).send('Internal Server Error')
+  }
+}
+
 async function getToolParams(req, res) {
   try {
-    // Query modified to include ORDER BY clause for sorting by id in ascending order
-    const query = 'SELECT id, info FROM dbo.tool_params ORDER BY id ASC'
+    const sortBy = req.query.sort || 'param_order' // Сортировка по умолчанию: param_order
+    const query = `SELECT id, label, param_order FROM dbo.tool_params ORDER BY ${sortBy} ASC`
     const result = await pool.query(query)
-    res.json(result.rows) // Send the query result back to the client
+    res.json(result.rows)
   } catch (error) {
     console.error('Error fetching tool parameters:', error)
-    res.status(500).send('Internal Server Error') // Send error message
+    res.status(500).send('Internal Server Error')
   }
 }
 
@@ -124,11 +170,11 @@ async function deleteToolParam(req, res) {
 
 async function updateToolParam(req, res) {
   const id = req.params.id // Получение ID из параметров запроса
-  const { info } = req.body // Получение нового названия из тела запроса
+  const { label } = req.body // Получение нового названия из тела запроса
 
   try {
-    const query = 'UPDATE dbo.tool_params SET info = $1 WHERE id = $2'
-    const result = await pool.query(query, [info, id])
+    const query = 'UPDATE dbo.tool_params SET label = $1 WHERE id = $2'
+    const result = await pool.query(query, [label, id])
 
     if (result.rowCount === 0) {
       // Нет такого ID в базе данных
@@ -149,4 +195,5 @@ module.exports = {
   addToolParam,
   getToolParamsParentId,
   getToolNameId,
+  moveToolParam,
 }

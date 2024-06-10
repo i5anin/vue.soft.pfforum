@@ -35,6 +35,14 @@ export default {
   data() {
     return { tab: null, tabs: [] }
   },
+
+  computed: {
+    appColor() {
+      return import.meta.env.VITE_NODE_ENV === 'build'
+        ? import.meta.env.VITE_BUILD_COLOR
+        : import.meta.env.VITE_DEV_COLOR
+    },
+  },
   watch: {
     tab() {
       // Обновление URL в адресной строке при смене вкладки
@@ -50,14 +58,6 @@ export default {
     // Добавляем запрос на проверку доступов
     this.checkAccess()
   },
-
-  computed: {
-    appColor() {
-      return import.meta.env.VITE_NODE_ENV === 'build'
-        ? import.meta.env.VITE_BUILD_COLOR
-        : import.meta.env.VITE_DEV_COLOR
-    },
-  },
   methods: {
     async checkAccess() {
       try {
@@ -68,8 +68,6 @@ export default {
           if (this.tabs.length > 0) {
             this.tab = this.tabs[0].name // Установка активной вкладки на первую доступную
           }
-          // console.log('Статус авторизации:', response.status)
-          // console.log('Роль пользователя:', response.role)
         } else {
           console.error('Ошибка доступа:', response.message)
         }

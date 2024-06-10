@@ -1,25 +1,29 @@
+// routers.js
+
 const express = require('express')
 const router = express.Router()
 
-const loginController = require('./controllers/login/b_login')
-const nomController = require('./controllers/tool/main/b_nom')
-const paramController = require('./controllers/tool/main/b_param')
-const treeController = require('./controllers/tool/main/b_tree')
-const skladController = require('./controllers/tool/b_sklad')
+const loginController = require('./controllers/login/LoginController')
+const nomController = require('./controllers/tool/main/NomController')
+const paramController = require('./controllers/tool/main/ParamController')
+const treeController = require('./controllers/tool/main/TreeController')
+const skladController = require('./controllers/tool/SkladController')
 
-const historyController = require('./controllers/tool/b_history_issue')
-const historyControllerModal = require('./controllers/tool/b_history_issue_modal')
+const historyController = require('./controllers/tool/HistoryIssueController')
+const historyControllerModal = require('./controllers/tool/HistoryIssueModalController')
 
-const damagedController = require('./controllers/tool/b_history_damaged')
-const issueController = require('./controllers/tool/b_issue')
+const damagedController = require('./controllers/tool/HistoryDamagedController')
+const issueController = require('./controllers/tool/IssueController')
 
-const reportBuchWeekController = require('./controllers/tool/reports/email/b_buch_week')
-const reportBuchEndOpController = require('./controllers/tool/reports/email/b_buch_end_op')
-const reportBuchMonthController = require('./controllers/tool/reports/email/b_buch_month')
-const reportZakazController = require('./controllers/tool/reports/email/b_order_Instr')
+const reportBuchWeekController = require('./controllers/tool/reports/email/BuchWeekController')
+const reportBuchEndOpController = require('./controllers/tool/reports/email/BuchEndOpController')
+const reportBuchMonthController = require('./controllers/tool/reports/email/BuchMonthController')
+const reportZakazController = require('./controllers/tool/reports/email/OrderToolsController')
 
-const reportVueZakazController = require('./controllers/tool/reports/vue/b_order_Instr')
-const reportVueBuhController = require('./controllers/tool/reports/vue/b_buch_week')
+const reportVueZakazController = require('./controllers/tool/reports/vue/OrderToolsController')
+const reportVueBuhController = require('./controllers/tool/reports/vue/BuchWeekController')
+
+const groupsController = require('./controllers/tool/main/GroupController')
 
 // const excelZakazController = require('./controllers/tool/reports/excel/b_order_Instr')
 
@@ -30,8 +34,8 @@ router.post('/check-login', loginController.checkLogin)
 router.get('/database-info', loginController.getDatabaseInfo)
 // nom
 router.get('/tool/:id', nomController.getToolById) //1 элемент
-router.get('/tools', nomController.getTools) //GET ALL
-router.post('/tools', nomController.getTools) //POST ALL
+router.get('/tools', nomController.getTools)
+// router.post('/tools', nomController.getTools) //POST ALL
 router.post('/tool', nomController.addTool)
 router.put('/tool/:id', nomController.editTool)
 router.delete('/tool/:id', nomController.deleteTool)
@@ -44,6 +48,7 @@ router.post('/tools-params', paramController.addToolParam)
 router.put('/tools-params/:id', paramController.updateToolParam)
 router.delete('/tools-params/:id', paramController.deleteToolParam)
 router.get('/tools-params-name/:id', paramController.getToolNameId)
+router.patch('/tools-params/:id/move', paramController.moveToolParam)
 
 // tree
 router.get('/tools-tree', treeController.getToolsTree)
@@ -68,6 +73,9 @@ router.get('/history', historyController.getToolHistory)
 router.get('/history-all-tool', historyController.getAllIssuedToolIdsWithNames)
 router.get('/tool-movement/:id', historyController.getToolMovementById)
 
+//groups
+router.get('/tools-groups', groupsController.getGroupedTools)
+
 router.get('/history-part', historyControllerModal.getToolHistoryByPartId)
 router.post('/history-add-archive', historyControllerModal.addToArchive)
 router.get(
@@ -83,11 +91,11 @@ router.post('/tool-history-damaged', damagedController.addToolHistoryDamaged)
 router.post('/sklad/update', skladController.updateToolInventory)
 
 // email report
-router.get('/report/genBuchWeek', reportBuchWeekController.genBuchWeek) // бухгалтерию исключен сломанный	раз в неделю каждый ПТ в 12:00 (за неделю)
-router.get('/report/genBuchEndOp', reportBuchEndOpController.checkStatusChanges) // бухгалтерию	по завершению операции
-router.get('/report/genBuchMonth', reportBuchMonthController.genBuchMonth) // бухгалтерию журнал уничтоженого	раз в месяц каждый ПТ в 12:00 (за месяц)
+router.get('/report/buch-week', reportBuchWeekController.genBuchWeek) // бухгалтерию исключен сломанный	раз в неделю каждый ПТ в 12:00 (за неделю)
+router.get('/report/buch-end-op', reportBuchEndOpController.checkStatusChanges) // бухгалтерию	по завершению операции
+router.get('/report/buch-month', reportBuchMonthController.genBuchMonth) // бухгалтерию журнал уничтоженного	раз в месяц каждый ПТ в 12:00 (за месяц)
 
-router.get('/report/genZayavInstr', reportZakazController.genZayavInstr) // заявка на инструмент	раз в неделю каждый ЧТ в 12:00 (за неделю)
+router.get('/report/zayav-instr', reportZakazController.genZayavInstr) // заявка на инструмент	раз в неделю каждый ЧТ в 12:00 (за неделю)
 
 //vue
 router.get('/report/getBuchWeek', reportVueBuhController.getTableReportData) // бухгалтерию исключен сломанный	раз в неделю каждый ПТ в 12:00 (за неделю)

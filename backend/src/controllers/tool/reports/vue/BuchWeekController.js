@@ -1,13 +1,8 @@
 const { Pool } = require('pg')
-const ExcelJS = require('exceljs')
-const { getNetworkDetails } = require('../../../../db_type')
-const config = require('../../../../config')
-const nodemailer = require('nodemailer')
-const { emailConfig } = require('../../../../config')
 const getDbConfig = require('../../../../databaseConfig')
 
 // Настройка подключения к базе данных
-const networkDetails = getNetworkDetails()
+
 const dbConfig = getDbConfig()
 const pool = new Pool(dbConfig)
 

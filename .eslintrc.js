@@ -8,7 +8,7 @@ module.exports = {
   },
   extends: [
     'eslint:recommended',
-    'plugin:vue/vue3-essential',
+    'plugin:vue/vue3-recommended',
     'plugin:prettier/recommended',
   ],
   overrides: [
@@ -19,12 +19,17 @@ module.exports = {
     },
   ],
   parserOptions: {
-    ecmaVersion: 'latest',
+    ecmaVersion: 2023,
     sourceType: 'module',
   },
   plugins: ['vue'],
   rules: {
     'vue/multi-word-component-names': 'off',
     'vue/valid-v-slot': 'off',
+    quotes: [
+      'error',
+      'single',
+      { avoidEscape: true, allowTemplateLiterals: true },
+    ],
   },
 }

@@ -85,6 +85,8 @@ export default {
     },
 
     async fetchToolsByFilter({ commit, state }) {
+      // Прежде всего сохраняем текущее состояние выбранных фильтров
+      const selectedFilters = { ...state.filters.selectedDynamicFilters }
       commit('setIsLoading', true)
       const {
         currentPage,
@@ -95,8 +97,6 @@ export default {
         selectedDynamicFilters,
       } = state.filters
       const { id: parentId } = state.parentCatalog
-
-      // console.log('Поисковой запрос:', search)
 
       // Формируем URL для запроса
       const params = new URLSearchParams({
@@ -123,6 +123,8 @@ export default {
         )
         commit('setTools', tools)
         commit('setToolsTotalCount', totalCount)
+        // Восстанавливаем выбранные фильтры в состояние после загрузки данных
+        commit('setSelectedDynamicFilters', selectedFilters)
       } catch (error) {
         console.error('getTools. Ошибка при получении данных:', error)
       } finally {

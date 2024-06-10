@@ -6,7 +6,7 @@
     @click="navigate"
   />
   <v-list-group v-else :value="item.title">
-    <template v-slot:activator="{ props }">
+    <template #activator="{ props }">
       <v-list-item
         v-bind="props"
         :prepend-icon="item.icon"
@@ -25,7 +25,7 @@
 <script>
 export default {
   props: {
-    item: Object,
+    item: { type: Object, default: () => ({}) },
   },
   methods: {
     navigate() {

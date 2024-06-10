@@ -1,5 +1,5 @@
 import { handleApiError } from '@/api/errorHandler'
-import axiosInstance from '@/api/axiosConfig'
+import { axiosInstance } from '@/api/axiosConfig'
 
 function handleResponse(response) {
   return response.data
@@ -24,6 +24,13 @@ export const toolParamApi = {
   addToolParam: async (newParam) =>
     axiosInstance
       .post(`/tools-params`, newParam)
+      .then(handleResponse)
+      .catch(handleApiError),
+
+  // Переместить параметр инструмента
+  moveToolParam: async (id, direction) =>
+    axiosInstance
+      .patch(`/tools-params/${id}/move`, { action: direction }) // Здесь предполагается, что сервер ожидает путь в формате: /tools-params/:id/move и данные { action: 'moveUp' } или { action: 'moveDown' }
       .then(handleResponse)
       .catch(handleApiError),
 }

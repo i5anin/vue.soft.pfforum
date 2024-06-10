@@ -1,7 +1,5 @@
 const { Pool } = require('pg')
 const ExcelJS = require('exceljs')
-const { getNetworkDetails } = require('../../../../db_type')
-const config = require('../../../../config')
 const nodemailer = require('nodemailer')
 const { emailConfig } = require('../../../../config')
 const getEmailRecipients = require('./getEmailRecipients')
@@ -9,7 +7,6 @@ const { schedule } = require('node-cron')
 const getDbConfig = require('../../../../databaseConfig')
 
 // Настройка подключения к базе данных
-const networkDetails = getNetworkDetails()
 const dbConfig = getDbConfig()
 const pool = new Pool(dbConfig)
 
@@ -17,18 +14,17 @@ const pool = new Pool(dbConfig)
 async function getReportData() {
   try {
     const query = `
-      SELECT tool_history_nom.id_tool,
+      SELECT tool_nom.id,
              tool_nom.name,
-             tool_history_nom.timestamp,
-             SUM(tool_history_nom.quantity) as zakaz
+             MIN(tool_history_nom.timestamp) AS start_date,
+             MAX(tool_history_nom.timestamp) AS end_date,
+             SUM(tool_history_nom.quantity) AS zakaz
       FROM dbo.tool_history_nom
              JOIN
            dbo.tool_nom ON tool_history_nom.id_tool = tool_nom.id
       WHERE tool_history_nom.timestamp >= CURRENT_DATE - INTERVAL '7 days'
-      GROUP BY tool_history_nom.id_tool,
-               tool_nom.name,
-               tool_history_nom.timestamp
-      ORDER BY tool_history_nom.timestamp;
+      GROUP BY tool_nom.id, tool_nom.name
+      ORDER BY tool_nom.name;
     `
     const { rows } = await pool.query(query)
     return rows
@@ -68,13 +64,32 @@ async function createExcelFileStream(data) {
   ])
   worksheet.addRow([])
 
-  worksheet.getRow(3).values = ['№', 'Название', 'Кол-во']
+  worksheet.getRow(3).values = [
+    '№',
+    'Название',
+    'Дата начала',
+    'Дата конца',
+    'Кол-во',
+  ]
   worksheet.getRow(3).font = { bold: true }
 
   let rowNumber = 1
   data.forEach((item) => {
     if (item.zakaz > 0) {
-      worksheet.addRow([rowNumber, item.name, item.zakaz])
+      const formattedStartDate = new Date(item.start_date)
+        .toISOString()
+        .split('T')[0]
+      const formattedEndDate = new Date(item.end_date)
+        .toISOString()
+        .split('T')[0]
+
+      worksheet.addRow([
+        rowNumber,
+        item.name,
+        formattedStartDate,
+        formattedEndDate,
+        item.zakaz,
+      ])
       rowNumber++
     }
   })
@@ -105,14 +120,20 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
 
   // Генерация HTML таблицы для тела письма
   let htmlContent = `<h2>${subject}</h2>`
-  htmlContent += `<table border='1' style='border-collapse: collapse;'><tr><th>№</th><th>Название</th><th>Дата</th><th>Количество</th></tr>`
+  htmlContent += `<table border='1' style='border-collapse: collapse;'><tr><th>№</th><th>Название</th><th>Дата начала</th><th>Дата конца</th><th>Количество</th></tr>`
 
   let rowNumber = 1
   data.forEach((item) => {
-    const formattedDate = new Date(item.timestamp).toISOString().split('T')[0] // Форматируем дату
+    const formattedStartDate = new Date(item.start_date)
+      .toISOString()
+      .split('T')[0]
+    const formattedEndDate = new Date(item.end_date).toISOString().split('T')[0]
+
     htmlContent += `<tr><td>${rowNumber++}</td><td>${
       item.name
-    }</td><td>${formattedDate}</td><td>${item.zakaz}</td></tr>`
+    }</td><td>${formattedStartDate}</td><td>${formattedEndDate}</td><td>${
+      item.zakaz
+    }</td></tr>`
   })
 
   htmlContent += `</table>`
@@ -199,9 +220,9 @@ async function sendReport(email) {
   console.log(`Отчет успешно отправлен на email: ${email}`)
 }
 
-min15 = '0 */15 * * * *'
-sec10 = '*/10 * * * * *'
-week = '0 11 * * 5'
+// const min15 = '0 */15 * * * *'
+// const sec10 = '*/10 * * * * *'
+const week = '0 11 * * 5'
 schedule(week, async function () {
   console.log('Запускаем genBuchWeek с помощью задачи cron...')
   try {

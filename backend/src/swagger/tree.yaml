@@ -1,0 +1,159 @@
+openapi: 3.0.0
+info:
+  title: "API Tool Tree"
+  version: "1.0.0"
+  description: "API для работы с деревом инструментов"
+servers:
+  - url: "http://192.168.0.200:4001"
+
+paths:
+  /tools-tree:
+    get:
+      tags:
+        - "Tool Tree"
+      summary: "Получить дерево инструментов"
+      responses:
+        '200':
+          description: "Успешно получен список инструментов в виде дерева"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ToolTreeNode'
+        '500':
+          description: "Внутренняя ошибка сервера"
+
+  /tools-tree/{id}:
+    put:
+      tags:
+        - "Tool Tree"
+      summary: "Обновить название папки"
+      parameters:
+        - name: "id"
+          in: "path"
+          description: "ID папки для обновления"
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: "Данные для обновления папки"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                newName:
+                  type: string
+                  description: "Новое название папки"
+      responses:
+        '200':
+          description: "Папка успешно обновлена"
+        '400':
+          description: "Ошибка в запросе"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: "Внутренняя ошибка сервера"
+
+    post:
+      tags:
+        - "Tool Tree"
+      summary: "Добавить подпапку"
+      requestBody:
+        description: "Данные для добавления новой папки"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewBranch'
+      responses:
+        '200':
+          description: "Новая подпапка успешно добавлена"
+        '400':
+          description: "Ошибка в запросе"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: "Внутренняя ошибка сервера"
+
+    delete:
+      tags:
+        - "Tool Tree"
+      summary: "Удалить папку с инструментами"
+      parameters:
+        - name: "id"
+          in: "path"
+          description: "ID папки для удаления"
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: "Папка успешно удалена"
+        '400':
+          description: "Ошибка в запросе"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: "Внутренняя ошибка сервера"
+
+components:
+  schemas:
+    ToolTreeNode:
+      type: object
+      required:
+        - id
+        - label
+        - elements
+        - available
+        - totalElements
+        - totalAvailable
+      properties:
+        id:
+          type: integer
+          description: "ID инструмента"
+        label:
+          type: string
+          description: "Название инструмента"
+        elements:
+          type: integer
+          description: "Количество элементов в данной папке"
+        available:
+          type: integer
+          description: "Количество доступных элементов в данной папке"
+        totalElements:
+          type: integer
+          description: "Общее количество элементов в данной папке и ее подпапках"
+        totalAvailable:
+          type: integer
+          description: "Общее количество доступных элементов в данной папке и ее подпапках"
+        nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ToolTreeNode'
+
+    NewBranch:
+      type: object
+      properties:
+        name:
+          type: string
+          description: "Название новой подпапки"
+        parentId:
+          type: integer
+          description: "ID родительской папки"
+
+    # Дополнительные схемы для примера
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: "Сообщение об ошибке"

@@ -1,3 +1,5 @@
+//app.js
+
 require('dotenv').config()
 const express = require('express')
 const bodyParser = require('body-parser')
@@ -6,8 +8,10 @@ const config = require('./config')
 const routers = require('./routers')
 const { getNetworkDetails } = require('./db_type')
 const getDbConfig = require('./databaseConfig')
-const networkDetails = getNetworkDetails()
 const dbConfig = getDbConfig()
+const swaggerUi = require('swagger-ui-express')
+const swaggerJsdoc = require('swagger-jsdoc')
+const specs = swaggerJsdoc(require('./swaggerConfig'))
 const app = express()
 
 console.log('\x1b[36m%s\x1b[0m', '• Почтовый сервер:')
@@ -26,9 +30,13 @@ console.log('Port:', process.env.DB_PORT || process.env.DB_TEST_PORT)
 
 app.use(bodyParser.json())
 app.use(cors())
+app.use('/api-docs/fN-01-33zX', swaggerUi.serve, swaggerUi.setup(specs))
+
+app.use(bodyParser.json())
+app.use(cors())
 app.use('/api', routers)
 
-app.use((err, req, res, next) => {
+app.use((err, req, res, _) => {
   console.error(err.stack)
   res.status(err.status || 500).send({
     status: err.status || 500,

@@ -1,44 +1,59 @@
 <template>
-  <Modal :title="popupTitle" widthDefault="650px">
+  <Modal :title="popupTitle" width-default="650px">
     <template #content>
       <v-container>
         <v-row>
           <v-col>
             <v-row>
-              <v-col cols="5">
+              <v-col cols="6">
                 <v-text-field
+                  v-model="parentCatalog.label"
                   label="Папка"
+                  variant="solo"
+                  density="compact"
                   required
                   type="Text"
-                  v-model="parentCatalog.label"
                   :disabled="true"
                 />
               </v-col>
-              <v-col cols="3">
+              <v-col cols="6">
                 <v-text-field
+                  variant="solo"
+                  density="compact"
+                  v-model="parentCatalog.id"
                   label="ID папки"
                   required
                   type="Number"
-                  v-model="parentCatalog.id"
                   :rules="parentIdRules"
                 />
               </v-col>
-              <v-col cols="3">
+            </v-row>
+            <v-row>
+              <v-col cols="6" class="pl-10">
+                <v-checkbox
+                  v-model="toolModel.group_standard"
+                  label="Эталон группы"
+                  color="yellow"
+                />
+              </v-col>
+              <v-col cols="6">
                 <v-text-field
+                  v-model="toolModel.group_id"
                   label="ID группы"
+                  variant="solo"
+                  density="compact"
                   required
                   type="Number"
-                  v-model="toolModel.group_id"
                 />
               </v-col>
             </v-row>
             <!--левый столбец -->
             <div>
               <v-combobox
+                v-model="toolModel.name"
                 variant="outlined"
                 label="Маркировка"
                 :items="toolNameOptions"
-                v-model="toolModel.name"
                 item-text="text"
                 item-value="value"
                 required
@@ -51,9 +66,9 @@
                 <v-row>
                   <v-col cols="6" class="pa-1">
                     <v-select
+                      v-model="param.label"
                       variant="solo-filled"
                       density="compact"
-                      v-model="param.info"
                       :items="availableToolParamOptions"
                       label="Параметр"
                       single-line="true"
@@ -63,10 +78,11 @@
                   </v-col>
                   <v-col cols="5" class="pa-1">
                     <v-combobox
-                      density="compact"
                       v-model="toolModel.property[param.id]"
+                      density="compact"
                       :items="toolParamsOptions[param.id]"
                       label="Значение"
+                      variant="outlined"
                       clearable="true"
                       single-line="true"
                       solo
@@ -83,9 +99,9 @@
             <v-row justify="center">
               <v-col cols="12" class="text-center mb-4">
                 <v-btn
+                  v-show="isAddButtonVisible"
                   color="primary"
                   @click="addParameterValuePair"
-                  v-show="isAddButtonVisible"
                 >
                   Добавить
                 </v-btn>
@@ -96,20 +112,19 @@
             <v-row>
               <v-col cols="6">
                 <v-text-field
+                  :disabled="toolModel.group_id && !toolModel.group_standard"
+                  v-model="toolModel.norma"
                   type="number"
-                  density="compact"
                   label="Нормативный запас"
                   required
-                  v-model="toolModel.norma"
                 />
               </v-col>
               <v-col cols="6">
                 <v-text-field
+                  v-model="toolModel.sklad"
                   type="number"
-                  density="compact"
                   label="Склад"
                   required
-                  v-model="toolModel.sklad"
                 />
               </v-col>
             </v-row>
@@ -121,8 +136,8 @@
       <v-btn
         color="red darken-1"
         variant="text"
-        @click="confirmDelete"
         class="text-none text-subtitle-1 ml-3"
+        @click="confirmDelete"
       >
         Удалить
       </v-btn>
@@ -130,18 +145,18 @@
       <v-btn
         color="red darken-1"
         variant="text"
-        @click="onCancel"
         class="text-none text-subtitle-1 ml-3"
+        @click="onCancel"
       >
         Закрыть
       </v-btn>
       <v-btn
         prepend-icon="mdi-check"
-        @click="onSave"
         class="text-none text-subtitle-1 pl-3"
         color="green"
         size="large"
         variant="flat"
+        @click="onSave"
       >
         Сохранить
       </v-btn>
@@ -162,12 +177,12 @@ import { mapActions, mapGetters, mapMutations } from 'vuex'
 
 export default {
   name: 'FillingModal',
-  emits: ['canceled', 'changes-saved'],
+  components: { Modal },
   props: {
     persistent: { type: Boolean, default: false },
     toolId: { type: Number, default: null },
   },
-  components: { Modal },
+  emits: ['canceled', 'changes-saved'],
   data() {
     return {
       snackbar: {
@@ -179,6 +194,7 @@ export default {
         name: null,
         property: {},
         group_id: null,
+        group_standard: null,
         sklad: null,
         norma: null,
       },
@@ -191,10 +207,6 @@ export default {
       confirmDeleteDialog: false,
       typeSelected: false,
       selectedType: '',
-      // groupIdRules: [
-      //   (v) => !!v || 'ID группы обязательно',
-      //   (v) => parseInt(v, 10) > 0 || 'ID группы должен быть больше 0',
-      // ],
       parentIdRules: [
         (v) => !!v || 'ID папки обязательно',
         (v) => v > 1 || 'ID папки должен быть больше 1',
@@ -251,6 +263,43 @@ export default {
       },
     },
   },
+  async created() {
+    await this.fetchToolParamsByParentId(this.parentCatalog.id)
+    await this.fetchToolNamesByParentId(this.parentCatalog.id)
+    try {
+      // Получение списка параметров инструмента
+      const rawToolParams = await getToolParams()
+      this.toolParams = [...rawToolParams]
+      this.toolParamOptions = rawToolParams.map((param) => param.label) // Предполагается, что каждый параметр содержит поле info
+
+      // Если модель инструмента уже содержит выбранные параметры, обновите selectedParams
+      if (
+        this.toolModel.property &&
+        Object.keys(this.toolModel.property).length > 0
+      ) {
+        const propertyIds = Object.keys(this.toolModel.property)
+        this.selectedParams = this.toolParams
+          .filter((param) => propertyIds.includes(String(param.id)))
+          .map((param) => param.label)
+      }
+    } catch (error) {
+      console.error('Ошибка при загрузке параметров инструмента:', error)
+    }
+
+    // this.initializeLocalState()
+    if (this.toolId == null) {
+      this.setTool({
+        id: null,
+        name: null,
+        property: {},
+      })
+    } else {
+      await this.fetchToolById(this.toolId)
+      if (this.tool && this.tool.property === null) {
+        this.tool.property = {}
+      }
+    }
+  },
   methods: {
     ...mapActions('EditorToolStore', ['fetchToolsByFilter', 'fetchToolById']),
     ...mapMutations('EditorToolStore', ['setTool']),
@@ -298,7 +347,7 @@ export default {
     },
 
     selectParam(paramInfo) {
-      const selectedParam = this.toolParams.find((p) => p.info === paramInfo)
+      const selectedParam = this.toolParams.find((p) => p.label === paramInfo)
       if (selectedParam) {
         // Удаляем временный ключ, если он был использован
         const newProperty = { ...this.toolModel.property }
@@ -317,9 +366,9 @@ export default {
       this.selectedParams = Object.keys(this.toolModel.property)
         .map((id) => {
           const param = this.toolParams.find((param) => String(param.id) === id)
-          return param ? param.info : null
+          return param ? param.label : null
         })
-        .filter((info) => info !== null)
+        .filter((label) => label !== null)
     },
     resetToolModel() {
       this.toolModel = {
@@ -328,13 +377,14 @@ export default {
         sklad: null,
         norma: null,
         property: {},
+        group_id: 0,
+        group_standard: null,
       }
-      console.log(this.toolModel)
     },
     addParameterValuePair() {
       // Проверяем, существует ли уже параметр с временным ID 0 в selectedParams
       if (!this.selectedParams.includes('-1')) {
-        const newToolParam = { id: -1, info: null }
+        const newToolParam = { id: -1, label: null }
         this.toolParams.push(newToolParam)
 
         // Обновляем toolModel.property для добавления нового параметра с временным значением
@@ -348,19 +398,6 @@ export default {
       if (this.tool) {
         this.toolModel = JSON.parse(JSON.stringify(this.tool))
       }
-    },
-    logModelValue(paramId) {
-      console.log('Value changed for param ID:', paramId)
-    },
-    prependOptionIfNeeded(value, optionsList) {
-      if (value && !optionsList.some((option) => option.value === value))
-        optionsList.unshift(value)
-    },
-    prepareFioOptions(fioData) {
-      return fioData.map((item) => ({
-        text: item.fio,
-        value: item.id,
-      }))
     },
     confirmDelete() {
       if (window.confirm('Вы уверены, что хотите удалить этот инструмент?'))
@@ -396,7 +433,6 @@ export default {
         } else {
           response = await editorToolApi.addTool(toolDataToSend)
         }
-        console.log(response, response.status)
         if (response.success === 'OK') this.$emit('changes-saved')
       } catch (error) {
         console.error(
@@ -405,43 +441,6 @@ export default {
         )
       }
     },
-  },
-  async created() {
-    await this.fetchToolParamsByParentId(this.parentCatalog.id)
-    await this.fetchToolNamesByParentId(this.parentCatalog.id)
-    try {
-      // Получение списка параметров инструмента
-      const rawToolParams = await getToolParams()
-      this.toolParams = [...rawToolParams]
-      this.toolParamOptions = rawToolParams.map((param) => param.info) // Предполагается, что каждый параметр содержит поле info
-
-      // Если модель инструмента уже содержит выбранные параметры, обновите selectedParams
-      if (
-        this.toolModel.property &&
-        Object.keys(this.toolModel.property).length > 0
-      ) {
-        const propertyIds = Object.keys(this.toolModel.property)
-        this.selectedParams = this.toolParams
-          .filter((param) => propertyIds.includes(String(param.id)))
-          .map((param) => param.info)
-      }
-    } catch (error) {
-      console.error('Ошибка при загрузке параметров инструмента:', error)
-    }
-
-    // this.initializeLocalState()
-    if (this.toolId == null) {
-      this.setTool({
-        id: null,
-        name: null,
-        property: {},
-      })
-    } else {
-      await this.fetchToolById(this.toolId)
-      if (this.tool && this.tool.property === null) {
-        this.tool.property = {}
-      }
-    }
   },
 }
 </script>

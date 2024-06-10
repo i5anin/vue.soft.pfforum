@@ -6,7 +6,7 @@
   <!--    {{ snackbarText }}-->
   <!--    <v-btn color="white" text @click="snackbar = false"> Закрыть </v-btn>-->
   <!--  </v-snackbar>-->
-  <Modal :title="popupTitle" widthDefault="600px">
+  <Modal :title="popupTitle" width-default="600px">
     <template #content>
       <v-container>
         <div class="text-h6 pl-5 mb-2">Выбрать деталь:</div>
@@ -14,22 +14,22 @@
           <v-col>
             <v-text-field
               variant="outlined"
-              label="поиск детали по ID партии"
+              label="поиск детали по партии"
               required
               @update:model-value="onIdChanged"
             />
             <v-select
+              v-model="toolModel.detailDescription"
               label="Название Обозначение"
               required
-              v-model="toolModel.detailDescription"
               :disabled="!options.idNameDescription.length"
               :items="options.idNameDescription"
               @update:model-value="onIdSelected"
             />
             <v-select
+              v-model="toolModel.numberType"
               label="Номер Тип"
               required
-              v-model="toolModel.numberType"
               :disabled="!options.numberType.length"
               :items="options.numberType"
               item-value="id"
@@ -38,13 +38,13 @@
             />
             <h2 class="text-h6 pl-5 mb-2">Кому выдать:</h2>
             <v-combobox
-              icon="mdi-account"
               v-model="selectedFio"
+              icon="mdi-account"
               :items="fioOptions"
               item-title="text"
               item-value="value"
               label="ФИО"
-              @update:modelValue="handleSelectionChange"
+              @update:model-value="handleSelectionChange"
             />
             <!--fixme-->
             <v-combobox
@@ -69,39 +69,39 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, index) in cartItems" :key="item.id">
+            <tr v-for="(cartItem, index) in cartItems" :key="cartItem.id">
               <td class="gray">{{ index + 1 }}</td>
-              <td>{{ item.name }}</td>
+              <td>{{ cartItem.name }}</td>
               <td>
                 <div class="d-flex align-center">
                   <v-btn
                     class="hover-effect-red"
-                    icon
+                    icon="true"
                     size="x-small"
+                    :disabled="cartItem.quantity <= 1"
                     @click="decreaseQuantity(index)"
-                    :disabled="item.quantity <= 1"
                   >
                     <v-icon icon="mdi-minus" />
                   </v-btn>
-                  <div class="mx-2">{{ item.quantity }}</div>
+                  <div class="mx-2">{{ cartItem.quantity }}</div>
                   <v-btn
                     class="hover-effect-red"
-                    icon
+                    icon="true"
                     size="x-small"
+                    :disabled="cartItem.quantity >= item.sklad"
                     @click="increaseQuantity(index)"
-                    :disabled="item.quantity >= item.sklad"
                   >
                     <v-icon icon="mdi-plus" />
                   </v-btn>
                 </div>
               </td>
-              <td>{{ item.sklad }}</td>
+              <td>{{ cartItem.sklad }}</td>
               <td>
                 <v-btn
                   class="hover-effect-grey"
-                  icon
+                  icon="true"
                   size="x-small"
-                  @click="removeFromCartAction(item.toolId)"
+                  @click="removeFromCartAction(cartItem.toolId)"
                 >
                   <v-icon icon="mdi-delete" />
                 </v-btn>
@@ -115,8 +115,8 @@
       <v-btn
         color="red darken-1"
         variant="text"
-        @click="onCancel"
         class="text-none text-subtitle-1 ml-3"
+        @click="onCancel"
       >
         Закрыть
       </v-btn>
@@ -124,12 +124,12 @@
       <v-btn
         v-if="cartItemsTotalQuantity"
         prepend-icon="mdi-hand-extended"
-        @click="onSave"
         class="text-none text-subtitle-1 pl-3"
         color="blue darken-1"
         size="large"
         variant="flat"
         :disabled="submitButtonDisabled"
+        @click="onSave"
       >
         Выдать
         <!-- Добавление класса ml-2 (margin left 2) для отступа -->
@@ -148,14 +148,13 @@ import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { toolTreeApi } from '@/modules/tree/api/tree'
 
 export default {
-  name: 'Cart-Modal',
-  emits: ['canceled', 'changes-saved', 'updatePage'],
+  name: 'CartModal',
+  components: { Modal },
   props: {
     persistent: { type: Boolean, default: false },
     toolId: { type: Number, default: null },
-    radiusOptions: { type: Array },
   },
-  components: { Modal },
+  emits: ['canceled', 'changes-saved', 'updatePage'],
   data: () => ({
     selectedFio: null,
     typeIssueOptions: [
@@ -205,24 +204,6 @@ export default {
       numberType: [],
     },
   }),
-  watch: {
-    'toolModel.detailDescription'(newValue, oldValue) {
-      if (newValue !== oldValue) this.toolModel.operationType = null
-    },
-    tool: {
-      deep: true,
-      immediate: true,
-      async handler(editingToolId) {
-        if (editingToolId == null) {
-          this.resetToolModel()
-        } else {
-          await this.fetchToolById(editingToolId)
-          this.updateToolModel()
-        }
-      },
-    },
-  },
-
   computed: {
     ...mapGetters('IssueToolStore', [
       'nameOptions',
@@ -252,6 +233,39 @@ export default {
       return 'Корзина'
     },
   },
+  watch: {
+    'toolModel.detailDescription'(newValue, oldValue) {
+      if (newValue !== oldValue) this.toolModel.operationType = null
+    },
+    tool: {
+      deep: true,
+      immediate: true,
+      async handler(editingToolId) {
+        if (editingToolId == null) {
+          this.resetToolModel()
+        } else {
+          await this.fetchToolById(editingToolId)
+          this.updateToolModel()
+        }
+      },
+    },
+  },
+
+  async created() {
+    try {
+      const fioData = await issueToolApi.getDetailFio()
+      this.fioOptions = this.prepareFioOptions(fioData)
+    } catch (error) {
+      console.error('Ошибка при загрузке данных ФИО:', error)
+    }
+
+    // Проверьте, нужно ли здесь ожидать завершения операции
+    const toolsTree = await toolTreeApi.getTree()
+    if (toolsTree && toolsTree.length > 0) {
+      this.currentItem = toolsTree[0]
+      this.tree.push(this.currentItem)
+    }
+  },
   methods: {
     ...mapMutations('IssueToolStore', ['setTool']),
     ...mapActions('IssueToolStore', [
@@ -262,9 +276,7 @@ export default {
       'removeFromCartAction',
     ]),
     onOperationSelected(selectedValue) {
-      console.log('Выбранное значение:', selectedValue)
       const operationId = this.operationMapping[selectedValue]
-      console.log('Соответствующий ID операции:', operationId)
       if (operationId) {
         this.toolModel.operationType = operationId // Установка ID операции, выбранной пользователем
       } else {
@@ -295,14 +307,10 @@ export default {
     },
 
     onIdSelected(selectedValue) {
-      console.log('Выбранное значение для Название Обозначение:', selectedValue)
       const id = this.idMapping[selectedValue]
-      console.log('Соответствующий ID:', id)
       if (id) {
         const filteredData = this.originalData.filter((item) => item.id === id)
-        console.log('Фильтрованные данные для Номер Тип:', filteredData)
         this.options.numberType = this.formatOperationOptions(filteredData)
-        console.log('Обновленные options.numberType:', this.options.numberType)
         // Сбросить выбранное значение для "Номер Тип" каждый раз, когда выбирается новое "Название Обозначение"
         this.toolModel.operationType = null
       } else {
@@ -431,27 +439,12 @@ export default {
       this.$emit('canceled')
     },
   },
-  async created() {
-    try {
-      const fioData = await issueToolApi.getDetailFio()
-      this.fioOptions = this.prepareFioOptions(fioData)
-    } catch (error) {
-      console.error('Ошибка при загрузке данных ФИО:', error)
-    }
-
-    // Проверьте, нужно ли здесь ожидать завершения операции
-    const toolsTree = await toolTreeApi.getTree()
-    if (toolsTree && toolsTree.length > 0) {
-      this.currentItem = toolsTree[0]
-      this.tree.push(this.currentItem)
-    }
-  },
 }
 </script>
 
 <style>
 .gray {
-  color: gray;
+  color: grey;
 }
 
 .hover-effect-grey:hover {

@@ -7,10 +7,10 @@ const dbConfig = getDbConfig()
 const pool = new Pool(dbConfig)
 
 async function getParamsMapping() {
-  const query = 'SELECT id, info FROM dbo.tool_params'
+  const query = 'SELECT id, label FROM dbo.tool_params'
   const result = await pool.query(query)
   return result.rows.reduce((acc, row) => {
-    acc[row.id] = { info: row.info }
+    acc[row.id] = { label: row.label }
     return acc
   }, {})
 }
@@ -85,7 +85,8 @@ async function getTools(req, res) {
                tool_nom.property,
                tool_nom.sklad,
                tool_nom.norma,
-               tool_nom.group_id
+               tool_nom.group_id,
+               tool_nom.group_standard
         FROM dbo.tool_nom as tool_nom
             ${whereClause}
         ORDER BY
@@ -118,7 +119,7 @@ async function getTools(req, res) {
           (acc, [key, value]) => {
             if (value !== '' && value !== null && paramsMapping[key]) {
               acc[key] = {
-                info: paramsMapping[key].info,
+                label: paramsMapping[key].label,
                 value: value,
               }
               uniqueParams.add(key)
@@ -141,27 +142,26 @@ async function getTools(req, res) {
         sklad: tool.sklad,
         norma: tool.norma,
         group_id: tool.group_id,
+        group_standard: tool.group_standard,
       }
     })
 
     Object.keys(propertyValues).forEach((key) => {
       propertyValues[key] = Array.from(propertyValues[key])
     })
-
-    const paramsList = Array.from(uniqueParams)
+    Array.from(uniqueParams)
       .map((key) => {
         const values = propertyValues[key]
         if (values && values.length > 1) {
           return {
             key: key,
-            label: paramsMapping[key]?.info || key,
+            label: paramsMapping[key]?.label || key,
             values: values,
           }
         }
         return null
       })
       .filter((item) => item != null)
-
     // Отправка ответа
     res.json({
       currentPage: pageNumber,
@@ -229,7 +229,8 @@ async function deleteTool(req, res) {
 }
 
 async function addTool(req, res) {
-  const { name, parent_id, property, sklad, norma, group_id } = req.body
+  const { name, parent_id, property, sklad, norma, group_id, group_standard } =
+    req.body
   // Преобразование запятых в точки в числах в property
   replaceCommaWithDotInNumbers(property)
 
@@ -264,27 +265,21 @@ async function addTool(req, res) {
         .json({ error: 'Specified parent_id does not exist.' })
     }
 
-    // Проверка на существование group_id в базе данных (псевдокод, реализация зависит от структуры вашей БД)
-    if (group_id) {
-      const groupCheckResult = await pool.query(
-        'SELECT id FROM dbo.tool_groups WHERE id = $1',
-        [group_id]
-      )
-
-      if (groupCheckResult.rowCount === 0) {
-        return res.status(400).json({
-          error: 'Specified group_id does not exist.',
-        })
-      }
-    }
-
     const propertyWithoutNull = removeNullProperties(property)
     const propertyString = JSON.stringify(propertyWithoutNull)
 
+    // Если group_standard == true, то необходимо сбросить флаг эталонного инструмента для предыдущего эталона в той же группе
+    if (group_standard && group_id) {
+      await pool.query(
+        'UPDATE dbo.tool_nom SET group_standard = false WHERE group_id = $1',
+        [group_id]
+      )
+    }
+
     const toolInsertResult = await pool.query(
-      'INSERT INTO dbo.tool_nom (name, parent_id, property, sklad, norma, group_id) ' +
-        'VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
-      [name, parent_id, propertyString, sklad, norma, group_id]
+      'INSERT INTO dbo.tool_nom (name, parent_id, property, sklad, norma, group_id, group_standard) ' +
+        'VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
+      [name, parent_id, propertyString, sklad, norma, group_id, group_standard]
     )
 
     const toolId = toolInsertResult.rows[0].id
@@ -296,7 +291,6 @@ async function addTool(req, res) {
       [logMessage, toolId, sklad]
     )
 
-    // Получение полной информации о добавленном инструмента
     const newToolResult = await pool.query(
       'SELECT * FROM dbo.tool_nom WHERE id = $1',
       [toolId]
@@ -322,8 +316,9 @@ async function editTool(req, res) {
     sklad: newSklad,
     norma,
     group_id,
+    group_standard,
   } = req.body
-  // Преобразование запятых в точки в числах в property
+
   replaceCommaWithDotInNumbers(property)
 
   try {
@@ -357,7 +352,6 @@ async function editTool(req, res) {
         .json({ error: 'Specified parent_id does not exist.' })
     }
 
-    // Получение текущего значения на складе
     const currentSkladResult = await pool.query(
       'SELECT sklad FROM dbo.tool_nom WHERE id = $1',
       [id]
@@ -370,18 +364,32 @@ async function editTool(req, res) {
     }
 
     const oldSklad = currentSkladResult.rows[0].sklad
-
     const propertyWithoutNull = removeNullProperties(property)
     const propertyString = JSON.stringify(propertyWithoutNull)
 
-    // Обновление инструмента с новым значением на складе
+    if (group_standard) {
+      // Сброс флага group_standard для всех инструментов в группе
+      await pool.query(
+        'UPDATE dbo.tool_nom SET group_standard=false WHERE group_id=$1 AND id<>$2',
+        [group_id, id]
+      )
+    }
+
     const result = await pool.query(
-      'UPDATE dbo.tool_nom SET name=$1, parent_id=$2, property=$3, sklad=$4, norma=$5, group_id=$7 WHERE id=$6 RETURNING *',
-      [name, parent_id, propertyString, newSklad, norma, id, group_id]
+      'UPDATE dbo.tool_nom SET name=$1, parent_id=$2, property=$3, sklad=$4, norma=$5, group_id=$7, group_standard=$8 WHERE id=$6 RETURNING *',
+      [
+        name,
+        parent_id,
+        propertyString,
+        newSklad,
+        norma,
+        id,
+        group_id,
+        group_standard,
+      ]
     )
 
     if (result.rowCount > 0) {
-      // Логирование изменений на складе (old_amount и new_amount)
       await pool.query(
         'INSERT INTO dbo.vue_log (message, tool_id, datetime_log, old_amount, new_amount) VALUES ($1, $2, NOW(), $3, $4)',
         [`Обновлен ID инструмента ${id}`, id, oldSklad, newSklad]
@@ -422,6 +430,7 @@ async function getToolById(req, res) {
         property: toolData.property,
         sklad: toolData.sklad,
         group_id: toolData.group_id,
+        group_standard: toolData.group_standard,
         norma: toolData.norma,
       }
 
@@ -436,61 +445,56 @@ async function getToolById(req, res) {
 }
 
 async function getFilterParamsByParentId(req, res) {
-  let { parent_id } = req.params // Получаем parent_id из параметров запроса
-
-  // Преобразуем parent_id в число, если это возможно
+  let { parent_id } = req.params
   parent_id = Number(parent_id)
 
-  // Проверяем, является ли результат преобразования допустимым целым числом
   if (isNaN(parent_id) || !Number.isInteger(parent_id)) {
-    // Возвращаем ошибку клиенту, если parent_id не является целым числом
     return res.status(400).json({ error: 'Parent ID must be an integer' })
   }
 
   try {
-    // Получаем маппинг параметров
-    const paramsMapping = await getParamsMapping()
+    // Получаем маппинг параметров и их порядки
+    const queryMapping = `SELECT id, label, param_order FROM dbo.tool_params` // Выбираем id здесь
+    const mappingResult = await pool.query(queryMapping)
+    const paramsMapping = mappingResult.rows.reduce(
+      (acc, { id, label, param_order }) => {
+        // Используем id как ключ
+        acc[id] = { label, param_order }
+        return acc
+      },
+      {}
+    )
 
-    // SQL запрос для извлечения всех свойств инструментов в определенной категории
-    const query = `
-      SELECT tool_nom.property
-      FROM dbo.tool_nom
-      WHERE tool_nom.parent_id = $1`
-
+    // Запрос на получение свойств инструментов
+    const query = `SELECT property FROM dbo.tool_nom WHERE parent_id = $1`
     const { rows } = await pool.query(query, [parent_id])
 
-    // Агрегируем уникальные значения для каждого параметра
     const paramsAggregation = {}
 
-    // Existing logic to aggregate unique values for each parameter
     rows.forEach((row) => {
       Object.entries(row.property || {}).forEach(([key, value]) => {
-        if (!paramsAggregation[key]) {
+        if (!paramsAggregation[key])
           paramsAggregation[key] = { numbers: new Set(), texts: new Set() }
-        }
-        // Determine if the value is numerical or textual and add it to the appropriate set
         const floatValue = parseFloat(value)
-        if (!isNaN(floatValue) && isFinite(value)) {
+        if (!isNaN(floatValue) && isFinite(value))
           paramsAggregation[key].numbers.add(floatValue)
-        } else {
-          paramsAggregation[key].texts.add(value)
-        }
+        else paramsAggregation[key].texts.add(value)
       })
     })
 
-    // Transform the aggregated data into the required format, sorting numerical values before textual values
-    const paramsList = Object.entries(paramsAggregation)
+    let paramsList = Object.entries(paramsAggregation)
       .map(([key, { numbers, texts }]) => ({
-        key: key,
-        label: paramsMapping[key] ? paramsMapping[key].info : key, // Using mapping for labels
+        param_order: paramsMapping[key]?.param_order, // Добавляем param_order в объект
+        key: key, // Используем key как есть (это id из tool_params)
+        label: paramsMapping[key]?.label || key,
         values: [
           ...Array.from(numbers).sort((a, b) => a - b),
           ...Array.from(texts).sort(),
         ],
       }))
-      .filter((param) => param.values.length > 0) // Exclude parameters with only one value
+      .filter((param) => param.values.length > 0)
+      .sort((a, b) => a.param_order - b.param_order) // Сортируем по param_order
 
-    // Отправка результата
     res.json(paramsList)
   } catch (err) {
     console.error(err)

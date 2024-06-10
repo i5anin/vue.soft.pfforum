@@ -1,5 +1,5 @@
 import { handleApiError } from '@/api/errorHandler'
-import axiosInstance from '@/api/axiosConfig'
+import { axiosInstance } from '@/api/axiosConfig'
 
 function handleResponse(response) {
   return response.data
@@ -8,22 +8,22 @@ function handleResponse(response) {
 export const reportApi = {
   genBuchWeek: async () =>
     axiosInstance
-      .get('/report/genBuchWeek')
+      .get('/report/buch-week')
       .then(handleResponse)
       .catch(handleApiError),
   genBuchEndOp: async () =>
     axiosInstance
-      .get('/report/genBuchEndOp')
+      .get('/report/buch-end-op')
       .then(handleResponse)
       .catch(handleApiError),
   genBuchMonth: async () =>
     axiosInstance
-      .get('/report/genBuchMonth')
+      .get('/report/buch-month')
       .then(handleResponse)
       .catch(handleApiError),
   genZayavInstr: async (token) =>
     axiosInstance
-      .get('/report/genZayavInstr', {
+      .get('/report/zayav-instr', {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then(handleResponse)

@@ -14,11 +14,7 @@
           <v-card>
             <v-card-title>{{ dialogTitle }}</v-card-title>
             <v-card-text>
-              <v-text-field
-                label="Название"
-                v-model="paramInfo"
-                required
-              ></v-text-field>
+              <v-text-field v-model="paramInfo" label="Название" required />
             </v-card-text>
             <v-card-actions>
               <v-spacer />
@@ -32,20 +28,37 @@
           </v-card>
         </v-dialog>
 
-        <v-table>
+        <v-table hover>
           <thead>
             <tr>
               <th class="text-left">№</th>
               <th class="text-left">Название</th>
               <!--<th class="text-left">ID</th>-->
+              <th class="text-left">Порядок</th>
               <th class="text-left">Действия</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(param, index) in toolParams" :key="param.id">
               <td>{{ index + 1 }}</td>
-              <td>{{ param.info }}</td>
+              <td>{{ param.label }}</td>
               <!--<td>{{ param.id }}</td>-->
+              <td>
+                <v-btn
+                  icon
+                  :disabled="index === 0"
+                  @click="moveToolParam(param.id, 'moveUp')"
+                >
+                  <v-icon>mdi-chevron-up</v-icon>
+                </v-btn>
+                <v-btn
+                  icon
+                  :disabled="index === toolParams.length - 1"
+                  @click="moveToolParam(param.id, 'moveDown')"
+                >
+                  <v-icon>mdi-chevron-down</v-icon>
+                </v-btn>
+              </td>
               <td>
                 <v-btn icon @click="startEditing(param)">
                   <v-icon>mdi-pencil</v-icon>
@@ -77,6 +90,9 @@ export default {
       editingParam: null,
     }
   },
+  mounted() {
+    this.getData()
+  },
   methods: {
     async getData() {
       try {
@@ -93,7 +109,7 @@ export default {
     },
     startEditing(param) {
       this.dialogTitle = 'Редактировать название параметра'
-      this.paramInfo = param.info
+      this.paramInfo = param.label
       this.editingParam = param
       this.showDialog = true
     },
@@ -106,7 +122,7 @@ export default {
         if (
           this.toolParams.some(
             (param) =>
-              param.info.toLowerCase() === normalizedParamInfo.toLowerCase() &&
+              param.label.toLowerCase() === normalizedParamInfo.toLowerCase() &&
               param.id !== this.editingParam?.id
           )
         ) {
@@ -117,7 +133,7 @@ export default {
         try {
           if (this.editingParam) {
             // Обновление существующего параметра
-            const updatedParam = { info: normalizedParamInfo }
+            const updatedParam = { label: normalizedParamInfo }
             const result = await toolParamApi.updateToolParam(
               this.editingParam.id,
               updatedParam
@@ -127,14 +143,14 @@ export default {
               // Обновление данных в массиве toolParams
               this.toolParams = this.toolParams.map((param) =>
                 param.id === this.editingParam.id
-                  ? { ...param, info: normalizedParamInfo }
+                  ? { ...param, label: normalizedParamInfo }
                   : param
               )
             }
           } else {
             // Добавление нового параметра
             const newParam = await toolParamApi.addToolParam({
-              info: normalizedParamInfo,
+              label: normalizedParamInfo,
             })
             if (newParam && newParam.id) {
               this.toolParams.push(newParam)
@@ -156,7 +172,7 @@ export default {
     },
     async deleteParam(param) {
       const confirmDelete = confirm(
-        `Вы уверены, что хотите удалить параметр: ${param.info}?`
+        `Вы уверены, что хотите удалить параметр: ${param.label}?`
       )
       if (confirmDelete) {
         try {
@@ -170,9 +186,42 @@ export default {
         }
       }
     },
-  },
-  mounted() {
-    this.getData()
+    async moveToolParam(paramId, direction) {
+      try {
+        await toolParamApi.moveToolParam(paramId, direction)
+
+        // Обновляем данные в массиве toolParams, чтобы отразить изменение порядка
+        if (direction === 'moveUp') {
+          const paramIndex = this.toolParams.findIndex(
+            (param) => param.id === paramId
+          )
+          if (paramIndex > 0) {
+            // Перемещаем элемент вверх
+            ;[this.toolParams[paramIndex], this.toolParams[paramIndex - 1]] = [
+              this.toolParams[paramIndex - 1],
+              this.toolParams[paramIndex],
+            ]
+          }
+        } else if (direction === 'moveDown') {
+          const paramIndex = this.toolParams.findIndex(
+            (param) => param.id === paramId
+          )
+          if (paramIndex < this.toolParams.length - 1) {
+            // Перемещаем элемент вниз
+            ;[this.toolParams[paramIndex], this.toolParams[paramIndex + 1]] = [
+              this.toolParams[paramIndex + 1],
+              this.toolParams[paramIndex],
+            ]
+          }
+        }
+
+        // Можно добавить дополнительную логику для обновления порядка параметров
+        // в таблице toolParams, например, обновить поле param_order
+        // ...
+      } catch (error) {
+        console.error('Error moving tool parameter:', error)
+      }
+    },
   },
 }
 </script>

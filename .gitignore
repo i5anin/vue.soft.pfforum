@@ -21,7 +21,6 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
-*.yaml
 *.env*
 *.xml
 *.iml

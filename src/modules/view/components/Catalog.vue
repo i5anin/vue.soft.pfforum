@@ -58,6 +58,15 @@ export default {
       editableLabel: '',
     }
   },
+  computed: {
+    ViewToolStore() {
+      return ViewToolStore
+    },
+    ...mapGetters('ViewToolStore', ['parentCatalog']),
+    isTableShown() {
+      return this.parentCatalog.id !== 1
+    },
+  },
   watch: {
     currentItem: {
       handler(currentItem) {
@@ -69,14 +78,13 @@ export default {
       },
     },
   },
-  computed: {
-    ViewToolStore() {
-      return ViewToolStore
-    },
-    ...mapGetters('ViewToolStore', ['parentCatalog']),
-    isTableShown() {
-      return this.parentCatalog.id !== 1
-    },
+
+  async created() {
+    const toolsTree = await toolTreeApi.getTree()
+    if (toolsTree && toolsTree.length > 0) {
+      this.currentItem = toolsTree[0]
+      this.tree.push(this.currentItem)
+    }
   },
   methods: {
     ...mapMutations('ViewToolStore', ['setParentCatalog']),
@@ -120,7 +128,6 @@ export default {
       }
     },
     async addItem() {
-      console.log(this.currentItem)
       if (!this.currentItem || !this.currentItem.nodes)
         return alert('Выберите категорию для добавления новой папки.')
 
@@ -184,11 +191,6 @@ export default {
       if (this.tree.length > 1) {
         this.tree.pop() // Удаляем последний элемент истории
         this.currentItem = this.tree[this.tree.length - 1] // Обновляем currentItem на предыдущий элемент
-        console.log(
-          'Кнопка возврат:',
-          this.currentItem.id,
-          this.currentItem.label
-        )
         this.setParentCatalog({
           id: this.currentItem.id,
           label: this.currentItem.label,
@@ -197,11 +199,6 @@ export default {
     },
     goTo(index) {
       this.currentItem = this.tree[index]
-      console.log(
-        'Хлебные крошки. Выбрана папка:',
-        this.currentItem.id,
-        this.currentItem.label
-      )
       this.setParentCatalog({
         id: this.currentItem.id,
         label: this.currentItem.label,
@@ -209,13 +206,6 @@ export default {
       this.tree = this.tree.slice(0, index + 1)
       this.currentItem = this.tree[index]
     },
-  },
-  async created() {
-    const toolsTree = await toolTreeApi.getTree()
-    if (toolsTree && toolsTree.length > 0) {
-      this.currentItem = toolsTree[0]
-      this.tree.push(this.currentItem)
-    }
   },
 }
 </script>

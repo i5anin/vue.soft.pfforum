@@ -6,31 +6,41 @@
           <v-text-field
             v-if="isEditing"
             v-model="editableLabel"
-            @blur="finishEditing"
-            @keyup.enter="finishEditing"
             dense
             solo
             hide-details
             :flat="true"
             :autofocus="true"
+            @blur="finishEditing"
+            @keyup.enter="finishEditing"
           />
           <!-- Показываем название и иконку, если редактирование не активно -->
           <span v-else @click="startEditing">
             {{ currentItem ? currentItem.label : 'Редактор' }}
-            <v-btn icon small @click.stop="startEditing">
+            <v-btn
+              title="Переименовать папку"
+              icon
+              small
+              @click.stop="startEditing"
+            >
               <v-icon icon="mdi-pencil" />
             </v-btn>
-            <v-btn icon small @click.stop="addItem">
+            <v-btn title="Добавить папку" icon small @click.stop="addItem">
               <v-icon icon="mdi-folder-plus" />
             </v-btn>
-            <v-btn icon small @click.stop="deleteItem(currentItem.id)">
+            <v-btn
+              title="Удалить папку"
+              icon
+              small
+              @click.stop="deleteItem(currentItem.id)"
+            >
               <v-icon icon="mdi-delete" />
             </v-btn>
           </span>
         </div>
       </v-toolbar-title>
       <v-spacer />
-      <v-btn icon @click="goBack">
+      <v-btn title="Назад" icon @click="goBack">
         <v-icon icon="mdi-arrow-left" />
       </v-btn>
     </v-app-bar>
@@ -76,6 +86,12 @@ export default {
       editableLabel: '',
     }
   },
+  computed: {
+    ...mapGetters('EditorToolStore', ['parentCatalog']),
+    isTableShown() {
+      return this.parentCatalog.id !== 1
+    },
+  },
   watch: {
     currentItem: {
       handler(currentItem) {
@@ -87,11 +103,13 @@ export default {
       },
     },
   },
-  computed: {
-    ...mapGetters('EditorToolStore', ['parentCatalog']),
-    isTableShown() {
-      return this.parentCatalog.id !== 1
-    },
+
+  async created() {
+    const toolsTree = await toolTreeApi.getTree()
+    if (toolsTree && toolsTree.length > 0) {
+      this.currentItem = toolsTree[0]
+      this.tree.push(this.currentItem)
+    }
   },
   methods: {
     ...mapMutations('EditorToolStore', ['setParentCatalog']),
@@ -135,7 +153,6 @@ export default {
       }
     },
     async addItem() {
-      console.log(this.currentItem)
       if (!this.currentItem || !this.currentItem.nodes)
         return alert('Выберите категорию для добавления новой папки.')
 
@@ -199,11 +216,6 @@ export default {
       if (this.tree.length > 1) {
         this.tree.pop() // Удаляем последний элемент истории
         this.currentItem = this.tree[this.tree.length - 1] // Обновляем currentItem на предыдущий элемент
-        console.log(
-          'Кнопка возврат:',
-          this.currentItem.id,
-          this.currentItem.label
-        )
         this.setParentCatalog({
           id: this.currentItem.id,
           label: this.currentItem.label,
@@ -212,11 +224,6 @@ export default {
     },
     goTo(index) {
       this.currentItem = this.tree[index]
-      console.log(
-        'Хлебные крошки. Выбрана папка:',
-        this.currentItem.id,
-        this.currentItem.label
-      )
       this.setParentCatalog({
         id: this.currentItem.id,
         label: this.currentItem.label,
@@ -224,13 +231,6 @@ export default {
       this.tree = this.tree.slice(0, index + 1)
       this.currentItem = this.tree[index]
     },
-  },
-  async created() {
-    const toolsTree = await toolTreeApi.getTree()
-    if (toolsTree && toolsTree.length > 0) {
-      this.currentItem = toolsTree[0]
-      this.tree.push(this.currentItem)
-    }
   },
 }
 </script>

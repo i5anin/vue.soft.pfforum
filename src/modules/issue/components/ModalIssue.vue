@@ -7,9 +7,9 @@
             <!--левый столбец -->
             <div>
               <v-combobox
+                v-model="toolModel.name"
                 density="compact"
                 label="Маркировка"
-                v-model="toolModel.name"
                 item-text="text"
                 item-value="value"
                 required
@@ -26,19 +26,19 @@
               @update:model-value="onIdChanged"
             />
             <v-select
+              v-model="toolModel.detailDescription"
               density="compact"
               label="Название Обозначение"
               required
-              v-model="toolModel.detailDescription"
               :disabled="!options.idNameDescription.length"
               :items="options.idNameDescription"
               @update:model-value="onIdSelected"
             />
             <v-select
+              v-model="toolModel.operationType"
               density="compact"
               label="Номер Тип"
               required
-              v-model="toolModel.operationType"
               :disabled="!options.numberType.length"
               :items="options.numberType"
               @update:model-value="onOperationSelected"
@@ -52,7 +52,7 @@
               label="ФИО"
               return-object="false"
               single-line="false"
-              @update:modelValue="handleSelectionChange"
+              @update:model-value="handleSelectionChange"
             />
             <v-combobox
               v-model="toolModel.typeIssue"
@@ -67,17 +67,17 @@
             />
             <h2 class="text-h6">Сколько выдать:</h2>
             <v-text-field
+              v-model="toolModel.issue"
               density="compact"
               label="Количество"
               required
-              v-model="toolModel.issue"
               :rules="issueRules"
             />
             <v-textarea
               v-if="overNorm"
+              v-model="comment"
               class="comment-field"
               label="Комментарий"
-              v-model="comment"
               rows="3"
               required
             />
@@ -90,19 +90,19 @@
       <v-btn
         color="red darken-1"
         variant="text"
-        @click="onCancel"
         class="text-none text-subtitle-1 ml-3"
+        @click="onCancel"
       >
         Закрыть
       </v-btn>
       <v-spacer />
       <v-btn
         prepend-icon="mdi-check-circle"
-        @click="onSave"
         class="text-none text-subtitle-1 pl-3"
         color="blue darken-1"
         size="large"
         variant="flat"
+        @click="onSave"
       >
         Выдать
       </v-btn>
@@ -117,12 +117,12 @@ import { issueToolApi } from '@/modules/issue/api/issue'
 
 export default {
   name: 'FillingModal',
-  emits: ['canceled', 'changes-saved'],
+  components: { Modal },
   props: {
     persistent: { type: Boolean, default: false },
     toolId: { type: Number, default: null },
   },
-  components: { Modal },
+  emits: ['canceled', 'changes-saved'],
   data() {
     return {
       typeIssueOptions: [
@@ -191,16 +191,30 @@ export default {
       },
     },
   },
+  async created() {
+    try {
+      const fioData = await issueToolApi.getDetailFio()
+      this.fioOptions = this.prepareFioOptions(fioData)
+    } catch (error) {
+      console.error('Ошибка при загрузке данных ФИО:', error)
+    }
+    // Дополнительное логирование состояния после обработки
+    this.initializeLocalState()
+    if (this.toolId == null) {
+      this.setTool({
+        id: null,
+        name: null,
+        property: {},
+      })
+    } else {
+      await this.fetchToolById(this.toolId)
+      if (this.tool.property === null) this.tool.property = {}
+    }
+  },
   methods: {
     ...mapActions('IssueToolStore', ['fetchToolsByFilter', 'fetchToolById']),
     ...mapMutations('IssueToolStore', ['setTool']),
 
-    handleSelectionChange(selectedItem) {
-      console.log(
-        `Выбрана фамилия: ${selectedItem.text} с ID:`,
-        selectedItem.value
-      )
-    },
     onIdSelected(selectedValue) {
       const id = this.idMapping[selectedValue]
       if (id) {
@@ -226,9 +240,7 @@ export default {
     },
 
     onOperationSelected(value) {
-      const id = this.operationMapping[value]
-      this.toolModel.selectedOperationId = id
-      // console.log('Выбран specs_op_id:', id)
+      this.toolModel.selectedOperationId = this.operationMapping[value]
     },
     resetToolModel() {
       this.toolModel = {
@@ -238,7 +250,6 @@ export default {
         norma: null,
         property: {},
       }
-      console.log(this.toolModel)
     },
     updateToolModel() {
       if (this.tool) {
@@ -279,14 +290,11 @@ export default {
     },
     initializeLocalState() {
       if (this.toolId) {
-        console.log('this.toolId=', this.toolId)
         this.fetchToolById(this.toolId).then(() => {
           this.toolModel.sklad = this.tool.sklad
           this.toolModel.norma = this.tool.norma
         })
       } else {
-        console.log('localParentId=', this.localParentId)
-        // this.localParentId = this.idParent.id
         this.currentFolderName = this.idParent.label
       }
     },
@@ -310,17 +318,10 @@ export default {
           quantity: parseInt(this.toolModel.issue),
           issueToken: token,
         }
-
-        console.log('Отправка данных инструмента на сервер:', issueHistoryData)
-
         // Отправка данных истории инструмента
         const response = await issueToolApi.addHistoryTool(issueHistoryData)
-        console.log('Ответ сервера:', response)
-
         if (response.success === 'OK') {
-          console.log('Данные успешно сохранены на сервере')
           this.$emit('changes-saved')
-          console.log('Событие changes-saved отправлено')
         } else {
           console.error(
             'Ошибка при сохранении данных на сервере: ',
@@ -334,26 +335,6 @@ export default {
         )
       }
     },
-  },
-  async created() {
-    try {
-      const fioData = await issueToolApi.getDetailFio()
-      this.fioOptions = this.prepareFioOptions(fioData)
-    } catch (error) {
-      console.error('Ошибка при загрузке данных ФИО:', error)
-    }
-    // Дополнительное логирование состояния после обработки
-    this.initializeLocalState()
-    if (this.toolId == null) {
-      this.setTool({
-        id: null,
-        name: null,
-        property: {},
-      })
-    } else {
-      await this.fetchToolById(this.toolId)
-      if (this.tool.property === null) this.tool.property = {}
-    }
   },
 }
 </script>

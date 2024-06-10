@@ -21,18 +21,17 @@
       :page="filters.currentPage"
       :loading="isLoading"
       :items-per-page-options="[15, 50, 100, 300]"
-      @update:page="onChangePage"
-      @update:items-per-page="onUpdateItemsPerPage"
       hover
       fixed-header
       width="true"
       class="scrollable-table"
+      @update:page="onChangePage"
+      @update:items-per-page="onUpdateItemsPerPage"
     />
   </v-container>
 </template>
 
 <script>
-import { VDataTableServer } from 'vuetify/labs/components'
 import { format, parseISO } from 'date-fns'
 import HistoryDamagedModal from './Modal.vue'
 import { damagedHistoryApi } from '../api/damaged'
@@ -40,8 +39,8 @@ import { damagedHistoryApi } from '../api/damaged'
 export default {
   components: {
     EditToolModal: HistoryDamagedModal,
-    VDataTableServer,
   },
+  emits: ['changes-saved'],
 
   data() {
     return {

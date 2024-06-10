@@ -1,5 +1,5 @@
 import { handleApiError } from '@/api/errorHandler'
-import axiosInstance from '@/api/axiosConfig'
+import { axiosInstance, axiosInstanceLaravel } from '@/api/axiosConfig'
 
 function handleResponse(response) {
   return response.data
@@ -8,28 +8,28 @@ function handleResponse(response) {
 export const editorToolApi = {
   // Добавить новый инструмент
   addTool: async (toolData) =>
-    axiosInstance
+    axiosInstanceLaravel
       .post('/tool', toolData)
       .then(handleResponse)
       .catch(handleApiError),
 
   // Удалить инструмент по ID
   deleteTool: async (id) =>
-    axiosInstance
+    axiosInstanceLaravel
       .delete(`/tool/${id}`)
       .then(handleResponse)
       .catch(handleApiError),
 
   // Обновить существующий инструмент
   updateTool: async (id, toolData) =>
-    axiosInstance
+    axiosInstanceLaravel
       .put(`/tool/${id}`, toolData)
       .then(handleResponse)
       .catch(handleApiError),
 
   // Получить параметры инструмента по parent_id
   getToolParamsByParentId: async (parentId) =>
-    axiosInstance
+    axiosInstanceLaravel
       .get(`/tools-params/${parentId}`)
       .then(handleResponse)
       .catch(handleApiError),

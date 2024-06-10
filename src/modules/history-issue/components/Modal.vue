@@ -1,5 +1,5 @@
 <template>
-  <Modal :title="popupTitle" widthDefault="1450px">
+  <Modal :title="popupTitle" width-default="1450px">
     <template #content>
       <div style="padding-left: 16px">
         <v-row>
@@ -12,29 +12,23 @@
                   class="mr-2"
                   title="В архиве"
                 />
-                <h2
-                  v-if="info"
-                  :class="{ 'text-grey': info.is_archive }"
-                  class="text-h5 my-0"
-                >
-                  {{ info.name }} - {{ info.description }}
-                </h2>
               </v-col>
-
-              <v-col cols="auto">
+              <v-col class="d-flex align-center">
+                <!-- Обновить -->
                 <v-btn
                   color="blue darken-1"
                   variant="text"
+                  class="text-none text-subtitle-1 mr-4"
                   @click="fetchHistoryData"
-                  class="text-none text-subtitle-1"
                 >
                   Обновить
                 </v-btn>
-              </v-col>
-              <v-col v-if="userRole === 'Editor' || 'Admin'">
+
+                <!-- Архив (условие отображения перемещено непосредственно к v-checkbox) -->
                 <v-checkbox
+                  v-if="userRole === 'Editor' || userRole === 'Admin'"
                   v-model="info.is_archive"
-                  label="Добавлен в архив"
+                  label="Архив"
                   @change="toggleArchiveStatus"
                 />
               </v-col>
@@ -60,11 +54,11 @@
           <v-spacer />
           <v-col cols="12" md="3">
             <v-select
-              label="Операция"
               v-model="selectedOperation"
+              label="Операция"
               :items="availableOperations"
-              @update:model-value="filterData"
               solo
+              @update:model-value="filterData"
             />
           </v-col>
         </v-row>
@@ -94,12 +88,12 @@
                 v-if="
                   header.value === 'name_tool' &&
                   item &&
-                  selected_tool &&
-                  item.id_tool === selected_tool.id_tool
+                  selectedTool &&
+                  item.id_tool === selectedTool.id_tool
                 "
               >
                 <v-chip
-                  v-if="item.id_tool === selected_tool.id_tool"
+                  v-if="item.id_tool === selectedTool.id_tool"
                   color="green"
                   size="large"
                   text-color="white"
@@ -121,8 +115,8 @@
                     :disabled="
                       new Date() - new Date(item.timestamp) > 432000000
                     "
-                    @click.stop="promptCancelQuantity(item.id)"
                     color="error"
+                    @click.stop="promptCancelQuantity(item.id)"
                   >
                     <v-icon>mdi-close</v-icon>
                   </v-btn>
@@ -143,8 +137,8 @@
       <v-btn
         color="red darken-1"
         variant="text"
-        @click="onCancel"
         class="text-none text-subtitle-1 ml-3"
+        @click="onCancel"
       >
         Закрыть
       </v-btn>
@@ -193,10 +187,14 @@ export default {
   name: 'HistoryModal',
   components: { Modal },
   props: {
-    id_part: { type: Number, default: null },
-    selected_date: { type: String, default: '' },
-    selected_tool: { id_tool: String, name: '' },
+    idPart: { type: Number, default: null },
+    selectedDate: { type: String, default: '' },
+    selectedTool: {
+      type: Object,
+      default: () => ({}),
+    },
   },
+  emits: ['canceled', 'operation-cancelled'],
   data() {
     return {
       info: { is_archive: false },
@@ -226,7 +224,7 @@ export default {
   computed: {
     popupTitle() {
       return this.info
-        ? `Инструмент затраченный на партию: ${this.id_part}`
+        ? `${this.info.name} ${this.info.description} (партия ${this.idPart})`
         : 'Информация о партии'
     },
     currentHeaders() {
@@ -239,6 +237,10 @@ export default {
         { title: 'Кол-во', value: 'quantity', width: '90px' },
       ]
     },
+  },
+  created() {
+    this.fetchHistoryData()
+    this.checkLogin()
   },
   methods: {
     async checkLogin() {
@@ -256,18 +258,9 @@ export default {
     async toggleArchiveStatus() {
       const archiveState = this.info.is_archive
       const token = localStorage.getItem('token') // Получаем токен из localStorage
-
-      console.log('Архивный статус изменился, новое значение:', archiveState)
-
       try {
-        const response = await issueHistoryApi.addToArchive(
-          this.id_part,
-          archiveState,
-          token
-        )
-        console.log('Ответ сервера:', response)
-        alert(`Статус архива для id_part ${this.id_part} успешно обновлен.`)
-        // Обновляем данные на фронте
+        await issueHistoryApi.addToArchive(this.idPart, archiveState, token)
+        alert(`Статус архива для idPart ${this.idPart} успешно обновлен.`)
         await this.fetchHistoryData()
       } catch (error) {
         console.error('Ошибка при изменении статуса архива:', error)
@@ -345,11 +338,11 @@ export default {
     async fetchHistoryData() {
       try {
         const response = await issueHistoryApi.fetchHistoryByPartId(
-          this.id_part,
-          this.selected_date
+          this.idPart,
+          this.selectedDate
         )
         const partInfoResponse = await issueHistoryApi.fetchHistoryByPartIdInfo(
-          this.id_part
+          this.idPart
         )
         this.operations = partInfoResponse.info.operations
         this.completedOperations = partInfoResponse.info.completed_operations
@@ -361,7 +354,6 @@ export default {
           )
           this.filterData()
         } else {
-          console.log('No history data found')
           this.filteredData = []
           this.availableOperations = ['all']
         }
@@ -370,16 +362,12 @@ export default {
       }
     },
   },
-  created() {
-    this.fetchHistoryData()
-    this.checkLogin()
-  },
 }
 </script>
 
 <style>
 .check-icon--large--gray {
-  font-size: 24px; /* или любой другой размер, который вам нужен */
-  color: #848484; /* Пример синего цвета */
+  font-size: 24px;
+  color: #848484;
 }
 </style>

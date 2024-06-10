@@ -9,7 +9,6 @@
               <th class="text-left">Информация</th>
               <th class="text-left">Ближайшая дата</th>
               <th class="text-left">На почту</th>
-              <!--              <th class="text-left">Загрузить</th>-->
             </tr>
           </thead>
           <tbody>
@@ -17,7 +16,6 @@
               <td>{{ report.name }}</td>
               <td>{{ report.info }}</td>
               <td></td>
-
               <td>
                 <v-btn color="primary" @click="report.action(report)">
                   Email

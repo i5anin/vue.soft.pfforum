@@ -3,9 +3,9 @@
     <v-row v-if="dynamicFilters && dynamicFilters.length > 0">
       <v-col cols="12">
         <v-text-field
+          v-model="searchQuery"
           variant="outlined"
           clearable="true"
-          v-model="searchQuery"
           append-icon="mdi-magnify"
           label="Поиск по инструменту"
           hide-details
@@ -15,10 +15,10 @@
       </v-col>
     </v-row>
     <v-row
-      cols="12"
-      sm="6"
       v-for="(group, index) in groupedFilters"
       :key="`group-${index}`"
+      cols="12"
+      sm="6"
     >
       <v-col v-for="filter in group" :key="filter.key" cols="12" sm="3">
         <v-combobox
@@ -42,6 +42,17 @@ import { mapActions, mapMutations, mapGetters } from 'vuex'
 import store from '@/store/store'
 
 export default {
+  data() {
+    return {
+      searchQuery: '',
+      openDialog: false,
+      isDataLoaded: false,
+      editingToolId: null, //редактирование идентификатора инструмента
+      toolTableHeaders: [], //заголовки таблиц инструментов
+      filterParamsList: [],
+      debouncedSearch: null,
+    }
+  },
   computed: {
     ...mapGetters('ViewToolStore', [
       'toolsTotalCount',
@@ -59,17 +70,6 @@ export default {
       }
       return result
     },
-  },
-  data() {
-    return {
-      searchQuery: '',
-      openDialog: false,
-      isDataLoaded: false,
-      editingToolId: null, //редактирование идентификатора инструмента
-      toolTableHeaders: [], //заголовки таблиц инструментов
-      filterParamsList: [],
-      debouncedSearch: null,
-    }
   },
 
   async mounted() {

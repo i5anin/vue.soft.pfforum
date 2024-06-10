@@ -7,7 +7,7 @@
     />
     <div class="text-right">
       <v-btn color="blue" @click="onAddTool">
-        <template v-slot:prepend>
+        <template #prepend>
           <v-icon>mdi-file-plus</v-icon>
         </template>
         Новый инструмент
@@ -22,50 +22,52 @@
     />
     <v-data-table-server
       v-if="isDataLoaded"
-      noDataText="Нет данных"
-      itemsPerPageText="Пункты на странице:"
-      loadingText="Загрузка данных"
+      no-data-text="Нет данных"
+      items-per-page-text="Пункты на странице:"
+      loading-text="Загрузка данных"
       :headers="toolTableHeaders"
       :items="formattedTools"
-      :itemsLength="toolsTotalCount"
+      :items-length="toolsTotalCount"
       :items-per-page="filters.itemsPerPage"
       :page="filters.currentPage"
       :loading="isLoading"
       :items-per-page-options="[15, 50, 100, 300]"
       density="compact"
-      @update:page="onChangePage"
-      @update:items-per-page="onUpdateItemsPerPage"
-      @click:row="onEditRow"
       class="elevation-1 scrollable-table"
       hover
       fixed-header
       width
+      @update:page="onChangePage"
+      @update:items-per-page="onUpdateItemsPerPage"
+      @click:row="onEditRow"
     >
-      <template v-slot:item.index="{ index }">
+      <template #item.index="{ index }">
         <td class="index">{{ index + 1 }}</td>
       </template>
       <!--name-->
-      <template v-slot:item.name="{ item }">
+      <template #item.name="{ item }">
         <td :class="colorClassGrey(item)" style="white-space: nowrap">
           {{ item.name }}
           <v-chip
-            size="x-small"
             v-if="item.group_id"
+            size="x-small"
             :color="getColorForGroup(item.group_id)"
             :title="'Группа ' + item.group_id"
-            >G{{ item.group_id }}</v-chip
+          >
+            <span v-if="item.group_standard" style="color: yellow">★</span>
+            G{{ item.group_id }}</v-chip
           >
         </td>
       </template>
-      <template v-slot:item.sklad="{ item }">
+      <template #item.sklad="{ item }">
         <td :class="colorClassRed(item)" style="white-space: nowrap">
           {{ item.sklad }}
         </td>
       </template>
-      <template v-slot:item.norma="{ item }">
+      <template #item.norma="{ item }">
         <td style="white-space: nowrap">{{ item.norma }}</td>
       </template>
-      <template v-slot:item.zakaz="{ item }">
+      <template #item.zakaz="{ item }">
         <td style="white-space: nowrap">{{ calculateOrder(item) }}</td>
       </template>
     </v-data-table-server>
@@ -75,13 +77,10 @@
 <script>
 import EditorToolModal from './Modal.vue'
 import ToolFilter from './ToolFilter.vue'
-import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
 
 export default {
-  emits: [],
   components: {
-    VDataTableServer,
     EditorToolModal,
     ToolFilter,
   },
@@ -90,6 +89,16 @@ export default {
       type: String,
       default: 'tool',
     },
+  },
+  emits: [],
+  data() {
+    return {
+      openDialog: false,
+      isDataLoaded: false,
+      editingToolId: null, //редактирование идентификатора инструмента
+      toolTableHeaders: [], //заголовки таблиц инструментов
+      filterParamsList: [],
+    }
   },
   computed: {
     ...mapGetters('EditorToolStore', [
@@ -101,15 +110,7 @@ export default {
       'isLoading',
     ]),
   },
-  data() {
-    return {
-      openDialog: false,
-      isDataLoaded: false,
-      editingToolId: null, //редактирование идентификатора инструмента
-      toolTableHeaders: [], //заголовки таблиц инструментов
-      filterParamsList: [],
-    }
-  },
+
   watch: {
     'parentCatalog.id'(newId) {
       if (newId != null) {

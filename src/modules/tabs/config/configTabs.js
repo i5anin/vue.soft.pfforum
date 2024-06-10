@@ -4,9 +4,11 @@ import HistoryIssue from '@/modules/history-issue/components/Table.vue'
 import HistoryDamaged from '@/modules/history-damaged/components/Table.vue'
 
 import ToolTabParam from '@/modules/params/components/Param.vue'
+import ToolTabGroup from '@/modules/groups/components/Groups.vue'
 import ToolTabTree from '@/modules/tree/components/Tree.vue'
 import Report from '@/modules/report-zakaz/components/Report.vue'
 import ReportBuh from '@/modules/report-buh/components/Report.vue'
+import ReportBuh2 from '@/modules/test/components/Report.vue'
 
 import EditorCatalog from '@/modules/editor/components/Catalog.vue'
 import IssueCatalog from '@/modules/issue/components/Catalog.vue'
@@ -27,6 +29,13 @@ const tabs = [
     component: markRaw(ToolTabParam),
     access: ['Admin', 'Editor'],
     ico: 'mdi-playlist-plus',
+  },
+  {
+    name: 'Группы',
+    url: '#groups',
+    component: markRaw(ToolTabGroup),
+    access: ['Admin', 'Editor'],
+    ico: 'mdi-format-list-group',
   },
   {
     name: 'Выдать / поврежден',
@@ -76,6 +85,13 @@ const tabs = [
     component: markRaw(ReportBuh),
     access: ['Admin', 'Editor'],
     ico: 'mdi-currency-rub',
+  },
+  {
+    name: 'Тест',
+    url: '#test',
+    component: markRaw(ReportBuh2),
+    access: ['Admin'],
+    ico: 'mdi-test-tube',
   },
 ]
 
