@@ -12,6 +12,11 @@ export const Routes = {
 
 const routes = [
   {
+    path: '/:catchAll(.*)',
+    name: 'Error404',
+    component: Error404,
+  },
+  {
     path: '/',
     redirect: '/Tool', // Добавление перенаправления с главной страницы на /Tool
   },
@@ -24,11 +29,6 @@ const routes = [
     path: '/Tool',
     name: 'Tool',
     component: Tool,
-  },
-  {
-    path: '/:catchAll(.*)',
-    name: 'Error404',
-    component: Error404,
   },
 ]
 
