@@ -48,11 +48,8 @@
 
 <script>
 import { reportApi } from '../api/report'
-<<<<<<<< HEAD:src/modules/report-buh/components/ReportBuhTable.vue
 import { format, parseISO } from 'date-fns' // Импортируем API
-========
 import DatePicker from '@/modules/test/components/DatePicker.vue' // Импортируем API
->>>>>>>> test-n:src/modules/test/components/ReportBuh.vue
 
 export default {
   components: { DatePicker },
