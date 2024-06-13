@@ -30,7 +30,7 @@ export const toolParamApi = {
   // Переместить параметр инструмента
   moveToolParam: async (id, direction) =>
     axiosInstance
-      .patch(`/tools-params/${id}/move`, { action: direction }) // Здесь предполагается, что сервер ожидает путь в формате: /tools-params/:id/move и данные { action: 'moveUp' } или { action: 'moveDown' }
+      .patch(`/tools-params/${id}/move`, { action: direction })
       .then(handleResponse)
       .catch(handleApiError),
 }

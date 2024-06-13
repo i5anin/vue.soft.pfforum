@@ -1,6 +1,6 @@
 const { Pool } = require('pg')
 
-const getDbConfig = require('../../databaseConfig')
+const getDbConfig = require('../../config/databaseConfig')
 
 // Получение конфигурации для соединения с базой данных
 

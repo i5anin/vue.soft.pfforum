@@ -1,9 +1,9 @@
 const nodemailer = require('nodemailer')
 const { Pool } = require('pg')
-const { emailConfig } = require('../../../../config')
+const { emailConfig } = require('../../../../config/config')
 const { htmlToText } = require('nodemailer-html-to-text')
 const getEmailRecipients = require('./getEmailRecipients')
-const getDbConfig = require('../../../../databaseConfig')
+const getDbConfig = require('../../../../config/databaseConfig')
 
 // Настройка подключения к базе данных
 
