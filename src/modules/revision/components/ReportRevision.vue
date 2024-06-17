@@ -49,7 +49,7 @@
 <script>
 import { reportApi } from '../api/report'
 import { format, parseISO } from 'date-fns' // Импортируем API
-import DatePicker from '@/modules/test/components/DatePicker.vue' // Импортируем API
+import DatePicker from '@/modules/revision/components/DatePicker.vue' // Импортируем API
 
 export default {
   components: { DatePicker },

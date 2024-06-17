@@ -38,7 +38,7 @@
 </template>
 <script>
 import { reportApi } from '../api/report'
-import ReportZakaz from './ReportBuh.vue'
+import ReportZakaz from './ReportRevision.vue'
 
 export default {
   components: { ReportZakaz },

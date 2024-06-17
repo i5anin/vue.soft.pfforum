@@ -15,7 +15,7 @@ const getBaseUrl = (serverType) => {
 }
 
 // Создание экземпляров Axios для каждого типа сервера
-const axiosInstance = axios.create({ baseURL: getBaseUrl('laravel') })
+const axiosInstance = axios.create({ baseURL: getBaseUrl('node') })
 const axiosInstanceLaravel = axios.create({ baseURL: getBaseUrl('laravel') })
 
 // Экспорт обоих экземпляров

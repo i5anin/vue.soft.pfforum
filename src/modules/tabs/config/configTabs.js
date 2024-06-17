@@ -8,7 +8,7 @@ import ToolTabGroup from '@/modules/groups/components/Groups.vue'
 import ToolTabTree from '@/modules/tree/components/Tree.vue'
 import Report from '@/modules/report-zakaz/components/Report.vue'
 import ReportBuh from '@/modules/report-buh/components/Report.vue'
-import ReportBuh2 from '@/modules/test/components/Report.vue'
+import ReportRevision from '@/modules/revision/components/Report.vue'
 
 import EditorCatalog from '@/modules/editor/components/Catalog.vue'
 import IssueCatalog from '@/modules/issue/components/Catalog.vue'
@@ -87,9 +87,9 @@ const tabs = [
     ico: 'mdi-currency-rub',
   },
   {
-    name: 'Тест',
+    name: 'Ревизия',
     url: '#test',
-    component: markRaw(ReportBuh2),
+    component: markRaw(ReportRevision),
     access: ['Admin'],
     ico: 'mdi-test-tube',
   },
