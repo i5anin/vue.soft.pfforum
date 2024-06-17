@@ -39,6 +39,11 @@ export default {
     return {
       reports: [
         {
+          name: 'Ревизия',
+          info: 'весь инструмент',
+          action: this.genRevisionInstrWeek,
+        },
+        {
           name: 'Отчет заявка на инструмент',
           info: 'раз в неделю каждый ЧТ в 12:00 (за неделю)',
           action: this.genZayavInstrWeek,
@@ -56,6 +61,18 @@ export default {
       }
       try {
         await reportApi.genZayavInstr(token)
+      } catch (error) {
+        console.error('Error while generating report:', error)
+      }
+    },
+    async genRevisionInstrWeek() {
+      const token = localStorage.getItem('token')
+      if (!token) {
+        console.error('No token found in local storage.')
+        return
+      }
+      try {
+        await reportApi.genRevisionInstr(token)
       } catch (error) {
         console.error('Error while generating report:', error)
       }

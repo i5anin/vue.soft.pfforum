@@ -28,6 +28,13 @@ export const reportApi = {
       })
       .then(handleResponse)
       .catch(handleApiError),
+  genRevisionInstr: async (token) =>
+    axiosInstance
+      .get('/report/revision-instr', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then(handleResponse)
+      .catch(handleApiError),
   getZakaz: async () =>
     axiosInstance
       .get('/report/get-zakaz')
