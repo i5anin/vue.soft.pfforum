@@ -100,26 +100,22 @@ async function createExcelFileStream(data) {
       width: 28,
       style: { font: { bold: true } },
     },
+
+    {
+      header: 'На складе', key: 'sklad', width: 10,
+      style: { font: { bold: true } },
+    },
+    { header: 'Склад группы', key: 'group_sum', width: 20 },
+    { header: 'Группа ID', key: 'group_display', width: 15 },
+    { header: 'Стандарт', key: 'group_standard', width: 15 },
+    { header: 'Путь', key: 'tool_path', width: 30 },
     {
       header: 'Заказ',
       key: 'zakaz',
       width: 10,
-
-    },
-    { header: 'Склад группы', key: 'group_sum', width: 20 },
-    {
-      header: 'На складе', key: 'sklad', width: 10, style: {
-        fill: {
-          type: 'pattern',
-          pattern: 'solid',
-          fgColor: { argb: 'FFFF00' },
-        },
-      },
     },
     { header: 'Норма', key: 'norma', width: 10 },
-    { header: 'Путь', key: 'tool_path', width: 30 },
-    // { header: 'Группа ID', key: 'group_display', width: 15 },
-    // { header: 'Стандарт', key: 'group_standard', width: 15 },
+
   ]
 
   // Добавляем данные
@@ -164,13 +160,13 @@ function generateHtmlTable(data) {
     { header: '# HTML', key: 'index' },
     { header: 'ID', key: 'id_tool' },
     { header: 'Название', key: 'name' },
-    { header: 'Заказ', key: 'zakaz' },
     { header: 'Склад группы', key: 'group_sum' },
     { header: 'На складе', key: 'sklad' },
-    { header: 'Норма', key: 'norma' },
     { header: 'Группа ID', key: 'group_display' },
     { header: 'Стандарт', key: 'group_standard' },
     { header: 'Путь', key: 'tool_path' },
+    { header: 'Заказ', key: 'zakaz' },
+    { header: 'Норма', key: 'norma' },
   ]
 
   let htmlContent = `<h2>Заказ: Журнал инструмента за период</h2>`
