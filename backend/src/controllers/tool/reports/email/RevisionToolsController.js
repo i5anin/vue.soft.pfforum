@@ -11,50 +11,54 @@ const pool = new Pool(dbConfig)
 // Функция для получения данных из базы данных
 async function getReportData() {
   const query = `WITH RECURSIVE
-                   TreePath AS (SELECT id, CAST(name AS TEXT) AS path, parent_id
-                                FROM dbo.tool_tree
-                                WHERE parent_id = 1
-                                UNION ALL
-                                SELECT tt.id, CONCAT(tp.path, ' / ', tt.name) AS path, tt.parent_id
-                                FROM dbo.tool_tree tt
-                                       JOIN TreePath tp ON tt.parent_id = tp.id),
-                   totals AS (SELECT group_id, SUM(sklad) AS group_total_sklad
-                              FROM dbo.tool_nom
-                              WHERE group_id IS NOT NULL
-                                AND group_id <> 0
-                              GROUP BY group_id),
-                   damaged AS (SELECT tn.id                          AS id_tool,
-                                      tn.name,
-                                      tn.sklad,
-                                      tn.norma,
-                                      tn.parent_id,
-                                      tn.group_id,
-                                      tn.group_standard,
-                                      CASE
-                                        WHEN tn.group_id IS NOT NULL AND tn.group_id <> 0 THEN
-                                          GREATEST(tn.norma - t.group_total_sklad, 0)
-                                        ELSE
-                                          GREATEST(tn.norma - tn.sklad, 0)
-                                        END                          AS zakaz,
-                                      COALESCE(SUM(thd.quantity), 0) AS damaged_last_7_days,
-                                      t.group_total_sklad            AS group_sum
-                               FROM dbo.tool_nom tn
-                                      LEFT JOIN dbo.tool_history_damaged thd
-                                                ON tn.id = thd.id_tool AND thd.timestamp >= CURRENT_DATE - INTERVAL '7 days'
-                                      LEFT JOIN totals t ON tn.group_id = t.group_id
-                               GROUP BY tn.id, tn.parent_id, tn.name, tn.sklad, tn.norma, tn.group_id,
-                                        tn.group_standard, t.group_total_sklad)
-                 SELECT tn.id,
-                        tn.name,
-                        tn.sklad,
-                        tn.norma,
-                        tn.parent_id,
-                        tn.group_id,
-                        tn.group_standard,
-                        tp.path                            AS tool_path,
-                        COALESCE(d.zakaz, 0)               AS zakaz,
-                        COALESCE(d.damaged_last_7_days, 0) AS damaged_last_7_days,
-                        COALESCE(d.group_sum, 0)           AS group_sum
+                   TreePath AS (
+                     SELECT id, CAST(name AS TEXT) AS path, parent_id
+                     FROM dbo.tool_tree
+                     WHERE parent_id = 1
+                     UNION ALL
+                     SELECT tt.id, CONCAT(tp.path, ' / ', tt.name) AS path, tt.parent_id
+                     FROM dbo.tool_tree tt
+                            JOIN TreePath tp ON tt.parent_id = tp.id
+                   ),
+                   totals AS (
+                     SELECT group_id, SUM(sklad) AS group_total_sklad
+                     FROM dbo.tool_nom
+                     WHERE group_id IS NOT NULL AND group_id <> 0
+                     GROUP BY group_id
+                   ),
+                   damaged AS (
+                     SELECT tn.id AS id_tool, -- Explicitly alias as id_tool
+                            tn.name,
+                            tn.sklad,
+                            tn.norma,
+                            tn.parent_id,
+                            tn.group_id,
+                            tn.group_standard,
+                            CASE
+                              WHEN tn.group_id IS NOT NULL AND tn.group_id <> 0 THEN
+                                GREATEST(tn.norma - t.group_total_sklad, 0)
+                              ELSE
+                                GREATEST(tn.norma - tn.sklad, 0)
+                              END AS zakaz,
+                            COALESCE(SUM(thd.quantity), 0) AS damaged_last_7_days,
+                            t.group_total_sklad AS group_sum
+                     FROM dbo.tool_nom tn
+                            LEFT JOIN dbo.tool_history_damaged thd ON tn.id = thd.id_tool AND thd.timestamp >= CURRENT_DATE - INTERVAL '7 days'
+                            LEFT JOIN totals t ON tn.group_id = t.group_id
+                     GROUP BY tn.id, tn.parent_id, tn.name, tn.sklad, tn.norma, tn.group_id, tn.group_standard, t.group_total_sklad
+                   )
+                 SELECT
+                   tn.id AS id_tool,  -- Alias it again here for consistency
+                   tn.name,
+                   tn.sklad,
+                   tn.norma,
+                   tn.parent_id,
+                   tn.group_id,
+                   tn.group_standard,
+                   tp.path AS tool_path,
+                   COALESCE(d.zakaz, 0) AS zakaz,
+                   COALESCE(d.damaged_last_7_days, 0) AS damaged_last_7_days,
+                   COALESCE(d.group_sum, 0) AS group_sum
                  FROM dbo.tool_nom tn
                         LEFT JOIN TreePath tp ON tn.parent_id = tp.id
                         LEFT JOIN damaged d ON tn.id = d.id_tool
@@ -123,7 +127,7 @@ async function createExcelFileStream(data) {
   data.forEach((item) => {
     worksheet.addRow({
       index: index++,
-      id_tool: item.id_tool,
+      id_tool: item.id_tool, // Удаляем  id_tool, так как он пуст
       name: item.name,
       sklad: Number(item.sklad) || Number(0),
       norma: Number(item.norma) || '',
@@ -147,6 +151,8 @@ async function createExcelFileStream(data) {
     column.width = maxLength < 10 ? 10 : maxLength // Устанавливаем минимальную ширину 10
   })
 
+
+
   const stream = new require('stream').PassThrough()
   await workbook.xlsx.write(stream)
   stream.end()
@@ -169,7 +175,7 @@ function generateHtmlTable(data) {
     { header: 'Норма', key: 'norma' },
   ]
 
-  let htmlContent = `<h2>Заказ: Журнал инструмента за период</h2>`
+  let htmlContent = `<h2>Ревизия</h2>`
   htmlContent += `<table border='1' style='border-collapse: collapse;'><tr>`
 
   // Генерируем шапку таблицы
@@ -218,9 +224,12 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
 
   const { firstDate, lastDate } = getCurrentMonthDates()
   const envPrefix = process.env.NODE_ENV === 'development' ? 'development ' : ''
-  const subject = `${envPrefix}Заказ: Журнал инструмента за неделю с ${firstDate} по ${lastDate}`
+  const subject = `${envPrefix}Ревизия`
 
   const htmlContent = generateHtmlTable(data) // Генерация HTML
+
+  const today = new Date();
+  const formattedDate = today.toLocaleDateString('ru-RU'); // Форматирование даты в формате "дд.мм.гггг"
 
   const mailOptions = {
     from: process.env.MAIL_USER,
@@ -230,7 +239,7 @@ async function sendEmailWithExcelStream(email, text, excelStream, data) {
     html: htmlContent, // Вставка сгенерированного HTML
     attachments: [
       {
-        filename: `Поврежденный инструмент ${firstDate} - ${lastDate}.xlsx`,
+        filename: `Инструмент весь ${formattedDate}.xlsx`,  // Добавляем дату в имя файла
         content: excelStream,
         contentType:
           'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
