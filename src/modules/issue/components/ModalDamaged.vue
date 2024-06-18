@@ -29,10 +29,14 @@
               :disabled='noCnc'
             />
             <v-text-field
-              v-model='damagedQuantity'
+              v-model.number='damagedQuantity'
               label='Количество'
               type='number'
               min='1'
+              :rules="[
+            (v) => !!v || 'Заполните поле',
+            (v) => v > 0 || 'Количество должно быть больше 0',
+            ]"
               required
             />
             <v-combobox
@@ -41,7 +45,9 @@
               item-title='text'
               item-value='value'
               label='ФИО'
-              :rules="[                (v) => !!v || 'Выберите ФИО'             ]"
+              :rules="[
+                (v) => !!v || 'Выберите ФИО',
+              ]"
               return-object='false'
               single-line='false'
             />
@@ -51,7 +57,9 @@
               class='comment-field'
               label='Комментарий'
               rows='3'
-              :rules="[                (v) => !!v || 'Заполните поле'              ]"
+              :rules="[
+                (v) => !!v || 'Заполните поле',
+              ]"
               required
             />
           </v-col>
