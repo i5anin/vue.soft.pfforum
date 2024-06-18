@@ -7,20 +7,9 @@
           <v-col>
             <div>
               <v-chip size="large" class="mb-3" color="red">
-                {{ toolTitle }}</v-chip
+                {{ toolTitle }}
+              </v-chip
               >
-              <!--              <v-combobox-->
-              <!--                v-if="toolTitle"-->
-              <!--                v-model="toolTitle"-->
-              <!--                density="compact"-->
-              <!--                label="Маркировка"-->
-              <!--                item-text="text"-->
-              <!--                item-value="value"-->
-              <!--                required-->
-              <!--                :rules="typeRules"-->
-              <!--                readonly-->
-              <!--                disabled-->
-              <!--              />-->
             </div>
             <v-combobox
               v-model="selectedCnc"
@@ -137,8 +126,8 @@ export default {
     },
 
     popupTitle() {
-      return this.tool?.id != null
-        ? `Инструмент поврежден ID: ${this.tool.id}`
+      return this.toolId != null
+        ? `Инструмент поврежден ID: ${this.toolId}`
         : 'Ошибка нет ID'
     },
   },
