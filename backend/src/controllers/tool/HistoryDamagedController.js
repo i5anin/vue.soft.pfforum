@@ -66,10 +66,11 @@ async function getDamaged(req, res) {
 async function addToolHistoryDamaged(req, res) {
   try {
     // Извлекаем данные из тела запроса
-    const { id_tool, id_user, cnc_code, comment, quantity } = req.body
+    const { id_tool, id_user, comment, quantity } = req.body
+    const cnc_code = req.body.cnc_code || null; //  cnc_code становится необязательным
 
     // Проверяем наличие всех необходимых параметров
-    if (!id_tool || !id_user || !cnc_code || !comment || !quantity) {
+    if (!id_tool || !id_user || !comment || !quantity) {
       return res.status(400).send('Отсутствует один из обязательных параметров')
     }
 
@@ -80,15 +81,17 @@ async function addToolHistoryDamaged(req, res) {
     //    return res.status(400).send('Пользователь не найден')
     //  }
 
-    // Проверяем существование станка
-    const cncQuery = `SELECT cnc_code FROM dbo.cnc WHERE cnc_code = $1 AND active = true;`
-    const cncResult = await pool.query(cncQuery, [cnc_code])
+    // Проверяем существование станка, если он был передан
+    if (cnc_code) {
+      const cncQuery = `SELECT cnc_code FROM dbo.cnc WHERE cnc_code = $1 AND active = true;`
+      const cncResult = await pool.query(cncQuery, [cnc_code])
 
-    if (cncResult.rows.length === 0) {
-      console.error(`Станок с кодом ${cnc_code} не найден или не активен.`)
-      return res
-        .status(404)
-        .send(`Станок с кодом ${cnc_code} не найден или не активен.`)
+      if (cncResult.rows.length === 0) {
+        console.error(`Станок с кодом ${cnc_code} не найден или не активен.`)
+        return res
+          .status(404)
+          .send(`Станок с кодом ${cnc_code} не найден или не активен.`)
+      }
     }
 
     // Проверяем существование инструмента и достаточное количество на складе

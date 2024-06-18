@@ -1,47 +1,57 @@
 <template>
   <!--  <form @submit.prevent='onSubmit'>-->
-  <Modal :title="popupTitle">
+  <Modal :title='popupTitle'>
     <template #content>
       <v-container>
         <v-row>
           <v-col>
             <div>
-              <v-chip size="large" class="mb-3" color="red">
+              <v-chip size='large' class='mb-3' color='red'>
                 {{ toolTitle }}
-              </v-chip
-              >
+              </v-chip>
+              <v-checkbox
+                v-model='noCnc'
+                label='Без станка'
+              />
             </div>
             <v-combobox
-              v-model="selectedCnc"
-              :items="cncList"
-              label="Выберите станок"
-              item-title="cnc_name"
-              item-value="cnc_code"
+              v-model='selectedCnc'
+              :items='cncList'
+              label='Выберите станок'
+              item-title='cnc_name'
+              item-value='cnc_code'
+              :rules="[
+                (v) => !!v || 'Выберите станок',
+                (v) => !noCnc || 'Выберите станок', // Проверка только если noCnc == false
+              ]"
               required
-              single-line="false"
+              single-line='false'
+              :disabled='noCnc'
             />
             <v-text-field
-              v-model="damagedQuantity"
-              label="Количество"
-              type="number"
-              min="1"
+              v-model='damagedQuantity'
+              label='Количество'
+              type='number'
+              min='1'
               required
             />
             <v-combobox
-              v-model="selectedFio"
-              :items="fioOptions"
-              item-title="text"
-              item-value="value"
-              label="ФИО кто повредил"
-              return-object="false"
-              single-line="false"
+              v-model='selectedFio'
+              :items='fioOptions'
+              item-title='text'
+              item-value='value'
+              label='ФИО'
+              :rules="[                (v) => !!v || 'Выберите ФИО'             ]"
+              return-object='false'
+              single-line='false'
             />
             <!-- @update:model-value="handleSelectionChange"-->
             <v-textarea
-              v-model="comment"
-              class="comment-field"
-              label="Комментарий"
-              rows="3"
+              v-model='comment'
+              class='comment-field'
+              label='Комментарий'
+              rows='3'
+              :rules="[                (v) => !!v || 'Заполните поле'              ]"
               required
             />
           </v-col>
@@ -50,21 +60,21 @@
     </template>
     <template #action>
       <v-btn
-        color="red darken-1"
-        variant="text"
-        class="text-none text-subtitle-1 ml-3"
-        @click="onCancel"
+        color='red darken-1'
+        variant='text'
+        class='text-none text-subtitle-1 ml-3'
+        @click='onCancel'
       >
         Закрыть
       </v-btn>
       <v-spacer />
       <v-btn
-        prepend-icon="mdi-check-circle"
-        class="text-none text-subtitle-1 pl-3"
-        color="blue darken-1"
-        size="large"
-        variant="flat"
-        @click="onSave"
+        prepend-icon='mdi-check-circle'
+        class='text-none text-subtitle-1 pl-3'
+        color='blue darken-1'
+        size='large'
+        variant='flat'
+        @click='onSave'
       >
         Сохранить
       </v-btn>
@@ -103,20 +113,12 @@ export default {
     typeSelected: false,
     selectedType: '',
     operationMapping: {},
-    parentIdRules: [
-      (v) => !!v || 'ID папки обязательно',
-      (v) => v > 1 || 'ID папки должен быть больше 1',
-      (v) => v !== '' || 'ID папки не должен быть пустым',
-    ],
-    typeRules: [
-      (v) => !!v || 'Поле обязательно для заполнения',
-      (v) => (v && v.length >= 3) || 'Минимальная длина: 3 символа',
-    ],
 
     options: {
       idNameDescription: [],
       numberType: [],
     },
+    noCnc: false, // Добавлено свойство для галочки "Без станка"
   }),
   computed: {
     ...mapGetters('IssueToolStore', ['nameOptions']),
@@ -197,7 +199,7 @@ export default {
         const damagedToolData = {
           id_tool: this.toolId,
           id_user: this.selectedFio.value,
-          cnc_code: this.selectedCnc.cnc_code,
+          cnc_code: this.noCnc ? null : this.selectedCnc.cnc_code, // Отправляем null, если галочка установлена
           comment: this.comment,
           quantity: this.damagedQuantity,
         }
@@ -210,13 +212,13 @@ export default {
         } else {
           console.error(
             'Ошибка при сохранении данных о поврежденном инструменте: ',
-            response
+            response,
           )
         }
       } catch (error) {
         console.error(
           'Ошибка при отправке данных о поврежденном инструменте: ',
-          error
+          error,
         )
       }
     },
