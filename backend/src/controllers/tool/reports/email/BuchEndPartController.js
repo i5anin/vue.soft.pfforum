@@ -117,20 +117,35 @@ async function checkStatusChanges() {
 
     if (result.rows.length > 0) {
       const partId = result.rows[0].part_id
+      const reportSent = result.rows[0].report_sent_buch
 
       // Сначала отправляем отчет
       await sendReportForPart(partId)
 
-      // Затем обновляем статус отправки
-      await pool.query(
-        `
-          UPDATE dbo.tool_part_archive
-          SET report_sent_buch      = TRUE,
-              date_report_sent_buch = CURRENT_TIMESTAMP
-          WHERE specs_nom_id = $1
-        `,
-        [partId],
-      )
+      // Затем обновляем или добавляем запись в tool_part_archive
+      if (reportSent !== null) {
+        // Обновляем статус отправки
+        await pool.query(
+          `
+            UPDATE dbo.tool_part_archive
+            SET report_sent_buch      = TRUE,
+                date_report_sent_buch = CURRENT_TIMESTAMP
+            WHERE specs_nom_id = $1
+          `,
+          [partId],
+        )
+        console.log(`Статус отправки отчета для партии ${partId} обновлен.`)
+      } else {
+        // Добавляем новую запись
+        await pool.query(
+          `
+            INSERT INTO dbo.tool_part_archive (specs_nom_id, report_sent_buch, date_report_sent_buch)
+            VALUES ($1, TRUE, CURRENT_TIMESTAMP)
+          `,
+          [partId],
+        )
+        console.log(`Запись для партии ${partId} добавлена в tool_part_archive.`)
+      }
     } else {
       console.log('Нет партий для отправки отчетов.')
     }
