@@ -16,7 +16,7 @@ const damagedController = require('./controllers/tool/HistoryDamagedController')
 const issueController = require('./controllers/tool/IssueController')
 
 const reportBuchWeekController = require('./controllers/tool/reports/email/BuchWeekController')
-const reportBuchEndOpController = require('./controllers/tool/reports/email/BuchEndOpController')
+const reportBuchEndOpController = require('./controllers/tool/reports/email/BuchEndPartController')
 const reportBuchMonthController = require('./controllers/tool/reports/email/BuchMonthController')
 const reportZakazController = require('./controllers/tool/reports/email/OrderToolsController')
 const reportRevisionController = require('./controllers/tool/reports/email/RevisionToolsController')
@@ -64,7 +64,7 @@ router.get('/operators/fio', issueController.getFioOperators)
 // router.get('/issue/cancel-operation-admin/:id', issueController.cancelOperationAdmin) // отмена любой
 router.post('/issue/cancel-operation/:id', issueController.cancelOperation) //отмена 3 дня
 
-router.post('/issue', issueController.issueTool)
+// router.post('/issue', issueController.issueTool)
 router.post('/issues', issueController.issueTools)
 router.get('/cnc', issueController.getCncData)
 

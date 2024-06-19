@@ -66,93 +66,91 @@ async function getFioOperators(req, res) {
 }
 
 // Функция для выполнения операции выдачи инструмента
-async function issueTool(req, res) {
-  const { specs_op_id, id_user, id_tool, type_issue, quantity, issueToken } =
-    req.body
-
-  if (
-    !specs_op_id ||
-    !id_user ||
-    !id_tool ||
-    quantity == null ||
-    type_issue == null ||
-    !issueToken
-  ) {
-    return res.status(400).json({
-      success: false,
-      message: 'Отсутствует один из обязательных параметров',
-    })
-  }
-
-  try {
-    const issuerIdResult = await pool.query(
-      'SELECT id FROM dbo.vue_users WHERE token = $1',
-      [issueToken]
-    )
-    if (issuerIdResult.rows.length === 0) {
-      return res
-        .status(403)
-        .json({ success: false, message: 'Неверный токен доступа' })
-    }
-    const issuerId = issuerIdResult.rows[0].id
-
-    const toolData = await pool.query(
-      'SELECT sklad FROM dbo.tool_nom WHERE id = $1',
-      [id_tool]
-    )
-    if (toolData.rows.length === 0 || toolData.rows[0].sklad < quantity) {
-      return res
-        .status(400)
-        .json({ success: false, message: 'Недостаточно инструмента на складе' })
-    }
-
-    const insertResult = await pool.query(
-      `INSERT INTO dbo.tool_history_nom (specs_op_id, id_user, id_tool, type_issue, quantity, timestamp, issuer_id)
-       VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, $6) RETURNING id, timestamp;`,
-      [specs_op_id, id_user, id_tool, type_issue, quantity, issuerId]
-    )
-
-    await pool.query(
-      'UPDATE dbo.tool_nom SET sklad = sklad - $1 WHERE id = $2',
-      [quantity, id_tool]
-    )
-
-    res.status(200).json({
-      success: true,
-      message: 'Инструменты успешно выданы',
-      data: {
-        insertedRecordId: insertResult.rows[0].id,
-        timestamp: insertResult.rows[0].timestamp,
-        specs_op_id,
-        id_user,
-        id_tool,
-        type_issue,
-        quantity,
-        issuerId,
-      },
-    })
-  } catch (error) {
-    console.error('Ошибка при выдаче инструмента:', error)
-    res.status(500).json({
-      success: false,
-      message: 'Внутренняя ошибка сервера',
-      errorDetails: error.message,
-    })
-  }
-}
+// async function issueTool(req, res) {
+//   const { specs_op_id, id_user, id_tool, type_issue, quantity, issueToken } =
+//     req.body
+//
+//   if (
+//     !specs_op_id ||
+//     !id_user ||
+//     !id_tool ||
+//     quantity == null ||
+//     type_issue == null ||
+//     !issueToken
+//   ) {
+//     return res.status(400).json({
+//       success: false,
+//       message: 'Отсутствует один из обязательных параметров',
+//     })
+//   }
+//
+//   try {
+//     const issuerIdResult = await pool.query(
+//       'SELECT id FROM dbo.vue_users WHERE token = $1',
+//       [issueToken]
+//     )
+//     if (issuerIdResult.rows.length === 0) {
+//       return res
+//         .status(403)
+//         .json({ success: false, message: 'Неверный токен доступа' })
+//     }
+//     const issuerId = issuerIdResult.rows[0].id
+//
+//     const toolData = await pool.query(
+//       'SELECT sklad FROM dbo.tool_nom WHERE id = $1',
+//       [id_tool]
+//     )
+//     if (toolData.rows.length === 0 || toolData.rows[0].sklad < quantity) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: 'Недостаточно инструмента на складе' })
+//     }
+//
+//     const insertResult = await pool.query(
+//       `INSERT INTO dbo.tool_history_nom (specs_op_id, id_user, id_tool, type_issue, quantity, timestamp, issuer_id)
+//        VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, $6) RETURNING id, timestamp;`,
+//       [specs_op_id, id_user, id_tool, type_issue, quantity, issuerId]
+//     )
+//
+//     await pool.query(
+//       'UPDATE dbo.tool_nom SET sklad = sklad - $1 WHERE id = $2',
+//       [quantity, id_tool]
+//     )
+//
+//     res.status(200).json({
+//       success: true,
+//       message: 'Инструменты успешно выданы',
+//       data: {
+//         insertedRecordId: insertResult.rows[0].id,
+//         timestamp: insertResult.rows[0].timestamp,
+//         specs_op_id,
+//         id_user,
+//         id_tool,
+//         type_issue,
+//         quantity,
+//         issuerId,
+//       },
+//     })
+//   } catch (error) {
+//     console.error('Ошибка при выдаче инструмента:', error)
+//     res.status(500).json({
+//       success: false,
+//       message: 'Внутренняя ошибка сервера',
+//       errorDetails: error.message,
+//     })
+//   }
+// }
 
 async function issueTools(req, res) {
-  const { operationId, userId, tools, typeIssue, issueToken } = req.body // Добавлен issueToken в деструктуризацию
+  const { operationId, userId, tools, typeIssue, issueToken } = req.body
 
   if (!issueToken) {
     return res.status(401).send('Authentication token is required.')
   }
 
   try {
-    // Начало транзакции
     await pool.query('BEGIN')
 
-    // Проверка токена и получение issuer_id
     const tokenQuery = 'SELECT id FROM dbo.vue_users WHERE token = $1'
     const tokenResult = await pool.query(tokenQuery, [issueToken])
 
@@ -164,7 +162,6 @@ async function issueTools(req, res) {
     const issuerId = tokenResult.rows[0].id
 
     for (const { toolId, quantity } of tools) {
-      // Проверка наличия инструмента на складе
       const selectQuery = 'SELECT sklad FROM dbo.tool_nom WHERE id = $1'
       const stockResult = await pool.query(selectQuery, [toolId])
 
@@ -179,12 +176,28 @@ async function issueTools(req, res) {
       }
 
       const newStock = stockResult.rows[0].sklad - quantity
-      const oldStock = stockResult.rows[0].sklad // Добавлено для логирования предыдущего значения
+      const oldStock = stockResult.rows[0].sklad
 
-      // Вставка записи в историю инструмента
+      // Получение specs_nom_id на основе operationId
+      const getPartIdQuery = `
+        SELECT specs_nom_id
+        FROM dbo.specs_nom_operations
+        WHERE id = $1
+      `
+      const partIdResult = await pool.query(getPartIdQuery, [operationId])
+
+      if (partIdResult.rows.length === 0) {
+        await pool.query('ROLLBACK')
+        return res.status(404).send('Operation not found.')
+      }
+
+      const partId = partIdResult.rows[0].specs_nom_id
+
+      // Вставка записи в историю инструмента с specs_nom_id
       const insertQuery = `
-        INSERT INTO dbo.tool_history_nom (specs_op_id, id_user, id_tool, type_issue, quantity, timestamp, issuer_id)
-        VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, $6)
+        INSERT INTO dbo.tool_history_nom (specs_op_id, id_user, id_tool, type_issue, quantity, timestamp, issuer_id,
+                                          specs_nom_id)
+        VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, $6, $7)
       `
       await pool.query(insertQuery, [
         operationId,
@@ -193,13 +206,12 @@ async function issueTools(req, res) {
         typeIssue,
         quantity,
         issuerId,
+        partId,
       ])
 
-      // Обновление количества инструмента на складе
       const updateQuery = 'UPDATE dbo.tool_nom SET sklad = $1 WHERE id = $2'
       await pool.query(updateQuery, [newStock, toolId])
 
-      // Логирование операции выдачи инструмента
       const logMessage = `Выдача инструмента ${toolId}: ${quantity} ед. Пользователь: ${userId}, Осталось на складе: ${newStock}.`
       const logQuery =
         'INSERT INTO dbo.vue_log (message, tool_id, user_id, datetime_log, old_amount, new_amount) VALUES ($1, $2, $3, NOW(), $4, $5)'
@@ -212,11 +224,9 @@ async function issueTools(req, res) {
       ])
     }
 
-    // Завершение транзакции
     await pool.query('COMMIT')
     res.json({ success: 'OK', message: 'Инструменты успешно выданы' })
   } catch (error) {
-    // Откат в случае ошибки
     await pool.query('ROLLBACK')
     console.error('Ошибка при выдаче инструмента:', error)
     res.status(500).json({
@@ -298,7 +308,9 @@ async function cancelOperation(req, res) {
       return res.status(400).send('Количество для отмены превышает доступное.')
     }
 
-    const stockQuery = `SELECT sklad FROM dbo.tool_nom WHERE id = $1`
+    const stockQuery = `SELECT sklad
+                        FROM dbo.tool_nom
+                        WHERE id = $1`
     const stockResult = await pool.query(stockQuery, [
       operation.rows[0].id_tool,
     ])
@@ -307,7 +319,7 @@ async function cancelOperation(req, res) {
     const currentDate = new Date()
     const operationDate = new Date(operation.rows[0].timestamp)
     const differenceInDays = Math.floor(
-      (currentDate - operationDate) / (1000 * 60 * 60 * 24)
+      (currentDate - operationDate) / (1000 * 60 * 60 * 24),
     )
 
     if (differenceInDays > 3) {
@@ -315,21 +327,28 @@ async function cancelOperation(req, res) {
       return res
         .status(403)
         .send(
-          'Отмена операции возможна только в течение 3 дней с момента выполнения.'
+          'Отмена операции возможна только в течение 3 дней с момента выполнения.',
         )
     }
 
-    const updateOperationQuery = `UPDATE dbo.tool_history_nom SET quantity = quantity - $2, cancelled = true, cancelled_id = $3 WHERE id = $1`
+    const updateOperationQuery = `UPDATE dbo.tool_history_nom
+                                  SET quantity     = quantity - $2,
+                                      cancelled    = true,
+                                      cancelled_id = $3
+                                  WHERE id = $1`
     await pool.query(updateOperationQuery, [id, cancelQuantity, issuerId])
 
     const newQuantity = oldQuantity + parseInt(cancelQuantity, 10)
 
-    const updateStockQuery = `UPDATE dbo.tool_nom SET sklad = $1 WHERE id = $2`
+    const updateStockQuery = `UPDATE dbo.tool_nom
+                              SET sklad = $1
+                              WHERE id = $2`
     await pool.query(updateStockQuery, [newQuantity, operation.rows[0].id_tool])
 
     // Логирование операции возврата
     const logMessage = `Отмена операции ${id}: ${cancelQuantity} ед. возвращено на склад. Было: ${oldQuantity}, стало: ${newQuantity}.`
-    const logQuery = `INSERT INTO dbo.vue_log (message, tool_id, user_id, datetime_log, old_amount, new_amount) VALUES ($1, $2, $3, NOW(), $4, $5)`
+    const logQuery = `INSERT INTO dbo.vue_log (message, tool_id, user_id, datetime_log, old_amount, new_amount)
+                      VALUES ($1, $2, $3, NOW(), $4, $5)`
     await pool.query(logQuery, [
       logMessage,
       operation.rows[0].id_tool,
@@ -364,7 +383,7 @@ async function cancelOperation(req, res) {
 module.exports = {
   cancelOperation,
   findDetailProduction,
-  issueTool,
+  // issueTool,
   issueTools,
   getFioOperators,
   getCncData,
