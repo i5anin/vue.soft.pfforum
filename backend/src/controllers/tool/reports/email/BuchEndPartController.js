@@ -174,7 +174,7 @@ async function checkStatusChanges() {
   }
 }
 
-// Запускаем проверку каждую минуту
-cron.schedule('*/10 * * * * *', checkStatusChanges)
+// Запускаем проверку каждую 15 минут
+cron.schedule('*/15 * * * *', checkStatusChanges);
 
 module.exports = { checkStatusChanges }
