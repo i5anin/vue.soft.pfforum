@@ -75,30 +75,21 @@ async function sendReportForPart(partId) {
     const htmlContent = createMailContent(tools, partId)
     const financeUserEmail = await getEmailRecipients('finance')
 
-    let mailOptions = {}
+    // Проверяем, получили ли мы email для отправки
+    if (!financeUserEmail) {
+      console.error('Не удалось получить адрес электронной почты для роли \'finance\'.')
+      return
+    }
 
-    if (process.env.VITE_NODE_ENV === 'build' && financeUserEmail) {
-      mailOptions = {
-        from: process.env.MAIL_USER,
-        to: financeUserEmail,
-        subject: `Отчет по инструментам для партии: ${partId}`,
-        html: htmlContent,
-      }
+    let mailOptions = {
+      from: process.env.MAIL_USER,
+      to: financeUserEmail,
+      subject: `Отчет по инструментам для партии: ${partId}`,
+      html: htmlContent,
     }
 
     await transporter.sendMail(mailOptions)
     console.log(`Отчет по инструментам для партии ${partId} отправлен на ${financeUserEmail}`)
-
-    // Обновляем статус отправки отчета в таблице tool_part_archive
-    await pool.query(
-      `
-        UPDATE dbo.tool_part_archive
-        SET report_sent_buch      = TRUE,
-            date_report_sent_buch = CURRENT_TIMESTAMP
-        WHERE specs_nom_id = $1
-      `,
-      [partId],
-    )
 
   } catch (error) {
     console.error(`Ошибка при отправке отчета для партии ${partId}:`, error)
@@ -106,26 +97,40 @@ async function sendReportForPart(partId) {
 }
 
 async function checkStatusChanges() {
-  console.log("Checking status changes")
+  console.log('Checking status changes')
   try {
     const result = await pool.query(
       `
-        SELECT sn.id AS part_id
+        SELECT sn.id AS part_id,
+               sn.prod_end_time,
+               tpa.report_sent_buch
         FROM dbo.specs_nom sn
+               LEFT JOIN dbo.tool_part_archive tpa ON tpa.specs_nom_id = sn.id
         WHERE sn.prod_end_time <= NOW()
-          AND EXISTS (SELECT 1
-                      FROM dbo.tool_part_archive tpa
-                      WHERE tpa.specs_nom_id = sn.id
-                        AND tpa.report_sent_buch = FALSE)
+          AND (tpa.report_sent_buch IS NULL OR tpa.report_sent_buch = FALSE)
         ORDER BY sn.prod_end_time DESC
         LIMIT 1
       `,
     )
 
+    console.log('Найденные партии:', result.rows)
+
     if (result.rows.length > 0) {
-      console.log(part_id)
       const partId = result.rows[0].part_id
+
+      // Сначала отправляем отчет
       await sendReportForPart(partId)
+
+      // Затем обновляем статус отправки
+      await pool.query(
+        `
+          UPDATE dbo.tool_part_archive
+          SET report_sent_buch      = TRUE,
+              date_report_sent_buch = CURRENT_TIMESTAMP
+          WHERE specs_nom_id = $1
+        `,
+        [partId],
+      )
     } else {
       console.log('Нет партий для отправки отчетов.')
     }
@@ -134,7 +139,7 @@ async function checkStatusChanges() {
   }
 }
 
-// Запускаем проверку каждые 15 сек
-cron.schedule('*/15 * * * * *', checkStatusChanges)
+// Запускаем проверку каждую минуту
+cron.schedule('*/1 * * * *', checkStatusChanges)
 
 module.exports = { checkStatusChanges }
