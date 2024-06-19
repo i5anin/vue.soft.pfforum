@@ -1,13 +1,13 @@
-const nodemailer = require('nodemailer')
-const { Pool } = require('pg')
-const { emailConfig } = require('../../../../config/config')
-const { htmlToText } = require('nodemailer-html-to-text')
-const getEmailRecipients = require('./getEmailRecipients')
-const getDbConfig = require('../../../../config/databaseConfig')
-const cron = require('node-cron')
+const nodemailer = require('nodemailer');
+const { Pool } = require('pg');
+const { emailConfig } = require('../../../../config/config');
+const { htmlToText } = require('nodemailer-html-to-text');
+const getEmailRecipients = require('./getEmailRecipients');
+const getDbConfig = require('../../../../config/databaseConfig');
+const cron = require('node-cron');
 
-const dbConfig = getDbConfig()
-const pool = new Pool(dbConfig)
+const dbConfig = getDbConfig();
+const pool = new Pool(dbConfig);
 
 const transporter = nodemailer.createTransport({
   host: emailConfig.host,
@@ -17,12 +17,12 @@ const transporter = nodemailer.createTransport({
     user: emailConfig.user,
     pass: emailConfig.pass,
   },
-})
+});
 
-transporter.use('compile', htmlToText())
+transporter.use('compile', htmlToText());
 
-function createMailContent(tools, partId) {
-  let htmlContent = `<h2>Отчет по инструментам для партии: ${partId}</h2>`
+function createMailContent(tools, partId, partName, partDesignation) {
+  let htmlContent = `<h2>Отчет по инструментам для партии: ${partId} (${partName} - ${partDesignation})</h2>`;
 
   if (tools.length > 0) {
     htmlContent += `
@@ -32,7 +32,7 @@ function createMailContent(tools, partId) {
           <th>Название инструмента</th>
           <th>Количество</th>
         </tr>
-    `
+    `;
     tools.forEach((tool) => {
       htmlContent += `
         <tr>
@@ -40,18 +40,36 @@ function createMailContent(tools, partId) {
           <td>${tool.tool_name}</td>
           <td>${tool.quantity}</td>
         </tr>
-      `
-    })
-    htmlContent += `</table>`
+      `;
+    });
+    htmlContent += `</table>`;
   } else {
-    htmlContent += '<p>Инструменты для данной партии не найдены.</p>'
+    htmlContent += '<p>Инструменты для данной партии не найдены.</p>';
   }
 
-  return htmlContent
+  return htmlContent;
 }
 
 async function sendReportForPart(partId) {
   try {
+    // Получаем данные о партии, включая название и обозначение
+    const partDataResult = await pool.query(
+      `
+        SELECT name, description
+        FROM dbo.specs_nom
+        WHERE id = $1
+      `,
+      [partId],
+    );
+
+    if (partDataResult.rows.length === 0) {
+      console.log(`Партия с ID ${partId} не найдена.`);
+      return;
+    }
+
+    const partName = partDataResult.rows[0].name;
+    const partDesignation = partDataResult.rows[0].description;
+
     const toolsResult = await pool.query(
       `
         SELECT thn.id,
@@ -63,36 +81,35 @@ async function sendReportForPart(partId) {
         WHERE thn.specs_nom_id = $1
       `,
       [partId],
-    )
+    );
 
-    const tools = toolsResult.rows
+    const tools = toolsResult.rows;
 
     if (tools.length === 0) {
-      console.log(`Нет инструментов для отправки отчета по партии: ${partId}`)
-      return
+      console.log(`Нет инструментов для отправки отчета по партии: ${partId}`);
+      return;
     }
 
-    const htmlContent = createMailContent(tools, partId)
-    const financeUserEmail = await getEmailRecipients('finance')
+    const htmlContent = createMailContent(tools, partId, partName, partDesignation);
+    const financeUserEmail = await getEmailRecipients('finance');
 
-    // Проверяем, получили ли мы email для отправки
     if (!financeUserEmail) {
-      console.error('Не удалось получить адрес электронной почты для роли \'finance\'.')
-      return
+      console.error("Не удалось получить адрес электронной почты для роли 'finance'.");
+      return;
     }
 
     let mailOptions = {
       from: process.env.MAIL_USER,
       to: financeUserEmail,
-      subject: `Отчет по инструментам для партии: ${partId}`,
+      subject: `Отчет по инструментам для партии: ${partId} (${partName} - ${partDesignation})`,
       html: htmlContent,
-    }
+    };
 
-    await transporter.sendMail(mailOptions)
-    console.log(`Отчет по инструментам для партии ${partId} отправлен на ${financeUserEmail}`)
+    await transporter.sendMail(mailOptions);
+    console.log(`Отчет по инструментам для партии ${partId} (${partName} - ${partDesignation}) отправлен на ${financeUserEmail}`);
 
   } catch (error) {
-    console.error(`Ошибка при отправке отчета для партии ${partId}:`, error)
+    console.error(`Ошибка при отправке отчета для партии ${partId}:`, error);
   }
 }
 
@@ -155,6 +172,6 @@ async function checkStatusChanges() {
 }
 
 // Запускаем проверку каждую минуту
-cron.schedule('*/1 * * * *', checkStatusChanges)
+cron.schedule('*/10 * * * * *', checkStatusChanges)
 
 module.exports = { checkStatusChanges }
