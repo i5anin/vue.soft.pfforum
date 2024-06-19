@@ -112,7 +112,7 @@ async function checkStatusChanges() {
       `
         SELECT sn.id AS part_id
         FROM dbo.specs_nom sn
-        WHERE sn.prod_end_time <= NOW()
+        WHERE sn.prod_end_time >= '2024-06-17 00:00:00'
           AND EXISTS (SELECT 1
                       FROM dbo.tool_part_archive tpa
                       WHERE tpa.specs_nom_id = sn.id
