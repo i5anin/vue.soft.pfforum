@@ -73,7 +73,7 @@ async function sendReportForPart(partId) {
     const partName = partDataResult.rows[0].name;
     const partDesignation = partDataResult.rows[0].description;
 
-// Измененный SQL запрос с агрегацией
+    // Измененный SQL запрос с агрегацией
     const toolsResult = await pool.query(
       `
         SELECT thn.id_tool,
@@ -129,7 +129,7 @@ async function checkStatusChanges() {
                LEFT JOIN dbo.tool_part_archive tpa ON tpa.specs_nom_id = sn.id
         WHERE sn.prod_end_time >= '2024-06-19 00:00:00'
           AND (tpa.report_sent_buch IS NULL OR tpa.report_sent_buch = FALSE)
-        ORDER BY sn.prod_end_time DESC
+        ORDER BY sn.id DESC, sn.prod_end_time DESC
         LIMIT 1
       `,
     )
@@ -156,15 +156,40 @@ async function checkStatusChanges() {
         )
         console.log(`Статус отправки отчета для партии ${partId} обновлен.`)
       } else {
-        // Добавляем новую запись
-        await pool.query(
+        // Проверяем, существует ли запись с таким же specs_nom_id
+        const existingRecord = await pool.query(
           `
-            INSERT INTO dbo.tool_part_archive (specs_nom_id, report_sent_buch, date_report_sent_buch, count_nom)
-            VALUES ($1, TRUE, CURRENT_TIMESTAMP, (SELECT COUNT(*) FROM dbo.tool_history_nom WHERE specs_nom_id = $1))
+          SELECT 1
+          FROM dbo.tool_part_archive
+          WHERE specs_nom_id = $1
           `,
           [partId],
-        )
-        console.log(`Запись для партии ${partId} добавлена в tool_part_archive.`)
+        );
+
+        if (existingRecord.rows.length > 0) {
+          // Обновляем существующую запись
+          await pool.query(
+            `
+            UPDATE dbo.tool_part_archive
+            SET report_sent_buch      = TRUE,
+                date_report_sent_buch = CURRENT_TIMESTAMP,
+                count_nom = (SELECT COUNT(*) FROM dbo.tool_history_nom WHERE specs_nom_id = $1)
+            WHERE specs_nom_id = $1
+            `,
+            [partId],
+          );
+          console.log(`Запись для партии ${partId} обновлена в tool_part_archive.`);
+        } else {
+          // Добавляем новую запись
+          await pool.query(
+            `
+            INSERT INTO dbo.tool_part_archive (specs_nom_id, report_sent_buch, date_report_sent_buch, count_nom)
+            VALUES ($1, TRUE, CURRENT_TIMESTAMP, (SELECT COUNT(*) FROM dbo.tool_history_nom WHERE specs_nom_id = $1))
+            `,
+            [partId],
+          );
+          console.log(`Запись для партии ${partId} добавлена в tool_part_archive.`);
+        }
       }
     } else {
       console.log('Нет партий для отправки отчетов.')
@@ -174,7 +199,7 @@ async function checkStatusChanges() {
   }
 }
 
-// Запускаем проверку каждую 15 минут
-cron.schedule('*/15 * * * *', checkStatusChanges);
+// Запускаем проверку каждые 20 минут
+cron.schedule('0 */20 * * * *', checkStatusChanges);
 
 module.exports = { checkStatusChanges }
