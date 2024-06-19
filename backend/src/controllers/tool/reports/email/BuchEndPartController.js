@@ -1,13 +1,13 @@
-const nodemailer = require('nodemailer')
-const { Pool } = require('pg')
-const { emailConfig } = require('../../../../config/config')
-const { htmlToText } = require('nodemailer-html-to-text')
-const getEmailRecipients = require('./getEmailRecipients')
-const getDbConfig = require('../../../../config/databaseConfig')
-const cron = require('node-cron')
+const nodemailer = require('nodemailer');
+const { Pool } = require('pg');
+const { emailConfig } = require('../../../../config/config');
+const { htmlToText } = require('nodemailer-html-to-text');
+const getEmailRecipients = require('./getEmailRecipients');
+const getDbConfig = require('../../../../config/databaseConfig');
+const cron = require('node-cron');
 
-const dbConfig = getDbConfig()
-const pool = new Pool(dbConfig)
+const dbConfig = getDbConfig();
+const pool = new Pool(dbConfig);
 
 const transporter = nodemailer.createTransport({
   host: emailConfig.host,
@@ -17,12 +17,12 @@ const transporter = nodemailer.createTransport({
     user: emailConfig.user,
     pass: emailConfig.pass,
   },
-})
+});
 
-transporter.use('compile', htmlToText())
+transporter.use('compile', htmlToText());
 
 function createMailContent(tools, partId, partName, partDesignation) {
-  let htmlContent = `<h2>Отчет по инструментам для партии: ${partId} (${partName} - ${partDesignation})</h2>`
+  let htmlContent = `<h2>Отчет по инструментам для партии: ${partId} (${partName} - ${partDesignation})</h2>`;
 
   if (tools.length > 0) {
     htmlContent += `
@@ -32,7 +32,7 @@ function createMailContent(tools, partId, partName, partDesignation) {
           <th>Название инструмента</th>
           <th>Количество</th>
         </tr>
-    `
+    `;
     tools.forEach((tool) => {
       htmlContent += `
         <tr>
@@ -40,14 +40,14 @@ function createMailContent(tools, partId, partName, partDesignation) {
           <td>${tool.tool_name}</td>
           <td>${tool.quantity}</td>
         </tr>
-      `
-    })
-    htmlContent += `</table>`
+      `;
+    });
+    htmlContent += `</table>`;
   } else {
-    htmlContent += '<p>Инструменты для данной партии не найдены.</p>'
+    htmlContent += '<p>Инструменты для данной партии не найдены.</p>';
   }
 
-  return htmlContent
+  return htmlContent;
 }
 
 async function sendReportForPart(partId) {
@@ -60,15 +60,15 @@ async function sendReportForPart(partId) {
         WHERE id = $1
       `,
       [partId],
-    )
+    );
 
     if (partDataResult.rows.length === 0) {
-      console.log(`Партия с ID ${partId} не найдена.`)
-      return
+      console.log(`Партия с ID ${partId} не найдена.`);
+      return;
     }
 
-    const partName = partDataResult.rows[0].name
-    const partDesignation = partDataResult.rows[0].description
+    const partName = partDataResult.rows[0].name;
+    const partDesignation = partDataResult.rows[0].description;
 
     const toolsResult = await pool.query(
       `
@@ -81,21 +81,21 @@ async function sendReportForPart(partId) {
         WHERE thn.specs_nom_id = $1
       `,
       [partId],
-    )
+    );
 
-    const tools = toolsResult.rows
+    const tools = toolsResult.rows;
 
     if (tools.length === 0) {
-      console.log(`Нет инструментов для отправки отчета по партии: ${partId}`)
-      return
+      console.log(`Нет инструментов для отправки отчета по партии: ${partId}`);
+      return;
     }
 
-    const htmlContent = createMailContent(tools, partId, partName, partDesignation)
-    const financeUserEmail = await getEmailRecipients('finance')
+    const htmlContent = createMailContent(tools, partId, partName, partDesignation);
+    const financeUserEmail = await getEmailRecipients('finance');
 
     if (!financeUserEmail) {
-      console.error('Не удалось получить адрес электронной почты для роли \'finance\'.')
-      return
+      console.error("Не удалось получить адрес электронной почты для роли 'finance'.");
+      return;
     }
 
     let mailOptions = {
@@ -103,66 +103,67 @@ async function sendReportForPart(partId) {
       to: financeUserEmail,
       subject: `Отчет по инструментам для партии: ${partId} (${partName} - ${partDesignation})`,
       html: htmlContent,
-    }
+    };
 
-    await transporter.sendMail(mailOptions)
-    console.log(`Отчет по инструментам для партии ${partId} (${partName} - ${partDesignation}) отправлен на ${financeUserEmail}`)
+    await transporter.sendMail(mailOptions);
+    console.log(`Отчет по инструментам для партии ${partId} (${partName} - ${partDesignation}) отправлен на ${financeUserEmail}`);
 
   } catch (error) {
-    console.error(`Ошибка при отправке отчета для партии ${partId}:`, error)
+    console.error(`Ошибка при отправке отчета для партии ${partId}:`, error);
   }
 }
 
 async function checkStatusChanges() {
   console.log('Checking status changes')
   try {
-    // Получаем список ID завершенных партий до указанной даты
-    const completedPartsResult = await pool.query(
+    const result = await pool.query(
       `
-        SELECT id
-        FROM dbo.specs_nom
-        WHERE prod_end_time >= '2024-06-17 00:00:00'
-        ORDER BY prod_end_time ASC
+        SELECT sn.id AS part_id,
+               sn.prod_end_time,
+               tpa.report_sent_buch
+        FROM dbo.specs_nom sn
+               LEFT JOIN dbo.tool_part_archive tpa ON tpa.specs_nom_id = sn.id
+        WHERE sn.prod_end_time <= NOW()
+          AND (tpa.report_sent_buch IS NULL OR tpa.report_sent_buch = FALSE)
+        ORDER BY sn.prod_end_time DESC
+        LIMIT 1
       `,
     )
-    const completedPartIds = completedPartsResult.rows.map(row => row.id)
 
-    // Получаем список ID партий, для которых отчет еще не был отправлен
-    const unsentReportsResult = await pool.query(
-      `
-        SELECT DISTINCT specs_nom_id
-        FROM dbo.tool_part_archive
-        WHERE report_sent_buch IS NULL
-           OR report_sent_buch = FALSE
-      `,
-    )
-    const unsentReportPartIds = unsentReportsResult.rows.map(row => row.specs_nom_id)
+    console.log('Найденные партии:', result.rows)
 
-    // Находим партии, которые нужно отправить
-    const partsToSend = completedPartIds.filter(partId => unsentReportPartIds.includes(partId))
+    if (result.rows.length > 0) {
+      const partId = result.rows[0].part_id
+      const reportSent = result.rows[0].report_sent_buch
 
-    console.log('Завершенные партии:', completedPartIds)
-    console.log('Партии без отчетов:', unsentReportPartIds)
-    console.log('Партии для отправки:', partsToSend)
-
-    // Отправляем отчеты для каждой найденной партии
-    for (const partId of partsToSend) {
+      // Сначала отправляем отчет
       await sendReportForPart(partId)
 
-      // Обновляем статус отправки отчета
-      await pool.query(
-        `
-          UPDATE dbo.tool_part_archive
-          SET report_sent_buch      = TRUE,
-              date_report_sent_buch = CURRENT_TIMESTAMP
-          WHERE specs_nom_id = $1
-        `,
-        [partId],
-      )
-      console.log(`Статус отправки отчета для партии ${partId} обновлен.`)
-    }
-
-    if (partsToSend.length === 0) {
+      // Затем обновляем или добавляем запись в tool_part_archive
+      if (reportSent !== null) {
+        // Обновляем статус отправки
+        await pool.query(
+          `
+            UPDATE dbo.tool_part_archive
+            SET report_sent_buch      = TRUE,
+                date_report_sent_buch = CURRENT_TIMESTAMP
+            WHERE specs_nom_id = $1
+          `,
+          [partId],
+        )
+        console.log(`Статус отправки отчета для партии ${partId} обновлен.`)
+      } else {
+        // Добавляем новую запись
+        await pool.query(
+          `
+            INSERT INTO dbo.tool_part_archive (specs_nom_id, report_sent_buch, date_report_sent_buch)
+            VALUES ($1, TRUE, CURRENT_TIMESTAMP)
+          `,
+          [partId],
+        )
+        console.log(`Запись для партии ${partId} добавлена в tool_part_archive.`)
+      }
+    } else {
       console.log('Нет партий для отправки отчетов.')
     }
   } catch (error) {
