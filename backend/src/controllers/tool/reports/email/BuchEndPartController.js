@@ -1,13 +1,13 @@
-const nodemailer = require('nodemailer');
-const { Pool } = require('pg');
-const { emailConfig } = require('../../../../config/config');
-const { htmlToText } = require('nodemailer-html-to-text');
-const getEmailRecipients = require('./getEmailRecipients');
-const getDbConfig = require('../../../../config/databaseConfig');
-const cron = require('node-cron');
+const nodemailer = require('nodemailer')
+const { Pool } = require('pg')
+const { emailConfig } = require('../../../../config/config')
+const { htmlToText } = require('nodemailer-html-to-text')
+const getEmailRecipients = require('./getEmailRecipients')
+const getDbConfig = require('../../../../config/databaseConfig')
+const cron = require('node-cron')
 
-const dbConfig = getDbConfig();
-const pool = new Pool(dbConfig);
+const dbConfig = getDbConfig()
+const pool = new Pool(dbConfig)
 
 const transporter = nodemailer.createTransport({
   host: emailConfig.host,
@@ -17,13 +17,13 @@ const transporter = nodemailer.createTransport({
     user: emailConfig.user,
     pass: emailConfig.pass,
   },
-});
+})
 
-transporter.use('compile', htmlToText());
+transporter.use('compile', htmlToText())
 
 // Измененная функция createMailContent
 function createMailContent(tools, partId, partName, partDesignation) {
-  let htmlContent = `<h2>Отчет по инструментам, завершение партии: ${partId} (${partName} - ${partDesignation})</h2>`;
+  let htmlContent = `<h2>Отчет по инструментам, завершение партии: ${partId} (${partName} - ${partDesignation})</h2>`
 
   if (tools.length > 0) {
     htmlContent += `
@@ -34,7 +34,7 @@ function createMailContent(tools, partId, partName, partDesignation) {
           <th>Название инструмента</th>
           <th>Количество</th>
         </tr>
-    `;
+    `
     tools.forEach((tool, index) => {
       htmlContent += `
         <tr>
@@ -43,14 +43,14 @@ function createMailContent(tools, partId, partName, partDesignation) {
           <td>${tool.tool_name}</td>
           <td>${tool.total_quantity}</td>
         </tr>
-      `;
-    });
-    htmlContent += `</table>`;
+      `
+    })
+    htmlContent += `</table>`
   } else {
-    htmlContent += '<p>Инструменты для данной партии не найдены.</p>';
+    htmlContent += '<p>Инструменты для данной партии не найдены.</p>'
   }
 
-  return htmlContent;
+  return htmlContent
 }
 
 async function sendReportForPart(partId) {
@@ -63,44 +63,44 @@ async function sendReportForPart(partId) {
         WHERE id = $1
       `,
       [partId],
-    );
+    )
 
     if (partDataResult.rows.length === 0) {
-      console.log(`Партия с ID ${partId} не найдена.`);
-      return;
+      console.log(`Партия с ID ${partId} не найдена.`)
+      return
     }
 
-    const partName = partDataResult.rows[0].name;
-    const partDesignation = partDataResult.rows[0].description;
+    const partName = partDataResult.rows[0].name
+    const partDesignation = partDataResult.rows[0].description
 
-    // Измененный SQL запрос с агрегацией
     const toolsResult = await pool.query(
       `
         SELECT thn.id_tool,
-               tn.name AS tool_name,
+               tn.name           AS tool_name,
                SUM(thn.quantity) AS total_quantity
         FROM dbo.tool_history_nom thn
                JOIN dbo.tool_nom tn ON thn.id_tool = tn.id
         WHERE thn.specs_nom_id = $1
+          AND thn.quantity > 0
         GROUP BY thn.id_tool, tn.name
         ORDER BY thn.id_tool
       `,
       [partId],
-    );
+    )
 
-    const tools = toolsResult.rows;
+    const tools = toolsResult.rows
 
     if (tools.length === 0) {
-      console.log(`Нет инструментов для отправки отчета по партии: ${partId}`);
-      return;
+      console.log(`Нет инструментов для отправки отчета по партии: ${partId}`)
+      return
     }
 
-    const htmlContent = createMailContent(tools, partId, partName, partDesignation);
-    const financeUserEmail = await getEmailRecipients('finance');
+    const htmlContent = createMailContent(tools, partId, partName, partDesignation)
+    const financeUserEmail = await getEmailRecipients('finance')
 
     if (!financeUserEmail) {
-      console.error("Не удалось получить адрес электронной почты для роли 'finance'.");
-      return;
+      console.error('Не удалось получить адрес электронной почты для роли \'finance\'.')
+      return
     }
 
     let mailOptions = {
@@ -108,13 +108,13 @@ async function sendReportForPart(partId) {
       to: financeUserEmail,
       subject: `Отчет по инструментам, завершение партии: ${partId} (${partName} - ${partDesignation})`,
       html: htmlContent,
-    };
+    }
 
-    await transporter.sendMail(mailOptions);
-    console.log(`Отчет по инструментам, завершение партии ${partId} (${partName} - ${partDesignation}) отправлен на ${financeUserEmail}`);
+    await transporter.sendMail(mailOptions)
+    console.log(`Отчет по инструментам, завершение партии ${partId} (${partName} - ${partDesignation}) отправлен на ${financeUserEmail}`)
 
   } catch (error) {
-    console.error(`Ошибка при отправке отчета для партии ${partId}:`, error);
+    console.error(`Ошибка при отправке отчета для партии ${partId}:`, error)
   }
 }
 
@@ -149,7 +149,7 @@ async function checkStatusChanges() {
             UPDATE dbo.tool_part_archive
             SET report_sent_buch      = TRUE,
                 date_report_sent_buch = CURRENT_TIMESTAMP,
-                count_nom = (SELECT COUNT(*) FROM dbo.tool_history_nom WHERE specs_nom_id = $1)  -- Подсчет записей в tool_history_nom
+                count_nom             = (SELECT COUNT(*) FROM dbo.tool_history_nom WHERE specs_nom_id = $1) -- Подсчет записей в tool_history_nom
             WHERE specs_nom_id = $1
           `,
           [partId],
@@ -159,36 +159,36 @@ async function checkStatusChanges() {
         // Проверяем, существует ли запись с таким же specs_nom_id
         const existingRecord = await pool.query(
           `
-          SELECT 1
-          FROM dbo.tool_part_archive
-          WHERE specs_nom_id = $1
+            SELECT 1
+            FROM dbo.tool_part_archive
+            WHERE specs_nom_id = $1
           `,
           [partId],
-        );
+        )
 
         if (existingRecord.rows.length > 0) {
           // Обновляем существующую запись
           await pool.query(
             `
-            UPDATE dbo.tool_part_archive
-            SET report_sent_buch      = TRUE,
-                date_report_sent_buch = CURRENT_TIMESTAMP,
-                count_nom = (SELECT COUNT(*) FROM dbo.tool_history_nom WHERE specs_nom_id = $1)
-            WHERE specs_nom_id = $1
+              UPDATE dbo.tool_part_archive
+              SET report_sent_buch      = TRUE,
+                  date_report_sent_buch = CURRENT_TIMESTAMP,
+                  count_nom             = (SELECT COUNT(*) FROM dbo.tool_history_nom WHERE specs_nom_id = $1)
+              WHERE specs_nom_id = $1
             `,
             [partId],
-          );
-          console.log(`Запись для партии ${partId} обновлена в tool_part_archive.`);
+          )
+          console.log(`Запись для партии ${partId} обновлена в tool_part_archive.`)
         } else {
           // Добавляем новую запись
           await pool.query(
             `
-            INSERT INTO dbo.tool_part_archive (specs_nom_id, report_sent_buch, date_report_sent_buch, count_nom)
-            VALUES ($1, TRUE, CURRENT_TIMESTAMP, (SELECT COUNT(*) FROM dbo.tool_history_nom WHERE specs_nom_id = $1))
+              INSERT INTO dbo.tool_part_archive (specs_nom_id, report_sent_buch, date_report_sent_buch, count_nom)
+              VALUES ($1, TRUE, CURRENT_TIMESTAMP, (SELECT COUNT(*) FROM dbo.tool_history_nom WHERE specs_nom_id = $1))
             `,
             [partId],
-          );
-          console.log(`Запись для партии ${partId} добавлена в tool_part_archive.`);
+          )
+          console.log(`Запись для партии ${partId} добавлена в tool_part_archive.`)
         }
       }
     } else {
@@ -200,6 +200,6 @@ async function checkStatusChanges() {
 }
 
 // Запускаем проверку каждые 20 минут
-cron.schedule('0 */20 * * * *', checkStatusChanges);
+cron.schedule('0 */20 * * * *', checkStatusChanges)
 
 module.exports = { checkStatusChanges }
