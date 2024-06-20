@@ -69,7 +69,7 @@ const tabs = [
     name: 'Дерево',
     url: '#tree',
     component: markRaw(ToolTabTree),
-    access: ['Admin', 'Editor', 'Issue', 'Sklad', 'View'],
+    access: ['Admin', 'Editor', 'Issue', 'View'],
     ico: 'mdi-file-tree',
   },
   {
@@ -83,7 +83,7 @@ const tabs = [
     name: 'Отчёт бухгалтерия',
     url: '#report-buh',
     component: markRaw(ReportBuh),
-    access: ['Admin', 'Editor'],
+    access: ['Admin'],
     ico: 'mdi-currency-rub',
   },
   {
