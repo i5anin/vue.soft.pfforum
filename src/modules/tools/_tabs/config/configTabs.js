@@ -1,19 +1,19 @@
 import { markRaw } from 'vue'
 
-import HistoryIssue from '@/modules/history-issue/components/Table.vue'
-import HistoryDamaged from '@/modules/history-damaged/components/Table.vue'
+import HistoryIssue from '@/modules/tools/history-issue/components/Table.vue'
+import HistoryDamaged from '@/modules/tools/history-damaged/components/Table.vue'
 
-import ToolTabParam from '@/modules/params/components/Param.vue'
-import ToolTabGroup from '@/modules/groups/components/Groups.vue'
-import ToolTabTree from '@/modules/tree/components/Tree.vue'
-import Report from '@/modules/report-zakaz/components/Report.vue'
-import ReportBuh from '@/modules/report-buh/components/Report.vue'
-import ReportRevision from '@/modules/revision/components/Report.vue'
+import ToolTabParam from '@/modules/tools/params/components/Param.vue'
+import ToolTabGroup from '@/modules/tools/groups/components/Groups.vue'
+import ToolTabTree from '@/modules/tools/tree/components/Tree.vue'
+import Report from '@/modules/tools/report-zakaz/components/Report.vue'
+import ReportBuh from '@/modules/tools/report-buh/components/Report.vue'
+import ReportRevision from '@/modules/tools/revision/components/Report.vue'
 
-import EditorCatalog from '@/modules/editor/components/Catalog.vue'
-import IssueCatalog from '@/modules/issue/components/Catalog.vue'
+import EditorCatalog from '@/modules/tools/editor/components/Catalog.vue'
+import IssueCatalog from '@/modules/tools/issue/components/Catalog.vue'
 
-import ViewCatalog from '@/modules/view/components/Catalog.vue'
+import ViewCatalog from '@/modules/tools/view/components/Catalog.vue'
 
 const tabs = [
   {

@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import { toolTreeApi } from '@/modules/tree/api/tree'
+import { toolTreeApi } from '@/modules/tools/tree/api/tree'
 import TreeNode from './TreeNode.vue'
 
 export default {

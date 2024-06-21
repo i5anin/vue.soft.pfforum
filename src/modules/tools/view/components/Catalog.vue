@@ -38,11 +38,11 @@
 </template>
 
 <script>
-import { toolTreeApi } from '@/modules/tree/api/tree'
+import { toolTreeApi } from '@/modules/tools/tree/api/tree'
 import { mapActions, mapMutations, mapGetters } from 'vuex'
-import TabMainTable from '@/modules/view/components/Table.vue'
-import CatalogBreadcrumbs from '@/modules/shared/components/CatalogBreadcrumbs.vue'
-import ViewToolStore from '@/modules/view/store'
+import TabMainTable from '@/modules/tools/view/components/Table.vue'
+import CatalogBreadcrumbs from '@/modules/tools/shared/components/CatalogBreadcrumbs.vue'
+import ViewToolStore from '@/modules/tools/view/store'
 // import { normSpaces } from '@/modules/shared/normSpaces'
 
 export default {

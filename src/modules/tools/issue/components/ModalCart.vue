@@ -142,10 +142,10 @@
 </template>
 
 <script>
-import Modal from '@/modules/shared/components/Modal.vue'
-import { issueToolApi } from '@/modules/issue/api/issue'
+import Modal from '@/modules/tools/shared/components/Modal.vue'
+import { issueToolApi } from '@/modules/tools/issue/api/issue'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import { toolTreeApi } from '@/modules/tree/api/tree'
+import { toolTreeApi } from '@/modules/tools/tree/api/tree'
 
 export default {
   name: 'CartModal',

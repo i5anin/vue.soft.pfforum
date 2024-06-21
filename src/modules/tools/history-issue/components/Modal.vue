@@ -179,7 +179,7 @@
 
 <script>
 import { authApi } from '@/api/login'
-import Modal from '@/modules/shared/components/Modal.vue'
+import Modal from '@/modules/tools/shared/components/Modal.vue'
 import { issueHistoryApi } from '../api/history'
 import { format, parseISO } from 'date-fns'
 

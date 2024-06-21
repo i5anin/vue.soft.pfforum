@@ -111,9 +111,9 @@
 </template>
 
 <script>
-import Modal from '@/modules/shared/components/Modal.vue'
+import Modal from '@/modules/tools/shared/components/Modal.vue'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
-import { issueToolApi } from '@/modules/issue/api/issue'
+import { issueToolApi } from '@/modules/tools/issue/api/issue'
 
 export default {
   name: 'FillingModal',

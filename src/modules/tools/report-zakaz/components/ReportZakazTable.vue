@@ -106,7 +106,7 @@
 
 <script>
 import { reportApi } from '../api/report' // Импортируем API
-import ZakazToolModal from '@/modules/view/components/Modal.vue'
+import ZakazToolModal from '@/modules/tools/view/components/Modal.vue'
 
 export default {
   components: { ZakazToolModal },

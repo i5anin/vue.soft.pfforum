@@ -62,7 +62,7 @@
 </template>
 
 <script>
-import Modal from '@/modules/shared/components/Modal.vue'
+import Modal from '@/modules/tools/shared/components/Modal.vue'
 import { getToolParams } from '@/api'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import { editorToolApi } from '../api/view'

@@ -2,7 +2,7 @@
 
 import { createRouter, createWebHistory } from 'vue-router'
 
-import Tool from '@/modules/_tabs/components/Tabs.vue'
+import Tool from '@/modules/tools/_tabs/components/Tabs.vue'
 import Login from '@/views/Login.vue'
 import Error404 from '@/views/404.vue'
 

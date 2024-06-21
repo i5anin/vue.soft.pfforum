@@ -140,7 +140,7 @@
 <script>
 import { format, parseISO } from 'date-fns'
 import EditToolModal from './Modal.vue'
-import { issueHistoryApi } from '@/modules/history-issue/api/history'
+import { issueHistoryApi } from '@/modules/tools/history-issue/api/history'
 
 export default {
   components: { EditToolModal },
