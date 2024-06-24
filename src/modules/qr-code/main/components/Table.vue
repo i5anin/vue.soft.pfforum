@@ -27,7 +27,11 @@
       class="scrollable-table"
       @update:page="onChangePage"
       @update:items-per-page="onUpdateItemsPerPage"
-    />
+    >
+      <template v-slot:item.color="{ item }">
+        <v-icon :color="item.color" size="24">mdi-circle</v-icon>
+      </template>
+    </v-data-table-server>
   </v-container>
 </template>
 
@@ -63,7 +67,7 @@ export default {
         },
         { title: 'ФИО', value: 'user_name', sortable: false, width: '320px' },
         {
-          title: 'CNC название',
+          title: 'Станок',
           value: 'cnc_name',
           sortable: false,
           width: '200px',
@@ -71,6 +75,7 @@ export default {
         { title: 'Комментарий', value: 'comment', sortable: false },
         { title: 'Кол-во', key: 'quantity', sortable: false, width: '80px' },
         { title: 'Дата', key: 'timestamp', sortable: false, width: '150px' },
+        { title: 'Цвет', value: 'color', sortable: false, width: '80px' },
       ],
     }
   },
