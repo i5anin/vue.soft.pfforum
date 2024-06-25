@@ -20,7 +20,7 @@
             v-if='checkTools(group)'
             icon='mdi-folder-alert'
             start
-            :color='getColorForGroup(group)'
+            :color='getLowestGroupColor(group)'
             title='Есть позиции с низким запасом'
           />
         </template>
@@ -35,7 +35,7 @@
             <th class='text-left mw300'>Название</th>
             <th class='text-left mw50'>Заказ</th>
             <th class='text-left mw50'>Склад</th>
-            <!-- <th class="text-left mw50">Склад группы</th>-->
+            <!--            <th class='text-left mw50'>Склад группы</th>-->
             <th class='text-left mw50'>Норма</th>
             <th class='text-left mw50'>Не хватает</th>
           </tr>
@@ -47,21 +47,19 @@
             @click='openToolModal(tool.id_tool)'
           >
             <td class='grey'>{{ toolIndex + 1 }}</td>
-            <td
-              :style='{
-                  color: getToolColor(tool.sklad / tool.norma),
-                }'
-            >
-              {{ tool.name }}
+            <td>
+              <v-chip variant='flat'  :color='getToolColor(tool.sklad / tool.norma)'>
+                {{ tool.name }}
+              </v-chip>
               <v-chip
                 v-if='tool.group_id'
                 size='x-small'
                 :color='getColorForGroup(tool.group_id)'
                 :title="'Группа ' + tool.group_id"
               >
-                  <span v-if='tool.group_standard' style='color: yellow'
-                  >★</span
-                  >
+              <span v-if='tool.group_standard' style='color: yellow'
+              >★</span
+              >
                 G{{ tool.group_id }}
               </v-chip>
             </td>
@@ -78,23 +76,20 @@
                     tool.zakaz !== getRoundedCount(tool.zakaz)
                   "
               >
-                ({{ getRoundedCount(tool.norma) - tool.sklad }})
+                ({{ tool.zakaz }})
               </template>
             </td>
             <td class='grey'>{{ tool.sklad }}</td>
-            <!--              <td class="grey">{{ tool.group_sum }}</td>-->
+            <!--            <td class='grey'>{{ tool.group_sklad }}</td>-->
             <td class='grey'>{{ tool.norma }}</td>
             <td
-              title='Белый - хороший запас (от 80% и выше)
-Желтый - умеренный запас (от 50% до 80%)
-Оранжевый - низкий запас (от 20% до 50%)
-Красный - критический запас (меньше 20%)'
-              class='grey'
-              :style='{
-                  color: getToolColor(tool.sklad / tool.norma),
-                }'
+
+
             >
-              {{ ((1 - tool.sklad / tool.norma) * 100).toFixed(0) }} %
+              <v-chip variant='flat' :color='getToolColor(tool.sklad / tool.norma)'>
+                <span v-if='!tool.group_sklad'>{{ ((1 - (tool.sklad) / tool.norma) * 100).toFixed(0) }} %</span>
+                <span v-else>{{ ((1 - (tool.group_sklad) / tool.norma) * 100).toFixed(0) }} %</span>
+              </v-chip>
             </td>
           </tr>
           </tbody>
@@ -156,7 +151,7 @@ export default {
 
       group.tools.forEach((tool) => {
         let percentage = (1 - tool.sklad / tool.norma) * 100
-        if (percentage >= 50) check = true
+        if (percentage >= 20) check = true
       })
 
       return check
@@ -185,13 +180,21 @@ export default {
         this.visibleGroups = []
       }
     },
+    getLowestGroupColor(group) {
+      let lowestRatio = 1 // Начальное значение для максимального запаса
+      group.tools.forEach((tool) => {
+        const ratio = tool.sklad / tool.norma
+        if (ratio < lowestRatio) {
+          lowestRatio = ratio
+        }
+      })
+      return this.getToolColor(lowestRatio) // Получаем цвет на основе самого низкого запаса
+    },
     getToolColor(ratio) {
       if (ratio >= 0.8) {
-        return '' // Зеленый - хороший запас
-      } else if (ratio >= 0.5) {
+        return 'green' // Зеленый - хороший запас
+      } else if (ratio >= 0.4) {
         return 'yellow' // Желтый - умеренный запас
-      } else if (ratio >= 0.2) {
-        return 'orange' // Оранжевый - низкий запас
       } else {
         return 'red' // Красный - критический запас
       }
