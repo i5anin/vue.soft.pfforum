@@ -106,7 +106,7 @@ async function sendReportForPart(partId) {
         return
       }
     }
-    
+
     let mailOptions = {
       from: process.env.MAIL_USER,
       to: financeUserEmail,
