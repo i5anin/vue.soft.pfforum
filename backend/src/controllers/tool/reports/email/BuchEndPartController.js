@@ -96,13 +96,17 @@ async function sendReportForPart(partId) {
     }
 
     const htmlContent = createMailContent(tools, partId, partName, partDesignation)
-    const financeUserEmail = await getEmailRecipients('finance')
 
-    if (!financeUserEmail) {
-      console.error('Не удалось получить адрес электронной почты для роли \'finance\'.')
-      return
+    // Получаем email адреса для роли finance в build-режиме
+    let financeUserEmail
+    if (process.env.VITE_NODE_ENV === 'build') {
+      financeUserEmail = await getEmailRecipients('finance')
+      if (!financeUserEmail) {
+        console.error('Не удалось получить адрес электронной почты для роли \'finance\'.')
+        return
+      }
     }
-
+    
     let mailOptions = {
       from: process.env.MAIL_USER,
       to: financeUserEmail,
