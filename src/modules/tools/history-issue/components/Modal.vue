@@ -110,6 +110,8 @@
                 </template>
                 <template v-else>
                   <v-btn
+                    variant="tonal"
+                    size="x-small"
                     icon
                     small
                     :disabled="
