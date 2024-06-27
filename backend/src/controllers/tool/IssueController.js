@@ -57,7 +57,8 @@ async function issueTool(req, res) {
 
   try {
     const issuerIdResult = await pool.query(
-      'SELECT id FROM dbo.vue_users WHERE token = $1', [issueToken],
+      'SELECT id FROM dbo.vue_users WHERE token = $1',
+      [issueToken]
     )
     if (issuerIdResult.rows.length === 0) {
       return res
@@ -67,7 +68,8 @@ async function issueTool(req, res) {
     const issuerId = issuerIdResult.rows[0].id
 
     const toolData = await pool.query(
-      'SELECT sklad FROM dbo.tool_nom WHERE id = $1', [id_tool],
+      'SELECT sklad FROM dbo.tool_nom WHERE id = $1',
+      [id_tool]
     )
     if (toolData.rows.length === 0 || toolData.rows[0].sklad < quantity) {
       return res
@@ -79,11 +81,12 @@ async function issueTool(req, res) {
       `INSERT INTO dbo.tool_history_nom (specs_op_id, id_user, id_tool, type_issue, quantity, timestamp, issuer_id)
        VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, $6)
        RETURNING id, timestamp;`,
-      [specs_op_id, id_user, id_tool, type_issue, quantity, issuerId],
+      [specs_op_id, id_user, id_tool, type_issue, quantity, issuerId]
     )
 
     await pool.query(
-      'UPDATE dbo.tool_nom SET sklad = sklad - $1 WHERE id = $2', [quantity, id_tool],
+      'UPDATE dbo.tool_nom SET sklad = sklad - $1 WHERE id = $2',
+      [quantity, id_tool]
     )
 
     res.status(200).json({
@@ -113,8 +116,8 @@ async function issueTool(req, res) {
 async function issueTools(req, res) {
   const { operationId, userId, tools, typeIssue, issueToken } = req.body
 
-  if (!issueToken) return res.status(401).send('Authentication token is required.')
-
+  if (!issueToken)
+    return res.status(401).send('Authentication token is required.')
 
   try {
     await pool.query('BEGIN')
@@ -302,7 +305,7 @@ async function cancelOperationAdmin(req, res) {
     const currentDate = new Date()
     const operationDate = new Date(operation.rows[0].timestamp)
     const differenceInDays = Math.floor(
-      (currentDate - operationDate) / (1000 * 60 * 60 * 24),
+      (currentDate - operationDate) / (1000 * 60 * 60 * 24)
     )
 
     if (differenceInDays > 50) {
@@ -310,7 +313,7 @@ async function cancelOperationAdmin(req, res) {
       return res
         .status(403)
         .send(
-          'Отмена операции возможна только в течение 3 дней с момента выполнения.',
+          'Отмена операции возможна только в течение 3 дней с момента выполнения.'
         )
     }
 
@@ -423,7 +426,7 @@ async function cancelOperation(req, res) {
     const currentDate = new Date()
     const operationDate = new Date(operation.rows[0].timestamp)
     const differenceInDays = Math.floor(
-      (currentDate - operationDate) / (1000 * 60 * 60 * 24),
+      (currentDate - operationDate) / (1000 * 60 * 60 * 24)
     )
 
     if (differenceInDays > 3) {
@@ -431,7 +434,7 @@ async function cancelOperation(req, res) {
       return res
         .status(403)
         .send(
-          'Отмена операции возможна только в течение 3 дней с момента выполнения.',
+          'Отмена операции возможна только в течение 3 дней с момента выполнения.'
         )
     }
 

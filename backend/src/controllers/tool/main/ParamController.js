@@ -86,28 +86,6 @@ async function getToolParams(req, res) {
   }
 }
 
-async function getToolNameId(req, res) {
-  try {
-    // Получаем parent_id из параметров маршрута
-    const parentId = req.params.id
-    // Запрос на выборку id и name всех инструментов, у которых parent_id соответствует переданному параметру
-    const query = 'SELECT id, name FROM dbo.tool_nom WHERE parent_id = $1'
-    const { rows } = await pool.query(query, [parentId])
-
-    // Преобразуем массив объектов в массив строк названий инструментов
-    const namesArray = rows.map((row) => row.name)
-
-    // Возвращаем результат в ответе
-    res.json(namesArray)
-  } catch (error) {
-    console.error(
-      'Ошибка при получении названий инструментов по parent_id:',
-      error
-    )
-    res.status(500).send('Server error')
-  }
-}
-
 async function deleteToolParam(req, res) {
   const id = req.params.id // Получение ID из параметров запроса
   try {

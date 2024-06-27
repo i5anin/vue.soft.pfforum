@@ -22,29 +22,27 @@ async function getDamaged(req, res) {
     // Запрос для получения агрегированных данных истории повреждений
     const dataQuery = `
 
- SELECT
-   tool_history_damaged.id,
-   tool_history_damaged.id_tool,
-   tool_nom.name AS tool_name,
-   tool_history_damaged.id_user,
-   CASE
-     WHEN tool_history_damaged.id_user < 0 THEN
-       (SELECT name FROM dbo.tool_user_custom_list WHERE id = -tool_history_damaged.id_user)
-     ELSE
-       operators.fio
-     END AS user_name,
-   tool_history_damaged.cnc_code,
-   cnc.cnc_name,
-   tool_history_damaged.comment,
-   tool_history_damaged.quantity,
-   tool_history_damaged.timestamp
- FROM dbo.tool_history_damaged
-        LEFT JOIN dbo.tool_nom ON tool_history_damaged.id_tool = tool_nom.id
-        LEFT JOIN dbo.operators ON tool_history_damaged.id_user = operators.id AND tool_history_damaged.id_user > 0
-        LEFT JOIN dbo.cnc ON tool_history_damaged.cnc_code = cnc.cnc_code
- ORDER BY tool_history_damaged.timestamp DESC
- LIMIT ${limit}
-   OFFSET ${offset};
+      SELECT tool_history_damaged.id,
+             tool_history_damaged.id_tool,
+             tool_nom.name AS tool_name,
+             tool_history_damaged.id_user,
+             CASE
+               WHEN tool_history_damaged.id_user < 0 THEN
+                 (SELECT name FROM dbo.tool_user_custom_list WHERE id = -tool_history_damaged.id_user)
+               ELSE
+                 operators.fio
+               END         AS user_name,
+             tool_history_damaged.cnc_code,
+             cnc.cnc_name,
+             tool_history_damaged.comment,
+             tool_history_damaged.quantity,
+             tool_history_damaged.timestamp
+      FROM dbo.tool_history_damaged
+             LEFT JOIN dbo.tool_nom ON tool_history_damaged.id_tool = tool_nom.id
+             LEFT JOIN dbo.operators ON tool_history_damaged.id_user = operators.id AND tool_history_damaged.id_user > 0
+             LEFT JOIN dbo.cnc ON tool_history_damaged.cnc_code = cnc.cnc_code
+      ORDER BY tool_history_damaged.timestamp DESC
+      LIMIT ${limit} OFFSET ${offset};
 
     `
 
@@ -67,7 +65,7 @@ async function addToolHistoryDamaged(req, res) {
   try {
     // Извлекаем данные из тела запроса
     const { id_tool, id_user, comment, quantity } = req.body
-    const cnc_code = req.body.cnc_code || null; //  cnc_code становится необязательным
+    const cnc_code = req.body.cnc_code || null //  cnc_code становится необязательным
 
     // Проверяем наличие всех необходимых параметров
     if (!id_tool || !id_user || !comment || !quantity) {
@@ -83,20 +81,25 @@ async function addToolHistoryDamaged(req, res) {
 
     // Проверяем существование станка, если он был передан
     if (cnc_code) {
-      const cncQuery = `SELECT cnc_code FROM dbo.cnc WHERE cnc_code = $1 AND active = true;`
+      const cncQuery = `SELECT cnc_code
+                        FROM dbo.cnc
+                        WHERE cnc_code = $1
+                          AND active = true;`
       const cncResult = await pool.query(cncQuery, [cnc_code])
 
       if (cncResult.rows.length === 0) {
-        console.error(`Станок с кодом ${cnc_code} не найден или не активен.`);
+        console.error(`Станок с кодом ${cnc_code} не найден или не активен.`)
         return res.status(404).json({
           success: false,
           message: `Станок с кодом ${cnc_code} не найден или не активен.`,
-        });
+        })
       }
     }
 
     // Проверяем существование инструмента и достаточное количество на складе
-    const toolQuery = `SELECT sklad FROM dbo.tool_nom WHERE id = $1;`
+    const toolQuery = `SELECT sklad
+                       FROM dbo.tool_nom
+                       WHERE id = $1;`
     const toolResult = await pool.query(toolQuery, [id_tool])
     if (toolResult.rows.length === 0) {
       return res.status(400).send('Инструмент не найден')

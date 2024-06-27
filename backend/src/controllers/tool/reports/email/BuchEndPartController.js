@@ -62,7 +62,7 @@ async function sendReportForPart(partId) {
         FROM dbo.specs_nom
         WHERE id = $1
       `,
-      [partId],
+      [partId]
     )
 
     if (partDataResult.rows.length === 0) {
@@ -85,7 +85,7 @@ async function sendReportForPart(partId) {
         GROUP BY thn.id_tool, tn.name
         ORDER BY thn.id_tool
       `,
-      [partId],
+      [partId]
     )
 
     const tools = toolsResult.rows
@@ -95,14 +95,21 @@ async function sendReportForPart(partId) {
       return
     }
 
-    const htmlContent = createMailContent(tools, partId, partName, partDesignation)
+    const htmlContent = createMailContent(
+      tools,
+      partId,
+      partName,
+      partDesignation
+    )
 
     // Получаем email адреса для роли finance в build-режиме
     let financeUserEmail
     if (process.env.VITE_NODE_ENV === 'build') {
       financeUserEmail = await getEmailRecipients('finance')
       if (!financeUserEmail) {
-        console.error('Не удалось получить адрес электронной почты для роли \'finance\'.')
+        console.error(
+          "Не удалось получить адрес электронной почты для роли 'finance'."
+        )
         return
       }
     }
@@ -115,8 +122,9 @@ async function sendReportForPart(partId) {
     }
 
     await transporter.sendMail(mailOptions)
-    console.log(`Отчет по инструментам, завершение партии ${partId} (${partName} - ${partDesignation}) отправлен на ${financeUserEmail}`)
-
+    console.log(
+      `Отчет по инструментам, завершение партии ${partId} (${partName} - ${partDesignation}) отправлен на ${financeUserEmail}`
+    )
   } catch (error) {
     console.error(`Ошибка при отправке отчета для партии ${partId}:`, error)
   }
@@ -135,7 +143,7 @@ async function checkStatusChanges() {
           AND (tpa.report_sent_buch IS NULL OR tpa.report_sent_buch = FALSE)
         ORDER BY sn.id DESC, sn.prod_end_time DESC
         LIMIT 1
-      `,
+      `
     )
 
     if (result.rows.length > 0) {
@@ -156,7 +164,7 @@ async function checkStatusChanges() {
                 count_nom             = (SELECT COUNT(*) FROM dbo.tool_history_nom WHERE specs_nom_id = $1) -- Подсчет записей в tool_history_nom
             WHERE specs_nom_id = $1
           `,
-          [partId],
+          [partId]
         )
         console.log(`Статус отправки отчета для партии ${partId} обновлен.`)
       } else {
@@ -167,7 +175,7 @@ async function checkStatusChanges() {
             FROM dbo.tool_part_archive
             WHERE specs_nom_id = $1
           `,
-          [partId],
+          [partId]
         )
 
         if (existingRecord.rows.length > 0) {
@@ -180,9 +188,11 @@ async function checkStatusChanges() {
                   count_nom             = (SELECT COUNT(*) FROM dbo.tool_history_nom WHERE specs_nom_id = $1)
               WHERE specs_nom_id = $1
             `,
-            [partId],
+            [partId]
           )
-          console.log(`Запись для партии ${partId} обновлена в tool_part_archive.`)
+          console.log(
+            `Запись для партии ${partId} обновлена в tool_part_archive.`
+          )
         } else {
           // Добавляем новую запись
           await pool.query(
@@ -190,9 +200,11 @@ async function checkStatusChanges() {
               INSERT INTO dbo.tool_part_archive (specs_nom_id, report_sent_buch, date_report_sent_buch, count_nom)
               VALUES ($1, TRUE, CURRENT_TIMESTAMP, (SELECT COUNT(*) FROM dbo.tool_history_nom WHERE specs_nom_id = $1))
             `,
-            [partId],
+            [partId]
           )
-          console.log(`Запись для партии ${partId} добавлена в tool_part_archive.`)
+          console.log(
+            `Запись для партии ${partId} добавлена в tool_part_archive.`
+          )
         }
       }
     } else {

@@ -21,7 +21,6 @@ const reportRevisionController = require('./controllers/tool/reports/email/Revis
 const reportVueZakazController = require('./controllers/tool/reports/vue/OrderToolsController')
 const reportVueBuhController = require('./controllers/tool/reports/vue/BuchWeekController')
 
-
 const groupsController = require('./controllers/tool/main/GroupController')
 
 // const excelZakazController = require('./controllers/tool/reports/excel/b_order_Instr')
@@ -57,10 +56,13 @@ router.delete('/tools-tree/:id', treeController.dellFolderTree)
 // issue
 router.get('/operators/fio', issueController.getFioOperators)
 
-router.get('/issue/cancel-operation-admin/:id', issueController.cancelOperationAdmin) // отмена любой
+router.get(
+  '/issue/cancel-operation-admin/:id',
+  issueController.cancelOperationAdmin
+) // отмена любой
 router.post('/issue/cancel-operation/:id', issueController.cancelOperation) //отмена 3 дня
 
- router.post('/issue', issueController.issueTool)
+router.post('/issue', issueController.issueTool)
 router.post('/issues', issueController.issueTools)
 router.get('/cnc', issueController.getCncData)
 
@@ -75,7 +77,6 @@ router.get('/tools-groups', groupsController.getGroupedTools)
 
 router.get('/history-part', historyControllerModal.getToolHistoryByPartId)
 
-
 //Modal архив истории информация о
 router.get(
   '/history-part/info',
@@ -88,13 +89,15 @@ router.post('/history-add-archive', historyControllerModal.addToArchive)
 router.get('/damaged-history', damagedController.getDamaged)
 router.post('/tool-history-damaged', damagedController.addToolHistoryDamaged)
 
-
 // email report
 router.get('/report/zayav-instr', reportZakazController.genZayavInstr) // заявка на инструмент	раз в неделю каждый ЧТ в 12:00 (за неделю)
 router.get('/report/revision-instr', reportRevisionController.genRevisionInstr) // заявка на инструмент	раз в неделю каждый ЧТ в 12:00 (за неделю)
 
 // email report Buch
-router.get('/report/buch-end-op', reportBuchEndPartController.checkStatusChanges)
+router.get(
+  '/report/buch-end-op',
+  reportBuchEndPartController.checkStatusChanges
+)
 
 //vue
 router.get('/report/get-zakaz', reportVueZakazController.getTableReportData) // заявка на инструмент	раз в неделю каждый ЧТ в 12:00 (за неделю)
