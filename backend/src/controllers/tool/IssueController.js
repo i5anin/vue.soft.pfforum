@@ -86,8 +86,7 @@ async function issueTool(req, res) {
 
   try {
     const issuerIdResult = await pool.query(
-      'SELECT id FROM dbo.vue_users WHERE token = $1',
-      [issueToken]
+      'SELECT id FROM dbo.vue_users WHERE token = $1', [issueToken],
     )
     if (issuerIdResult.rows.length === 0) {
       return res
@@ -97,8 +96,7 @@ async function issueTool(req, res) {
     const issuerId = issuerIdResult.rows[0].id
 
     const toolData = await pool.query(
-      'SELECT sklad FROM dbo.tool_nom WHERE id = $1',
-      [id_tool]
+      'SELECT sklad FROM dbo.tool_nom WHERE id = $1', [id_tool],
     )
     if (toolData.rows.length === 0 || toolData.rows[0].sklad < quantity) {
       return res
@@ -108,13 +106,13 @@ async function issueTool(req, res) {
 
     const insertResult = await pool.query(
       `INSERT INTO dbo.tool_history_nom (specs_op_id, id_user, id_tool, type_issue, quantity, timestamp, issuer_id)
-       VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, $6) RETURNING id, timestamp;`,
-      [specs_op_id, id_user, id_tool, type_issue, quantity, issuerId]
+       VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, $6)
+       RETURNING id, timestamp;`,
+      [specs_op_id, id_user, id_tool, type_issue, quantity, issuerId],
     )
 
     await pool.query(
-      'UPDATE dbo.tool_nom SET sklad = sklad - $1 WHERE id = $2',
-      [quantity, id_tool]
+      'UPDATE dbo.tool_nom SET sklad = sklad - $1 WHERE id = $2', [quantity, id_tool],
     )
 
     res.status(200).json({
@@ -144,9 +142,8 @@ async function issueTool(req, res) {
 async function issueTools(req, res) {
   const { operationId, userId, tools, typeIssue, issueToken } = req.body
 
-  if (!issueToken) {
-    return res.status(401).send('Authentication token is required.')
-  }
+  if (!issueToken) return res.status(401).send('Authentication token is required.')
+
 
   try {
     await pool.query('BEGIN')
@@ -161,6 +158,8 @@ async function issueTools(req, res) {
 
     const issuerId = tokenResult.rows[0].id
 
+    const insufficientTools = []
+
     for (const { toolId, quantity } of tools) {
       const selectQuery = 'SELECT sklad FROM dbo.tool_nom WHERE id = $1'
       const stockResult = await pool.query(selectQuery, [toolId])
@@ -169,16 +168,30 @@ async function issueTools(req, res) {
         stockResult.rows.length === 0 ||
         stockResult.rows[0].sklad < quantity
       ) {
-        await pool.query('ROLLBACK')
-        return res
-          .status(404)
-          .send(`Недостаточно инструмента с ID=${toolId} на складе.`)
+        insufficientTools.push({
+          toolId,
+          available: stockResult.rows[0]?.sklad || 0,
+          requested: quantity,
+        })
       }
+    }
+
+    if (insufficientTools.length > 0) {
+      await pool.query('ROLLBACK')
+      return res.status(404).json({
+        success: false,
+        message: 'Недостаточно инструментов на складе.',
+        insufficientTools,
+      })
+    }
+
+    for (const { toolId, quantity } of tools) {
+      const selectQuery = 'SELECT sklad FROM dbo.tool_nom WHERE id = $1'
+      const stockResult = await pool.query(selectQuery, [toolId])
 
       const newStock = stockResult.rows[0].sklad - quantity
       const oldStock = stockResult.rows[0].sklad
 
-      // Получение specs_nom_id на основе operationId
       const getPartIdQuery = `
         SELECT specs_nom_id
         FROM dbo.specs_nom_operations
@@ -193,7 +206,6 @@ async function issueTools(req, res) {
 
       const partId = partIdResult.rows[0].specs_nom_id
 
-      // Вставка записи в историю инструмента с specs_nom_id
       const insertQuery = `
         INSERT INTO dbo.tool_history_nom (specs_op_id, id_user, id_tool, type_issue, quantity, timestamp, issuer_id,
                                           specs_nom_id)
