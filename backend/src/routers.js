@@ -56,10 +56,7 @@ router.delete('/tools-tree/:id', treeController.dellFolderTree)
 // issue
 router.get('/operators/fio', issueController.getFioOperators)
 
-router.get(
-  '/issue/cancel-operation-admin/:id',
-  issueController.cancelOperationAdmin,
-) // отмена любой
+router.get('/issue/cancel-operation-admin/:id', issueController.cancelOperationAdmin) // отмена любой
 router.post('/issue/cancel-operation/:id', issueController.cancelOperation) //отмена 3 дня
 
 router.post('/issue', issueController.issueTool)
@@ -78,10 +75,7 @@ router.get('/tools-groups', groupsController.getGroupedTools)
 router.get('/history-part', historyControllerModal.getToolHistoryByPartId)
 
 //Modal архив истории информация о
-router.get(
-  '/history-part/info',
-  historyControllerModal.getToolHistoryByPartIdInfo,
-)
+router.get('/history-part/info', historyControllerModal.getToolHistoryByPartIdInfo)
 //Modal архив истории выдачи
 router.post('/history-add-archive', historyControllerModal.addToArchive)
 
