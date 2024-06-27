@@ -7,7 +7,6 @@ const loginController = require('./controllers/login/LoginController')
 const nomController = require('./controllers/tool/main/NomController')
 const paramController = require('./controllers/tool/main/ParamController')
 const treeController = require('./controllers/tool/main/TreeController')
-const skladController = require('./controllers/tool/SkladController')
 
 const historyController = require('./controllers/tool/HistoryIssueController')
 const historyControllerModal = require('./controllers/tool/HistoryIssueModalController')
@@ -15,15 +14,12 @@ const historyControllerModal = require('./controllers/tool/HistoryIssueModalCont
 const damagedController = require('./controllers/tool/HistoryDamagedController')
 const issueController = require('./controllers/tool/IssueController')
 
-const reportBuchWeekController = require('./controllers/tool/reports/email/BuchWeekController')
 const reportBuchEndPartController = require('./controllers/tool/reports/email/BuchEndPartController')
-const reportBuchMonthController = require('./controllers/tool/reports/email/BuchMonthController')
 const reportZakazController = require('./controllers/tool/reports/email/OrderToolsController')
 const reportRevisionController = require('./controllers/tool/reports/email/RevisionToolsController')
 
 const reportVueZakazController = require('./controllers/tool/reports/vue/OrderToolsController')
 const reportVueBuhController = require('./controllers/tool/reports/vue/BuchWeekController')
-const reportVueBuchEndPartController = require('./controllers/tool/reports/vue/BuchEndPartController')
 
 
 const groupsController = require('./controllers/tool/main/GroupController')
@@ -59,7 +55,6 @@ router.put('/tools-tree', treeController.updateFolderTree)
 router.delete('/tools-tree/:id', treeController.dellFolderTree)
 
 // issue
-router.get('/detail/id', issueController.findDetailProduction)
 router.get('/operators/fio', issueController.getFioOperators)
 
 router.get('/issue/cancel-operation-admin/:id', issueController.cancelOperationAdmin) // отмена любой
@@ -79,30 +74,30 @@ router.get('/tool-movement/:id', historyController.getToolMovementById)
 router.get('/tools-groups', groupsController.getGroupedTools)
 
 router.get('/history-part', historyControllerModal.getToolHistoryByPartId)
-router.post('/history-add-archive', historyControllerModal.addToArchive)
+
+
+//Modal архив истории информация о
 router.get(
   '/history-part/info',
   historyControllerModal.getToolHistoryByPartIdInfo
 )
+//Modal архив истории выдачи
+router.post('/history-add-archive', historyControllerModal.addToArchive)
 
 // damaged
 router.get('/damaged-history', damagedController.getDamaged)
 router.post('/tool-history-damaged', damagedController.addToolHistoryDamaged)
 
-// sklad
-router.post('/sklad/update', skladController.updateToolInventory)
 
 // email report
-router.get('/report/buch-week', reportBuchWeekController.genBuchWeek) // бухгалтерию исключен сломанный	раз в неделю каждый ПТ в 12:00 (за неделю)
-router.get('/report/buch-end-op', reportBuchEndPartController.checkStatusChanges) // бухгалтерию	по завершению операции
-router.get('/report/buch-month', reportBuchMonthController.genBuchMonth) // бухгалтерию журнал уничтоженного	раз в месяц каждый ПТ в 12:00 (за месяц)
-
 router.get('/report/zayav-instr', reportZakazController.genZayavInstr) // заявка на инструмент	раз в неделю каждый ЧТ в 12:00 (за неделю)
 router.get('/report/revision-instr', reportRevisionController.genRevisionInstr) // заявка на инструмент	раз в неделю каждый ЧТ в 12:00 (за неделю)
 
+// email report Buch
+router.get('/report/buch-end-op', reportBuchEndPartController.checkStatusChanges)
+
 //vue
-router.get('/report/getBuchWeek', reportVueBuhController.getTableReportData) // бухгалтерию исключен сломанный	раз в неделю каждый ПТ в 12:00 (за неделю)
 router.get('/report/get-zakaz', reportVueZakazController.getTableReportData) // заявка на инструмент	раз в неделю каждый ЧТ в 12:00 (за неделю)
-router.get('/report/get-end-part', reportVueBuchEndPartController.getTableReportData) // заявка на инструмент	раз в неделю каждый ЧТ в 12:00 (за неделю)
+router.get('/report/getBuchWeek', reportVueBuhController.getTableReportData) //❓ бухгалтерию исключен сломанный	раз в неделю каждый ПТ в 12:00 (за неделю)
 
 module.exports = router

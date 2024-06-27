@@ -79,20 +79,20 @@ const tabs = [
     access: ['Admin', 'Editor'],
     ico: 'mdi-package-variant',
   },
-  {
-    name: 'Отчёт бухгалтерия',
-    url: '#report-buh',
-    component: markRaw(ReportBuh),
-    access: ['Admin'],
-    ico: 'mdi-currency-rub',
-  },
-  {
-    name: 'Ревизия',
-    url: '#test',
-    component: markRaw(ReportRevision),
-    access: ['Admin'],
-    ico: 'mdi-test-tube',
-  },
+  // {
+  //   name: 'Отчёт бухгалтерия',
+  //   url: '#report-buh',
+  //   component: markRaw(ReportBuh),
+  //   access: ['Admin'],
+  //   ico: 'mdi-currency-rub',
+  // },
+  // {
+  //   name: 'Ревизия',
+  //   url: '#test',
+  //   component: markRaw(ReportRevision),
+  //   access: ['Admin'],
+  //   ico: 'mdi-test-tube',
+  // },
 ]
 
 export default tabs

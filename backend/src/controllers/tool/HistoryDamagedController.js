@@ -87,10 +87,11 @@ async function addToolHistoryDamaged(req, res) {
       const cncResult = await pool.query(cncQuery, [cnc_code])
 
       if (cncResult.rows.length === 0) {
-        console.error(`Станок с кодом ${cnc_code} не найден или не активен.`)
-        return res
-          .status(404)
-          .send(`Станок с кодом ${cnc_code} не найден или не активен.`)
+        console.error(`Станок с кодом ${cnc_code} не найден или не активен.`);
+        return res.status(404).json({
+          success: false,
+          message: `Станок с кодом ${cnc_code} не найден или не активен.`,
+        });
       }
     }
 
