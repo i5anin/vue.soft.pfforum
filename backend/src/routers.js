@@ -58,7 +58,7 @@ router.get('/operators/fio', issueController.getFioOperators)
 
 router.get(
   '/issue/cancel-operation-admin/:id',
-  issueController.cancelOperationAdmin
+  issueController.cancelOperationAdmin,
 ) // отмена любой
 router.post('/issue/cancel-operation/:id', issueController.cancelOperation) //отмена 3 дня
 
@@ -80,7 +80,7 @@ router.get('/history-part', historyControllerModal.getToolHistoryByPartId)
 //Modal архив истории информация о
 router.get(
   '/history-part/info',
-  historyControllerModal.getToolHistoryByPartIdInfo
+  historyControllerModal.getToolHistoryByPartIdInfo,
 )
 //Modal архив истории выдачи
 router.post('/history-add-archive', historyControllerModal.addToArchive)
@@ -92,12 +92,8 @@ router.post('/tool-history-damaged', damagedController.addToolHistoryDamaged)
 // email report
 router.get('/report/zayav-instr', reportZakazController.genZayavInstr) // заявка на инструмент	раз в неделю каждый ЧТ в 12:00 (за неделю)
 router.get('/report/revision-instr', reportRevisionController.genRevisionInstr) // заявка на инструмент	раз в неделю каждый ЧТ в 12:00 (за неделю)
-
 // email report Buch
-router.get(
-  '/report/buch-end-op',
-  reportBuchEndPartController.checkStatusChanges
-)
+router.get('/report/buch-end-op', reportBuchEndPartController.checkStatusChanges) //в режиме CRON
 
 //vue
 router.get('/report/get-zakaz', reportVueZakazController.getTableReportData) // заявка на инструмент	раз в неделю каждый ЧТ в 12:00 (за неделю)
