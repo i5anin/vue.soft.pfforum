@@ -56,9 +56,9 @@ router.delete('/tools-tree/:id', treeController.dellFolderTree)
 
 // "Выдача инструмента"
 router.post('/issues', issueController.issueTools)
-router.get('/detail/id', issueController.findDetailProduction)//форма заполнения поиск партии
-router.get('/cnc', issueController.getCncData) //форма заполнения
-router.get('/operators/fio', issueController.getFioOperators) //форма заполнения
+router.get('/modal-form/parties', issueController.findParties)//форма заполнения поиск партии
+router.get('/modal-form/cnc', issueController.getCncData) //форма заполнения
+router.get('/modal-form/operators/fio', issueController.getFioOperators) //форма заполнения
 router.get('/issue/cancel-operation-admin/:id', issueController.cancelOperationAdmin) // отмена операции любой
 router.post('/issue/cancel-operation/:id', issueController.cancelOperation) //отмена операции 3 дня
 

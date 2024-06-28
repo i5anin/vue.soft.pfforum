@@ -487,7 +487,7 @@ async function cancelOperation(req, res) {
   }
 }
 
-async function findDetailProduction(req, res) {
+async function findParties(req, res) {
   try {
     const query = `
       SELECT CAST(dbo.specs_nom_operations.id AS INTEGER)                         AS specs_op_id,
@@ -517,7 +517,7 @@ async function findDetailProduction(req, res) {
 }
 
 module.exports = {
-  findDetailProduction,
+  findParties,
   cancelOperation,
   cancelOperationAdmin,
   issueTool,

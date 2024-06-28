@@ -11,16 +11,19 @@ export const issueToolApi = {
   //получить fio
   getDetailFio: async () =>
     axiosInstance
-      .get('operators/fio')
+      .get('modal-form/operators/fio')
       .then(handleResponse)
       .catch(handleApiError),
 
   //получить detail по id
   searchById: async (id) =>
     axiosInstance
-      .get('detail/id', { params: { id } })
+      .get('modal-form/parties', { params: { id } })
       .then(handleResponse)
       .catch(handleApiError),
+
+  fetchCncList: async () =>
+    axiosInstance.get('modal-form/cnc').then(handleResponse).catch(handleApiError),
 
   // Функция для отправки данных об инструменте
   addHistoryTool: async (toolData) =>
@@ -42,6 +45,5 @@ export const issueToolApi = {
       .then(handleResponse)
       .catch(handleApiError),
 
-  fetchCncList: async () =>
-    axiosInstance.get('cnc').then(handleResponse).catch(handleApiError),
+
 }
