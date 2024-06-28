@@ -16,6 +16,8 @@ const issueController = require('./controllers/tool/IssueController')
 
 const reportBuchEndPartController = require('./controllers/tool/reports/email/BuchEndPartController')
 const reportZakazController = require('./controllers/tool/reports/email/OrderToolsController')
+const reportSetupController = require('./controllers/tool/reports/email/NaladReportController')
+
 const reportRevisionController = require('./controllers/tool/reports/email/RevisionToolsController')
 
 const reportVueZakazController = require('./controllers/tool/reports/vue/OrderToolsController')
@@ -54,6 +56,7 @@ router.delete('/tools-tree/:id', treeController.dellFolderTree)
 
 // "Выдача инструмента"
 router.post('/issues', issueController.issueTools)
+router.get('/detail/id', issueController.findDetailProduction)//форма заполнения поиск партии
 router.get('/cnc', issueController.getCncData) //форма заполнения
 router.get('/operators/fio', issueController.getFioOperators) //форма заполнения
 router.get('/issue/cancel-operation-admin/:id', issueController.cancelOperationAdmin) // отмена операции любой
@@ -81,6 +84,7 @@ router.post('/tool-history-damaged', damagedController.addToolHistoryDamaged)
 
 // "Email report"
 router.get('/report/zayav-instr', reportZakazController.genZayavInstr) // заявка на инструмент	раз в неделю каждый ЧТ в 12:00 (за неделю)
+router.get('/report/setup', reportSetupController.genSetupReport ) // заявка на инструмент	раз в неделю каждый ЧТ в 12:00 (за неделю)
 router.get('/report/revision-instr', reportRevisionController.genRevisionInstr) // заявка на инструмент	раз в неделю каждый ЧТ в 12:00 (за неделю)
 // "Email report Buch *CRON"
 router.get('/report/buch-end-op', reportBuchEndPartController.checkStatusChanges) //в режиме CRON
