@@ -1,11 +1,11 @@
 const axios = require('axios');
-const baseUrl = 'http://192.168.0.200:4001/api/tools'; // Предполагаем, что endpoint - /records
+const baseUrl = 'http://localhost:4001/api/tools';
 
-describe("Тесты API для записей", () => {
+describe("Тесты API для инструментов", () => {
   let createdRecordId;
 
-  it("Создание новой записи", async () => {
-    const newRecordData = { name: "Тестовая запись", description: "Описание" };
+  it("Создание нового инструмента", async () => {
+    const newRecordData = { name: "Тестовый инструмент", description: "Описание" };
     const response = await axios.post(baseUrl, newRecordData);
 
     expect(response.status).toBe(201);
@@ -15,33 +15,31 @@ describe("Тесты API для записей", () => {
     createdRecordId = response.data.id;
   });
 
-  it("Получение созданной записи", async () => {
-    // Дополнительный тест: проверяем, что запись действительно создана
+  it("Получение созданного инструмента", async () => {
     const response = await axios.get(`${baseUrl}/${createdRecordId}`);
     expect(response.status).toBe(200);
     expect(response.data.id).toBe(createdRecordId);
   });
 
-  it("Изменение существующей записи", async () => {
-    const updatedRecordData = { name: "Обновленная запись" };
+  it("Изменение существующего инструмента", async () => {
+    const updatedRecordData = { name: "Обновленный инструмент" };
     const response = await axios.put(`${baseUrl}/${createdRecordId}`, updatedRecordData);
 
-    expect(response.status).toBe(200); // Или 204 (No Content),
-    expect(response.data.id).toBe(createdRecordId); // Если возвращается обновленный объект
+    expect(response.status).toBe(200);
+    expect(response.data.id).toBe(createdRecordId);
     expect(response.data.name).toBe(updatedRecordData.name);
   });
 
-  it("Удаление записи", async () => {
+  it("Удаление инструмента", async () => {
     const response = await axios.delete(`${baseUrl}/${createdRecordId}`);
-    expect(response.status).toBe(204); // Или 200, если API возвращает данные
+    expect(response.status).toBe(204);
   });
 
-  it("Проверка удаления: получение несуществующей записи", async () => {
-    // Дополнительный тест: проверяем, что запись действительно удалена
+  it("Проверка удаления: получение несуществующего инструмента", async () => {
     try {
       await axios.get(`${baseUrl}/${createdRecordId}`);
     } catch (error) {
-      expect(error.response.status).toBe(404); // Ожидаем 404 Not Found
+      expect(error.response.status).toBe(404);
     }
   });
 });
