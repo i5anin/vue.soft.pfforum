@@ -7,7 +7,7 @@
             <tr>
               <th class="text-left">Название</th>
               <th class="text-left">Ближайшая дата</th>
-              <!--              <th class="text-left">На почту</th>-->
+              <!-- <th class="text-left">На почту</th>-->
             </tr>
           </thead>
           <tbody>

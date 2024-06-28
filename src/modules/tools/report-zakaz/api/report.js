@@ -16,9 +16,9 @@ export const reportApi = {
       .get('/report/buch-end-op')
       .then(handleResponse)
       .catch(handleApiError),
-  genBuchMonth: async () =>
+  genNalad: async () =>
     axiosInstance
-      .get('/report/buch-month')
+      .get('/report/setup')
       .then(handleResponse)
       .catch(handleApiError),
   genZayavInstr: async (token) =>
