@@ -39,6 +39,7 @@ router.get('/filter-params/:parent_id', nomController.getFilterParamsByParentId)
 
 // "Параметры"
 router.get('/tools-params', paramController.getToolParams)
+router.get('/tools-params/:id', paramController.getToolParamsParentId) // подсказки для заполнения
 router.post('/tools-params', paramController.addToolParam)
 router.put('/tools-params/:id', paramController.updateToolParam)
 router.delete('/tools-params/:id', paramController.deleteToolParam)

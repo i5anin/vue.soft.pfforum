@@ -123,8 +123,50 @@ async function updateToolParam(req, res) {
     res.status(500).send('Internal Server Error')
   }
 }
+async function getToolParamsParentId(req, res) {
+  const parentId = req.params.id // Используем id из параметров маршрута
+
+  try {
+    const query = `
+      SELECT property
+      FROM dbo.tool_nom
+      WHERE parent_id = $1`
+
+    const { rows } = await pool.query(query, [parentId])
+
+    // Используем объект для агрегации значений по каждому ключу
+    const paramsAggregation = {}
+
+    rows.forEach((row) => {
+      const properties = row.property // Считаем, что property уже десериализован из JSON
+      Object.entries(properties).forEach(([key, value]) => {
+        // Если ключа еще нет в агрегации, создаем под него Set
+        if (!paramsAggregation[key]) {
+          paramsAggregation[key] = new Set()
+        }
+        // Добавляем значение в Set для соответствующего ключа
+        paramsAggregation[key].add(value)
+      })
+    })
+
+    // Преобразуем объект агрегации в массив объектов для возврата
+    const aggregatedValues = Object.entries(paramsAggregation).map(
+      ([key, valueSet]) => ({
+        id: key,
+        values: Array.from(valueSet), // Преобразуем Set в массив
+      })
+    )
+
+    // Возвращаем агрегированные значения в ответе
+    res.json(aggregatedValues)
+  } catch (error) {
+    console.error('Ошибка при получении уникальных значений параметра:', error)
+    res.status(500).send('Server error')
+  }
+}
 
 module.exports = {
+  getToolParamsParentId,
   getToolParams,
   updateToolParam,
   deleteToolParam,
