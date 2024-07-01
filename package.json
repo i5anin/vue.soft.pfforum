@@ -2,6 +2,7 @@
   "name": "vue-pfforum",
   "version": "2.0.0",
   "scripts": {
+    "test": "jest",
     "backend": "cd backend && npx nodemon src/app.js",
     "frontend": "vite --host",
     "pm": "pm2 start ecosystem.config.js",
@@ -10,7 +11,6 @@
     "preview": "vite preview",
     "lint": "eslint src --ext --fix .js,.vue",
     "b_lint": "eslint backend/src --ext .js --fix",
-    "test": "jest",
     "start": "vite build & cd ./dist & npx http-server -p 3002"
   },
   "dependencies": {

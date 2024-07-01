@@ -1,7 +1,9 @@
 const axios = require('axios')
-const ip = '192.168.0.200'
-const port = '4001'
-const baseUrl = `http://${ip}:${port}/api`
+const config = require('./config')
+
+const baseUrl = config.api.baseUrl
+
+console.log(baseUrl)
 
 describe('Тесты API для инструментов', () => {
   let createdRecordId
@@ -11,12 +13,12 @@ describe('Тесты API для инструментов', () => {
       'name': 'Название',
       'parent_id': 239,
       'property': {
-        '6': '123',
-        '10': '123',
-        '17': '123',
+        '6': 'Параметр значение',
+        '10': '1001',
+        '17': '1001',
       },
-      'sklad': '123',
-      'norma': '123',
+      'sklad': '10',
+      'norma': '15',
       'group_id': '1001',
       'group_standard': true,
       'limit': null,
@@ -89,6 +91,34 @@ describe('Тесты API для инструментов', () => {
     } catch (error) {
       console.log('Ошибка:', error.response ? error.response.data : error.message)
       expect(error.response.status).toBe(404)
+    }
+  })
+
+  it('Проверка фильтрации папки: ', async () => {
+    console.log('--- Проверка фильтров папки ---')
+    const folderId = 200
+    try {
+      const response = await axios.get(`${baseUrl}/filter-params/${folderId}`)
+      console.log('Получен ответ:', response.data)
+
+      // Функция проверки структуры каждого элемента в массиве
+      function validateStructure(element) {
+        // Проверяем наличие ожидаемых ключей
+        expect(element).toHaveProperty('param_order')
+        expect(element).toHaveProperty('key')
+        expect(element).toHaveProperty('label')
+        expect(element).toHaveProperty('values')
+
+        // Проверяем, что 'values' это массив
+        expect(Array.isArray(element.values)).toBe(true)
+      }
+
+      // Применяем функцию проверки ко всем элементам в ответе
+      response.data.forEach(element => validateStructure(element))
+    } catch (error) {
+      console.log('Ошибка:', error.response ? error.response.data : error.message)
+      // Если запрос завершился ошибкой, вы не хотите, чтобы тест был успешным
+      throw error
     }
   })
 })
