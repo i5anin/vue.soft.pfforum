@@ -1,8 +1,10 @@
-const axios = require('axios');
-const baseUrl = 'http://192.168.0.200:4001/api';
+const axios = require('axios')
+const ip = '192.168.0.200'
+const port = '4001'
+const baseUrl = `http://${ip}:${port}/api`
 
 describe('Тесты API для инструментов', () => {
-  let createdRecordId;
+  let createdRecordId
 
   it('Создание нового инструмента', async () => {
     const newRecordData = {
@@ -18,75 +20,75 @@ describe('Тесты API для инструментов', () => {
       'group_id': '1001',
       'group_standard': true,
       'limit': null,
-    };
+    }
 
-    console.log('--- Создание нового инструмента ---');
-    console.log('Отправляю данные:', newRecordData);
-    const response = await axios.post(baseUrl + '/tool', newRecordData);
+    console.log('--- Создание нового инструмента ---')
+    console.log('Отправляю данные:', newRecordData)
+    const response = await axios.post(baseUrl + '/tool', newRecordData)
 
-    console.log('Получен ответ:', response.data);
-    expect(response.status).toBe(200);
-    expect(response.data.data).toHaveProperty('id');
-    expect(response.data.data).toHaveProperty('name', newRecordData.name);
-    expect(response.data.data).toHaveProperty('parent_id', newRecordData.parent_id);
+    console.log('Получен ответ:', response.data)
+    expect(response.status).toBe(200)
+    expect(response.data.data).toHaveProperty('id')
+    expect(response.data.data).toHaveProperty('name', newRecordData.name)
+    expect(response.data.data).toHaveProperty('parent_id', newRecordData.parent_id)
 
-    createdRecordId = response.data.data.id;
-    console.log('Созданный ID:', createdRecordId);
-  });
+    createdRecordId = response.data.data.id
+    console.log('Созданный ID:', createdRecordId)
+  })
 
   it('Получение созданного инструмента', async () => {
-    console.log('--- Получение созданного инструмента ---');
-    const response = await axios.get(`${baseUrl}/tool/${createdRecordId}`);
-    console.log('Получен ответ:', response.data);
+    console.log('--- Получение созданного инструмента ---')
+    const response = await axios.get(`${baseUrl}/tool/${createdRecordId}`)
+    console.log('Получен ответ:', response.data)
 
-    expect(response.status).toBe(200);
-    expect(response.data).toHaveProperty('id', createdRecordId);
-    expect(response.data).toHaveProperty('name', 'Название');
+    expect(response.status).toBe(200)
+    expect(response.data).toHaveProperty('id', createdRecordId)
+    expect(response.data).toHaveProperty('name', 'Название')
     // Добавьте другие проверки полей, если необходимо
-  });
+  })
 
   it('Изменение существующего инструмента', async () => {
-    console.log('--- Изменение существующего инструмента ---');
+    console.log('--- Изменение существующего инструмента ---')
     const updatedRecordData = {
-      "name": "Измененный инструмент",
-      "parent_id": 2,
-      "property": {
-        "1": "Тип инструмента",
-        "2": "Группа инструмента",
-        "3": "Материал инструмента",
-        "4": "Ширина",
-        "5": "Габарит"
+      'name': 'Измененный инструмент',
+      'parent_id': 2,
+      'property': {
+        '1': 'Тип инструмента',
+        '2': 'Группа инструмента',
+        '3': 'Материал инструмента',
+        '4': 'Ширина',
+        '5': 'Габарит',
       },
-      "sklad": 1,
-      "norma": 2
-    };
+      'sklad': 1,
+      'norma': 2,
+    }
 
-    console.log('Отправляю данные:', updatedRecordData);
-    const response = await axios.put(`${baseUrl}/tool/${createdRecordId}`, updatedRecordData);
-    console.log('Получен ответ:', response.data);
+    console.log('Отправляю данные:', updatedRecordData)
+    const response = await axios.put(`${baseUrl}/tool/${createdRecordId}`, updatedRecordData)
+    console.log('Получен ответ:', response.data)
 
-    expect(response.status).toBe(200);
-    expect(response.data.data).toHaveProperty('id', createdRecordId);
-    expect(response.data.data).toHaveProperty('name', updatedRecordData.name);
-    expect(response.data.data).toHaveProperty('parent_id', updatedRecordData.parent_id);
-    expect(response.data.data).toHaveProperty('property', updatedRecordData.property);
-  });
+    expect(response.status).toBe(200)
+    expect(response.data.data).toHaveProperty('id', createdRecordId)
+    expect(response.data.data).toHaveProperty('name', updatedRecordData.name)
+    expect(response.data.data).toHaveProperty('parent_id', updatedRecordData.parent_id)
+    expect(response.data.data).toHaveProperty('property', updatedRecordData.property)
+  })
 
   it('Удаление инструмента', async () => {
-    console.log('--- Удаление инструмента ---');
-    const response = await axios.delete(`${baseUrl}/tool/${createdRecordId}`);
-    console.log('Получен ответ:', response.data);
-    expect(response.status).toBe(200);
-  });
+    console.log('--- Удаление инструмента ---')
+    const response = await axios.delete(`${baseUrl}/tool/${createdRecordId}`)
+    console.log('Получен ответ:', response.data)
+    expect(response.status).toBe(200)
+  })
 
   it('Проверка удаления: получение несуществующего инструмента', async () => {
-    console.log('--- Проверка удаления ---');
+    console.log('--- Проверка удаления ---')
     try {
-      const response = await axios.get(`${baseUrl}/tool/${createdRecordId}`);
-      console.log('Получен ответ:', response.data);
+      const response = await axios.get(`${baseUrl}/tool/${createdRecordId}`)
+      console.log('Получен ответ:', response.data)
     } catch (error) {
-      console.log('Ошибка:', error.response ? error.response.data : error.message);
-      expect(error.response.status).toBe(404);
+      console.log('Ошибка:', error.response ? error.response.data : error.message)
+      expect(error.response.status).toBe(404)
     }
-  });
-});
+  })
+})
