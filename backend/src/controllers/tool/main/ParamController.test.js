@@ -11,6 +11,8 @@ describe('Тесты API', () => {
   describe('Параметры инструмента', () => {
     let createdParamId
 
+    console.log('createdParamId = ', createdParamId)
+
     it('Получение всех параметров инструмента', async () => {
       console.log('--- Получение всех параметров инструмента ---')
       const response = await axios.get(`${baseUrl}/tools-params`)
@@ -31,6 +33,7 @@ describe('Тесты API', () => {
       }
       const response = await axios.post(`${baseUrl}/tools-params`, newParamData)
       console.log('Получен ответ:', response.data)
+      console.log('response:', response.data.id)
 
       expect(response.status).toBe(201)
       createdParamId = response.data.id // Сохраняем ID для последующих действий
@@ -41,6 +44,7 @@ describe('Тесты API', () => {
     it('Изменение созданного параметра инструмента', async () => {
       console.log('--- Изменение созданного параметра инструмента ---')
       const updateParamData = { 'label': 'Ширина' }
+      console.log("Проверка:",createdParamId)
       const response = await axios.put(`${baseUrl}/tools-params/${createdParamId}`, updateParamData)
       console.log('Получен ответ:', response.data)
 
